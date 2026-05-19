@@ -30,6 +30,7 @@ esac
 
 zsh -n "$ROOT"/mac-app/scripts/*.zsh
 "$ROOT/mac-app/scripts/check-api-routes.zsh"
+"$ROOT/mac-app/scripts/check-no-foreground.zsh"
 node --check "$ROOT/mcp-server/server.mjs" >/dev/null
 node --check "$ROOT/mcp-server/check-tools.mjs" >/dev/null
 node "$ROOT/mcp-server/check-tools.mjs"
