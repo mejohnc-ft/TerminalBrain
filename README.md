@@ -4,6 +4,17 @@ Terminal Brain is a native macOS control surface for a local-first personal brai
 
 Agent contributors should read `AGENTS.md` before running local commands. The default verification path is non-launching and should not foreground the app.
 
+Common commands:
+
+```zsh
+make verify
+make build
+make install
+make snapshot
+```
+
+`make verify`, `make build`, and `make install` do not launch or foreground Terminal Brain.
+
 ## Components
 
 - `mac-app/` - SwiftUI macOS app with the local control API on `127.0.0.1:8765`.
