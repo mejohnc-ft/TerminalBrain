@@ -69,6 +69,9 @@ final class LocalControlServer {
             return .json(200, await TodaySnapshot.today())
         case ("GET", "/focus"):
             return .json(200, await FocusSnapshot.focus())
+        case ("POST", "/focus/ask"):
+            let question = (request.jsonBody?["question"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            return .json(200, await FocusSnapshot.ask(question: question))
         case ("GET", "/radar"):
             return .json(200, await RadarSnapshot.radar())
         case ("POST", "/radar/disposition"):
@@ -1079,6 +1082,26 @@ enum FocusSnapshot {
         )
     }
 
+    static func ask(question: String) async -> [String: Any] {
+        let focusPayload = await focus()
+        let item = (focusPayload["item"] as? [String: Any]) ?? [:]
+        let resolvedQuestion = question.ifEmpty(defaultQuestion(for: item))
+        let groundedQuestion = focusQuestion(question: resolvedQuestion, item: item)
+        let oracle = await OracleSnapshot.ask(question: groundedQuestion)
+
+        var payload = oracle
+        payload["focus"] = focusPayload
+        payload["question"] = resolvedQuestion
+        payload["groundedQuestion"] = groundedQuestion
+        payload["mode"] = "focus-\(oracle["mode"] as? String ?? "local")"
+        payload["commitSuggestion"] = [
+            "title": "Focus - \(item["title"] as? String ?? "Oracle Read")",
+            "project": item["project"] as? String ?? "General Brain",
+            "tags": ["terminal-brain", "focus", "oracle"]
+        ]
+        return payload
+    }
+
     private static func focusPayload(generatedAt: String, mode: String, item: [String: Any], candidates: [[String: Any]]) -> [String: Any] {
         var payload: [String: Any] = [:]
         payload["generatedAt"] = generatedAt
@@ -1132,6 +1155,24 @@ enum FocusSnapshot {
         item["symbol"] = "sparkle.magnifyingglass"
         item["query"] = "What am I not considering right now?"
         return item
+    }
+
+    private static func defaultQuestion(for item: [String: Any]) -> String {
+        "What should I do next about \(item["title"] as? String ?? "this focus item")?"
+    }
+
+    private static func focusQuestion(question: String, item: [String: Any]) -> String {
+        [
+            question,
+            "",
+            "Current Terminal Brain focus:",
+            "Title: \(item["title"] as? String ?? "")",
+            "Project: \(item["project"] as? String ?? "")",
+            "Detail: \(item["detail"] as? String ?? "")",
+            "Reason: \(item["reason"] as? String ?? "")",
+            "Score: \(item["score"] as? Int ?? 0)",
+            "Recommended action: \(item["action"] as? String ?? "")"
+        ].joined(separator: "\n")
     }
 
     private static func focusItem(id: String, title: String, detail: String, reason: String, action: String, project: String, score: Int, symbol: String, state: String, query: String, path: String) -> [String: Any] {

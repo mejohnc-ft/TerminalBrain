@@ -63,6 +63,20 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_focus_ask",
+    description: "Ask Terminal Brain Oracle a question grounded in the current Focus item and its scoring evidence.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        question: {
+          type: "string",
+          description: "Optional follow-up question. Defaults to asking what to do next about the current focus."
+        }
+      },
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_radar",
     description: "Get proactive Terminal Brain radar signals: delegated reads, stale reviews, project risks, open loops, and ideas worth testing.",
     inputSchema: {
@@ -268,6 +282,8 @@ async function callTool(name, args = {}) {
       return api("/today");
     case "terminal_brain_focus":
       return api("/focus");
+    case "terminal_brain_focus_ask":
+      return api("/focus/ask", { method: "POST", body: { question: args.question || "" } });
     case "terminal_brain_radar":
       return api("/radar");
     case "terminal_brain_radar_triage":

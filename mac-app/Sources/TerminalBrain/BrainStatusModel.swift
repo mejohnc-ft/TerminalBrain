@@ -17,6 +17,7 @@ final class BrainStatusModel: ObservableObject {
     @Published var oracleAnswer = ""
     @Published var oracleMode = "local"
     @Published var oracleCommitOutput = ""
+    @Published var isAskingOracle = false
     @Published var oracleCommits: [OracleCommit] = []
     @Published var projects: [ProjectMemory] = []
     @Published var findings: [String] = []
@@ -208,6 +209,8 @@ final class BrainStatusModel: ObservableObject {
     func askOracle() async {
         let question = oracleQuestion.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !question.isEmpty else { return }
+        isAskingOracle = true
+        defer { isAskingOracle = false }
         guard let url = URL(string: "http://127.0.0.1:8765/oracle/ask") else {
             oracleAnswer = answerOracleQuestion(question, items: oracleItems, cards: cards)
             return
@@ -231,6 +234,49 @@ final class BrainStatusModel: ObservableObject {
             oracleMode = "local"
             oracleAnswer = answerOracleQuestion(question, items: oracleItems, cards: cards)
         }
+    }
+
+    func askFocusOracle(_ item: FocusItem, question: String? = nil) async {
+        let prompt = question?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let resolvedQuestion = prompt.isEmpty ? focusOracleQuestion(for: item, intent: "decide the next move") : prompt
+        oracleQuestion = resolvedQuestion
+        isAskingOracle = true
+        defer { isAskingOracle = false }
+
+        guard let url = URL(string: "http://127.0.0.1:8765/focus/ask") else {
+            oracleAnswer = answerOracleQuestion(resolvedQuestion, items: oracleItems, cards: cards)
+            oracleMode = "local"
+            return
+        }
+
+        do {
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONSerialization.data(withJSONObject: ["question": resolvedQuestion])
+            let (data, _) = try await URLSession.shared.data(for: request)
+            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let answer = json["answer"] as? String else {
+                oracleMode = "local"
+                oracleAnswer = answerOracleQuestion(resolvedQuestion, items: oracleItems, cards: cards)
+                return
+            }
+            oracleMode = (json["mode"] as? String ?? "focus").replacingOccurrences(of: "-", with: " ")
+            oracleAnswer = answer
+        } catch {
+            oracleMode = "local"
+            oracleAnswer = answerOracleQuestion(resolvedQuestion, items: oracleItems, cards: cards)
+        }
+    }
+
+    func focusOracleQuestion(for item: FocusItem, intent: String) -> String {
+        [
+            intent,
+            "Focus: \(item.title)",
+            "Project: \(item.project)",
+            "Reason: \(item.reason)",
+            "Current action: \(item.action)"
+        ].joined(separator: "\n")
     }
 
     func commitOracleAnswer(project: String? = nil) async {

@@ -550,9 +550,85 @@ struct ContentView: View {
                     }
                     .padding(12)
                     .darkPanel()
+
+                    focusOraclePanel(item)
                 }
                 .frame(width: 420)
             }
+        }
+    }
+
+    private func focusOraclePanel(_ item: FocusItem) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SectionTitle("Ask About This", symbol: "sparkle.magnifyingglass")
+            VStack(alignment: .leading, spacing: 12) {
+                TextField("Ask a follow-up about the current focus", text: $model.oracleQuestion)
+                    .textFieldStyle(.roundedBorder)
+                    .onSubmit { askFocusOracle(item) }
+
+                HStack(spacing: 8) {
+                    Button { askFocusOracle(item) } label: {
+                        Label(model.isAskingOracle ? "Asking" : "Ask", systemImage: "return")
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(model.isAskingOracle)
+
+                    Button { askFocusOracle(item, intent: "What am I missing?") } label: {
+                        Label("Missing", systemImage: "eye")
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(model.isAskingOracle)
+
+                    Button { askFocusOracle(item, intent: "What is the next concrete action?") } label: {
+                        Label("Next", systemImage: "arrow.right")
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(model.isAskingOracle)
+                }
+
+                HStack(spacing: 8) {
+                    Button { askFocusOracle(item, intent: "Turn this into a short execution plan.") } label: {
+                        Label("Plan", systemImage: "checklist")
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(model.isAskingOracle)
+
+                    Button {
+                        Task {
+                            await model.commitOracleAnswer(project: item.project)
+                            selectedSection = "review"
+                        }
+                    } label: {
+                        Label("Commit", systemImage: "square.and.arrow.down")
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(model.oracleAnswer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || model.isAskingOracle)
+                }
+
+                if model.isAskingOracle {
+                    HStack(spacing: 8) {
+                        ProgressView()
+                            .controlSize(.small)
+                        Text("Grounding answer in the current focus signal")
+                            .font(.caption)
+                            .foregroundStyle(.white.opacity(0.58))
+                    }
+                }
+
+                if !model.oracleAnswer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text(model.oracleMode.uppercased())
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(settings.theme.accent)
+                    Text(model.oracleAnswer)
+                        .font(.callout)
+                        .foregroundStyle(.white.opacity(0.72))
+                        .lineLimit(10)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .textSelection(.enabled)
+                }
+            }
+            .padding(12)
+            .darkPanel()
         }
     }
 
@@ -1680,6 +1756,13 @@ struct ContentView: View {
             query: item.query
         )
         applyDailyCommand(command)
+    }
+
+    private func askFocusOracle(_ item: FocusItem, intent: String? = nil) {
+        let question = intent.map { model.focusOracleQuestion(for: item, intent: $0) } ?? model.oracleQuestion
+        Task {
+            await model.askFocusOracle(item, question: question)
+        }
     }
 
     private func applyRadarAction(_ item: RadarItem) {
