@@ -608,12 +608,25 @@ struct ContentView: View {
                                 Label("Ask Oracle", systemImage: "sparkle.magnifyingglass")
                             }
                             .buttonStyle(.bordered)
+                            Button {
+                                Task { await model.commitRadarItem(item) }
+                            } label: {
+                                Label("Commit Signal", systemImage: "square.and.arrow.down")
+                            }
+                            .buttonStyle(.bordered)
                             if let path = item.path {
                                 Button { model.openPath(path) } label: {
                                     Label("Open", systemImage: "arrow.up.right.square")
                                 }
                                 .buttonStyle(.bordered)
                             }
+                        }
+
+                        if !model.oracleCommitOutput.isEmpty {
+                            Text(model.oracleCommitOutput)
+                                .font(.caption)
+                                .foregroundStyle(.white.opacity(0.52))
+                                .lineLimit(2)
                         }
                     }
                     .padding(16)

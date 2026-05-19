@@ -270,6 +270,47 @@ final class BrainStatusModel: ObservableObject {
         }
     }
 
+    func commitRadarItem(_ item: RadarItem) async {
+        guard let url = URL(string: "http://127.0.0.1:8765/oracle/commit") else { return }
+        let content = [
+            "Radar signal: \(item.title)",
+            "Project: \(item.project)",
+            "Urgency: \(item.urgency)",
+            "Recommended action: \(item.action)",
+            "Detail: \(item.detail)",
+            "Reason: \(item.reason)",
+            item.path.map { "Source path: \($0)" } ?? ""
+        ].filter { !$0.isEmpty }.joined(separator: "\n\n")
+
+        do {
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONSerialization.data(withJSONObject: [
+                "title": "Radar Signal - \(item.title)",
+                "question": "What did Terminal Brain Radar surface?",
+                "content": content,
+                "source": "Terminal Brain Radar",
+                "project": item.project,
+                "tags": ["terminal-brain", "radar", item.urgency.lowercased()]
+            ])
+            let (data, _) = try await URLSession.shared.data(for: request)
+            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  json["ok"] as? Bool == true,
+                  let path = json["path"] as? String else {
+                oracleCommitOutput = "Radar commit failed."
+                return
+            }
+            oracleCommitOutput = "Committed radar signal to \(path)"
+            oracleCommits = loadOracleCommits()
+            projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
+            radarItems = buildRadarItems(cards: cards, setupSteps: setupSteps, projects: projects, oracleItems: oracleItems, oracleCommits: oracleCommits, feedItems: feedItems)
+            dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems, radarItems: radarItems)
+        } catch {
+            oracleCommitOutput = "Radar commit failed: \(error.localizedDescription)"
+        }
+    }
+
     func delegateOracleCommitToStartWork(_ commit: OracleCommit) {
         setOracleCommitStatus(commit, status: .delegated)
         workQuery = [commit.project, commit.title]
