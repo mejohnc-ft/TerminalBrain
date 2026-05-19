@@ -200,6 +200,20 @@ struct RadarItem: Identifiable {
     let path: String?
 }
 
+struct FocusItem: Identifiable {
+    let id: String
+    let title: String
+    let detail: String
+    let reason: String
+    let action: String
+    let project: String
+    let score: Int
+    let symbol: String
+    let state: HealthState
+    let query: String
+    let path: String?
+}
+
 enum RadarDisposition: String, CaseIterable, Identifiable {
     case fresh
     case watching

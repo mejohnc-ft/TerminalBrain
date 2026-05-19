@@ -54,6 +54,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_focus",
+    description: "Get the single best current Terminal Brain focus item: one action, reason, score, and candidates.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_radar",
     description: "Get proactive Terminal Brain radar signals: delegated reads, stale reviews, project risks, open loops, and ideas worth testing.",
     inputSchema: {
@@ -257,6 +266,8 @@ async function callTool(name, args = {}) {
       return api("/briefing");
     case "terminal_brain_today":
       return api("/today");
+    case "terminal_brain_focus":
+      return api("/focus");
     case "terminal_brain_radar":
       return api("/radar");
     case "terminal_brain_radar_triage":

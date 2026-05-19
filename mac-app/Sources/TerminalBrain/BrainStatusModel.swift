@@ -47,6 +47,52 @@ final class BrainStatusModel: ObservableObject {
         setupSteps.filter { $0.state == .warn }.count
     }
 
+    var focusItem: FocusItem {
+        if let radar = radarItems.first {
+            return FocusItem(
+                id: radar.id,
+                title: radar.title,
+                detail: radar.detail,
+                reason: radar.evidence.isEmpty ? radar.reason : radar.evidence.joined(separator: " • "),
+                action: radar.action,
+                project: radar.project,
+                score: radar.score,
+                symbol: radar.symbol,
+                state: radar.state,
+                query: radar.query,
+                path: radar.path
+            )
+        }
+        if let command = dailyCommands.first {
+            return FocusItem(
+                id: command.id,
+                title: command.title,
+                detail: command.detail,
+                reason: "Top item from the Daily Command Center.",
+                action: command.action,
+                project: command.project,
+                score: 0,
+                symbol: command.symbol,
+                state: command.state,
+                query: command.query,
+                path: nil
+            )
+        }
+        return FocusItem(
+            id: "ask-oracle",
+            title: "Ask what changed",
+            detail: "No active signal is available yet.",
+            reason: "Run sync or ask Oracle to create a useful starting point.",
+            action: "Ask Oracle",
+            project: "General Brain",
+            score: 0,
+            symbol: "sparkle.magnifyingglass",
+            state: .good,
+            query: "What am I not considering right now?",
+            path: nil
+        )
+    }
+
     init() {
         appleNotesEnabledForManualSync = UserDefaults.standard.bool(forKey: "appleNotesEnabledForManualSync")
     }

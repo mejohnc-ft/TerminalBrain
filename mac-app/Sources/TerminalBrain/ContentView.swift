@@ -3,7 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject private var model: BrainStatusModel
     @EnvironmentObject private var settings: AppSettings
-    @State private var selectedSection = "cockpit"
+    @State private var selectedSection = "focus"
     @State private var selectedFeedID = ""
     @State private var selectedCommitID = ""
     @State private var selectedRadarID = ""
@@ -50,6 +50,7 @@ struct ContentView: View {
 
     private var commandItems: [BrainCommand] {
         var items: [BrainCommand] = [
+            BrainCommand(title: "Open Focus", subtitle: "One recommended action from Radar and Today", symbol: "target", category: "Navigate", action: .section("focus")),
             BrainCommand(title: "Open Cockpit", subtitle: "Local gateway, source health, and Mission reachability", symbol: "house.fill", category: "Navigate", action: .section("cockpit")),
             BrainCommand(title: "Open Setup", subtitle: "Readiness checklist for app, MCP, sources, and sync", symbol: "checklist.checked", category: "Navigate", action: .section("setup")),
             BrainCommand(title: "Open Radar", subtitle: "Proactive signals, stale reads, risks, and opportunities", symbol: "scope", category: "Navigate", action: .section("radar")),
@@ -117,6 +118,7 @@ struct ContentView: View {
 
     private var sectionTitle: String {
         switch selectedSection {
+        case "focus": return "Focus"
         case "setup": return "Setup"
         case "radar": return "Radar"
         case "feed": return "Feed"
@@ -133,6 +135,7 @@ struct ContentView: View {
 
     private var sectionSubtitle: String {
         switch selectedSection {
+        case "focus": return "One recommended move, why it matters, and the fastest next action."
         case "setup": return "Readiness checklist for the app, MCP gateway, memory, sync, and permission posture."
         case "radar": return "Proactive signals, stale reads, quiet risks, and opportunities worth a decision."
         case "feed": return "Recent context packs, sync events, and source alerts."
@@ -257,6 +260,7 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 7) {
                 Text("Home")
                     .sidebarHeader()
+                NavRow(title: "Focus", symbol: "target", badge: "\(model.focusItem.score)", selected: selectedSection == "focus") { selectedSection = "focus" }
                 NavRow(title: "Cockpit", symbol: "house.fill", badge: model.summaryLine == "Brain status ready" ? "" : "!", selected: selectedSection == "cockpit") { selectedSection = "cockpit" }
                 NavRow(title: "Setup", symbol: "checklist.checked", badge: model.setupAttentionCount == 0 ? "" : "\(model.setupAttentionCount)", selected: selectedSection == "setup") { selectedSection = "setup" }
                 NavRow(title: "Radar", symbol: "scope", badge: "\(model.radarItems.count)", selected: selectedSection == "radar") { selectedSection = "radar" }
@@ -366,6 +370,7 @@ struct ContentView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     switch selectedSection {
+                    case "focus": focusView
                     case "setup": setupView
                     case "radar": radarView
                     case "oracle": oracleView
@@ -441,6 +446,113 @@ struct ContentView: View {
                 .frame(width: 420)
             }
             syncOutput
+        }
+    }
+
+    private var focusView: some View {
+        let item = model.focusItem
+        return VStack(alignment: .leading, spacing: 18) {
+            HStack(alignment: .top, spacing: 18) {
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack(alignment: .top, spacing: 14) {
+                        Image(systemName: item.symbol)
+                            .font(.system(size: 34, weight: .semibold))
+                            .foregroundStyle(item.state.color)
+                            .frame(width: 58, height: 58)
+                            .background(item.state.color.opacity(0.16), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Do this now")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(settings.theme.accent)
+                                .textCase(.uppercase)
+                            Text(item.title)
+                                .font(.system(size: 38, weight: .bold, design: .rounded))
+                                .foregroundStyle(.white)
+                                .lineLimit(2)
+                                .minimumScaleFactor(0.72)
+                            Text(item.project)
+                                .font(.headline.weight(.semibold))
+                                .foregroundStyle(item.state.color)
+                        }
+                        Spacer()
+                        Text("\(item.score)")
+                            .font(.title3.weight(.bold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(item.state.color.opacity(0.18), in: Capsule())
+                    }
+
+                    Text(item.detail)
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(.white.opacity(0.82))
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    Text(item.reason)
+                        .font(.body)
+                        .foregroundStyle(.white.opacity(0.64))
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    HStack {
+                        Button {
+                            applyFocusAction(item)
+                        } label: {
+                            Label(item.action, systemImage: "arrow.right.circle.fill")
+                        }
+                        .buttonStyle(.borderedProminent)
+                        Button {
+                            model.oracleQuestion = "What should I do about \(item.title)? \(item.reason)"
+                            selectedSection = "oracle"
+                        } label: {
+                            Label("Ask Oracle", systemImage: "sparkle.magnifyingglass")
+                        }
+                        .buttonStyle(.bordered)
+                        Button {
+                            selectedSection = "radar"
+                        } label: {
+                            Label("Show Radar", systemImage: "scope")
+                        }
+                        .buttonStyle(.bordered)
+                        if let path = item.path {
+                            Button { model.openPath(path) } label: {
+                                Label("Open", systemImage: "arrow.up.right.square")
+                            }
+                            .buttonStyle(.bordered)
+                        }
+                    }
+                }
+                .padding(20)
+                .darkPanel()
+
+                VStack(alignment: .leading, spacing: 14) {
+                    SectionTitle("Why This Won", symbol: "list.bullet.clipboard")
+                    VStack(alignment: .leading, spacing: 10) {
+                        ForEach(model.radarItems.prefix(4)) { radar in
+                            HStack(spacing: 10) {
+                                Text("\(radar.score)")
+                                    .font(.caption.weight(.bold))
+                                    .foregroundStyle(.white)
+                                    .frame(width: 34)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(radar.title)
+                                        .font(.callout.weight(.semibold))
+                                        .foregroundStyle(.white.opacity(0.82))
+                                        .lineLimit(1)
+                                    Text(radar.evidence.joined(separator: " • "))
+                                        .font(.caption)
+                                        .foregroundStyle(.white.opacity(0.46))
+                                        .lineLimit(2)
+                                }
+                                Spacer()
+                            }
+                            .padding(.vertical, 4)
+                        }
+                    }
+                    .padding(12)
+                    .darkPanel()
+                }
+                .frame(width: 420)
+            }
         }
     }
 
@@ -1549,6 +1661,25 @@ struct ContentView: View {
         }
         model.workQuery = item.query
         selectedSection = "start"
+    }
+
+    private func applyFocusAction(_ item: FocusItem) {
+        if let radar = model.radarItems.first(where: { $0.id == item.id }) {
+            applyRadarAction(radar)
+            return
+        }
+        let command = DailyCommandItem(
+            id: item.id,
+            title: item.title,
+            detail: item.detail,
+            priority: item.score > 0 ? "\(item.score)" : "Focus",
+            action: item.action,
+            project: item.project,
+            symbol: item.symbol,
+            state: item.state,
+            query: item.query
+        )
+        applyDailyCommand(command)
     }
 
     private func applyRadarAction(_ item: RadarItem) {

@@ -67,6 +67,8 @@ final class LocalControlServer {
             return .json(200, ProjectSnapshot.projects())
         case ("GET", "/today"):
             return .json(200, await TodaySnapshot.today())
+        case ("GET", "/focus"):
+            return .json(200, await FocusSnapshot.focus())
         case ("GET", "/radar"):
             return .json(200, await RadarSnapshot.radar())
         case ("POST", "/radar/disposition"):
@@ -503,10 +505,10 @@ enum OracleSnapshot {
             "",
             "Current Terminal Brain implementation:",
             "- Native macOS app with local control API on http://127.0.0.1:8765.",
-            "- Current API routes: /health, /status, /setup, /radar, /radar/disposition, /sources, /briefing, /permissions, /oracle/brief, /oracle/items, /oracle/ask, /oracle/commit, /sync, /start-work.",
+            "- Current API routes: /health, /status, /setup, /focus, /radar, /radar/disposition, /sources, /briefing, /permissions, /oracle/brief, /oracle/items, /oracle/ask, /oracle/commit, /sync, /start-work.",
             "- Oracle ask already combines local deterministic signals, Mission retrieval, Mission workbench synthesis, citations, supporting items, and fallback behavior.",
             "- Oracle commit can write synthesized decisions and outcomes into the Obsidian-backed Oracle Inbox.",
-            "- MCP proxy can call Terminal Brain status, setup, radar, radar triage, sources, briefing, permissions, sync, start work, oracle brief, oracle items, oracle ask, and oracle commit.",
+            "- MCP proxy can call Terminal Brain status, setup, focus, radar, radar triage, sources, briefing, permissions, sync, start work, oracle brief, oracle items, oracle ask, and oracle commit.",
             "- Do not describe these implemented capabilities as missing. Recommend what should come after them.",
             "",
             "Local deterministic read:",
@@ -1048,6 +1050,63 @@ enum TodaySnapshot {
             "project": project,
             "symbol": symbol,
             "query": query
+        ]
+    }
+}
+
+enum FocusSnapshot {
+    static func focus() async -> [String: Any] {
+        let radarPayload = await RadarSnapshot.radar()
+        let radar = (radarPayload["items"] as? [[String: Any]]) ?? []
+        if let item = radar.first {
+            return [
+                "generatedAt": ISO8601DateFormatter().string(from: Date()),
+                "mode": "radar",
+                "item": [
+                    "id": item["id"] as? String ?? "",
+                    "title": item["title"] as? String ?? "",
+                    "detail": item["detail"] as? String ?? "",
+                    "reason": (item["evidence"] as? [String] ?? []).joined(separator: " • ").ifEmpty(item["reason"] as? String ?? ""),
+                    "action": item["action"] as? String ?? "Ask Oracle",
+                    "project": item["project"] as? String ?? "General Brain",
+                    "score": item["score"] as? Int ?? 0,
+                    "symbol": item["symbol"] as? String ?? "target",
+                    "state": item["state"] as? String ?? "Ready",
+                    "query": item["query"] as? String ?? "",
+                    "path": item["path"] as? String ?? ""
+                ],
+                "candidates": Array(radar.prefix(4))
+            ]
+        }
+
+        let today = await TodaySnapshot.today()
+        let commands = (today["commands"] as? [[String: Any]]) ?? []
+        let first = commands.first ?? [
+            "id": "ask-oracle",
+            "title": "Ask what changed",
+            "detail": "No active signal is available yet.",
+            "action": "Ask Oracle",
+            "project": "General Brain",
+            "symbol": "sparkle.magnifyingglass",
+            "query": "What am I not considering right now?"
+        ]
+        return [
+            "generatedAt": ISO8601DateFormatter().string(from: Date()),
+            "mode": "today",
+            "item": [
+                "id": first["id"] as? String ?? "",
+                "title": first["title"] as? String ?? "",
+                "detail": first["detail"] as? String ?? "",
+                "reason": "Top item from the Daily Command Center.",
+                "action": first["action"] as? String ?? "Ask Oracle",
+                "project": first["project"] as? String ?? "General Brain",
+                "score": 0,
+                "symbol": first["symbol"] as? String ?? "target",
+                "state": "Ready",
+                "query": first["query"] as? String ?? "",
+                "path": ""
+            ],
+            "candidates": commands
         ]
     }
 }
