@@ -573,6 +573,12 @@ struct ContentView: View {
                             }
                             Spacer()
                             StatusPill(text: item.urgency, state: item.state)
+                            Text(item.disposition.label)
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(.white.opacity(0.58))
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 5)
+                                .background(.white.opacity(0.08), in: Capsule())
                         }
 
                         Text(item.detail)
@@ -614,6 +620,22 @@ struct ContentView: View {
                                 Label("Commit Signal", systemImage: "square.and.arrow.down")
                             }
                             .buttonStyle(.bordered)
+                            Button { model.setRadarDisposition(item, disposition: .watching) } label: {
+                                Label("Watch", systemImage: "eye")
+                            }
+                            .buttonStyle(.bordered)
+                            Button { model.setRadarDisposition(item, disposition: .acted) } label: {
+                                Label("Acted", systemImage: "checkmark.seal")
+                            }
+                            .buttonStyle(.bordered)
+                            Button { model.setRadarDisposition(item, disposition: .snoozed) } label: {
+                                Label("Snooze", systemImage: "clock")
+                            }
+                            .buttonStyle(.bordered)
+                            Button { model.setRadarDisposition(item, disposition: .dismissed) } label: {
+                                Label("Dismiss", systemImage: "xmark.circle")
+                            }
+                            .buttonStyle(.bordered)
                             if let path = item.path {
                                 Button { model.openPath(path) } label: {
                                     Label("Open", systemImage: "arrow.up.right.square")
@@ -638,7 +660,7 @@ struct ContentView: View {
                     PolicyLine("Delegated reads outrank passive ideas.")
                     PolicyLine("Unclassified Oracle commits stay visible until triaged.")
                     PolicyLine("Projects with open loops or stale activity resurface automatically.")
-                    PolicyLine("Fresh context packs remain visible while they can still guide work.")
+                    PolicyLine("Watched signals stay visible; acted, dismissed, and snoozed signals stop crowding the queue.")
                 }
                 .padding(14)
                 .darkPanel()
@@ -2144,6 +2166,14 @@ struct RadarItemRow: View {
                         .foregroundStyle(.white)
                         .lineLimit(1)
                     Spacer()
+                    if item.disposition != .fresh {
+                        Text(item.disposition.label)
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(.white.opacity(0.58))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(.white.opacity(0.08), in: Capsule())
+                    }
                     Text(item.urgency)
                         .font(.caption.weight(.bold))
                         .foregroundStyle(item.state.color)

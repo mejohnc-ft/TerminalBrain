@@ -193,8 +193,29 @@ struct RadarItem: Identifiable {
     let urgency: String
     let symbol: String
     let state: HealthState
+    let disposition: RadarDisposition
     let query: String
     let path: String?
+}
+
+enum RadarDisposition: String, CaseIterable, Identifiable {
+    case fresh
+    case watching
+    case acted
+    case snoozed
+    case dismissed
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .fresh: return "New"
+        case .watching: return "Watching"
+        case .acted: return "Acted"
+        case .snoozed: return "Snoozed"
+        case .dismissed: return "Dismissed"
+        }
+    }
 }
 
 struct BrainFeedItem: Identifiable {

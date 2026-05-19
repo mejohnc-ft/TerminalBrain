@@ -69,6 +69,13 @@ final class LocalControlServer {
             return .json(200, await TodaySnapshot.today())
         case ("GET", "/radar"):
             return .json(200, await RadarSnapshot.radar())
+        case ("POST", "/radar/disposition"):
+            let id = (request.jsonBody?["id"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            let disposition = (request.jsonBody?["disposition"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !id.isEmpty, !disposition.isEmpty else {
+                return .json(400, ["ok": false, "error": "id and disposition are required"])
+            }
+            return .json(200, await RadarSnapshot.setDisposition(id: id, disposition: disposition))
         case ("GET", "/briefing"):
             return .json(200, await ControlSnapshot.briefing())
         case ("GET", "/permissions"):
@@ -496,10 +503,10 @@ enum OracleSnapshot {
             "",
             "Current Terminal Brain implementation:",
             "- Native macOS app with local control API on http://127.0.0.1:8765.",
-            "- Current API routes: /health, /status, /setup, /radar, /sources, /briefing, /permissions, /oracle/brief, /oracle/items, /oracle/ask, /oracle/commit, /sync, /start-work.",
+            "- Current API routes: /health, /status, /setup, /radar, /radar/disposition, /sources, /briefing, /permissions, /oracle/brief, /oracle/items, /oracle/ask, /oracle/commit, /sync, /start-work.",
             "- Oracle ask already combines local deterministic signals, Mission retrieval, Mission workbench synthesis, citations, supporting items, and fallback behavior.",
             "- Oracle commit can write synthesized decisions and outcomes into the Obsidian-backed Oracle Inbox.",
-            "- MCP proxy can call Terminal Brain status, setup, radar, sources, briefing, permissions, sync, start work, oracle brief, oracle items, oracle ask, and oracle commit.",
+            "- MCP proxy can call Terminal Brain status, setup, radar, radar triage, sources, briefing, permissions, sync, start work, oracle brief, oracle items, oracle ask, and oracle commit.",
             "- Do not describe these implemented capabilities as missing. Recommend what should come after them.",
             "",
             "Local deterministic read:",
@@ -1137,13 +1144,39 @@ enum RadarSnapshot {
             ))
         }
 
-        let deduped = dedupe(items)
+        let deduped = applyDisposition(to: dedupe(items))
         return [
             "generatedAt": ISO8601DateFormatter().string(from: Date()),
             "items": Array(deduped.prefix(12)),
             "attentionCount": deduped.filter { ($0["state"] as? String) == "Attention" }.count,
             "nowCount": deduped.filter { ($0["urgency"] as? String) == "Now" }.count
         ]
+    }
+
+    static func setDisposition(id: String, disposition: String) async -> [String: Any] {
+        let allowed = ["fresh", "watching", "acted", "snoozed", "dismissed"]
+        guard allowed.contains(disposition) else {
+            return ["ok": false, "error": "Invalid disposition", "allowed": allowed]
+        }
+        var records = dispositionRecords()
+        if disposition == "fresh" {
+            records.removeValue(forKey: id)
+        } else {
+            var record = [
+                "disposition": disposition,
+                "updatedAt": ISO8601DateFormatter().string(from: Date())
+            ]
+            if disposition == "snoozed", let until = Calendar.current.date(byAdding: .day, value: 1, to: Date()) {
+                record["snoozedUntil"] = ISO8601DateFormatter().string(from: until)
+            }
+            records[id] = record
+        }
+        saveDispositionRecords(records)
+        var payload = await radar()
+        payload["ok"] = true
+        payload["id"] = id
+        payload["disposition"] = disposition
+        return payload
     }
 
     private static func item(id: String, title: String, detail: String, reason: String, action: String, project: String, urgency: String, symbol: String, state: String, query: String, path: String) -> [String: Any] {
@@ -1157,6 +1190,7 @@ enum RadarSnapshot {
             "urgency": urgency,
             "symbol": symbol,
             "state": state,
+            "disposition": "fresh",
             "query": query,
             "path": path
         ]
@@ -1172,6 +1206,38 @@ enum RadarSnapshot {
             output.append(item)
         }
         return output
+    }
+
+    private static func applyDisposition(to items: [[String: Any]]) -> [[String: Any]] {
+        let records = dispositionRecords()
+        let now = Date()
+        return items.compactMap { item in
+            guard let id = item["id"] as? String,
+                  let record = records[id],
+                  let disposition = record["disposition"] else {
+                return item
+            }
+            if disposition == "dismissed" || disposition == "acted" {
+                return nil
+            }
+            if disposition == "snoozed",
+               let rawUntil = record["snoozedUntil"],
+               let until = ISO8601DateFormatter().date(from: rawUntil),
+               until > now {
+                return nil
+            }
+            var next = item
+            next["disposition"] = disposition == "snoozed" ? "fresh" : disposition
+            return next
+        }
+    }
+
+    private static func dispositionRecords() -> [String: [String: String]] {
+        UserDefaults.standard.dictionary(forKey: "terminalBrainRadarDispositionRecords") as? [String: [String: String]] ?? [:]
+    }
+
+    private static func saveDispositionRecords(_ records: [String: [String: String]]) {
+        UserDefaults.standard.set(records, forKey: "terminalBrainRadarDispositionRecords")
     }
 }
 

@@ -311,6 +311,25 @@ final class BrainStatusModel: ObservableObject {
         }
     }
 
+    func setRadarDisposition(_ item: RadarItem, disposition: RadarDisposition) {
+        var records = radarDispositionRecords()
+        if disposition == .fresh {
+            records.removeValue(forKey: item.id)
+        } else {
+            var record = [
+                "disposition": disposition.rawValue,
+                "updatedAt": ISO8601DateFormatter().string(from: Date())
+            ]
+            if disposition == .snoozed, let until = Calendar.current.date(byAdding: .day, value: 1, to: Date()) {
+                record["snoozedUntil"] = ISO8601DateFormatter().string(from: until)
+            }
+            records[item.id] = record
+        }
+        saveRadarDispositionRecords(records)
+        radarItems = buildRadarItems(cards: cards, setupSteps: setupSteps, projects: projects, oracleItems: oracleItems, oracleCommits: oracleCommits, feedItems: feedItems)
+        dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems, radarItems: radarItems)
+    }
+
     func delegateOracleCommitToStartWork(_ commit: OracleCommit) {
         setOracleCommitStatus(commit, status: .delegated)
         workQuery = [commit.project, commit.title]
@@ -978,6 +997,7 @@ final class BrainStatusModel: ObservableObject {
                     urgency: "Now",
                     symbol: "paperplane.fill",
                     state: .busy,
+                    disposition: .fresh,
                     query: [commit.project, commit.title].filter { !$0.isEmpty }.joined(separator: " - "),
                     path: commit.path
                 )
@@ -996,6 +1016,7 @@ final class BrainStatusModel: ObservableObject {
                     urgency: "Safety",
                     symbol: step.symbol,
                     state: .warn,
+                    disposition: .fresh,
                     query: step.title,
                     path: nil
                 )
@@ -1015,6 +1036,7 @@ final class BrainStatusModel: ObservableObject {
                     urgency: ageHours >= 24 ? "Review" : "Triage",
                     symbol: commit.status.symbol,
                     state: .warn,
+                    disposition: .fresh,
                     query: commit.title,
                     path: commit.path
                 )
@@ -1034,6 +1056,7 @@ final class BrainStatusModel: ObservableObject {
                         urgency: project.delegatedCount > 0 ? "Now" : "Next",
                         symbol: project.symbol,
                         state: project.delegatedCount > 0 ? .busy : .good,
+                        disposition: .fresh,
                         query: project.name,
                         path: project.contextPacks.first?.path
                     )
@@ -1050,6 +1073,7 @@ final class BrainStatusModel: ObservableObject {
                         urgency: "Review",
                         symbol: project.symbol,
                         state: .warn,
+                        disposition: .fresh,
                         query: "Should I revive, archive, or ignore \(project.name)?",
                         path: project.contextPacks.first?.path
                     )
@@ -1069,6 +1093,7 @@ final class BrainStatusModel: ObservableObject {
                     urgency: item.kind == .openLoop ? "Next" : "Explore",
                     symbol: item.symbol,
                     state: item.kind == .openLoop ? .warn : .good,
+                    disposition: .fresh,
                     query: item.kind == .openLoop ? item.title : "Is this idea worth acting on: \(item.title)?",
                     path: item.path
                 )
@@ -1087,6 +1112,7 @@ final class BrainStatusModel: ObservableObject {
                     urgency: "Context",
                     symbol: fresh.symbol,
                     state: .good,
+                    disposition: .fresh,
                     query: fresh.title,
                     path: fresh.path
                 )
@@ -1105,13 +1131,14 @@ final class BrainStatusModel: ObservableObject {
                     urgency: "Start",
                     symbol: "sparkle.magnifyingglass",
                     state: .good,
+                    disposition: .fresh,
                     query: "What am I not considering right now?",
                     path: nil
                 )
             )
         }
 
-        return dedupeRadarItems(items).prefix(12).map { $0 }
+        return applyRadarDisposition(to: dedupeRadarItems(items)).prefix(12).map { $0 }
     }
 
     private func buildOracleBrief(from cards: [HealthCard], feedItems: [BrainFeedItem], oracleItems: [OracleItem]) -> [String] {
@@ -1472,6 +1499,56 @@ final class BrainStatusModel: ObservableObject {
             output.append(item)
         }
         return output
+    }
+
+    private func applyRadarDisposition(to items: [RadarItem]) -> [RadarItem] {
+        let records = radarDispositionRecords()
+        let now = Date()
+        return items.compactMap { item in
+            guard let record = records[item.id],
+                  let rawDisposition = record["disposition"],
+                  let disposition = RadarDisposition(rawValue: rawDisposition) else {
+                return item
+            }
+            if disposition == .dismissed || disposition == .acted {
+                return nil
+            }
+            if disposition == .snoozed,
+               let rawUntil = record["snoozedUntil"],
+               let until = ISO8601DateFormatter().date(from: rawUntil),
+               until > now {
+                return nil
+            }
+            if disposition == .snoozed {
+                return withRadarDisposition(item, .fresh)
+            }
+            return withRadarDisposition(item, disposition)
+        }
+    }
+
+    private func withRadarDisposition(_ item: RadarItem, _ disposition: RadarDisposition) -> RadarItem {
+        RadarItem(
+            id: item.id,
+            title: item.title,
+            detail: item.detail,
+            reason: item.reason,
+            action: item.action,
+            project: item.project,
+            urgency: item.urgency,
+            symbol: item.symbol,
+            state: item.state,
+            disposition: disposition,
+            query: item.query,
+            path: item.path
+        )
+    }
+
+    private func radarDispositionRecords() -> [String: [String: String]] {
+        UserDefaults.standard.dictionary(forKey: "terminalBrainRadarDispositionRecords") as? [String: [String: String]] ?? [:]
+    }
+
+    private func saveRadarDispositionRecords(_ records: [String: [String: String]]) {
+        UserDefaults.standard.set(records, forKey: "terminalBrainRadarDispositionRecords")
     }
 
     private func buildProjectMemories(feedItems: [BrainFeedItem], oracleItems: [OracleItem], oracleCommits: [OracleCommit]) -> [ProjectMemory] {

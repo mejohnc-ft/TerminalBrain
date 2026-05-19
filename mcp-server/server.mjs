@@ -63,6 +63,26 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_radar_triage",
+    description: "Persist triage state for a Radar signal so agents can watch, mark acted, snooze, dismiss, or reset it.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: {
+          type: "string",
+          description: "Radar item id."
+        },
+        disposition: {
+          type: "string",
+          enum: ["fresh", "watching", "acted", "snoozed", "dismissed"],
+          description: "Disposition to persist for the Radar item."
+        }
+      },
+      required: ["id", "disposition"],
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_projects",
     description: "List Terminal Brain project memory pages derived from context packs and Oracle commits.",
     inputSchema: {
@@ -239,6 +259,8 @@ async function callTool(name, args = {}) {
       return api("/today");
     case "terminal_brain_radar":
       return api("/radar");
+    case "terminal_brain_radar_triage":
+      return api("/radar/disposition", { method: "POST", body: { id: args.id, disposition: args.disposition } });
     case "terminal_brain_projects":
       return api("/projects");
     case "terminal_brain_oracle_brief":
