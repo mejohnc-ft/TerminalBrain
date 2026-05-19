@@ -2,6 +2,8 @@
 
 Terminal Brain is a native macOS control surface for a local-first personal brain system. It connects local memory, Obsidian-backed writeback, Mission Control retrieval/synthesis, and MCP-accessible agent workflows.
 
+Agent contributors should read `AGENTS.md` before running local commands. The default verification path is non-launching and should not foreground the app.
+
 ## Components
 
 - `mac-app/` - SwiftUI macOS app with the local control API on `127.0.0.1:8765`.
