@@ -478,6 +478,8 @@ struct ContentView: View {
     private var focusView: some View {
         let item = model.focusItem
         return VStack(alignment: .leading, spacing: 18) {
+            operatorDeck
+
             HStack(alignment: .top, spacing: 18) {
                 VStack(alignment: .leading, spacing: 16) {
                     HStack(alignment: .top, spacing: 14) {
@@ -593,6 +595,124 @@ struct ContentView: View {
                     focusTrailPanel
                 }
                 .frame(width: 420)
+            }
+        }
+    }
+
+    private var operatorDeck: some View {
+        let focus = model.focusItem
+        let bubble = model.oracleItems.first
+        let review = model.oracleCommits.first { $0.status == .new } ?? model.oracleCommits.first
+        let radar = model.radarItems.first { $0.disposition == .fresh } ?? model.radarItems.first
+        let project = model.projects.first
+
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                SectionTitle("Operator Deck", symbol: "rectangle.stack.fill")
+                Spacer()
+                Text("Read left to right")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.white.opacity(0.42))
+                    .textCase(.uppercase)
+            }
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 260), spacing: 12)], spacing: 12) {
+                OperatorDeckCard(
+                    kicker: "Do First",
+                    title: focus.title,
+                    detail: focus.reason,
+                    symbol: focus.symbol,
+                    accent: focus.state.color,
+                    primaryTitle: focus.action,
+                    primarySymbol: "arrow.right.circle.fill"
+                ) {
+                    applyFocusAction(focus)
+                }
+
+                if let bubble {
+                    OperatorDeckCard(
+                        kicker: bubble.kind.label,
+                        title: bubble.title,
+                        detail: bubble.detail,
+                        symbol: bubble.symbol,
+                        accent: settings.theme.accent,
+                        primaryTitle: "Ask",
+                        primarySymbol: "sparkle.magnifyingglass"
+                    ) {
+                        model.oracleQuestion = "What should I notice about \(bubble.title)? \(bubble.detail)"
+                        selectedSection = "oracle"
+                        Task { await model.askOracle() }
+                    }
+                } else if let radar {
+                    OperatorDeckCard(
+                        kicker: "Radar",
+                        title: radar.title,
+                        detail: radar.reason,
+                        symbol: radar.symbol,
+                        accent: radar.state.color,
+                        primaryTitle: radar.action,
+                        primarySymbol: "scope"
+                    ) {
+                        selectedRadarID = radar.id
+                        applyRadarAction(radar)
+                    }
+                }
+
+                if let review {
+                    OperatorDeckCard(
+                        kicker: review.status.label,
+                        title: review.title,
+                        detail: review.preview,
+                        symbol: review.status.symbol,
+                        accent: review.status.color,
+                        primaryTitle: "Review",
+                        primarySymbol: "tray.and.arrow.down.fill"
+                    ) {
+                        selectedCommitID = review.id
+                        reviewProjectFilter = review.project.isEmpty ? "all" : review.project
+                        selectedSection = "review"
+                    }
+                } else {
+                    OperatorDeckCard(
+                        kicker: "Capture",
+                        title: "Save the thought before it disappears",
+                        detail: "Drop a raw idea into the focus capture box and Terminal Brain will turn it into reviewable memory.",
+                        symbol: "lightbulb.fill",
+                        accent: .cyan,
+                        primaryTitle: "Capture",
+                        primarySymbol: "square.and.pencil"
+                    ) {
+                        model.quickIdea = "Idea: "
+                        selectedSection = "focus"
+                    }
+                }
+
+                if let project {
+                    OperatorDeckCard(
+                        kicker: "Project",
+                        title: project.name,
+                        detail: project.recommendedAction,
+                        symbol: project.symbol,
+                        accent: project.accent,
+                        primaryTitle: "Open",
+                        primarySymbol: "folder.fill"
+                    ) {
+                        selectedProjectID = project.id
+                        selectedSection = "projects"
+                    }
+                } else {
+                    OperatorDeckCard(
+                        kicker: "Start Work",
+                        title: "Build the first context pack",
+                        detail: "Use a short query to create an agent handoff from local memory and Mission Control.",
+                        symbol: "shippingbox.fill",
+                        accent: settings.theme.accent,
+                        primaryTitle: "Start",
+                        primarySymbol: "sparkles"
+                    ) {
+                        selectedSection = "start"
+                    }
+                }
             }
         }
     }
@@ -2680,6 +2800,68 @@ struct OracleBriefLine: View {
                 .fixedSize(horizontal: false, vertical: true)
             Spacer()
         }
+    }
+}
+
+struct OperatorDeckCard: View {
+    let kicker: String
+    let title: String
+    let detail: String
+    let symbol: String
+    let accent: Color
+    let primaryTitle: String
+    let primarySymbol: String
+    let action: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: symbol)
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(accent)
+                    .frame(width: 34, height: 34)
+                    .background(accent.opacity(0.15), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(kicker)
+                        .font(.caption2.weight(.bold))
+                        .foregroundStyle(accent)
+                        .textCase(.uppercase)
+                    Text(title)
+                        .font(.headline.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.82)
+                }
+            }
+
+            Text(detail)
+                .font(.callout)
+                .foregroundStyle(.white.opacity(0.58))
+                .lineLimit(3)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Spacer(minLength: 0)
+
+            Button(action: action) {
+                Label(primaryTitle, systemImage: primarySymbol)
+                    .font(.callout.weight(.semibold))
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.regular)
+            .tint(accent)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, minHeight: 196, alignment: .topLeading)
+        .background(
+            LinearGradient(
+                colors: [.white.opacity(0.10), accent.opacity(0.08)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ),
+            in: RoundedRectangle(cornerRadius: 16, style: .continuous)
+        )
+        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(.white.opacity(0.12), lineWidth: 1))
     }
 }
 
