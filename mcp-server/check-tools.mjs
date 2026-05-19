@@ -7,6 +7,7 @@ import { spawn } from "node:child_process";
 
 const root = dirname(fileURLToPath(import.meta.url));
 const expected = JSON.parse(await readFile(join(root, "expected-tools.json"), "utf8"));
+const serverSource = await readFile(join(root, "server.mjs"), "utf8");
 
 const child = spawn(process.execPath, [join(root, "server.mjs")], {
   stdio: ["pipe", "pipe", "inherit"]
@@ -52,12 +53,20 @@ const response = JSON.parse(line);
 const tools = response?.result?.tools ?? [];
 const actual = tools.map((tool) => tool.name).sort();
 const wanted = [...expected].sort();
+const wired = [...serverSource.matchAll(/case "([^"]+)":/g)]
+  .map((match) => match[1])
+  .filter((name) => name.startsWith("terminal_brain_"))
+  .sort();
 const missing = wanted.filter((name) => !actual.includes(name));
 const unexpected = actual.filter((name) => !wanted.includes(name));
+const unwired = actual.filter((name) => !wired.includes(name));
+const staleCases = wired.filter((name) => !actual.includes(name));
 
-if (missing.length || unexpected.length) {
+if (missing.length || unexpected.length || unwired.length || staleCases.length) {
   if (missing.length) console.error(`Missing tools: ${missing.join(", ")}`);
   if (unexpected.length) console.error(`Unexpected tools: ${unexpected.join(", ")}`);
+  if (unwired.length) console.error(`Listed but not wired in callTool: ${unwired.join(", ")}`);
+  if (staleCases.length) console.error(`Wired in callTool but not listed: ${staleCases.join(", ")}`);
   process.exit(1);
 }
 
