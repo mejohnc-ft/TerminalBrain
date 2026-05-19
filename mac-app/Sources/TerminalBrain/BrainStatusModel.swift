@@ -21,6 +21,7 @@ final class BrainStatusModel: ObservableObject {
     @Published var isAskingOracle = false
     @Published var quickIdea = ""
     @Published var quickIdeaOutput = ""
+    @Published var snapshotCopyOutput = ""
     @Published var oracleCommits: [OracleCommit] = []
     @Published var projects: [ProjectMemory] = []
     @Published var findings: [String] = []
@@ -354,6 +355,22 @@ final class BrainStatusModel: ObservableObject {
             dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems, radarItems: radarItems)
         } catch {
             quickIdeaOutput = "Idea capture failed: \(error.localizedDescription)"
+        }
+    }
+
+    func copyOperatorSnapshot() async {
+        guard let url = URL(string: "http://127.0.0.1:8765/snapshot/markdown") else { return }
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            guard let markdown = String(data: data, encoding: .utf8), !markdown.isEmpty else {
+                snapshotCopyOutput = "Snapshot copy failed."
+                return
+            }
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(markdown, forType: .string)
+            snapshotCopyOutput = "Snapshot copied."
+        } catch {
+            snapshotCopyOutput = "Snapshot copy failed: \(error.localizedDescription)"
         }
     }
 

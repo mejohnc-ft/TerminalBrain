@@ -67,6 +67,7 @@ Terminal Brain uses a native macOS window shell:
 - Transparent full-size titlebar configured through AppKit.
 - Native toolbar items for sidebar toggle, back, search, status, refresh, sync, and profile.
 - Command palette entries for asking the current Focus, asking Oracle from typed text, drafting captured ideas, and building context packs.
+- One-click operator snapshot copy for pasting current Focus, Radar, suggested actions, and memory trail into another agent or work surface.
 - Floating rounded sidebar surface over the main background.
 - Dense Music/Reeder-style dark content lists instead of equal-weight dashboard cards.
 
@@ -94,6 +95,7 @@ Routes:
 - `GET /health`
 - `GET /status`
 - `GET /snapshot`
+- `GET /snapshot/markdown`
 - `GET /sources`
 - `GET /setup`
 - `GET /focus`

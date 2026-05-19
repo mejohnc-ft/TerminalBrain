@@ -538,12 +538,23 @@ struct ContentView: View {
                             Label("Show Radar", systemImage: "scope")
                         }
                         .buttonStyle(.bordered)
+                        Button {
+                            Task { await model.copyOperatorSnapshot() }
+                        } label: {
+                            Label("Snapshot", systemImage: "doc.on.clipboard")
+                        }
+                        .buttonStyle(.bordered)
                         if let path = item.path {
                             Button { model.openPath(path) } label: {
                                 Label("Open", systemImage: "arrow.up.right.square")
                             }
                             .buttonStyle(.bordered)
                         }
+                    }
+                    if !model.snapshotCopyOutput.isEmpty {
+                        Text(model.snapshotCopyOutput)
+                            .font(.caption)
+                            .foregroundStyle(.white.opacity(0.58))
                     }
                 }
                 .padding(20)

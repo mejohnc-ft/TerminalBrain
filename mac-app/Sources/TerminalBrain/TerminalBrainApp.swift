@@ -35,6 +35,11 @@ struct TerminalBrainApp: App {
                 }
                 .keyboardShortcut("o", modifiers: [.command, .shift])
 
+                Button("Copy Operator Snapshot") {
+                    Task { await model.copyOperatorSnapshot() }
+                }
+                .keyboardShortcut("c", modifiers: [.command, .shift])
+
                 Button("Open Mission Control") {
                     model.openMissionControl()
                 }
@@ -48,6 +53,9 @@ struct TerminalBrainApp: App {
             }
             Button("Run Sync Now") {
                 Task { await model.runSyncNow() }
+            }
+            Button("Copy Operator Snapshot") {
+                Task { await model.copyOperatorSnapshot() }
             }
             Divider()
             Button("Open Mission Control") {

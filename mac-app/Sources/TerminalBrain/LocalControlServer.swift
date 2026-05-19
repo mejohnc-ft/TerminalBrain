@@ -61,6 +61,8 @@ final class LocalControlServer {
             return .json(200, await ControlSnapshot.status())
         case ("GET", "/snapshot"):
             return .json(200, await BrainSnapshot.snapshot())
+        case ("GET", "/snapshot/markdown"):
+            return .text(200, await BrainSnapshot.markdown())
         case ("GET", "/sources"):
             return .json(200, await ControlSnapshot.sources())
         case ("GET", "/setup"):
@@ -1100,6 +1102,10 @@ enum BrainSnapshot {
         )
     }
 
+    static func markdown() async -> String {
+        renderMarkdown(snapshot: await snapshot())
+    }
+
     private static func payload(generatedAt: String, focus: [String: Any], radarItems: [[String: Any]], setupSteps: [[String: Any]], todayCommands: [[String: Any]], memoryTrail: [[String: Any]], suggestedActions: [String]) -> [String: Any] {
         var result: [String: Any] = [:]
         result["generatedAt"] = generatedAt
@@ -1131,6 +1137,54 @@ enum BrainSnapshot {
         }
         actions.append("Capture any new thought before changing context.")
         return actions
+    }
+
+    private static func renderMarkdown(snapshot: [String: Any]) -> String {
+        let focus = snapshot["focus"] as? [String: Any] ?? [:]
+        let focusItem = focus["item"] as? [String: Any] ?? [:]
+        let radar = snapshot["radar"] as? [[String: Any]] ?? []
+        let trail = snapshot["memoryTrail"] as? [[String: Any]] ?? []
+        let actions = snapshot["suggestedActions"] as? [String] ?? []
+
+        var lines: [String] = [
+            "# Terminal Brain Snapshot",
+            "",
+            "Generated: \(snapshot["generatedAt"] as? String ?? ISO8601DateFormatter().string(from: Date()))",
+            "",
+            "## Focus",
+            "- Title: \(focusItem["title"] as? String ?? "Unknown")",
+            "- Project: \(focusItem["project"] as? String ?? "General Brain")",
+            "- Action: \(focusItem["action"] as? String ?? "Act")",
+            "- Score: \(focusItem["score"] as? Int ?? 0)",
+            "- Reason: \(focusItem["reason"] as? String ?? "")",
+            ""
+        ]
+
+        lines.append("## Suggested Actions")
+        lines.append(contentsOf: actions.prefix(5).map { "- \($0)" })
+        if actions.isEmpty { lines.append("- Ask the Focus Oracle what changed.") }
+        lines.append("")
+
+        lines.append("## Radar")
+        lines.append(contentsOf: radar.prefix(5).map { item in
+            let score = item["score"] as? Int ?? 0
+            let title = item["title"] as? String ?? "Radar signal"
+            let detail = item["detail"] as? String ?? ""
+            return "- [\(score)] \(title): \(detail)"
+        })
+        if radar.isEmpty { lines.append("- No radar signals.") }
+        lines.append("")
+
+        lines.append("## Memory Trail")
+        lines.append(contentsOf: trail.prefix(5).map { item in
+            let title = item["title"] as? String ?? "Memory"
+            let status = item["status"] as? String ?? "new"
+            let project = item["project"] as? String ?? "General Brain"
+            return "- \(title) (\(project), \(status))"
+        })
+        if trail.isEmpty { lines.append("- No committed memory yet.") }
+
+        return lines.joined(separator: "\n")
     }
 }
 
@@ -1716,6 +1770,19 @@ struct HTTPResponse {
         let reason = status == 200 ? "OK" : status == 400 ? "Bad Request" : "Not Found"
         var header = "HTTP/1.1 \(status) \(reason)\r\n"
         header += "Content-Type: application/json; charset=utf-8\r\n"
+        header += "Cache-Control: no-store\r\n"
+        header += "Content-Length: \(payload.count)\r\n"
+        header += "Connection: close\r\n\r\n"
+        var data = Data(header.utf8)
+        data.append(payload)
+        return HTTPResponse(data: data)
+    }
+
+    static func text(_ status: Int, _ body: String) -> HTTPResponse {
+        let payload = Data(body.utf8)
+        let reason = status == 200 ? "OK" : status == 400 ? "Bad Request" : "Not Found"
+        var header = "HTTP/1.1 \(status) \(reason)\r\n"
+        header += "Content-Type: text/markdown; charset=utf-8\r\n"
         header += "Cache-Control: no-store\r\n"
         header += "Content-Length: \(payload.count)\r\n"
         header += "Connection: close\r\n\r\n"
