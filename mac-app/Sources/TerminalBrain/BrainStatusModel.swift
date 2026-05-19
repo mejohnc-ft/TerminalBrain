@@ -9,6 +9,7 @@ final class BrainStatusModel: ObservableObject {
     @Published var briefing: [BriefingItem] = []
     @Published var setupSteps: [SetupStep] = []
     @Published var dailyCommands: [DailyCommandItem] = []
+    @Published var radarItems: [RadarItem] = []
     @Published var feedItems: [BrainFeedItem] = []
     @Published var oracleBrief: [String] = []
     @Published var oracleItems: [OracleItem] = []
@@ -71,12 +72,14 @@ final class BrainStatusModel: ObservableObject {
         let builtOracleItems = buildOracleItems(from: sections, feedItems: builtFeed)
         let builtOracleCommits = loadOracleCommits()
         let builtProjects = buildProjectMemories(feedItems: builtFeed, oracleItems: builtOracleItems, oracleCommits: builtOracleCommits)
-        let builtDailyCommands = buildDailyCommands(cards: sections, projects: builtProjects, oracleCommits: builtOracleCommits, feedItems: builtFeed)
+        let builtRadarItems = buildRadarItems(cards: sections, setupSteps: builtSetupSteps, projects: builtProjects, oracleItems: builtOracleItems, oracleCommits: builtOracleCommits, feedItems: builtFeed)
+        let builtDailyCommands = buildDailyCommands(cards: sections, projects: builtProjects, oracleCommits: builtOracleCommits, feedItems: builtFeed, radarItems: builtRadarItems)
         cards = sections
         sources = builtSources
         briefing = builtBriefing
         setupSteps = builtSetupSteps
         dailyCommands = builtDailyCommands
+        radarItems = builtRadarItems
         feedItems = builtFeed
         oracleItems = builtOracleItems
         oracleCommits = builtOracleCommits
@@ -212,7 +215,8 @@ final class BrainStatusModel: ObservableObject {
             oracleCommitOutput = "Committed to \(path)"
             oracleCommits = loadOracleCommits()
             projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
-            dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems)
+            radarItems = buildRadarItems(cards: cards, setupSteps: setupSteps, projects: projects, oracleItems: oracleItems, oracleCommits: oracleCommits, feedItems: feedItems)
+            dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems, radarItems: radarItems)
         } catch {
             oracleCommitOutput = "Commit failed: \(error.localizedDescription)"
         }
@@ -259,6 +263,8 @@ final class BrainStatusModel: ObservableObject {
             oracleCommitOutput = "Committed project update to \(path)"
             oracleCommits = loadOracleCommits()
             projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
+            radarItems = buildRadarItems(cards: cards, setupSteps: setupSteps, projects: projects, oracleItems: oracleItems, oracleCommits: oracleCommits, feedItems: feedItems)
+            dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems, radarItems: radarItems)
         } catch {
             oracleCommitOutput = "Project update commit failed: \(error.localizedDescription)"
         }
@@ -303,7 +309,8 @@ final class BrainStatusModel: ObservableObject {
         try? text.write(to: url, atomically: true, encoding: .utf8)
         oracleCommits = loadOracleCommits()
         projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
-        dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems)
+        radarItems = buildRadarItems(cards: cards, setupSteps: setupSteps, projects: projects, oracleItems: oracleItems, oracleCommits: oracleCommits, feedItems: feedItems)
+        dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems, radarItems: radarItems)
     }
 
     func openOracleInbox() {
@@ -336,7 +343,8 @@ final class BrainStatusModel: ObservableObject {
         NSWorkspace.shared.open(URL(fileURLWithPath: "\(path)/\(fileName)"))
         oracleCommits = loadOracleCommits()
         projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
-        dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems)
+        radarItems = buildRadarItems(cards: cards, setupSteps: setupSteps, projects: projects, oracleItems: oracleItems, oracleCommits: oracleCommits, feedItems: feedItems)
+        dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems, radarItems: radarItems)
     }
 
     private func processCards() async -> [HealthCard] {
@@ -796,8 +804,24 @@ final class BrainStatusModel: ObservableObject {
         return items.sorted { $0.timestamp > $1.timestamp }
     }
 
-    private func buildDailyCommands(cards: [HealthCard], projects: [ProjectMemory], oracleCommits: [OracleCommit], feedItems: [BrainFeedItem]) -> [DailyCommandItem] {
+    private func buildDailyCommands(cards: [HealthCard], projects: [ProjectMemory], oracleCommits: [OracleCommit], feedItems: [BrainFeedItem], radarItems: [RadarItem]) -> [DailyCommandItem] {
         var items: [DailyCommandItem] = []
+
+        for radar in radarItems.prefix(2) {
+            items.append(
+                DailyCommandItem(
+                    id: "radar-\(radar.id)",
+                    title: radar.title,
+                    detail: radar.detail,
+                    priority: radar.urgency,
+                    action: radar.action,
+                    project: radar.project,
+                    symbol: radar.symbol,
+                    state: radar.state,
+                    query: radar.query
+                )
+            )
+        }
 
         for commit in oracleCommits.filter({ $0.status == .delegated }).prefix(3) {
             items.append(
@@ -896,6 +920,157 @@ final class BrainStatusModel: ObservableObject {
         }
 
         return dedupeDailyCommands(items).prefix(8).map { $0 }
+    }
+
+    private func buildRadarItems(cards: [HealthCard], setupSteps: [SetupStep], projects: [ProjectMemory], oracleItems: [OracleItem], oracleCommits: [OracleCommit], feedItems: [BrainFeedItem]) -> [RadarItem] {
+        var items: [RadarItem] = []
+
+        for commit in oracleCommits.filter({ $0.status == .delegated }).prefix(3) {
+            items.append(
+                RadarItem(
+                    id: "delegated-\(commit.id)",
+                    title: "Delegated read needs execution",
+                    detail: commit.title,
+                    reason: "You already marked this as delegated. It should become a context pack or agent handoff instead of sitting in review.",
+                    action: "Start Work",
+                    project: commit.project,
+                    urgency: "Now",
+                    symbol: "paperplane.fill",
+                    state: .busy,
+                    query: [commit.project, commit.title].filter { !$0.isEmpty }.joined(separator: " - "),
+                    path: commit.path
+                )
+            )
+        }
+
+        for step in setupSteps.filter({ $0.state == .warn }).prefix(2) {
+            items.append(
+                RadarItem(
+                    id: "setup-\(step.id)",
+                    title: "Readiness gap: \(step.title)",
+                    detail: step.detail,
+                    reason: "This weakens agent reliability or source coverage. Fix it before trusting automation-heavy work.",
+                    action: step.action,
+                    project: "System",
+                    urgency: "Safety",
+                    symbol: step.symbol,
+                    state: .warn,
+                    query: step.title,
+                    path: nil
+                )
+            )
+        }
+
+        for commit in oracleCommits.filter({ $0.status == .new }).prefix(3) {
+            let ageHours = max(0, Int(Date().timeIntervalSince(commit.created) / 3600))
+            items.append(
+                RadarItem(
+                    id: "review-\(commit.id)",
+                    title: ageHours >= 24 ? "Stale Oracle read" : "Unclassified Oracle read",
+                    detail: commit.preview,
+                    reason: ageHours >= 24 ? "This has been waiting about \(ageHours / 24) day\(ageHours / 24 == 1 ? "" : "s"). Accept, link, delegate, or dismiss it so it stops floating." : "A useful answer is only durable when it is accepted, linked, delegated, or dismissed.",
+                    action: "Open Review",
+                    project: commit.project,
+                    urgency: ageHours >= 24 ? "Review" : "Triage",
+                    symbol: commit.status.symbol,
+                    state: .warn,
+                    query: commit.title,
+                    path: commit.path
+                )
+            )
+        }
+
+        for project in projects.prefix(5) {
+            if project.delegatedCount > 0 || !project.openLoops.isEmpty {
+                items.append(
+                    RadarItem(
+                        id: "project-\(project.id)",
+                        title: "Project wants a decision",
+                        detail: project.recommendedAction,
+                        reason: "\(project.name) has \(project.openLoops.count) open loop\(project.openLoops.count == 1 ? "" : "s") and \(project.delegatedCount) delegated read\(project.delegatedCount == 1 ? "" : "s").",
+                        action: "Open Project",
+                        project: project.name,
+                        urgency: project.delegatedCount > 0 ? "Now" : "Next",
+                        symbol: project.symbol,
+                        state: project.delegatedCount > 0 ? .busy : .good,
+                        query: project.name,
+                        path: project.contextPacks.first?.path
+                    )
+                )
+            } else if project.lastActivity != Date.distantPast && Date().timeIntervalSince(project.lastActivity) > 7 * 24 * 3600 {
+                items.append(
+                    RadarItem(
+                        id: "stale-\(project.id)",
+                        title: "Quiet project worth resurfacing",
+                        detail: project.summary,
+                        reason: "This project has durable memory but no recent activity. Ask Oracle whether it should be advanced, archived, or ignored.",
+                        action: "Ask Oracle",
+                        project: project.name,
+                        urgency: "Review",
+                        symbol: project.symbol,
+                        state: .warn,
+                        query: "Should I revive, archive, or ignore \(project.name)?",
+                        path: project.contextPacks.first?.path
+                    )
+                )
+            }
+        }
+
+        for item in oracleItems.filter({ $0.kind == .idea || $0.kind == .opportunity || $0.kind == .openLoop }).prefix(5) {
+            items.append(
+                RadarItem(
+                    id: "oracle-\(item.id)",
+                    title: item.kind == .openLoop ? "Open loop resurfaced" : "Idea worth testing",
+                    detail: item.title,
+                    reason: item.detail,
+                    action: item.kind == .openLoop ? "Start Work" : "Ask Oracle",
+                    project: projectName(from: "\(item.title) \(item.detail) \(item.source)"),
+                    urgency: item.kind == .openLoop ? "Next" : "Explore",
+                    symbol: item.symbol,
+                    state: item.kind == .openLoop ? .warn : .good,
+                    query: item.kind == .openLoop ? item.title : "Is this idea worth acting on: \(item.title)?",
+                    path: item.path
+                )
+            )
+        }
+
+        if let fresh = feedItems.first(where: { $0.kind == .context }) {
+            items.append(
+                RadarItem(
+                    id: "fresh-\(fresh.id)",
+                    title: "Fresh context pack is ready",
+                    detail: fresh.title,
+                    reason: "This is the newest agent handoff material. Use it while it is fresh or commit what changed.",
+                    action: "Open Pack",
+                    project: projectName(from: "\(fresh.title) \(fresh.detail)"),
+                    urgency: "Context",
+                    symbol: fresh.symbol,
+                    state: .good,
+                    query: fresh.title,
+                    path: fresh.path
+                )
+            )
+        }
+
+        if items.isEmpty {
+            items.append(
+                RadarItem(
+                    id: "ask-oracle",
+                    title: "No strong signal yet",
+                    detail: "Ask Oracle what changed, then commit anything useful into the Oracle Inbox.",
+                    reason: "Radar needs fresh context, committed reads, or source signals to become specific.",
+                    action: "Ask Oracle",
+                    project: "General Brain",
+                    urgency: "Start",
+                    symbol: "sparkle.magnifyingglass",
+                    state: .good,
+                    query: "What am I not considering right now?",
+                    path: nil
+                )
+            )
+        }
+
+        return dedupeRadarItems(items).prefix(12).map { $0 }
     }
 
     private func buildOracleBrief(from cards: [HealthCard], feedItems: [BrainFeedItem], oracleItems: [OracleItem]) -> [String] {
@@ -1237,6 +1412,18 @@ final class BrainStatusModel: ObservableObject {
     private func dedupeDailyCommands(_ items: [DailyCommandItem]) -> [DailyCommandItem] {
         var seen = Set<String>()
         var output: [DailyCommandItem] = []
+        for item in items {
+            let key = "\(item.title)-\(item.project)-\(item.query)".lowercased()
+            guard !seen.contains(key) else { continue }
+            seen.insert(key)
+            output.append(item)
+        }
+        return output
+    }
+
+    private func dedupeRadarItems(_ items: [RadarItem]) -> [RadarItem] {
+        var seen = Set<String>()
+        var output: [RadarItem] = []
         for item in items {
             let key = "\(item.title)-\(item.project)-\(item.query)".lowercased()
             guard !seen.contains(key) else { continue }

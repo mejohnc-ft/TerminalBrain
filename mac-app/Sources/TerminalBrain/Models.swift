@@ -183,6 +183,20 @@ struct DailyCommandItem: Identifiable {
     let query: String
 }
 
+struct RadarItem: Identifiable {
+    let id: String
+    let title: String
+    let detail: String
+    let reason: String
+    let action: String
+    let project: String
+    let urgency: String
+    let symbol: String
+    let state: HealthState
+    let query: String
+    let path: String?
+}
+
 struct BrainFeedItem: Identifiable {
     let id: String
     let title: String

@@ -6,6 +6,7 @@ struct ContentView: View {
     @State private var selectedSection = "cockpit"
     @State private var selectedFeedID = ""
     @State private var selectedCommitID = ""
+    @State private var selectedRadarID = ""
     @State private var selectedProjectID = ""
     @State private var reviewProjectFilter = "all"
     @State private var feedFilter: FeedKind = .all
@@ -34,6 +35,10 @@ struct ContentView: View {
         filteredOracleCommits.first { $0.id == selectedCommitID } ?? filteredOracleCommits.first ?? model.oracleCommits.first
     }
 
+    private var selectedRadarItem: RadarItem? {
+        model.radarItems.first { $0.id == selectedRadarID } ?? model.radarItems.first
+    }
+
     private var selectedProject: ProjectMemory? {
         model.projects.first { $0.id == selectedProjectID } ?? model.projects.first
     }
@@ -47,6 +52,7 @@ struct ContentView: View {
         var items: [BrainCommand] = [
             BrainCommand(title: "Open Cockpit", subtitle: "Local gateway, source health, and Mission reachability", symbol: "house.fill", category: "Navigate", action: .section("cockpit")),
             BrainCommand(title: "Open Setup", subtitle: "Readiness checklist for app, MCP, sources, and sync", symbol: "checklist.checked", category: "Navigate", action: .section("setup")),
+            BrainCommand(title: "Open Radar", subtitle: "Proactive signals, stale reads, risks, and opportunities", symbol: "scope", category: "Navigate", action: .section("radar")),
             BrainCommand(title: "Open Feed", subtitle: "Recent context packs, sync events, and source alerts", symbol: "list.bullet.rectangle.portrait.fill", category: "Navigate", action: .section("feed")),
             BrainCommand(title: "Open Oracle", subtitle: "Narrative brief, bubbling ideas, and open loops", symbol: "sparkle.magnifyingglass", category: "Navigate", action: .section("oracle")),
             BrainCommand(title: "Open Review Queue", subtitle: "Committed Oracle reads, decisions, and follow-ups", symbol: "tray.and.arrow.down.fill", category: "Navigate", action: .section("review")),
@@ -90,6 +96,10 @@ struct ContentView: View {
             BrainCommand(title: commit.title, subtitle: "\(commit.status.label) - \(commit.preview)", symbol: commit.status.symbol, category: "Review", action: .commit(commit.id))
         })
 
+        items.append(contentsOf: model.radarItems.map { item in
+            BrainCommand(title: item.title, subtitle: "\(item.urgency) - \(item.detail)", symbol: item.symbol, category: "Radar", action: .radar(item.id))
+        })
+
         items.append(contentsOf: model.projects.map { project in
             BrainCommand(title: project.name, subtitle: project.summary, symbol: project.symbol, category: "Project", action: .project(project.id))
         })
@@ -108,6 +118,7 @@ struct ContentView: View {
     private var sectionTitle: String {
         switch selectedSection {
         case "setup": return "Setup"
+        case "radar": return "Radar"
         case "feed": return "Feed"
         case "oracle": return "Oracle"
         case "review": return "Review"
@@ -123,6 +134,7 @@ struct ContentView: View {
     private var sectionSubtitle: String {
         switch selectedSection {
         case "setup": return "Readiness checklist for the app, MCP gateway, memory, sync, and permission posture."
+        case "radar": return "Proactive signals, stale reads, quiet risks, and opportunities worth a decision."
         case "feed": return "Recent context packs, sync events, and source alerts."
         case "oracle": return "Narrative signals, open loops, and ideas worth revisiting."
         case "review": return "Committed Oracle reads that need acceptance, linking, delegation, or dismissal."
@@ -247,6 +259,7 @@ struct ContentView: View {
                     .sidebarHeader()
                 NavRow(title: "Cockpit", symbol: "house.fill", badge: model.summaryLine == "Brain status ready" ? "" : "!", selected: selectedSection == "cockpit") { selectedSection = "cockpit" }
                 NavRow(title: "Setup", symbol: "checklist.checked", badge: model.setupAttentionCount == 0 ? "" : "\(model.setupAttentionCount)", selected: selectedSection == "setup") { selectedSection = "setup" }
+                NavRow(title: "Radar", symbol: "scope", badge: "\(model.radarItems.count)", selected: selectedSection == "radar") { selectedSection = "radar" }
                 NavRow(title: "Oracle", symbol: "sparkle.magnifyingglass", badge: "\(model.oracleItems.count)", selected: selectedSection == "oracle") { selectedSection = "oracle" }
                 NavRow(title: "Review", symbol: "tray.and.arrow.down.fill", badge: "\(model.oracleCommits.filter { $0.status == .new }.count)", selected: selectedSection == "review") { selectedSection = "review" }
                 NavRow(title: "Projects", symbol: "folder.fill.badge.gearshape", badge: "\(model.projects.count)", selected: selectedSection == "projects") { selectedSection = "projects" }
@@ -354,6 +367,7 @@ struct ContentView: View {
                 VStack(alignment: .leading, spacing: 18) {
                     switch selectedSection {
                     case "setup": setupView
+                    case "radar": radarView
                     case "oracle": oracleView
                     case "review": reviewView
                     case "projects": projectsView
@@ -513,6 +527,111 @@ struct ContentView: View {
         }
         let names = attention.prefix(3).map(\.title).joined(separator: ", ")
         return "Resolve \(names) first. The checklist is generated from the current app state, local files, MCP config, and source policy."
+    }
+
+    private var radarView: some View {
+        HStack(alignment: .top, spacing: 18) {
+            VStack(alignment: .leading, spacing: 14) {
+                SectionTitle("Signal Radar", symbol: "scope")
+                VStack(spacing: 0) {
+                    ForEach(model.radarItems) { item in
+                        Button {
+                            selectedRadarID = item.id
+                        } label: {
+                            RadarItemRow(item: item, selected: selectedRadarItem?.id == item.id)
+                        }
+                        .buttonStyle(.plain)
+                        if item.id != model.radarItems.last?.id {
+                            Divider().overlay(.white.opacity(0.08)).padding(.leading, 52)
+                        }
+                    }
+                    if model.radarItems.isEmpty {
+                        EmptyStateRow(title: "No radar signals", detail: "Refresh, sync, or ask Oracle to generate a useful signal.", symbol: "scope")
+                    }
+                }
+                .darkPanel()
+            }
+            .frame(width: 500)
+
+            VStack(alignment: .leading, spacing: 14) {
+                if let item = selectedRadarItem {
+                    SectionTitle("Why This Matters", symbol: item.symbol)
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack(alignment: .top, spacing: 14) {
+                            Image(systemName: item.symbol)
+                                .font(.title2)
+                                .foregroundStyle(item.state.color)
+                                .frame(width: 42, height: 42)
+                                .background(item.state.color.opacity(0.16), in: RoundedRectangle(cornerRadius: 11, style: .continuous))
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(item.title)
+                                    .font(.title2.weight(.bold))
+                                    .foregroundStyle(.white)
+                                Text("\(item.project) - \(item.urgency)")
+                                    .font(.callout.weight(.semibold))
+                                    .foregroundStyle(item.state.color)
+                            }
+                            Spacer()
+                            StatusPill(text: item.urgency, state: item.state)
+                        }
+
+                        Text(item.detail)
+                            .font(.headline.weight(.semibold))
+                            .foregroundStyle(.white.opacity(0.84))
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        Text(item.reason)
+                            .font(.body)
+                            .foregroundStyle(.white.opacity(0.66))
+                            .fixedSize(horizontal: false, vertical: true)
+                            .textSelection(.enabled)
+
+                        if let path = item.path {
+                            Text(path)
+                                .font(.caption.monospaced())
+                                .foregroundStyle(.white.opacity(0.44))
+                                .lineLimit(2)
+                                .textSelection(.enabled)
+                        }
+
+                        HStack {
+                            Button {
+                                applyRadarAction(item)
+                            } label: {
+                                Label(item.action, systemImage: "arrow.right.circle.fill")
+                            }
+                            .buttonStyle(.borderedProminent)
+                            Button {
+                                model.oracleQuestion = "What should I do about \(item.title)? \(item.reason)"
+                                selectedSection = "oracle"
+                            } label: {
+                                Label("Ask Oracle", systemImage: "sparkle.magnifyingglass")
+                            }
+                            .buttonStyle(.bordered)
+                            if let path = item.path {
+                                Button { model.openPath(path) } label: {
+                                    Label("Open", systemImage: "arrow.up.right.square")
+                                }
+                                .buttonStyle(.bordered)
+                            }
+                        }
+                    }
+                    .padding(16)
+                    .darkPanel()
+                }
+
+                SectionTitle("Radar Rules", symbol: "slider.horizontal.3")
+                VStack(alignment: .leading, spacing: 10) {
+                    PolicyLine("Delegated reads outrank passive ideas.")
+                    PolicyLine("Unclassified Oracle commits stay visible until triaged.")
+                    PolicyLine("Projects with open loops or stale activity resurface automatically.")
+                    PolicyLine("Fresh context packs remain visible while they can still guide work.")
+                }
+                .padding(14)
+                .darkPanel()
+            }
+            .frame(minWidth: 620)
+        }
     }
 
     private var heroPanel: some View {
@@ -1325,6 +1444,9 @@ struct ContentView: View {
         case .commit(let id):
             selectedCommitID = id
             selectedSection = "review"
+        case .radar(let id):
+            selectedRadarID = id
+            selectedSection = "radar"
         case .project(let id):
             selectedProjectID = id
             selectedSection = "projects"
@@ -1346,6 +1468,10 @@ struct ContentView: View {
     }
 
     private func applyDailyCommand(_ item: DailyCommandItem) {
+        if let radar = model.radarItems.first(where: { $0.query == item.query || $0.title == item.title }) {
+            applyRadarAction(radar)
+            return
+        }
         if item.action == "Open Review" {
             reviewProjectFilter = item.project.isEmpty ? "all" : item.project
             selectedSection = "review"
@@ -1371,6 +1497,33 @@ struct ContentView: View {
         }
         model.workQuery = item.query
         selectedSection = "start"
+    }
+
+    private func applyRadarAction(_ item: RadarItem) {
+        switch item.action {
+        case "Open Review":
+            reviewProjectFilter = item.project.isEmpty ? "all" : item.project
+            selectedSection = "review"
+        case "Open Project":
+            if let project = model.projects.first(where: { $0.name == item.project }) {
+                selectedProjectID = project.id
+            }
+            selectedSection = "projects"
+        case "Open Pack":
+            if let path = item.path {
+                model.openPath(path)
+            }
+        case "Open Sources":
+            selectedSection = "sources"
+        case "Open Settings":
+            selectedSection = "setup"
+        case "Ask Oracle":
+            model.oracleQuestion = item.query
+            selectedSection = "oracle"
+        default:
+            model.workQuery = item.query
+            selectedSection = "start"
+        }
     }
 
     @ViewBuilder
@@ -1447,6 +1600,7 @@ enum BrainCommandAction {
     case source(String)
     case feed(String, FeedKind)
     case commit(String)
+    case radar(String)
     case project(String)
     case openMission
     case openLogs
@@ -1956,6 +2110,51 @@ struct DailyCommandRow: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
+    }
+}
+
+struct RadarItemRow: View {
+    let item: RadarItem
+    let selected: Bool
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 14) {
+            Image(systemName: item.symbol)
+                .font(.title3)
+                .foregroundStyle(item.state.color)
+                .frame(width: 30, height: 30)
+                .background(item.state.color.opacity(0.16), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            VStack(alignment: .leading, spacing: 5) {
+                HStack(spacing: 8) {
+                    Text(item.title)
+                        .font(.headline.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                    Spacer()
+                    Text(item.urgency)
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(item.state.color)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(item.state.color.opacity(0.13), in: Capsule())
+                }
+                Text(item.project)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.white.opacity(0.48))
+                    .lineLimit(1)
+                Text(item.detail)
+                    .font(.callout)
+                    .foregroundStyle(.white.opacity(0.62))
+                    .lineLimit(2)
+                Text(item.reason)
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.44))
+                    .lineLimit(2)
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(selected ? Color.white.opacity(0.10) : Color.clear, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 }
 

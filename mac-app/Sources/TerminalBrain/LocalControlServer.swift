@@ -66,7 +66,9 @@ final class LocalControlServer {
         case ("GET", "/projects"):
             return .json(200, ProjectSnapshot.projects())
         case ("GET", "/today"):
-            return .json(200, TodaySnapshot.today())
+            return .json(200, await TodaySnapshot.today())
+        case ("GET", "/radar"):
+            return .json(200, await RadarSnapshot.radar())
         case ("GET", "/briefing"):
             return .json(200, await ControlSnapshot.briefing())
         case ("GET", "/permissions"):
@@ -494,10 +496,10 @@ enum OracleSnapshot {
             "",
             "Current Terminal Brain implementation:",
             "- Native macOS app with local control API on http://127.0.0.1:8765.",
-            "- Current API routes: /health, /status, /setup, /sources, /briefing, /permissions, /oracle/brief, /oracle/items, /oracle/ask, /oracle/commit, /sync, /start-work.",
+            "- Current API routes: /health, /status, /setup, /radar, /sources, /briefing, /permissions, /oracle/brief, /oracle/items, /oracle/ask, /oracle/commit, /sync, /start-work.",
             "- Oracle ask already combines local deterministic signals, Mission retrieval, Mission workbench synthesis, citations, supporting items, and fallback behavior.",
             "- Oracle commit can write synthesized decisions and outcomes into the Obsidian-backed Oracle Inbox.",
-            "- MCP proxy can call Terminal Brain status, setup, sources, briefing, permissions, sync, start work, oracle brief, oracle items, oracle ask, and oracle commit.",
+            "- MCP proxy can call Terminal Brain status, setup, radar, sources, briefing, permissions, sync, start work, oracle brief, oracle items, oracle ask, and oracle commit.",
             "- Do not describe these implemented capabilities as missing. Recommend what should come after them.",
             "",
             "Local deterministic read:",
@@ -948,10 +950,25 @@ enum ProjectSnapshot {
 }
 
 enum TodaySnapshot {
-    static func today() -> [String: Any] {
+    static func today() async -> [String: Any] {
         let projects = (ProjectSnapshot.projects()["items"] as? [[String: Any]]) ?? []
         let commits = (OracleSnapshot.commits()["items"] as? [[String: Any]]) ?? []
+        let radarPayload = await RadarSnapshot.radar()
+        let radar = (radarPayload["items"] as? [[String: Any]]) ?? []
         var commands: [[String: Any]] = []
+
+        for item in radar.prefix(2) {
+            commands.append(command(
+                id: "radar-\(item["id"] ?? "")",
+                title: item["title"] as? String ?? "Radar signal",
+                detail: item["detail"] as? String ?? "",
+                priority: item["urgency"] as? String ?? "Next",
+                action: item["action"] as? String ?? "Open Radar",
+                project: item["project"] as? String ?? "",
+                symbol: item["symbol"] as? String ?? "scope",
+                query: item["query"] as? String ?? ""
+            ))
+        }
 
         for commit in commits.filter({ ($0["status"] as? String) == "delegated" }).prefix(3) {
             commands.append(command(
@@ -1025,6 +1042,136 @@ enum TodaySnapshot {
             "symbol": symbol,
             "query": query
         ]
+    }
+}
+
+enum RadarSnapshot {
+    static func radar() async -> [String: Any] {
+        let setup = await SetupSnapshot.setup()
+        let projects = (ProjectSnapshot.projects()["items"] as? [[String: Any]]) ?? []
+        let commits = (OracleSnapshot.commits()["items"] as? [[String: Any]]) ?? []
+        let oraclePayload = await OracleSnapshot.items()
+        let oracle = (oraclePayload["items"] as? [[String: Any]]) ?? []
+        var items: [[String: Any]] = []
+
+        for step in (setup["steps"] as? [[String: Any]] ?? []).filter({ ($0["state"] as? String) == "Attention" }).prefix(2) {
+            items.append(item(
+                id: "setup-\(step["id"] ?? "")",
+                title: "Readiness gap: \(step["title"] as? String ?? "Setup")",
+                detail: step["detail"] as? String ?? "",
+                reason: "This weakens agent reliability or source coverage.",
+                action: step["action"] as? String ?? "Open Setup",
+                project: "System",
+                urgency: "Safety",
+                symbol: step["symbol"] as? String ?? "exclamationmark.triangle",
+                state: "Attention",
+                query: step["title"] as? String ?? "Setup",
+                path: ""
+            ))
+        }
+
+        for commit in commits.filter({ ($0["status"] as? String) == "delegated" }).prefix(3) {
+            items.append(item(
+                id: "delegated-\(commit["id"] ?? "")",
+                title: "Delegated read needs execution",
+                detail: commit["title"] as? String ?? "Delegated Oracle read",
+                reason: "You already marked this as delegated. It should become a context pack or agent handoff.",
+                action: "Start Work",
+                project: commit["project"] as? String ?? "",
+                urgency: "Now",
+                symbol: "paperplane.fill",
+                state: "Running",
+                query: [commit["project"] as? String ?? "", commit["title"] as? String ?? ""].filter { !$0.isEmpty }.joined(separator: " - "),
+                path: commit["path"] as? String ?? ""
+            ))
+        }
+
+        for commit in commits.filter({ ($0["status"] as? String) == "new" }).prefix(4) {
+            items.append(item(
+                id: "review-\(commit["id"] ?? "")",
+                title: "Unclassified Oracle read",
+                detail: commit["preview"] as? String ?? "",
+                reason: "A useful answer is only durable when it is accepted, linked, delegated, or dismissed.",
+                action: "Open Review",
+                project: commit["project"] as? String ?? "",
+                urgency: "Triage",
+                symbol: "tray.fill",
+                state: "Attention",
+                query: commit["title"] as? String ?? "",
+                path: commit["path"] as? String ?? ""
+            ))
+        }
+
+        for project in projects.prefix(5) {
+            let delegated = project["delegatedCount"] as? Int ?? 0
+            let recommended = project["recommendedAction"] as? String ?? ""
+            items.append(item(
+                id: "project-\(project["id"] ?? "")",
+                title: delegated > 0 ? "Project needs execution" : "Project wants a decision",
+                detail: recommended,
+                reason: project["summary"] as? String ?? "",
+                action: "Open Project",
+                project: project["name"] as? String ?? "",
+                urgency: delegated > 0 ? "Now" : "Next",
+                symbol: project["symbol"] as? String ?? "folder.fill",
+                state: delegated > 0 ? "Running" : "Ready",
+                query: project["name"] as? String ?? "",
+                path: ((project["contextPacks"] as? [[String: Any]])?.first?["path"] as? String) ?? ""
+            ))
+        }
+
+        for signal in oracle.filter({ ["idea", "opportunity", "openLoop"].contains($0["kind"] as? String ?? "") }).prefix(5) {
+            let kind = signal["kind"] as? String ?? "signal"
+            items.append(item(
+                id: "oracle-\(signal["id"] ?? "")",
+                title: kind == "openLoop" ? "Open loop resurfaced" : "Idea worth testing",
+                detail: signal["title"] as? String ?? "",
+                reason: signal["detail"] as? String ?? "",
+                action: kind == "openLoop" ? "Start Work" : "Ask Oracle",
+                project: ProjectSnapshot.projectName(from: "\(signal["title"] ?? "") \(signal["detail"] ?? "") \(signal["source"] ?? "")"),
+                urgency: kind == "openLoop" ? "Next" : "Explore",
+                symbol: signal["symbol"] as? String ?? "scope",
+                state: kind == "openLoop" ? "Attention" : "Ready",
+                query: signal["title"] as? String ?? "",
+                path: signal["path"] as? String ?? ""
+            ))
+        }
+
+        let deduped = dedupe(items)
+        return [
+            "generatedAt": ISO8601DateFormatter().string(from: Date()),
+            "items": Array(deduped.prefix(12)),
+            "attentionCount": deduped.filter { ($0["state"] as? String) == "Attention" }.count,
+            "nowCount": deduped.filter { ($0["urgency"] as? String) == "Now" }.count
+        ]
+    }
+
+    private static func item(id: String, title: String, detail: String, reason: String, action: String, project: String, urgency: String, symbol: String, state: String, query: String, path: String) -> [String: Any] {
+        [
+            "id": id,
+            "title": title,
+            "detail": detail,
+            "reason": reason,
+            "action": action,
+            "project": project,
+            "urgency": urgency,
+            "symbol": symbol,
+            "state": state,
+            "query": query,
+            "path": path
+        ]
+    }
+
+    private static func dedupe(_ items: [[String: Any]]) -> [[String: Any]] {
+        var seen = Set<String>()
+        var output: [[String: Any]] = []
+        for item in items {
+            let key = "\(item["title"] ?? "")-\(item["project"] ?? "")-\(item["query"] ?? "")".lowercased()
+            guard !seen.contains(key) else { continue }
+            seen.insert(key)
+            output.append(item)
+        }
+        return output
     }
 }
 

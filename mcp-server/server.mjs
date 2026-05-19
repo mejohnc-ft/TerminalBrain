@@ -54,6 +54,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_radar",
+    description: "Get proactive Terminal Brain radar signals: delegated reads, stale reviews, project risks, open loops, and ideas worth testing.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_projects",
     description: "List Terminal Brain project memory pages derived from context packs and Oracle commits.",
     inputSchema: {
@@ -228,6 +237,8 @@ async function callTool(name, args = {}) {
       return api("/briefing");
     case "terminal_brain_today":
       return api("/today");
+    case "terminal_brain_radar":
+      return api("/radar");
     case "terminal_brain_projects":
       return api("/projects");
     case "terminal_brain_oracle_brief":
