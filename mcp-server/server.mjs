@@ -99,6 +99,10 @@ const tools = [
           type: "string",
           description: "Optional source label. Defaults to Terminal Brain MCP."
         },
+        project: {
+          type: "string",
+          description: "Optional project name to attach to the committed read."
+        },
         tags: {
           type: "array",
           items: { type: "string" },
@@ -218,6 +222,7 @@ async function callTool(name, args = {}) {
           content: args.content,
           question: args.question || "",
           source: args.source || "Terminal Brain MCP",
+          project: args.project || "",
           tags: Array.isArray(args.tags) ? args.tags : []
         }
       });

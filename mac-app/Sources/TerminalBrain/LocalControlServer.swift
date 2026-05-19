@@ -90,6 +90,7 @@ final class LocalControlServer {
                 content: content,
                 question: request.jsonBody?["question"] as? String ?? "",
                 source: request.jsonBody?["source"] as? String ?? "Terminal Brain Oracle",
+                project: request.jsonBody?["project"] as? String ?? "",
                 tags: request.jsonBody?["tags"] as? [String] ?? []
             ))
         case ("POST", "/sync"):
@@ -187,7 +188,7 @@ enum OracleSnapshot {
         ]
     }
 
-    static func commit(title: String, content: String, question: String, source: String, tags: [String]) -> [String: Any] {
+    static func commit(title: String, content: String, question: String, source: String, project: String, tags: [String]) -> [String: Any] {
         let directory = URL(fileURLWithPath: Paths.workspace).appendingPathComponent("Oracle Inbox", isDirectory: true)
         do {
             try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -200,10 +201,12 @@ enum OracleSnapshot {
             mergedTags = Array(Set(mergedTags)).sorted()
             let tagLines = mergedTags.map { "  - \($0)" }.joined(separator: "\n")
             let questionBlock = question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "" : "\n## Question\n\n\(question.trimmingCharacters(in: .whitespacesAndNewlines))\n"
+            let resolvedProject = project.trimmingCharacters(in: .whitespacesAndNewlines).ifEmpty(ProjectSnapshot.projectName(from: "\(title) \(question) \(content) \(tags.joined(separator: " "))"))
             let body = """
             ---
             type: oracle_commit
             source: \(source)
+            project: \(resolvedProject)
             created: \(timestamp)
             reviewStatus: new
             tags:
@@ -226,6 +229,7 @@ enum OracleSnapshot {
                 "ok": true,
                 "path": fileURL.path,
                 "title": title,
+                "project": resolvedProject,
                 "tags": mergedTags,
                 "created": timestamp
             ]
@@ -262,6 +266,7 @@ enum OracleSnapshot {
                         "question": parsed.question,
                         "preview": parsed.preview,
                         "status": parsed.frontmatter["reviewStatus"] ?? parsed.frontmatter["status"] ?? "new",
+                        "project": (parsed.frontmatter["project"] ?? "").ifEmpty(ProjectSnapshot.projectName(from: "\(parsed.title) \(parsed.question) \(parsed.preview) \(parsed.tags.joined(separator: " "))")),
                         "source": parsed.frontmatter["source"] ?? "Oracle Inbox",
                         "created": ISO8601DateFormatter().string(from: created),
                         "path": url.path,
@@ -792,7 +797,7 @@ enum ProjectSnapshot {
         }
 
         for commit in commits {
-            let name = projectName(from: "\(commit["title"] ?? "") \(commit["question"] ?? "") \(commit["preview"] ?? "") \((commit["tags"] as? [String] ?? []).joined(separator: " "))")
+            let name = (commit["project"] as? String ?? "").ifEmpty(projectName(from: "\(commit["title"] ?? "") \(commit["question"] ?? "") \(commit["preview"] ?? "") \((commit["tags"] as? [String] ?? []).joined(separator: " "))"))
             let id = ensure(name)
             var existing = buckets[id]?["oracleCommits"] as? [[String: Any]] ?? []
             existing.append(commit)
@@ -860,7 +865,7 @@ enum ProjectSnapshot {
             .map { $0.1 }
     }
 
-    private static func projectName(from text: String) -> String {
+    static func projectName(from text: String) -> String {
         let lowered = text.lowercased()
         let known: [(needle: String, name: String)] = [
             ("terminal brain", "Terminal Brain"),

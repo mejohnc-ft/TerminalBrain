@@ -11,6 +11,8 @@ http://127.0.0.1:8765
 
 Start Terminal Brain before using this MCP.
 
+Oracle commits accept an optional `project` argument. When provided, Terminal Brain writes that project into note frontmatter so Review filters and Project Memory pages can attach the read to the correct work surface.
+
 Codex/workspace config can register this server as:
 
 ```json

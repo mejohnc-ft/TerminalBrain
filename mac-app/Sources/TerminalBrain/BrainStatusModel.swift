@@ -174,10 +174,12 @@ final class BrainStatusModel: ObservableObject {
         }
     }
 
-    func commitOracleAnswer() async {
+    func commitOracleAnswer(project: String? = nil) async {
         let content = oracleAnswer.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !content.isEmpty else { return }
         guard let url = URL(string: "http://127.0.0.1:8765/oracle/commit") else { return }
+        let explicitProject = project?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let resolvedProject = explicitProject?.isEmpty == false ? explicitProject ?? "" : projectName(from: "\(oracleQuestion) \(content)")
         do {
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
@@ -187,6 +189,7 @@ final class BrainStatusModel: ObservableObject {
                 "question": oracleQuestion,
                 "content": content,
                 "source": "Terminal Brain.app",
+                "project": resolvedProject,
                 "tags": ["terminal-brain", "oracle", oracleMode]
             ])
             let (data, _) = try await URLSession.shared.data(for: request)
@@ -202,6 +205,59 @@ final class BrainStatusModel: ObservableObject {
         } catch {
             oracleCommitOutput = "Commit failed: \(error.localizedDescription)"
         }
+    }
+
+    func askOracle(for project: ProjectMemory) async {
+        oracleQuestion = "What changed for \(project.name), what matters now, and what should I do next?"
+        await askOracle()
+    }
+
+    func buildPack(for project: ProjectMemory) async {
+        workQuery = project.name
+        await startWork()
+    }
+
+    func commitProjectUpdate(_ project: ProjectMemory) async {
+        guard let url = URL(string: "http://127.0.0.1:8765/oracle/commit") else { return }
+        let signals = [
+            "Summary: \(project.summary)",
+            "Recommended next action: \(project.recommendedAction)",
+            "Context packs: \(project.contextPacks.map(\.title).joined(separator: ", ").ifEmpty("none"))",
+            "Open loops: \(project.openLoops.map(\.title).joined(separator: ", ").ifEmpty("none"))",
+            "Decisions: \(project.decisions.map(\.title).joined(separator: ", ").ifEmpty("none"))"
+        ].joined(separator: "\n\n")
+        do {
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONSerialization.data(withJSONObject: [
+                "title": "Project Update - \(project.name)",
+                "question": "What is the current operating state for \(project.name)?",
+                "content": signals,
+                "source": "Terminal Brain Project Memory",
+                "project": project.name,
+                "tags": ["terminal-brain", "project-memory", projectID(from: project.name)]
+            ])
+            let (data, _) = try await URLSession.shared.data(for: request)
+            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  json["ok"] as? Bool == true,
+                  let path = json["path"] as? String else {
+                oracleCommitOutput = "Project update commit failed."
+                return
+            }
+            oracleCommitOutput = "Committed project update to \(path)"
+            oracleCommits = loadOracleCommits()
+            projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
+        } catch {
+            oracleCommitOutput = "Project update commit failed: \(error.localizedDescription)"
+        }
+    }
+
+    func delegateOracleCommitToStartWork(_ commit: OracleCommit) {
+        setOracleCommitStatus(commit, status: .delegated)
+        workQuery = [commit.project, commit.title]
+            .filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            .joined(separator: " - ")
     }
 
     func setOracleCommitStatus(_ commit: OracleCommit, status: OracleCommitStatus) {
@@ -979,7 +1035,7 @@ final class BrainStatusModel: ObservableObject {
         }
 
         for commit in oracleCommits {
-            let id = ensure(projectName(from: "\(commit.title) \(commit.question) \(commit.preview) \(commit.tags.joined(separator: " "))"))
+            let id = ensure(commit.project)
             buckets[id]?.commits.append(commit)
         }
 
@@ -1141,12 +1197,14 @@ final class BrainStatusModel: ObservableObject {
                 let title = parsed.title.ifEmpty(url.deletingPathExtension().lastPathComponent)
                 let status = OracleCommitStatus(rawValue: parsed.frontmatter["reviewStatus"] ?? parsed.frontmatter["status"] ?? "new") ?? .new
                 let tags = parsed.tags.isEmpty ? ["oracle"] : parsed.tags
+                let project = (parsed.frontmatter["project"] ?? "").ifEmpty(projectName(from: "\(title) \(parsed.question) \(parsed.preview) \(tags.joined(separator: " "))"))
                 return OracleCommit(
                     id: url.path,
                     title: title,
                     question: parsed.question,
                     preview: parsed.preview,
                     status: status,
+                    project: project,
                     source: parsed.frontmatter["source"] ?? "Oracle Inbox",
                     created: created,
                     path: url.path,

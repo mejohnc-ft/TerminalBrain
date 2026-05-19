@@ -53,6 +53,8 @@ That means Apple Notes prompts should say **Terminal Brain**, not `node`, once N
 - **Projects**: Durable project memory pages derived from context packs and Oracle commits.
 - **System**: Tracks native macOS surfaces such as menu bar extra, settings, local API, widgets, login item, and shortcuts.
 
+Project pages include direct actions for asking a project-scoped Oracle question, building a project context pack, committing a project update, and opening the latest pack. Review can be filtered by project, and delegated reads can be sent straight into Start Work.
+
 ## macOS Shell
 
 Terminal Brain uses a native macOS window shell:

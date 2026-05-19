@@ -15,6 +15,7 @@ Terminal Brain is a native macOS control surface for a local-first personal brai
 - Oracle commit/writeback into the Obsidian-backed `Oracle Inbox`.
 - Review Queue for committed Oracle reads with triage states.
 - Project Memory pages derived from context packs and Oracle commits.
+- Project-aware actions for asking Oracle, building packs, committing updates, filtering Review, and delegating reads into Start Work.
 - MCP tools for status, sources, briefing, permissions, sync, Start Work, Oracle ask, Oracle items, and Oracle commits.
 
 ## Build

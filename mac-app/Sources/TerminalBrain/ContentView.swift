@@ -7,6 +7,7 @@ struct ContentView: View {
     @State private var selectedFeedID = ""
     @State private var selectedCommitID = ""
     @State private var selectedProjectID = ""
+    @State private var reviewProjectFilter = "all"
     @State private var feedFilter: FeedKind = .all
     @State private var selectedSourceID = "obsidian"
     @State private var showCommandPalette = false
@@ -30,11 +31,16 @@ struct ContentView: View {
     }
 
     private var selectedOracleCommit: OracleCommit? {
-        model.oracleCommits.first { $0.id == selectedCommitID } ?? model.oracleCommits.first
+        filteredOracleCommits.first { $0.id == selectedCommitID } ?? filteredOracleCommits.first ?? model.oracleCommits.first
     }
 
     private var selectedProject: ProjectMemory? {
         model.projects.first { $0.id == selectedProjectID } ?? model.projects.first
+    }
+
+    private var filteredOracleCommits: [OracleCommit] {
+        guard reviewProjectFilter != "all" else { return model.oracleCommits }
+        return model.oracleCommits.filter { $0.project == reviewProjectFilter }
     }
 
     private var commandItems: [BrainCommand] {
@@ -547,23 +553,31 @@ struct ContentView: View {
                     }
                     .buttonStyle(.bordered)
                 }
+                Picker("Project Filter", selection: $reviewProjectFilter) {
+                    Text("All Projects").tag("all")
+                    ForEach(model.projects) { project in
+                        Text(project.name).tag(project.name)
+                    }
+                }
+                .pickerStyle(.menu)
+                .labelsHidden()
 
                 VStack(spacing: 0) {
-                    ForEach(model.oracleCommits) { commit in
+                    ForEach(filteredOracleCommits) { commit in
                         Button {
                             selectedCommitID = commit.id
                         } label: {
                             OracleCommitRow(commit: commit, selected: selectedOracleCommit?.id == commit.id)
                         }
                         .buttonStyle(.plain)
-                        if commit.id != model.oracleCommits.last?.id {
+                        if commit.id != filteredOracleCommits.last?.id {
                             Divider().overlay(.white.opacity(0.08)).padding(.leading, 54)
                         }
                     }
-                    if model.oracleCommits.isEmpty {
+                    if filteredOracleCommits.isEmpty {
                         EmptyStateRow(
-                            title: "No committed reads yet",
-                            detail: "Ask Oracle, then use Commit to create reviewable memory.",
+                            title: reviewProjectFilter == "all" ? "No committed reads yet" : "No reads for this project",
+                            detail: reviewProjectFilter == "all" ? "Ask Oracle, then use Commit to create reviewable memory." : "Commit a project update or ask the Project Oracle to create a read.",
                             symbol: "tray"
                         )
                     }
@@ -586,7 +600,7 @@ struct ContentView: View {
                                 Text(commit.title)
                                     .font(.title2.weight(.bold))
                                     .foregroundStyle(.white)
-                                Text("\(commit.source) - \(commit.created.formatted(date: .abbreviated, time: .shortened))")
+                                Text("\(commit.project) - \(commit.source) - \(commit.created.formatted(date: .abbreviated, time: .shortened))")
                                     .font(.callout)
                                     .foregroundStyle(.white.opacity(0.52))
                             }
@@ -624,6 +638,10 @@ struct ContentView: View {
                             }
                         }
 
+                        Text("Project: \(commit.project)")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.white.opacity(0.52))
+
                         Text(commit.path)
                             .font(.caption.monospaced())
                             .foregroundStyle(.white.opacity(0.44))
@@ -634,7 +652,10 @@ struct ContentView: View {
                             Button { model.openPath(commit.path) } label: { Label("Open", systemImage: "arrow.up.right.square") }
                             Button { model.setOracleCommitStatus(commit, status: .accepted) } label: { Label("Accept", systemImage: "checkmark.seal") }
                             Button { model.setOracleCommitStatus(commit, status: .linked) } label: { Label("Linked", systemImage: "link") }
-                            Button { model.setOracleCommitStatus(commit, status: .delegated) } label: { Label("Delegate", systemImage: "paperplane") }
+                            Button {
+                                model.delegateOracleCommitToStartWork(commit)
+                                selectedSection = "start"
+                            } label: { Label("Delegate", systemImage: "paperplane") }
                             Button { model.setOracleCommitStatus(commit, status: .dismissed) } label: { Label("Dismiss", systemImage: "xmark.circle") }
                         }
                         .buttonStyle(.bordered)
@@ -739,20 +760,40 @@ struct ContentView: View {
 
                         HStack {
                             Button {
-                                model.workQuery = project.name
-                                selectedSection = "start"
+                                Task {
+                                    await model.buildPack(for: project)
+                                    selectedSection = "start"
+                                }
                             } label: {
                                 Label("Build Pack", systemImage: "shippingbox")
                             }
                             .buttonStyle(.borderedProminent)
 
                             Button {
-                                model.oracleQuestion = "What changed for \(project.name), and what should I do next?"
-                                selectedSection = "oracle"
+                                Task {
+                                    await model.askOracle(for: project)
+                                    selectedSection = "oracle"
+                                }
                             } label: {
                                 Label("Ask Oracle", systemImage: "sparkle.magnifyingglass")
                             }
                             .buttonStyle(.bordered)
+
+                            Button {
+                                Task { await model.commitProjectUpdate(project) }
+                            } label: {
+                                Label("Commit Update", systemImage: "square.and.arrow.down")
+                            }
+                            .buttonStyle(.bordered)
+
+                            if let latest = project.contextPacks.first, let path = latest.path {
+                                Button {
+                                    model.openPath(path)
+                                } label: {
+                                    Label("Latest Pack", systemImage: "doc.richtext")
+                                }
+                                .buttonStyle(.bordered)
+                            }
                         }
                     }
                     .padding(16)
@@ -1561,6 +1602,10 @@ struct OracleCommitRow: View {
                 Text(commit.status.label)
                     .font(.caption.weight(.bold))
                     .foregroundStyle(commit.status.color)
+                Text(commit.project)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.white.opacity(0.44))
+                    .lineLimit(1)
                 Text(commit.preview)
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.50))

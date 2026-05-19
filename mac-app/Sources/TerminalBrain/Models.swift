@@ -191,6 +191,7 @@ struct OracleCommit: Identifiable {
     let question: String
     let preview: String
     let status: OracleCommitStatus
+    let project: String
     let source: String
     let created: Date
     let path: String
