@@ -975,7 +975,10 @@ struct ContentView: View {
                             }
                             .buttonStyle(.bordered)
                             Button {
-                                Task { await model.commitRadarItem(item) }
+                                Task {
+                                    await model.commitRadarItem(item)
+                                    model.setRadarDisposition(item, disposition: .acted)
+                                }
                             } label: {
                                 Label("Commit Signal", systemImage: "square.and.arrow.down")
                             }
@@ -1972,27 +1975,39 @@ struct ContentView: View {
     private func applyRadarAction(_ item: RadarItem) {
         switch item.action {
         case "Open Review":
+            markRadarActed(item)
             reviewProjectFilter = item.project.isEmpty ? "all" : item.project
             selectedSection = "review"
         case "Open Project":
+            markRadarActed(item)
             if let project = model.projects.first(where: { $0.name == item.project }) {
                 selectedProjectID = project.id
             }
             selectedSection = "projects"
         case "Open Pack":
+            markRadarActed(item)
             if let path = item.path {
                 model.openPath(path)
             }
         case "Open Sources":
+            markRadarActed(item)
             selectedSection = "sources"
         case "Open Settings":
+            markRadarActed(item)
             selectedSection = "setup"
         case "Ask Oracle":
             model.oracleQuestion = item.query
             selectedSection = "oracle"
         default:
+            markRadarActed(item)
             model.workQuery = item.query
             selectedSection = "start"
+        }
+    }
+
+    private func markRadarActed(_ item: RadarItem) {
+        if item.disposition == .fresh || item.disposition == .watching {
+            model.setRadarDisposition(item, disposition: .acted)
         }
     }
 
