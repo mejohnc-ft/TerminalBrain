@@ -1,0 +1,23 @@
+.DS_Store
+
+# macOS / Swift build output
+mac-app/build/
+*.xcuserdata/
+*.xcuserstate
+DerivedData/
+
+# Node dependencies and local package-manager output
+mcp-server/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local environment and secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Runtime logs
+*.log

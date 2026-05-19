@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleDevelopmentRegion</key>
+  <string>en</string>
+  <key>CFBundleExecutable</key>
+  <string>TerminalBrain</string>
+  <key>CFBundleIdentifier</key>
+  <string>com.franklin.terminal-brain</string>
+  <key>CFBundleInfoDictionaryVersion</key>
+  <string>6.0</string>
+  <key>CFBundleName</key>
+  <string>Terminal Brain</string>
+  <key>CFBundlePackageType</key>
+  <string>APPL</string>
+  <key>CFBundleShortVersionString</key>
+  <string>0.1.0</string>
+  <key>CFBundleVersion</key>
+  <string>1</string>
+  <key>LSMinimumSystemVersion</key>
+  <string>14.0</string>
+  <key>NSAppleEventsUsageDescription</key>
+  <string>Terminal Brain checks Apple Notes only when you explicitly request a Notes permission check or run a manual sync with Apple Notes enabled.</string>
+  <key>NSDocumentsFolderUsageDescription</key>
+  <string>Terminal Brain can open your local knowledge vault and sync logs when requested.</string>
+  <key>NSHumanReadableCopyright</key>
+  <string>Copyright © 2026 Franklin Systems</string>
+</dict>
+</plist>

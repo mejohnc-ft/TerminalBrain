@@ -1,0 +1,114 @@
+# Terminal Brain
+
+Terminal Brain is the native macOS control surface for the local Franklin Brain stack.
+
+It is intentionally passive on startup:
+
+- It checks MCP process state.
+- It verifies Codex and workspace MCP config.
+- It reads local derived Brain index metadata.
+- It checks Mission Control reachability.
+- It does not read Apple Notes unless you press **Check Notes Permission** or run a manual sync with Apple Notes enabled.
+- It can build Start Work context packs from the first-party local brain kernel.
+
+## Build
+
+```zsh
+./scripts/build-app.zsh
+```
+
+The built app is written to:
+
+```text
+build/Terminal Brain.app
+```
+
+## First-Run Permission Model
+
+macOS grants Apple Events permissions to the app bundle identity:
+
+```text
+com.franklin.terminal-brain
+```
+
+That means Apple Notes prompts should say **Terminal Brain**, not `node`, once Notes access is moved behind this app. The v0.1 app only probes Notes when explicitly requested.
+
+## Controls
+
+- **Refresh**: Re-check local MCP, config, index, and Mission Control status.
+- **Run Sync**: Execute the Edge Brain sync wrapper with Apple Notes disabled unless the manual toggle is on.
+- **Check Notes Permission**: Ask Apple Notes for a note count using the Terminal Brain app identity.
+- **Mission**: Open Mission Control.
+- **Logs**: Open the Edge Brain sync log.
+- **Vault**: Open the local Obsidian vault folder.
+
+## Views
+
+- **Cockpit**: Current health across MCP, config, indexes, sync, and Mission Control.
+- **Sources**: Permission-aware status for Obsidian, agent histories, Drafts, Apple Notes, and Mission Control.
+- **Today**: Deterministic local briefing from index, agent-memory, sync, and recent note state.
+- **Start Work**: Creates a context pack from the local brain kernel before handing work to an agent.
+- **Oracle**: Ask Terminal Brain for grounded synthesis from local signals and Mission retrieval.
+- **Review**: Triage committed Oracle reads as new, accepted, linked, delegated, or dismissed.
+- **System**: Tracks native macOS surfaces such as menu bar extra, settings, local API, widgets, login item, and shortcuts.
+
+## macOS Shell
+
+Terminal Brain uses a native macOS window shell:
+
+- `NavigationSplitView` for the sidebar/detail structure.
+- Transparent full-size titlebar configured through AppKit.
+- Native toolbar items for sidebar toggle, back, search, status, refresh, sync, and profile.
+- Floating rounded sidebar surface over the main background.
+- Dense Music/Reeder-style dark content lists instead of equal-weight dashboard cards.
+
+Start Work uses the local brain kernel configured in `Paths.brainCLI` and writes context packs under the local workspace `.brain/context-packs` folder.
+
+## Local Control API
+
+When Terminal Brain is running, it exposes a localhost-only control API:
+
+```text
+http://127.0.0.1:8765
+```
+
+Routes:
+
+- `GET /health`
+- `GET /status`
+- `GET /sources`
+- `GET /briefing`
+- `GET /permissions`
+- `GET /oracle/brief`
+- `GET /oracle/items`
+- `GET /oracle/commits`
+- `POST /oracle/ask`
+- `POST /oracle/commit`
+- `POST /sync`
+- `POST /start-work`
+
+Agents should use this API through the Terminal Brain MCP instead of starting
+separate Apple Notes or Drafts bridges.
+
+## Native macOS Roadmap
+
+Implemented:
+
+- Menu bar extra.
+- Native Settings scene.
+- Sidebar commands and custom Brain menu.
+- Liquid Glass-aware controls with readable material panels.
+- Theme picker with System, Arctic Glass, Graphite, and Midnight.
+- Profile menu for operator identity, settings, theme, and logs.
+- Local-only control API for MCP/agent access.
+- Mission-backed Oracle synthesis with deterministic local fallback.
+- Obsidian-backed Oracle commit and Review Queue.
+
+Next:
+
+- WidgetKit extension for prompt-safety, sync age, and Mission Control points.
+- Login item via ServiceManagement after a stable signed app bundle.
+- App Shortcuts for Run Sync and Start Work.
+- Notification summaries for sync failures and stale source state.
+- Quick Look / Share extension for sending selected files or text into Brain.
+- Spotlight indexing for context packs and briefing summaries.

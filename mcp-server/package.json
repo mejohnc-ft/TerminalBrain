@@ -1,0 +1,9 @@
+{
+  "name": "terminal-brain-mcp",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "terminal-brain-mcp": "server.mjs"
+  }
+}
