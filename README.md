@@ -85,11 +85,12 @@ To print or copy the current operator snapshot from an already-running app:
 ```zsh
 ./mac-app/scripts/snapshot.zsh --markdown
 ./mac-app/scripts/snapshot.zsh --json
+./mac-app/scripts/snapshot.zsh --deck
 ./mac-app/scripts/snapshot.zsh --markdown --copy
 ./mac-app/scripts/snapshot.zsh --markdown --output /tmp/terminal-brain-snapshot.md
 ```
 
-The snapshot helper never launches or foregrounds Terminal Brain. `--output` is useful for prompt-ready handoffs to another agent or chat without touching the clipboard.
+The snapshot helper never launches or foregrounds Terminal Brain. `--deck` returns the four Operator Deck cards as JSON. `--output` is useful for prompt-ready handoffs to another agent or chat without touching the clipboard.
 
 The built app is emitted to:
 

@@ -92,11 +92,12 @@ Print or copy the current operator snapshot from an already-running app:
 ```zsh
 ./mac-app/scripts/snapshot.zsh --markdown
 ./mac-app/scripts/snapshot.zsh --json
+./mac-app/scripts/snapshot.zsh --deck
 ./mac-app/scripts/snapshot.zsh --markdown --copy
 ./mac-app/scripts/snapshot.zsh --markdown --output /tmp/terminal-brain-snapshot.md
 ```
 
-The snapshot helper never launches or foregrounds Terminal Brain. Use `--output` for prompt-ready handoff files.
+The snapshot helper never launches or foregrounds Terminal Brain. Use `--deck` for app-aligned action cards and `--output` for prompt-ready handoff files.
 
 Install the app into `~/Applications`:
 

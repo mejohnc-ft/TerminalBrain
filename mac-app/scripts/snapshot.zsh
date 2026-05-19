@@ -11,6 +11,9 @@ while [[ $# -gt 0 ]]; do
     --json)
       FORMAT="json"
       ;;
+    --deck)
+      FORMAT="deck"
+      ;;
     --markdown)
       FORMAT="markdown"
       ;;
@@ -34,7 +37,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     --help|-h)
       cat <<'EOF'
-Usage: ./mac-app/scripts/snapshot.zsh [--markdown|--json] [--copy] [--output FILE]
+Usage: ./mac-app/scripts/snapshot.zsh [--markdown|--json|--deck] [--copy] [--output FILE]
 
 Prints the current Terminal Brain operator snapshot from an already-running app.
 This script never launches or foregrounds Terminal Brain.
@@ -42,6 +45,7 @@ This script never launches or foregrounds Terminal Brain.
 Options:
   --markdown  Print prompt-ready Markdown. Default.
   --json      Print raw snapshot JSON.
+  --deck      Print raw Operator Deck JSON.
   --copy      Copy output to the clipboard as well as printing it.
   --output    Write output to a file as well as printing it.
   --help      Show this help.
@@ -65,6 +69,9 @@ fi
 case "$FORMAT" in
   json)
     OUTPUT="$(curl -fsS "$API/snapshot")"
+    ;;
+  deck)
+    OUTPUT="$(curl -fsS "$API/operator-deck")"
     ;;
   markdown)
     OUTPUT="$(curl -fsS "$API/snapshot/markdown")"
