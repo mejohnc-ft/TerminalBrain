@@ -372,7 +372,7 @@ final class BrainStatusModel: ObservableObject {
     }
 
     private func missionCards() async -> [HealthCard] {
-        guard let brain = await sshJSON("curl -fsS --max-time 4 http://127.0.0.1:8080/api/brain") else {
+        guard let brain = await missionJSON(path: "/api/brain") else {
             return [
                 HealthCard(
                     title: "Mission Control",
@@ -760,15 +760,19 @@ final class BrainStatusModel: ObservableObject {
         return [result.stdout, result.stderr].joined(separator: "\n")
     }
 
-    private func sshJSON(_ command: String) async -> [String: Any]? {
-        let result = await CommandRunner.run(
-            "/usr/bin/ssh",
-            ["-o", "BatchMode=yes", "-o", "ConnectTimeout=4", Paths.missionSSHHost, command]
-        )
-        guard result.succeeded, let data = result.stdout.data(using: .utf8) else {
+    private func missionJSON(path: String) async -> [String: Any]? {
+        guard var components = URLComponents(url: Paths.missionURL, resolvingAgainstBaseURL: false) else { return nil }
+        components.path = path
+        guard let url = components.url else { return nil }
+        var request = URLRequest(url: url)
+        request.timeoutInterval = 4
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard (response as? HTTPURLResponse)?.statusCode == 200 else { return nil }
+            return try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        } catch {
             return nil
         }
-        return try? JSONSerialization.jsonObject(with: data) as? [String: Any]
     }
 
     private func buildFindings(from cards: [HealthCard]) -> [String] {
@@ -780,7 +784,7 @@ final class BrainStatusModel: ObservableObject {
             result.append("Drafts MCP is running as a loose Node bridge. Keep it manual unless you intentionally need live Drafts agent access.")
         }
         if cards.contains(where: { $0.title == "Mission Control" && $0.state == .warn }) {
-            result.append("Mission Control is unreachable from this Mac. Check the AI server or network route to 192.168.0.54.")
+            result.append("Mission Control is unreachable from this Mac. Check the configured AI server or network route.")
         }
         if result.isEmpty {
             result.append("No prompt-prone Brain bridges are auto-running. Live source access remains deliberate.")

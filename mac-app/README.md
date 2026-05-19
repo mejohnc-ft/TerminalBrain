@@ -64,6 +64,15 @@ Terminal Brain uses a native macOS window shell:
 
 Start Work uses the local brain kernel configured in `Paths.brainCLI` and writes context packs under the local workspace `.brain/context-packs` folder.
 
+Integration paths are editable in the native Settings window. Environment variables can override saved settings for automation:
+
+- `TERMINAL_BRAIN_WORKSPACE`
+- `TERMINAL_BRAIN_MISSION_URL`
+- `TERMINAL_BRAIN_MISSION_SSH_HOST`
+- `TERMINAL_BRAIN_CLI`
+- `TERMINAL_BRAIN_SYNC_SCRIPT`
+- `TERMINAL_BRAIN_SYNC_LOG`
+
 ## Local Control API
 
 When Terminal Brain is running, it exposes a localhost-only control API:

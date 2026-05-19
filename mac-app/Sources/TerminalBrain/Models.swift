@@ -66,12 +66,45 @@ final class AppSettings: ObservableObject {
     @Published var showAdvancedSystem: Bool {
         didSet { UserDefaults.standard.set(showAdvancedSystem, forKey: "terminalBrainShowAdvancedSystem") }
     }
+    @Published var workspacePath: String {
+        didSet { UserDefaults.standard.set(workspacePath, forKey: AppConfig.Keys.workspacePath) }
+    }
+    @Published var missionURLString: String {
+        didSet { UserDefaults.standard.set(missionURLString, forKey: AppConfig.Keys.missionURLString) }
+    }
+    @Published var missionSSHHost: String {
+        didSet { UserDefaults.standard.set(missionSSHHost, forKey: AppConfig.Keys.missionSSHHost) }
+    }
+    @Published var brainCLIPath: String {
+        didSet { UserDefaults.standard.set(brainCLIPath, forKey: AppConfig.Keys.brainCLIPath) }
+    }
+    @Published var syncScriptPath: String {
+        didSet { UserDefaults.standard.set(syncScriptPath, forKey: AppConfig.Keys.syncScriptPath) }
+    }
+    @Published var syncLogPath: String {
+        didSet { UserDefaults.standard.set(syncLogPath, forKey: AppConfig.Keys.syncLogPath) }
+    }
 
     init() {
         let rawTheme = UserDefaults.standard.string(forKey: "terminalBrainTheme") ?? AppTheme.midnight.rawValue
         theme = AppTheme(rawValue: rawTheme) ?? .system
         reduceGlass = UserDefaults.standard.bool(forKey: "terminalBrainReduceGlass")
         showAdvancedSystem = UserDefaults.standard.bool(forKey: "terminalBrainShowAdvancedSystem")
+        workspacePath = AppConfig.workspacePath
+        missionURLString = AppConfig.missionURLString
+        missionSSHHost = AppConfig.missionSSHHost
+        brainCLIPath = AppConfig.brainCLIPath
+        syncScriptPath = AppConfig.syncScriptPath
+        syncLogPath = AppConfig.syncLogPath
+    }
+
+    func resetIntegrationDefaults() {
+        workspacePath = AppConfig.Defaults.workspacePath
+        missionURLString = AppConfig.Defaults.missionURLString
+        missionSSHHost = AppConfig.Defaults.missionSSHHost
+        brainCLIPath = AppConfig.Defaults.brainCLIPath(workspace: workspacePath)
+        syncScriptPath = AppConfig.Defaults.syncScriptPath(workspace: workspacePath)
+        syncLogPath = AppConfig.Defaults.syncLogPath
     }
 }
 
@@ -255,19 +288,91 @@ struct CommandResult {
 }
 
 struct Paths {
-    static let home = FileManager.default.homeDirectoryForCurrentUser.path
-    static let workspace = "\(home)/mejohnwc"
-    static let edgeExporter = "\(workspace)/Software/edge-brain-exporter"
-    static let syncScript = "\(edgeExporter)/bin/run-edge-brain-sync.zsh"
-    static let syncLog = "\(home)/Library/Logs/franklin-edge-brain-sync.log"
-    static let codexConfig = "\(home)/.codex/config.toml"
-    static let workspaceMCP = "\(workspace)/.mcp.json"
-    static let statsJSON = "\(workspace)/.brain/stats.json"
-    static let agentHistoryStatsJSON = "\(workspace)/.brain/agent-history-stats.json"
-    static let edgeSyncStateJSON = "\(workspace)/.brain/edge-brain-sync-state.json"
-    static let contextPacks = "\(workspace)/.brain/context-packs"
-    static let oracleInbox = "\(workspace)/Oracle Inbox"
-    static let brainCLI = "\(workspace)/Software/brain-kernel/bin/brain.mjs"
-    static let missionSSHHost = "mejohnc@192.168.0.54"
-    static let missionURL = URL(string: "http://192.168.0.54:8080")!
+    static var home: String { AppConfig.home }
+    static var workspace: String { AppConfig.workspacePath }
+    static var edgeExporter: String { "\(workspace)/Software/edge-brain-exporter" }
+    static var syncScript: String { AppConfig.syncScriptPath }
+    static var syncLog: String { AppConfig.syncLogPath }
+    static var codexConfig: String { "\(home)/.codex/config.toml" }
+    static var workspaceMCP: String { "\(workspace)/.mcp.json" }
+    static var statsJSON: String { "\(workspace)/.brain/stats.json" }
+    static var agentHistoryStatsJSON: String { "\(workspace)/.brain/agent-history-stats.json" }
+    static var edgeSyncStateJSON: String { "\(workspace)/.brain/edge-brain-sync-state.json" }
+    static var contextPacks: String { "\(workspace)/.brain/context-packs" }
+    static var oracleInbox: String { "\(workspace)/Oracle Inbox" }
+    static var brainCLI: String { AppConfig.brainCLIPath }
+    static var missionSSHHost: String { AppConfig.missionSSHHost }
+    static var missionURL: URL { URL(string: AppConfig.missionURLString) ?? URL(string: AppConfig.Defaults.missionURLString)! }
+}
+
+enum AppConfig {
+    enum Keys {
+        static let workspacePath = "terminalBrainWorkspacePath"
+        static let missionURLString = "terminalBrainMissionURLString"
+        static let missionSSHHost = "terminalBrainMissionSSHHost"
+        static let brainCLIPath = "terminalBrainBrainCLIPath"
+        static let syncScriptPath = "terminalBrainSyncScriptPath"
+        static let syncLogPath = "terminalBrainSyncLogPath"
+    }
+
+    enum Environment {
+        static let workspacePath = "TERMINAL_BRAIN_WORKSPACE"
+        static let missionURLString = "TERMINAL_BRAIN_MISSION_URL"
+        static let missionSSHHost = "TERMINAL_BRAIN_MISSION_SSH_HOST"
+        static let brainCLIPath = "TERMINAL_BRAIN_CLI"
+        static let syncScriptPath = "TERMINAL_BRAIN_SYNC_SCRIPT"
+        static let syncLogPath = "TERMINAL_BRAIN_SYNC_LOG"
+    }
+
+    enum Defaults {
+        static let home = FileManager.default.homeDirectoryForCurrentUser.path
+        static let workspacePath = "\(home)/mejohnwc"
+        static let missionURLString = "http://127.0.0.1:8080"
+        static let missionSSHHost = ""
+        static let syncLogPath = "\(home)/Library/Logs/franklin-edge-brain-sync.log"
+
+        static func brainCLIPath(workspace: String) -> String {
+            "\(workspace)/Software/brain-kernel/bin/brain.mjs"
+        }
+
+        static func syncScriptPath(workspace: String) -> String {
+            "\(workspace)/Software/edge-brain-exporter/bin/run-edge-brain-sync.zsh"
+        }
+    }
+
+    static var home: String { Defaults.home }
+
+    static var workspacePath: String {
+        configuredValue(env: Environment.workspacePath, key: Keys.workspacePath, fallback: Defaults.workspacePath)
+    }
+
+    static var missionURLString: String {
+        configuredValue(env: Environment.missionURLString, key: Keys.missionURLString, fallback: Defaults.missionURLString)
+    }
+
+    static var missionSSHHost: String {
+        configuredValue(env: Environment.missionSSHHost, key: Keys.missionSSHHost, fallback: Defaults.missionSSHHost)
+    }
+
+    static var brainCLIPath: String {
+        configuredValue(env: Environment.brainCLIPath, key: Keys.brainCLIPath, fallback: Defaults.brainCLIPath(workspace: workspacePath))
+    }
+
+    static var syncScriptPath: String {
+        configuredValue(env: Environment.syncScriptPath, key: Keys.syncScriptPath, fallback: Defaults.syncScriptPath(workspace: workspacePath))
+    }
+
+    static var syncLogPath: String {
+        configuredValue(env: Environment.syncLogPath, key: Keys.syncLogPath, fallback: Defaults.syncLogPath)
+    }
+
+    private static func configuredValue(env: String, key: String, fallback: String) -> String {
+        if let value = ProcessInfo.processInfo.environment[env]?.trimmingCharacters(in: .whitespacesAndNewlines), !value.isEmpty {
+            return value
+        }
+        if let value = UserDefaults.standard.string(forKey: key)?.trimmingCharacters(in: .whitespacesAndNewlines), !value.isEmpty {
+            return value
+        }
+        return fallback
+    }
 }

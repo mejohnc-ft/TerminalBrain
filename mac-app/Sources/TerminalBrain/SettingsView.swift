@@ -23,11 +23,23 @@ struct SettingsView: View {
             Form {
                 LabeledContent("Control API", value: "http://127.0.0.1:8765")
                 LabeledContent("Bundle ID", value: "com.franklin.terminal-brain")
-                LabeledContent("Mission Host", value: Paths.missionSSHHost)
-                LabeledContent("Vault", value: Paths.workspace)
+                TextField("Workspace", text: $settings.workspacePath)
+                TextField("Mission URL", text: $settings.missionURLString)
+                TextField("Mission SSH Host", text: $settings.missionSSHHost)
+                TextField("Brain CLI", text: $settings.brainCLIPath)
+                TextField("Sync Script", text: $settings.syncScriptPath)
+                TextField("Sync Log", text: $settings.syncLogPath)
+                Button {
+                    settings.resetIntegrationDefaults()
+                } label: {
+                    Label("Reset Defaults", systemImage: "arrow.counterclockwise")
+                }
+                Text("Environment variables override these values: TERMINAL_BRAIN_WORKSPACE, TERMINAL_BRAIN_MISSION_URL, TERMINAL_BRAIN_MISSION_SSH_HOST, TERMINAL_BRAIN_CLI, TERMINAL_BRAIN_SYNC_SCRIPT, TERMINAL_BRAIN_SYNC_LOG.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
             }
             .padding(24)
-            .frame(width: 520)
+            .frame(width: 680)
             .tabItem {
                 Label("System", systemImage: "gearshape.2")
             }

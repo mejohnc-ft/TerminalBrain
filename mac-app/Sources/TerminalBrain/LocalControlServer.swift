@@ -981,12 +981,15 @@ enum ControlSnapshot {
     }
 
     private static func missionBrain() async -> [String: Any]? {
-        let result = await CommandRunner.run(
-            "/usr/bin/ssh",
-            ["-o", "BatchMode=yes", "-o", "ConnectTimeout=4", Paths.missionSSHHost, "curl -fsS --max-time 4 http://127.0.0.1:8080/api/brain"]
-        )
-        guard result.succeeded,
-              let data = result.stdout.data(using: .utf8),
+        guard var components = URLComponents(url: Paths.missionURL, resolvingAgainstBaseURL: false) else {
+            return nil
+        }
+        components.path = "/api/brain"
+        guard let url = components.url else { return nil }
+        var request = URLRequest(url: url)
+        request.timeoutInterval = 4
+        guard let (data, response) = try? await URLSession.shared.data(for: request),
+              (response as? HTTPURLResponse)?.statusCode == 200,
               let brain = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             return nil
         }

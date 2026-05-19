@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Swift typecheck
+        run: swiftc -typecheck mac-app/Sources/TerminalBrain/*.swift
+
+      - name: Build macOS app
+        run: ./mac-app/scripts/build-app.zsh
+
+      - name: Check MCP server syntax
+        run: node --check mcp-server/server.mjs
+
+      - name: Secret pattern scan
+        run: |
+          ! grep -RInE '(gho_|sk-|BEGIN [A-Z ]*PRIVATE KEY|api[_-]?key|password|bearer[[:space:]]+[A-Za-z0-9._-]+)' \
+            --exclude-dir=.git \
+            --exclude-dir=build \
+            --exclude-dir=node_modules \
+            --exclude=ci.yml \
+            .

@@ -46,6 +46,21 @@ Override with:
 TERMINAL_BRAIN_API=http://127.0.0.1:8765 node mcp-server/server.mjs
 ```
 
+## Configuration
+
+The app reads integration settings from its native Settings window, with environment variables available for automation:
+
+| Setting | Environment Variable |
+| --- | --- |
+| Workspace path | `TERMINAL_BRAIN_WORKSPACE` |
+| Mission URL | `TERMINAL_BRAIN_MISSION_URL` |
+| Mission SSH host | `TERMINAL_BRAIN_MISSION_SSH_HOST` |
+| Brain CLI path | `TERMINAL_BRAIN_CLI` |
+| Sync script path | `TERMINAL_BRAIN_SYNC_SCRIPT` |
+| Sync log path | `TERMINAL_BRAIN_SYNC_LOG` |
+
+Environment variables take precedence over saved Settings values.
+
 ## Notes
 
 This repo intentionally excludes generated app builds, local environment files, secrets, and runtime logs.
