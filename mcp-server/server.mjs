@@ -184,6 +184,34 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_capture_idea",
+    description: "Capture an idea, open loop, or rough thought into Terminal Brain's Obsidian-backed Oracle Inbox.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        content: {
+          type: "string",
+          description: "The idea or thought to capture."
+        },
+        title: {
+          type: "string",
+          description: "Optional short title. Defaults to Captured Idea."
+        },
+        project: {
+          type: "string",
+          description: "Optional project name to attach."
+        },
+        tags: {
+          type: "array",
+          items: { type: "string" },
+          description: "Optional extra tags."
+        }
+      },
+      required: ["content"],
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_oracle_commits",
     description: "List committed Oracle reads waiting for review, linking, delegation, or dismissal.",
     inputSchema: {
@@ -304,6 +332,16 @@ async function callTool(name, args = {}) {
           content: args.content,
           question: args.question || "",
           source: args.source || "Terminal Brain MCP",
+          project: args.project || "",
+          tags: Array.isArray(args.tags) ? args.tags : []
+        }
+      });
+    case "terminal_brain_capture_idea":
+      return api("/ideas/capture", {
+        method: "POST",
+        body: {
+          title: args.title || "Captured Idea",
+          content: args.content,
           project: args.project || "",
           tags: Array.isArray(args.tags) ? args.tags : []
         }

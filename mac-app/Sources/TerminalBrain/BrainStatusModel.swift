@@ -18,6 +18,8 @@ final class BrainStatusModel: ObservableObject {
     @Published var oracleMode = "local"
     @Published var oracleCommitOutput = ""
     @Published var isAskingOracle = false
+    @Published var quickIdea = ""
+    @Published var quickIdeaOutput = ""
     @Published var oracleCommits: [OracleCommit] = []
     @Published var projects: [ProjectMemory] = []
     @Published var findings: [String] = []
@@ -311,6 +313,40 @@ final class BrainStatusModel: ObservableObject {
             dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems, radarItems: radarItems)
         } catch {
             oracleCommitOutput = "Commit failed: \(error.localizedDescription)"
+        }
+    }
+
+    func captureIdea(project: String? = nil) async {
+        let content = quickIdea.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !content.isEmpty else { return }
+        guard let url = URL(string: "http://127.0.0.1:8765/ideas/capture") else { return }
+        let resolvedProject = project?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+
+        do {
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONSerialization.data(withJSONObject: [
+                "title": titleForIdea(content),
+                "content": content,
+                "project": resolvedProject,
+                "tags": ["terminal-brain", "idea", "capture"]
+            ])
+            let (data, _) = try await URLSession.shared.data(for: request)
+            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  json["ok"] as? Bool == true,
+                  let path = json["path"] as? String else {
+                quickIdeaOutput = "Idea capture failed."
+                return
+            }
+            quickIdea = ""
+            quickIdeaOutput = "Captured to \(path)"
+            oracleCommits = loadOracleCommits()
+            projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
+            radarItems = buildRadarItems(cards: cards, setupSteps: setupSteps, projects: projects, oracleItems: oracleItems, oracleCommits: oracleCommits, feedItems: feedItems)
+            dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems, radarItems: radarItems)
+        } catch {
+            quickIdeaOutput = "Idea capture failed: \(error.localizedDescription)"
         }
     }
 
@@ -1858,6 +1894,17 @@ final class BrainStatusModel: ObservableObject {
             .filter { $0.count > 2 }
             .filter { !["context", "pack", "oracle", "brain", "work", "with", "from", "local", "memory", "generated", "start"].contains($0) }
         return words.prefix(2).joined(separator: " ").capitalized.ifEmpty("General Brain")
+    }
+
+    private func titleForIdea(_ content: String) -> String {
+        let firstLine = content
+            .components(separatedBy: .newlines)
+            .first?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard !firstLine.isEmpty else { return "Captured Idea" }
+        if firstLine.count <= 72 { return firstLine }
+        let end = firstLine.index(firstLine.startIndex, offsetBy: 72)
+        return "\(firstLine[..<end])..."
     }
 
     private func projectID(from name: String) -> String {

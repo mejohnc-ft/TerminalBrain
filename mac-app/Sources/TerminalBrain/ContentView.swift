@@ -552,6 +552,7 @@ struct ContentView: View {
                     .darkPanel()
 
                     focusOraclePanel(item)
+                    focusIdeaCapturePanel(item)
                 }
                 .frame(width: 420)
             }
@@ -625,6 +626,48 @@ struct ContentView: View {
                         .lineLimit(10)
                         .fixedSize(horizontal: false, vertical: true)
                         .textSelection(.enabled)
+                }
+            }
+            .padding(12)
+            .darkPanel()
+        }
+    }
+
+    private func focusIdeaCapturePanel(_ item: FocusItem) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SectionTitle("Capture Thought", symbol: "lightbulb")
+            VStack(alignment: .leading, spacing: 10) {
+                TextEditor(text: $model.quickIdea)
+                    .font(.callout)
+                    .foregroundStyle(.white.opacity(0.82))
+                    .scrollContentBackground(.hidden)
+                    .frame(minHeight: 78)
+                    .padding(8)
+                    .background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(.white.opacity(0.10), lineWidth: 1))
+
+                HStack(spacing: 8) {
+                    Button {
+                        Task { await model.captureIdea(project: item.project) }
+                    } label: {
+                        Label("Capture", systemImage: "tray.and.arrow.down")
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(model.quickIdea.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
+                    Button {
+                        model.quickIdea = "Idea from \(item.project): \(item.title)\n\(item.reason)"
+                    } label: {
+                        Label("Use Focus", systemImage: "target")
+                    }
+                    .buttonStyle(.bordered)
+                }
+
+                if !model.quickIdeaOutput.isEmpty {
+                    Text(model.quickIdeaOutput)
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.58))
+                        .lineLimit(2)
                 }
             }
             .padding(12)

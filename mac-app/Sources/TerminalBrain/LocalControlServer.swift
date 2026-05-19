@@ -111,6 +111,21 @@ final class LocalControlServer {
                 project: request.jsonBody?["project"] as? String ?? "",
                 tags: request.jsonBody?["tags"] as? [String] ?? []
             ))
+        case ("POST", "/ideas/capture"):
+            let content = (request.jsonBody?["content"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !content.isEmpty else {
+                return .json(400, ["ok": false, "error": "content is required"])
+            }
+            let title = (request.jsonBody?["title"] as? String ?? "Captured Idea").trimmingCharacters(in: .whitespacesAndNewlines)
+            let tags = (request.jsonBody?["tags"] as? [String] ?? []) + ["terminal-brain", "idea"]
+            return .json(200, OracleSnapshot.commit(
+                title: title.isEmpty ? "Captured Idea" : title,
+                content: content,
+                question: "Captured from Terminal Brain Focus",
+                source: request.jsonBody?["source"] as? String ?? "Terminal Brain Idea Capture",
+                project: request.jsonBody?["project"] as? String ?? "",
+                tags: Array(Set(tags)).sorted()
+            ))
         case ("POST", "/sync"):
             let includeNotes = request.jsonBody?["includeAppleNotes"] as? Bool ?? false
             let result = await CommandRunner.run(

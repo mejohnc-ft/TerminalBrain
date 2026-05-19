@@ -45,7 +45,7 @@ That means Apple Notes prompts should say **Terminal Brain**, not `node`, once N
 ## Views
 
 - **Cockpit**: Current health across MCP, config, indexes, sync, and Mission Control.
-- **Focus**: The default working surface with one recommended action, score, evidence, immediate next moves, and inline Oracle follow-up prompts.
+- **Focus**: The default working surface with one recommended action, score, evidence, immediate next moves, inline Oracle follow-up prompts, and quick thought capture.
 - **Setup**: Readiness checklist for app, MCP config, workspace, sync, memory, Mission Control, prompt safety, and Oracle writeback.
 - **Radar**: Proactive inbox for delegated reads, stale reviews, quiet project risks, open loops, and ideas worth testing. Radar signals include score/evidence, can be watched, marked acted, snoozed, dismissed, or committed back into the Oracle Inbox as durable memory.
 - **Sources**: Permission-aware status for Obsidian, agent histories, Drafts, Apple Notes, and Mission Control.
@@ -107,6 +107,7 @@ Routes:
 - `GET /oracle/commits`
 - `POST /oracle/ask`
 - `POST /oracle/commit`
+- `POST /ideas/capture`
 - `POST /sync`
 - `POST /start-work`
 
