@@ -1,4 +1,4 @@
-.PHONY: help build install verify live snapshot snapshot-json mcp-check mcp-test
+.PHONY: help build install verify live snapshot snapshot-json snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
@@ -8,6 +8,7 @@ help:
 	@echo "  make install       Copy the app to ~/Applications without launching it"
 	@echo "  make snapshot      Print Markdown snapshot from an already-running app"
 	@echo "  make snapshot-json Print JSON snapshot from an already-running app"
+	@echo "  make snapshot-file OUTPUT=/tmp/terminal-brain-snapshot.md"
 	@echo "  make mcp-check     Check MCP server syntax"
 	@echo "  make mcp-test      Check MCP tool contract"
 
@@ -28,6 +29,10 @@ snapshot:
 
 snapshot-json:
 	./mac-app/scripts/snapshot.zsh --json
+
+snapshot-file:
+	@if test -z "$$OUTPUT"; then echo "Set OUTPUT=/path/to/snapshot.md" >&2; exit 64; fi
+	./mac-app/scripts/snapshot.zsh --markdown --output "$$OUTPUT"
 
 mcp-check:
 	cd mcp-server && npm run check
