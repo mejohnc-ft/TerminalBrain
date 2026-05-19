@@ -81,6 +81,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_operator_deck",
+    description: "Get the same four-card Operator Deck shown in the app: do first, ask about, review or capture, and project/start-work card.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_focus_ask",
     description: "Ask Terminal Brain Oracle a question grounded in the current Focus item and its scoring evidence.",
     inputSchema: {
@@ -336,6 +345,8 @@ async function callTool(name, args = {}) {
       return api("/today");
     case "terminal_brain_focus":
       return api("/focus");
+    case "terminal_brain_operator_deck":
+      return api("/operator-deck");
     case "terminal_brain_focus_ask":
       return api("/focus/ask", { method: "POST", body: { question: args.question || "" } });
     case "terminal_brain_radar":

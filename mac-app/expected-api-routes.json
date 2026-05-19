@@ -8,6 +8,7 @@
   "GET /projects",
   "GET /today",
   "GET /focus",
+  "GET /operator-deck",
   "POST /focus/ask",
   "GET /radar",
   "POST /radar/disposition",

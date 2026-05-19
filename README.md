@@ -25,7 +25,8 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 ## Current Capabilities
 
 - Local status, source, permission, briefing, and sync checks.
-- One-call operator snapshot for agents: Focus, Radar, setup gaps, Today, memory trail, and suggested next actions.
+- One-call operator snapshot for agents: Focus, Operator Deck, Radar, setup gaps, Today, memory trail, and suggested next actions.
+- Operator Deck for app and agents: do first, ask about, review or capture, and project/start-work cards.
 - Setup readiness checklist for app, MCP config, workspace paths, sync, memory, Mission Control, prompt safety, and Oracle writeback.
 - Oracle ask flow with deterministic local fallback and a Focus-grounded ask flow for the current best action.
 - Mission-backed retrieval and synthesis when Mission Control is reachable.
