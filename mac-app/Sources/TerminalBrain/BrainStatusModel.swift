@@ -276,6 +276,8 @@ final class BrainStatusModel: ObservableObject {
             "Radar signal: \(item.title)",
             "Project: \(item.project)",
             "Urgency: \(item.urgency)",
+            "Score: \(item.score)",
+            "Evidence: \(item.evidence.joined(separator: ", ").ifEmpty("none"))",
             "Recommended action: \(item.action)",
             "Detail: \(item.detail)",
             "Reason: \(item.reason)",
@@ -998,6 +1000,8 @@ final class BrainStatusModel: ObservableObject {
                     symbol: "paperplane.fill",
                     state: .busy,
                     disposition: .fresh,
+                    score: 0,
+                    evidence: [],
                     query: [commit.project, commit.title].filter { !$0.isEmpty }.joined(separator: " - "),
                     path: commit.path
                 )
@@ -1017,6 +1021,8 @@ final class BrainStatusModel: ObservableObject {
                     symbol: step.symbol,
                     state: .warn,
                     disposition: .fresh,
+                    score: 0,
+                    evidence: [],
                     query: step.title,
                     path: nil
                 )
@@ -1037,6 +1043,8 @@ final class BrainStatusModel: ObservableObject {
                     symbol: commit.status.symbol,
                     state: .warn,
                     disposition: .fresh,
+                    score: 0,
+                    evidence: [],
                     query: commit.title,
                     path: commit.path
                 )
@@ -1057,6 +1065,8 @@ final class BrainStatusModel: ObservableObject {
                         symbol: project.symbol,
                         state: project.delegatedCount > 0 ? .busy : .good,
                         disposition: .fresh,
+                        score: 0,
+                        evidence: [],
                         query: project.name,
                         path: project.contextPacks.first?.path
                     )
@@ -1074,6 +1084,8 @@ final class BrainStatusModel: ObservableObject {
                         symbol: project.symbol,
                         state: .warn,
                         disposition: .fresh,
+                        score: 0,
+                        evidence: [],
                         query: "Should I revive, archive, or ignore \(project.name)?",
                         path: project.contextPacks.first?.path
                     )
@@ -1094,6 +1106,8 @@ final class BrainStatusModel: ObservableObject {
                     symbol: item.symbol,
                     state: item.kind == .openLoop ? .warn : .good,
                     disposition: .fresh,
+                    score: 0,
+                    evidence: [],
                     query: item.kind == .openLoop ? item.title : "Is this idea worth acting on: \(item.title)?",
                     path: item.path
                 )
@@ -1113,6 +1127,8 @@ final class BrainStatusModel: ObservableObject {
                     symbol: fresh.symbol,
                     state: .good,
                     disposition: .fresh,
+                    score: 0,
+                    evidence: [],
                     query: fresh.title,
                     path: fresh.path
                 )
@@ -1132,13 +1148,15 @@ final class BrainStatusModel: ObservableObject {
                     symbol: "sparkle.magnifyingglass",
                     state: .good,
                     disposition: .fresh,
+                    score: 0,
+                    evidence: [],
                     query: "What am I not considering right now?",
                     path: nil
                 )
             )
         }
 
-        return applyRadarDisposition(to: dedupeRadarItems(items)).prefix(12).map { $0 }
+        return rankRadarItems(applyRadarDisposition(to: dedupeRadarItems(items))).prefix(12).map { $0 }
     }
 
     private func buildOracleBrief(from cards: [HealthCard], feedItems: [BrainFeedItem], oracleItems: [OracleItem]) -> [String] {
@@ -1538,9 +1556,103 @@ final class BrainStatusModel: ObservableObject {
             symbol: item.symbol,
             state: item.state,
             disposition: disposition,
+            score: item.score,
+            evidence: item.evidence,
             query: item.query,
             path: item.path
         )
+    }
+
+    private func rankRadarItems(_ items: [RadarItem]) -> [RadarItem] {
+        items
+            .map { item -> RadarItem in
+                let scored = radarScore(for: item)
+                return withRadarScore(item, score: scored.score, evidence: scored.evidence)
+            }
+            .sorted {
+                if $0.score == $1.score {
+                    return $0.title < $1.title
+                }
+                return $0.score > $1.score
+            }
+    }
+
+    private func withRadarScore(_ item: RadarItem, score: Int, evidence: [String]) -> RadarItem {
+        RadarItem(
+            id: item.id,
+            title: item.title,
+            detail: item.detail,
+            reason: item.reason,
+            action: item.action,
+            project: item.project,
+            urgency: item.urgency,
+            symbol: item.symbol,
+            state: item.state,
+            disposition: item.disposition,
+            score: score,
+            evidence: evidence,
+            query: item.query,
+            path: item.path
+        )
+    }
+
+    private func radarScore(for item: RadarItem) -> (score: Int, evidence: [String]) {
+        var score = 0
+        var evidence: [String] = []
+
+        switch item.urgency {
+        case "Now":
+            score += 50
+            evidence.append("Immediate execution")
+        case "Safety":
+            score += 45
+            evidence.append("Reliability or permission risk")
+        case "Triage":
+            score += 38
+            evidence.append("Needs classification")
+        case "Review":
+            score += 34
+            evidence.append("Stale or unresolved")
+        case "Next":
+            score += 28
+            evidence.append("Project movement")
+        case "Explore":
+            score += 18
+            evidence.append("Idea or opportunity")
+        case "Context":
+            score += 14
+            evidence.append("Fresh working material")
+        default:
+            score += 10
+        }
+
+        if item.state == .busy {
+            score += 16
+            evidence.append("Already delegated")
+        } else if item.state == .warn {
+            score += 12
+            evidence.append("Attention state")
+        }
+        if item.disposition == .watching {
+            score += 10
+            evidence.append("You marked it watching")
+        }
+        if item.project != "General Brain" && item.project != "System" {
+            score += 6
+            evidence.append("Attached to \(item.project)")
+        }
+        if item.path != nil {
+            score += 4
+            evidence.append("Has source artifact")
+        }
+        if item.title.localizedCaseInsensitiveContains("Delegated") {
+            score += 12
+        }
+        if item.title.localizedCaseInsensitiveContains("Stale") {
+            score += 8
+        }
+
+        return (min(score, 100), Array(evidence.prefix(5)))
     }
 
     private func radarDispositionRecords() -> [String: [String: String]] {

@@ -1144,7 +1144,7 @@ enum RadarSnapshot {
             ))
         }
 
-        let deduped = applyDisposition(to: dedupe(items))
+        let deduped = rank(applyDisposition(to: dedupe(items)))
         return [
             "generatedAt": ISO8601DateFormatter().string(from: Date()),
             "items": Array(deduped.prefix(12)),
@@ -1191,6 +1191,8 @@ enum RadarSnapshot {
             "symbol": symbol,
             "state": state,
             "disposition": "fresh",
+            "score": 0,
+            "evidence": [],
             "query": query,
             "path": path
         ]
@@ -1206,6 +1208,85 @@ enum RadarSnapshot {
             output.append(item)
         }
         return output
+    }
+
+    private static func rank(_ items: [[String: Any]]) -> [[String: Any]] {
+        items.map { item in
+            var next = item
+            let scored = score(item)
+            next["score"] = scored.score
+            next["evidence"] = scored.evidence
+            return next
+        }
+        .sorted {
+            let left = $0["score"] as? Int ?? 0
+            let right = $1["score"] as? Int ?? 0
+            if left == right {
+                return ($0["title"] as? String ?? "") < ($1["title"] as? String ?? "")
+            }
+            return left > right
+        }
+    }
+
+    private static func score(_ item: [String: Any]) -> (score: Int, evidence: [String]) {
+        var score = 0
+        var evidence: [String] = []
+        let urgency = item["urgency"] as? String ?? ""
+        let state = item["state"] as? String ?? ""
+        let disposition = item["disposition"] as? String ?? "fresh"
+        let project = item["project"] as? String ?? ""
+        let title = item["title"] as? String ?? ""
+        switch urgency {
+        case "Now":
+            score += 50
+            evidence.append("Immediate execution")
+        case "Safety":
+            score += 45
+            evidence.append("Reliability or permission risk")
+        case "Triage":
+            score += 38
+            evidence.append("Needs classification")
+        case "Review":
+            score += 34
+            evidence.append("Stale or unresolved")
+        case "Next":
+            score += 28
+            evidence.append("Project movement")
+        case "Explore":
+            score += 18
+            evidence.append("Idea or opportunity")
+        case "Context":
+            score += 14
+            evidence.append("Fresh working material")
+        default:
+            score += 10
+        }
+        if state == "Running" {
+            score += 16
+            evidence.append("Already delegated")
+        } else if state == "Attention" {
+            score += 12
+            evidence.append("Attention state")
+        }
+        if disposition == "watching" {
+            score += 10
+            evidence.append("You marked it watching")
+        }
+        if !["General Brain", "System", ""].contains(project) {
+            score += 6
+            evidence.append("Attached to \(project)")
+        }
+        if !(item["path"] as? String ?? "").isEmpty {
+            score += 4
+            evidence.append("Has source artifact")
+        }
+        if title.localizedCaseInsensitiveContains("Delegated") {
+            score += 12
+        }
+        if title.localizedCaseInsensitiveContains("Stale") {
+            score += 8
+        }
+        return (min(score, 100), Array(evidence.prefix(5)))
     }
 
     private static func applyDisposition(to items: [[String: Any]]) -> [[String: Any]] {

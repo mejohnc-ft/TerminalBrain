@@ -46,7 +46,7 @@ That means Apple Notes prompts should say **Terminal Brain**, not `node`, once N
 
 - **Cockpit**: Current health across MCP, config, indexes, sync, and Mission Control.
 - **Setup**: Readiness checklist for app, MCP config, workspace, sync, memory, Mission Control, prompt safety, and Oracle writeback.
-- **Radar**: Proactive inbox for delegated reads, stale reviews, quiet project risks, open loops, and ideas worth testing. Radar signals can be watched, marked acted, snoozed, dismissed, or committed back into the Oracle Inbox as durable memory.
+- **Radar**: Proactive inbox for delegated reads, stale reviews, quiet project risks, open loops, and ideas worth testing. Radar signals include score/evidence, can be watched, marked acted, snoozed, dismissed, or committed back into the Oracle Inbox as durable memory.
 - **Sources**: Permission-aware status for Obsidian, agent histories, Drafts, Apple Notes, and Mission Control.
 - **Today**: Daily Command Center with ranked actions from review state, delegated reads, projects, source health, and fresh context.
 - **Start Work**: Creates a context pack from the local brain kernel before handing work to an agent.

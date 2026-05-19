@@ -572,6 +572,12 @@ struct ContentView: View {
                                     .foregroundStyle(item.state.color)
                             }
                             Spacer()
+                            Text("\(item.score)")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 5)
+                                .background(item.state.color.opacity(0.18), in: Capsule())
                             StatusPill(text: item.urgency, state: item.state)
                             Text(item.disposition.label)
                                 .font(.caption.weight(.bold))
@@ -591,6 +597,17 @@ struct ContentView: View {
                             .foregroundStyle(.white.opacity(0.66))
                             .fixedSize(horizontal: false, vertical: true)
                             .textSelection(.enabled)
+
+                        HStack(spacing: 8) {
+                            ForEach(item.evidence, id: \.self) { evidence in
+                                Text(evidence)
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(.white.opacity(0.60))
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(.white.opacity(0.07), in: Capsule())
+                            }
+                        }
 
                         if let path = item.path {
                             Text(path)
@@ -2166,6 +2183,12 @@ struct RadarItemRow: View {
                         .foregroundStyle(.white)
                         .lineLimit(1)
                     Spacer()
+                    Text("\(item.score)")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(item.state.color.opacity(0.16), in: Capsule())
                     if item.disposition != .fresh {
                         Text(item.disposition.label)
                             .font(.caption.weight(.bold))

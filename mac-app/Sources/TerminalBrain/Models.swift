@@ -194,6 +194,8 @@ struct RadarItem: Identifiable {
     let symbol: String
     let state: HealthState
     let disposition: RadarDisposition
+    let score: Int
+    let evidence: [String]
     let query: String
     let path: String?
 }
