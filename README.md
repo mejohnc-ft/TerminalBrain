@@ -66,6 +66,16 @@ The live verifier builds the app and checks an already-running Terminal Brain in
 ./mac-app/scripts/verify-live.zsh --launch
 ```
 
+To print or copy the current operator snapshot from an already-running app:
+
+```zsh
+./mac-app/scripts/snapshot.zsh --markdown
+./mac-app/scripts/snapshot.zsh --json
+./mac-app/scripts/snapshot.zsh --markdown --copy
+```
+
+The snapshot helper never launches or foregrounds Terminal Brain.
+
 The built app is emitted to:
 
 ```text

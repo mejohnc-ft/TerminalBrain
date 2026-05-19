@@ -87,6 +87,14 @@ Run the live verifier only when Terminal Brain is already running and API/MCP be
 
 The verifier checks an already-running app. It does not launch or foreground Terminal Brain unless you pass `--launch`.
 
+Print or copy the current operator snapshot from an already-running app:
+
+```zsh
+./mac-app/scripts/snapshot.zsh --markdown
+./mac-app/scripts/snapshot.zsh --json
+./mac-app/scripts/snapshot.zsh --markdown --copy
+```
+
 Install the app into `~/Applications`:
 
 ```zsh
