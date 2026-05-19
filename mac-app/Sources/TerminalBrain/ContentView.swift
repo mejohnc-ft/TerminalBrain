@@ -578,6 +578,7 @@ struct ContentView: View {
 
                     focusOraclePanel(item)
                     focusIdeaCapturePanel(item)
+                    focusTrailPanel
                 }
                 .frame(width: 420)
             }
@@ -707,6 +708,67 @@ struct ContentView: View {
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.58))
                         .lineLimit(2)
+                }
+            }
+            .padding(12)
+            .darkPanel()
+        }
+    }
+
+    private var focusTrailPanel: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                SectionTitle("Memory Trail", symbol: "clock.arrow.circlepath")
+                Spacer()
+                Button {
+                    selectedSection = "review"
+                } label: {
+                    Image(systemName: "arrow.right")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .help("Open Review")
+            }
+
+            VStack(spacing: 0) {
+                ForEach(model.oracleCommits.prefix(4)) { commit in
+                    Button {
+                        selectedCommitID = commit.id
+                        selectedSection = "review"
+                    } label: {
+                        HStack(alignment: .top, spacing: 10) {
+                            Image(systemName: commit.status.symbol)
+                                .font(.callout.weight(.semibold))
+                                .foregroundStyle(commit.status.color)
+                                .frame(width: 24, height: 24)
+                                .background(commit.status.color.opacity(0.14), in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(commit.title)
+                                    .font(.callout.weight(.semibold))
+                                    .foregroundStyle(.white.opacity(0.84))
+                                    .lineLimit(1)
+                                Text("\(commit.project) - \(commit.status.label)")
+                                    .font(.caption)
+                                    .foregroundStyle(.white.opacity(0.48))
+                                    .lineLimit(1)
+                            }
+                            Spacer()
+                        }
+                        .padding(.vertical, 7)
+                    }
+                    .buttonStyle(.plain)
+
+                    if commit.id != model.oracleCommits.prefix(4).last?.id {
+                        Divider().overlay(.white.opacity(0.08)).padding(.leading, 34)
+                    }
+                }
+
+                if model.oracleCommits.isEmpty {
+                    EmptyStateRow(
+                        title: "No memory trail yet",
+                        detail: "Ask, commit, or capture a thought and it will appear here.",
+                        symbol: "tray"
+                    )
                 }
             }
             .padding(12)
