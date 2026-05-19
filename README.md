@@ -9,12 +9,13 @@ Common commands:
 ```zsh
 make
 make verify
+make live
 make build
 make install
 make snapshot
 ```
 
-Plain `make` prints help. `make verify`, `make build`, and `make install` do not launch or foreground Terminal Brain.
+Plain `make` prints help. `make verify`, `make live`, `make build`, and `make install` do not launch or foreground Terminal Brain. `make live` expects the app to already be running.
 
 ## Components
 
