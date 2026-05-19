@@ -85,6 +85,8 @@ Install the app into `~/Applications`:
 ./mac-app/scripts/install-app.zsh
 ```
 
+The installer does not launch or foreground Terminal Brain unless you pass `--launch`.
+
 Integration paths are editable in the native Settings window. Environment variables can override saved settings for automation:
 
 - `TERMINAL_BRAIN_WORKSPACE`

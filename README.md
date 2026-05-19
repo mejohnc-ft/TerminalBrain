@@ -36,7 +36,11 @@ Terminal Brain is a native macOS control surface for a local-first personal brai
 ./mac-app/scripts/install-app.zsh
 ```
 
-The installer builds the app, copies it to `~/Applications/Terminal Brain.app`, and launches it.
+The installer builds the app and copies it to `~/Applications/Terminal Brain.app`. It does not launch or foreground the app unless explicitly requested:
+
+```zsh
+./mac-app/scripts/install-app.zsh --launch
+```
 
 ## Live Verification
 
