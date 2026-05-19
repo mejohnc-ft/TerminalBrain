@@ -50,6 +50,17 @@ printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal
       puts "mcp snapshot ok focus=#{focus.inspect}"
     '
 
+printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_snapshot_markdown","arguments":{}}}\n' \
+  | node "$ROOT/mcp-server/server.mjs" \
+  | ruby -rjson -e '
+      line = STDIN.each_line.find { |l| l.include?("\"result\"") } || "{}"
+      response = JSON.parse(line)
+      text = response.dig("result", "content", 0, "text").to_s
+      abort("mcp markdown missing title") unless text.include?("# Terminal Brain Snapshot")
+      abort("mcp markdown missing focus") unless text.include?("## Focus")
+      puts "mcp markdown ok chars=#{text.length}"
+    '
+
 node --check "$ROOT/mcp-server/server.mjs" >/dev/null
 swiftc -typecheck "$ROOT"/mac-app/Sources/TerminalBrain/*.swift
 

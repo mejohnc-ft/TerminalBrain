@@ -27,6 +27,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_snapshot_markdown",
+    description: "Get the current Terminal Brain operator snapshot as prompt-ready Markdown.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_sources",
     description: "List Terminal Brain source modes for Obsidian, agent histories, Drafts, Apple Notes, and Mission Control.",
     inputSchema: {
@@ -286,13 +295,17 @@ function toolText(value, isError = false) {
   return { content: [{ type: "text", text }], isError };
 }
 
-async function api(path, { method = "GET", body } = {}) {
+async function api(path, { method = "GET", body, rawText = false } = {}) {
   const response = await fetch(`${API}${path}`, {
     method,
     headers: body ? { "content-type": "application/json" } : undefined,
     body: body ? JSON.stringify(body) : undefined
   });
   const text = await response.text();
+  if (rawText) {
+    if (!response.ok) return toolText(text, true);
+    return toolText(text);
+  }
   let json;
   try {
     json = JSON.parse(text);
@@ -311,6 +324,8 @@ async function callTool(name, args = {}) {
       return api("/status");
     case "terminal_brain_snapshot":
       return api("/snapshot");
+    case "terminal_brain_snapshot_markdown":
+      return api("/snapshot/markdown", { rawText: true });
     case "terminal_brain_sources":
       return api("/sources");
     case "terminal_brain_setup":

@@ -22,7 +22,7 @@ Terminal Brain is a native macOS control surface for a local-first personal brai
 - Proactive Radar for delegated reads, stale reviews, quiet project risks, open loops, and ideas worth testing, with scores, evidence, and persistent watch/acted/snooze/dismiss triage.
 - Focus Mode that opens to one recommended action, why it won, the fastest next move, and inline Oracle follow-up prompts.
 - Daily Command Center with ranked actions for reviews, delegations, projects, system attention, and fresh context.
-- MCP tools for status, snapshot, setup, focus, focus ask, radar, sources, briefing, permissions, sync, Start Work, Oracle ask, idea capture, Oracle items, and Oracle commits.
+- MCP tools for status, snapshot, snapshot Markdown, setup, focus, focus ask, radar, sources, briefing, permissions, sync, Start Work, Oracle ask, idea capture, Oracle items, and Oracle commits.
 
 ## Build
 
