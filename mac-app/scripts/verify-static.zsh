@@ -29,6 +29,7 @@ EOF
 esac
 
 zsh -n "$ROOT"/mac-app/scripts/*.zsh
+"$ROOT/mac-app/scripts/check-api-routes.zsh"
 node --check "$ROOT/mcp-server/server.mjs" >/dev/null
 node --check "$ROOT/mcp-server/check-tools.mjs" >/dev/null
 node "$ROOT/mcp-server/check-tools.mjs"

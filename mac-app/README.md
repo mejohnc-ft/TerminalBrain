@@ -137,6 +137,8 @@ Routes:
 - `POST /sync`
 - `POST /start-work`
 
+`expected-api-routes.json` is the checked local API contract. Run `./mac-app/scripts/check-api-routes.zsh` or `./mac-app/scripts/verify-static.zsh` after changing routes.
+
 Agents should use this API through the Terminal Brain MCP instead of starting
 separate Apple Notes or Drafts bridges.
 
