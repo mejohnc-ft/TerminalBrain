@@ -50,6 +50,7 @@ struct ContentView: View {
 
     private var commandItems: [BrainCommand] {
         var items: [BrainCommand] = [
+            BrainCommand(title: "Ask Current Focus", subtitle: model.focusItem.title, symbol: "sparkle.magnifyingglass", category: "Action", action: .askFocus),
             BrainCommand(title: "Open Focus", subtitle: "One recommended action from Radar and Today", symbol: "target", category: "Navigate", action: .section("focus")),
             BrainCommand(title: "Open Cockpit", subtitle: "Local gateway, source health, and Mission reachability", symbol: "house.fill", category: "Navigate", action: .section("cockpit")),
             BrainCommand(title: "Open Setup", subtitle: "Readiness checklist for app, MCP, sources, and sync", symbol: "checklist.checked", category: "Navigate", action: .section("setup")),
@@ -67,7 +68,31 @@ struct ContentView: View {
             BrainCommand(title: "Open Workspace", subtitle: Paths.workspace, symbol: "folder", category: "Action", action: .openWorkspace)
         ]
 
+        let trimmedQuery = commandQuery.trimmingCharacters(in: .whitespacesAndNewlines)
         let contextQuery = inferredContextQuery()
+        if !trimmedQuery.isEmpty {
+            items.insert(
+                BrainCommand(
+                    title: "Ask Oracle",
+                    subtitle: trimmedQuery,
+                    symbol: "sparkle.magnifyingglass",
+                    category: "Ask",
+                    action: .askOracle(trimmedQuery)
+                ),
+                at: 0
+            )
+            items.insert(
+                BrainCommand(
+                    title: "Capture Idea",
+                    subtitle: trimmedQuery,
+                    symbol: "lightbulb",
+                    category: "Capture",
+                    action: .draftIdea(trimmedQuery)
+                ),
+                at: 1
+            )
+        }
+
         if !contextQuery.isEmpty {
             items.insert(
                 BrainCommand(
@@ -77,7 +102,7 @@ struct ContentView: View {
                     category: "Start Work",
                     action: .buildContext(contextQuery)
                 ),
-                at: 0
+                at: trimmedQuery.isEmpty ? 0 : 2
             )
         } else {
             items.append(
@@ -1743,6 +1768,16 @@ struct ContentView: View {
             model.openPath(path)
         case .runSync:
             Task { await model.runSyncNow() }
+        case .askOracle(let question):
+            model.oracleQuestion = question
+            selectedSection = "oracle"
+            Task { await model.askOracle() }
+        case .askFocus:
+            selectedSection = "focus"
+            Task { await model.askFocusOracle(model.focusItem) }
+        case .draftIdea(let idea):
+            model.quickIdea = idea
+            selectedSection = "focus"
         case .buildContext(let query):
             model.workQuery = query
             selectedSection = "start"
@@ -1916,6 +1951,9 @@ enum BrainCommandAction {
     case openWorkspace
     case openPath(String)
     case runSync
+    case askOracle(String)
+    case askFocus
+    case draftIdea(String)
     case buildContext(String)
 }
 

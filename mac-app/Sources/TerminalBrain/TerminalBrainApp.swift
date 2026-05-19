@@ -30,6 +30,11 @@ struct TerminalBrainApp: App {
                 }
                 .keyboardShortcut("s", modifiers: [.command, .shift])
 
+                Button("Ask Current Focus") {
+                    Task { await model.askFocusOracle(model.focusItem) }
+                }
+                .keyboardShortcut("o", modifiers: [.command, .shift])
+
                 Button("Open Mission Control") {
                     model.openMissionControl()
                 }
