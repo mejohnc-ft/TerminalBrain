@@ -30,6 +30,7 @@ Codex/workspace config can register this server as:
 - `terminal_brain_status`
 - `terminal_brain_sources`
 - `terminal_brain_briefing`
+- `terminal_brain_projects`
 - `terminal_brain_oracle_brief`
 - `terminal_brain_oracle_items`
 - `terminal_brain_oracle_ask`

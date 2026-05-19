@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import SwiftUI
 
 @MainActor
 final class BrainStatusModel: ObservableObject {
@@ -14,6 +15,7 @@ final class BrainStatusModel: ObservableObject {
     @Published var oracleMode = "local"
     @Published var oracleCommitOutput = ""
     @Published var oracleCommits: [OracleCommit] = []
+    @Published var projects: [ProjectMemory] = []
     @Published var findings: [String] = []
     @Published var lastRefresh: Date?
     @Published var isRefreshing = false
@@ -61,12 +63,14 @@ final class BrainStatusModel: ObservableObject {
         let builtFeed = buildFeedItems(from: sections)
         let builtOracleItems = buildOracleItems(from: sections, feedItems: builtFeed)
         let builtOracleCommits = loadOracleCommits()
+        let builtProjects = buildProjectMemories(feedItems: builtFeed, oracleItems: builtOracleItems, oracleCommits: builtOracleCommits)
         cards = sections
         sources = builtSources
         briefing = builtBriefing
         feedItems = builtFeed
         oracleItems = builtOracleItems
         oracleCommits = builtOracleCommits
+        projects = builtProjects
         oracleBrief = buildOracleBrief(from: sections, feedItems: builtFeed, oracleItems: builtOracleItems)
         if oracleAnswer.isEmpty {
             oracleAnswer = answerOracleQuestion("What am I missing?", items: builtOracleItems, cards: sections)
@@ -194,6 +198,7 @@ final class BrainStatusModel: ObservableObject {
             }
             oracleCommitOutput = "Committed to \(path)"
             oracleCommits = loadOracleCommits()
+            projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
         } catch {
             oracleCommitOutput = "Commit failed: \(error.localizedDescription)"
         }
@@ -230,6 +235,7 @@ final class BrainStatusModel: ObservableObject {
         }
         try? text.write(to: url, atomically: true, encoding: .utf8)
         oracleCommits = loadOracleCommits()
+        projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
     }
 
     func openOracleInbox() {
@@ -261,6 +267,7 @@ final class BrainStatusModel: ObservableObject {
         try? body.write(toFile: "\(path)/\(fileName)", atomically: true, encoding: .utf8)
         NSWorkspace.shared.open(URL(fileURLWithPath: "\(path)/\(fileName)"))
         oracleCommits = loadOracleCommits()
+        projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
     }
 
     private func processCards() async -> [HealthCard] {
@@ -952,6 +959,166 @@ final class BrainStatusModel: ObservableObject {
             output.append(item)
         }
         return output
+    }
+
+    private func buildProjectMemories(feedItems: [BrainFeedItem], oracleItems: [OracleItem], oracleCommits: [OracleCommit]) -> [ProjectMemory] {
+        var buckets: [String: (name: String, context: [BrainFeedItem], commits: [OracleCommit], loops: [OracleItem], decisions: [OracleItem])] = [:]
+
+        func ensure(_ name: String) -> String {
+            let cleanName = name.trimmingCharacters(in: .whitespacesAndNewlines).ifEmpty("General Brain")
+            let id = projectID(from: cleanName)
+            if buckets[id] == nil {
+                buckets[id] = (cleanName, [], [], [], [])
+            }
+            return id
+        }
+
+        for feed in feedItems where feed.kind == .context {
+            let id = ensure(projectName(from: "\(feed.title) \(feed.detail)"))
+            buckets[id]?.context.append(feed)
+        }
+
+        for commit in oracleCommits {
+            let id = ensure(projectName(from: "\(commit.title) \(commit.question) \(commit.preview) \(commit.tags.joined(separator: " "))"))
+            buckets[id]?.commits.append(commit)
+        }
+
+        for item in oracleItems {
+            let id = ensure(projectName(from: "\(item.title) \(item.detail) \(item.source)"))
+            if item.kind == .openLoop {
+                buckets[id]?.loops.append(item)
+            }
+            if item.kind == .decision {
+                buckets[id]?.decisions.append(item)
+            }
+        }
+
+        if buckets.isEmpty {
+            _ = ensure("Terminal Brain")
+        }
+
+        return buckets.map { id, bucket in
+            let lastActivity = maxDate(
+                bucket.context.map(\.timestamp) +
+                bucket.commits.map(\.created)
+            ) ?? Date.distantPast
+            let loops = bucket.loops.prefix(5).map { $0 }
+            let decisions = bucket.decisions.prefix(5).map { $0 }
+            let contextPacks = bucket.context.sorted { $0.timestamp > $1.timestamp }.prefix(6).map { $0 }
+            let commits = bucket.commits.sorted { $0.created > $1.created }.prefix(8).map { $0 }
+            let summary = projectSummary(
+                name: bucket.name,
+                contextCount: bucket.context.count,
+                commitCount: bucket.commits.count,
+                openLoopCount: bucket.loops.count,
+                decisionCount: bucket.decisions.count
+            )
+            let recommendedAction = projectRecommendedAction(
+                name: bucket.name,
+                commits: bucket.commits,
+                openLoops: bucket.loops,
+                contextPacks: bucket.context
+            )
+            return ProjectMemory(
+                id: id,
+                name: bucket.name,
+                summary: summary,
+                recommendedAction: recommendedAction,
+                contextPacks: contextPacks,
+                oracleCommits: commits,
+                openLoops: Array(loops),
+                decisions: Array(decisions),
+                lastActivity: lastActivity,
+                symbol: projectSymbol(for: bucket.name),
+                accent: projectAccent(for: bucket.name)
+            )
+        }
+        .filter { $0.signalCount > 0 || $0.name == "Terminal Brain" }
+        .sorted {
+            if $0.signalCount == $1.signalCount {
+                return $0.lastActivity > $1.lastActivity
+            }
+            return $0.signalCount > $1.signalCount
+        }
+    }
+
+    private func projectName(from text: String) -> String {
+        let lowered = text.lowercased()
+        let known: [(needle: String, name: String)] = [
+            ("terminal brain", "Terminal Brain"),
+            ("mission control", "Mission Control"),
+            ("centrexai", "centrexAI"),
+            ("centrex ai", "centrexAI"),
+            ("franklin", "Franklin Systems"),
+            ("drafts", "Drafts"),
+            ("apple notes", "Apple Notes"),
+            ("obsidian", "Obsidian"),
+            ("rewst", "Rewst"),
+            ("mcp", "MCP Platform")
+        ]
+        if let match = known.first(where: { lowered.contains($0.needle) }) {
+            return match.name
+        }
+        let words = lowered
+            .components(separatedBy: CharacterSet.alphanumerics.inverted)
+            .filter { $0.count > 2 }
+            .filter { !["context", "pack", "oracle", "brain", "work", "with", "from", "local", "memory", "generated", "start"].contains($0) }
+        return words.prefix(2).joined(separator: " ").capitalized.ifEmpty("General Brain")
+    }
+
+    private func projectID(from name: String) -> String {
+        name.lowercased()
+            .components(separatedBy: CharacterSet.alphanumerics.inverted)
+            .filter { !$0.isEmpty }
+            .joined(separator: "-")
+            .ifEmpty("general-brain")
+    }
+
+    private func projectSummary(name: String, contextCount: Int, commitCount: Int, openLoopCount: Int, decisionCount: Int) -> String {
+        "\(contextCount) context pack\(contextCount == 1 ? "" : "s"), \(commitCount) committed read\(commitCount == 1 ? "" : "s"), \(openLoopCount) open loop\(openLoopCount == 1 ? "" : "s"), and \(decisionCount) decision signal\(decisionCount == 1 ? "" : "s") are attached to \(name)."
+    }
+
+    private func projectRecommendedAction(name: String, commits: [OracleCommit], openLoops: [OracleItem], contextPacks: [BrainFeedItem]) -> String {
+        if let delegated = commits.first(where: { $0.status == .delegated }) {
+            return "Turn delegated read into a Start Work pack: \(delegated.title)."
+        }
+        if let loop = openLoops.first {
+            return "Resolve the highest open loop: \(loop.title)."
+        }
+        if let fresh = contextPacks.sorted(by: { $0.timestamp > $1.timestamp }).first {
+            return "Use the freshest context pack as the working frame: \(fresh.title)."
+        }
+        if let unread = commits.first(where: { $0.status == .new }) {
+            return "Review and classify the newest Oracle read: \(unread.title)."
+        }
+        return "Ask Oracle what changed for \(name), then commit the useful read."
+    }
+
+    private func projectSymbol(for name: String) -> String {
+        let lowered = name.lowercased()
+        if lowered.contains("terminal") { return "terminal.fill" }
+        if lowered.contains("mission") { return "display" }
+        if lowered.contains("centrex") { return "building.2.fill" }
+        if lowered.contains("draft") { return "square.and.pencil" }
+        if lowered.contains("notes") { return "note.text" }
+        if lowered.contains("obsidian") { return "doc.text.magnifyingglass" }
+        if lowered.contains("mcp") { return "antenna.radiowaves.left.and.right" }
+        return "folder.fill"
+    }
+
+    private func projectAccent(for name: String) -> Color {
+        let lowered = name.lowercased()
+        if lowered.contains("terminal") { return .cyan }
+        if lowered.contains("mission") { return .mint }
+        if lowered.contains("centrex") { return .blue }
+        if lowered.contains("draft") { return .purple }
+        if lowered.contains("notes") { return .yellow }
+        if lowered.contains("obsidian") { return .indigo }
+        return .teal
+    }
+
+    private func maxDate(_ dates: [Date]) -> Date? {
+        dates.max()
     }
 
     private func loadOracleCommits() -> [OracleCommit] {

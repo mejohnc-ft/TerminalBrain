@@ -6,6 +6,7 @@ struct ContentView: View {
     @State private var selectedSection = "cockpit"
     @State private var selectedFeedID = ""
     @State private var selectedCommitID = ""
+    @State private var selectedProjectID = ""
     @State private var feedFilter: FeedKind = .all
     @State private var selectedSourceID = "obsidian"
     @State private var showCommandPalette = false
@@ -32,12 +33,17 @@ struct ContentView: View {
         model.oracleCommits.first { $0.id == selectedCommitID } ?? model.oracleCommits.first
     }
 
+    private var selectedProject: ProjectMemory? {
+        model.projects.first { $0.id == selectedProjectID } ?? model.projects.first
+    }
+
     private var commandItems: [BrainCommand] {
         var items: [BrainCommand] = [
             BrainCommand(title: "Open Cockpit", subtitle: "Local gateway, source health, and Mission reachability", symbol: "house.fill", category: "Navigate", action: .section("cockpit")),
             BrainCommand(title: "Open Feed", subtitle: "Recent context packs, sync events, and source alerts", symbol: "list.bullet.rectangle.portrait.fill", category: "Navigate", action: .section("feed")),
             BrainCommand(title: "Open Oracle", subtitle: "Narrative brief, bubbling ideas, and open loops", symbol: "sparkle.magnifyingglass", category: "Navigate", action: .section("oracle")),
             BrainCommand(title: "Open Review Queue", subtitle: "Committed Oracle reads, decisions, and follow-ups", symbol: "tray.and.arrow.down.fill", category: "Navigate", action: .section("review")),
+            BrainCommand(title: "Open Projects", subtitle: "Project memory pages and active work surfaces", symbol: "folder.fill.badge.gearshape", category: "Navigate", action: .section("projects")),
             BrainCommand(title: "Open Today", subtitle: "Deterministic daily briefing", symbol: "sun.max.fill", category: "Navigate", action: .section("briefing")),
             BrainCommand(title: "Open Sources", subtitle: "Permissioned capture, memory, and compute surfaces", symbol: "tray.full.fill", category: "Navigate", action: .section("sources")),
             BrainCommand(title: "Open System", subtitle: "Native macOS surfaces and integration roadmap", symbol: "puzzlepiece.extension.fill", category: "Navigate", action: .section("system")),
@@ -77,6 +83,10 @@ struct ContentView: View {
             BrainCommand(title: commit.title, subtitle: "\(commit.status.label) - \(commit.preview)", symbol: commit.status.symbol, category: "Review", action: .commit(commit.id))
         })
 
+        items.append(contentsOf: model.projects.map { project in
+            BrainCommand(title: project.name, subtitle: project.summary, symbol: project.symbol, category: "Project", action: .project(project.id))
+        })
+
         items.append(contentsOf: model.briefing.map { item in
             BrainCommand(title: item.title, subtitle: item.detail, symbol: item.symbol, category: "Briefing", action: .section("briefing"))
         })
@@ -93,6 +103,7 @@ struct ContentView: View {
         case "feed": return "Feed"
         case "oracle": return "Oracle"
         case "review": return "Review"
+        case "projects": return "Projects"
         case "sources": return "Sources"
         case "briefing": return "Today"
         case "start": return "Start Work"
@@ -106,6 +117,7 @@ struct ContentView: View {
         case "feed": return "Recent context packs, sync events, and source alerts."
         case "oracle": return "Narrative signals, open loops, and ideas worth revisiting."
         case "review": return "Committed Oracle reads that need acceptance, linking, delegation, or dismissal."
+        case "projects": return "Durable project memory pages assembled from context packs and Oracle commits."
         case "sources": return "Permissioned capture, memory, and compute surfaces."
         case "briefing": return "A deterministic briefing from local memory and Mission Control."
         case "start": return "Build a context pack before handing work to an agent."
@@ -227,6 +239,7 @@ struct ContentView: View {
                 NavRow(title: "Cockpit", symbol: "house.fill", badge: model.summaryLine == "Brain status ready" ? "" : "!", selected: selectedSection == "cockpit") { selectedSection = "cockpit" }
                 NavRow(title: "Oracle", symbol: "sparkle.magnifyingglass", badge: "\(model.oracleItems.count)", selected: selectedSection == "oracle") { selectedSection = "oracle" }
                 NavRow(title: "Review", symbol: "tray.and.arrow.down.fill", badge: "\(model.oracleCommits.filter { $0.status == .new }.count)", selected: selectedSection == "review") { selectedSection = "review" }
+                NavRow(title: "Projects", symbol: "folder.fill.badge.gearshape", badge: "\(model.projects.count)", selected: selectedSection == "projects") { selectedSection = "projects" }
                 NavRow(title: "Feed", symbol: "list.bullet.rectangle.portrait.fill", badge: "\(model.feedItems.count)", selected: selectedSection == "feed") { selectedSection = "feed" }
                 NavRow(title: "Today", symbol: "sun.max.fill", badge: "\(model.briefing.count)", selected: selectedSection == "briefing") { selectedSection = "briefing" }
                 NavRow(title: "Start Work", symbol: "sparkles", badge: "", selected: selectedSection == "start") { selectedSection = "start" }
@@ -332,6 +345,7 @@ struct ContentView: View {
                     switch selectedSection {
                     case "oracle": oracleView
                     case "review": reviewView
+                    case "projects": projectsView
                     case "feed": feedView
                     case "sources": sourcesView
                     case "briefing": briefingView
@@ -647,6 +661,141 @@ struct ContentView: View {
                 .darkPanel()
             }
             .frame(minWidth: 620)
+        }
+    }
+
+    private var projectsView: some View {
+        HStack(alignment: .top, spacing: 18) {
+            VStack(alignment: .leading, spacing: 14) {
+                SectionTitle("Project Memory", symbol: "folder.fill.badge.gearshape")
+                VStack(spacing: 0) {
+                    ForEach(model.projects) { project in
+                        Button {
+                            selectedProjectID = project.id
+                        } label: {
+                            ProjectMemoryRow(project: project, selected: selectedProject?.id == project.id)
+                        }
+                        .buttonStyle(.plain)
+                        if project.id != model.projects.last?.id {
+                            Divider().overlay(.white.opacity(0.08)).padding(.leading, 54)
+                        }
+                    }
+                    if model.projects.isEmpty {
+                        EmptyStateRow(
+                            title: "No project memory yet",
+                            detail: "Build context packs or commit Oracle reads to populate project pages.",
+                            symbol: "folder"
+                        )
+                    }
+                }
+                .darkPanel()
+            }
+            .frame(width: 460)
+
+            VStack(alignment: .leading, spacing: 14) {
+                if let project = selectedProject {
+                    SectionTitle(project.name, symbol: project.symbol)
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack(alignment: .top, spacing: 14) {
+                            Image(systemName: project.symbol)
+                                .font(.title2)
+                                .foregroundStyle(project.accent)
+                                .frame(width: 42, height: 42)
+                                .background(project.accent.opacity(0.16), in: RoundedRectangle(cornerRadius: 11, style: .continuous))
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(project.name)
+                                    .font(.title2.weight(.bold))
+                                    .foregroundStyle(.white)
+                                Text(project.lastActivity == Date.distantPast ? "No dated activity yet" : "Last activity \(project.lastActivity.formatted(date: .abbreviated, time: .shortened))")
+                                    .font(.callout)
+                                    .foregroundStyle(.white.opacity(0.52))
+                            }
+                            Spacer()
+                            StatusPill(text: "\(project.signalCount) signals", state: project.signalCount > 0 ? .good : .off)
+                        }
+
+                        Text(project.summary)
+                            .font(.body)
+                            .foregroundStyle(.white.opacity(0.70))
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        HStack(spacing: 10) {
+                            SourceInfoPill(title: "Packs", value: "\(project.contextPacks.count)", symbol: "shippingbox")
+                            SourceInfoPill(title: "Reads", value: "\(project.oracleCommits.count)", symbol: "tray.and.arrow.down")
+                            SourceInfoPill(title: "Loops", value: "\(project.openLoops.count)", symbol: "checklist")
+                            SourceInfoPill(title: "Delegated", value: "\(project.delegatedCount)", symbol: "paperplane")
+                        }
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Recommended Next Action")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(.white.opacity(0.44))
+                                .textCase(.uppercase)
+                            Text(project.recommendedAction)
+                                .font(.headline.weight(.semibold))
+                                .foregroundStyle(.white.opacity(0.86))
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+
+                        HStack {
+                            Button {
+                                model.workQuery = project.name
+                                selectedSection = "start"
+                            } label: {
+                                Label("Build Pack", systemImage: "shippingbox")
+                            }
+                            .buttonStyle(.borderedProminent)
+
+                            Button {
+                                model.oracleQuestion = "What changed for \(project.name), and what should I do next?"
+                                selectedSection = "oracle"
+                            } label: {
+                                Label("Ask Oracle", systemImage: "sparkle.magnifyingglass")
+                            }
+                            .buttonStyle(.bordered)
+                        }
+                    }
+                    .padding(16)
+                    .darkPanel()
+
+                    ProjectSignalSection(title: "Oracle Reads", symbol: "tray.and.arrow.down.fill") {
+                        ForEach(project.oracleCommits) { commit in
+                            OracleCommitRow(commit: commit, selected: false)
+                        }
+                        if project.oracleCommits.isEmpty {
+                            EmptyStateRow(title: "No committed reads", detail: "Commit useful Oracle answers to attach them to this project.", symbol: "tray")
+                        }
+                    }
+
+                    ProjectSignalSection(title: "Context Packs", symbol: "shippingbox.fill") {
+                        ForEach(project.contextPacks) { pack in
+                            FeedListRow(item: pack, selected: false)
+                        }
+                        if project.contextPacks.isEmpty {
+                            EmptyStateRow(title: "No context packs", detail: "Use Build Pack to prepare an agent handoff for this project.", symbol: "shippingbox")
+                        }
+                    }
+
+                    ProjectSignalSection(title: "Open Loops And Decisions", symbol: "checklist") {
+                        ForEach(project.openLoops + project.decisions) { item in
+                            OracleCard(item: item, accent: project.accent) {
+                                EmptyView()
+                            }
+                        }
+                        if project.openLoops.isEmpty && project.decisions.isEmpty {
+                            EmptyStateRow(title: "No loop signals", detail: "Open loops and decisions will appear here as the Oracle extracts them.", symbol: "checklist")
+                        }
+                    }
+                } else {
+                    EmptyStateRow(
+                        title: "Select a project",
+                        detail: "Project pages collect context packs, Oracle reads, open loops, and decisions into one working surface.",
+                        symbol: "folder.fill.badge.gearshape"
+                    )
+                    .darkPanel()
+                }
+            }
+            .frame(minWidth: 700)
         }
     }
 
@@ -1012,6 +1161,9 @@ struct ContentView: View {
         case .commit(let id):
             selectedCommitID = id
             selectedSection = "review"
+        case .project(let id):
+            selectedProjectID = id
+            selectedSection = "projects"
         case .openMission:
             model.openMissionControl()
         case .openLogs:
@@ -1103,6 +1255,7 @@ enum BrainCommandAction {
     case source(String)
     case feed(String, FeedKind)
     case commit(String)
+    case project(String)
     case openMission
     case openLogs
     case openWorkspace
@@ -1417,6 +1570,63 @@ struct OracleCommitRow: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
         .background(selected ? Color.white.opacity(0.10) : Color.clear, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+    }
+}
+
+struct ProjectMemoryRow: View {
+    let project: ProjectMemory
+    let selected: Bool
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 14) {
+            Image(systemName: project.symbol)
+                .font(.title3)
+                .foregroundStyle(project.accent)
+                .frame(width: 30, height: 30)
+                .background(project.accent.opacity(0.16), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 8) {
+                    Text(project.name)
+                        .font(.callout.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                    Spacer()
+                    Text("\(project.signalCount)")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.white.opacity(0.54))
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 2)
+                        .background(.white.opacity(0.08), in: Capsule())
+                }
+                Text(project.recommendedAction)
+                    .font(.caption)
+                    .foregroundStyle(project.accent)
+                    .lineLimit(1)
+                Text(project.summary)
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.50))
+                    .lineLimit(2)
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(selected ? Color.white.opacity(0.10) : Color.clear, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+    }
+}
+
+struct ProjectSignalSection<Content: View>: View {
+    let title: String
+    let symbol: String
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            SectionTitle(title, symbol: symbol)
+            VStack(spacing: 0) {
+                content()
+            }
+            .darkPanel()
+        }
     }
 }
 

@@ -50,6 +50,7 @@ That means Apple Notes prompts should say **Terminal Brain**, not `node`, once N
 - **Start Work**: Creates a context pack from the local brain kernel before handing work to an agent.
 - **Oracle**: Ask Terminal Brain for grounded synthesis from local signals and Mission retrieval.
 - **Review**: Triage committed Oracle reads as new, accepted, linked, delegated, or dismissed.
+- **Projects**: Durable project memory pages derived from context packs and Oracle commits.
 - **System**: Tracks native macOS surfaces such as menu bar extra, settings, local API, widgets, login item, and shortcuts.
 
 ## macOS Shell
@@ -86,6 +87,7 @@ Routes:
 - `GET /health`
 - `GET /status`
 - `GET /sources`
+- `GET /projects`
 - `GET /briefing`
 - `GET /permissions`
 - `GET /oracle/brief`

@@ -61,6 +61,8 @@ final class LocalControlServer {
             return .json(200, await ControlSnapshot.status())
         case ("GET", "/sources"):
             return .json(200, await ControlSnapshot.sources())
+        case ("GET", "/projects"):
+            return .json(200, ProjectSnapshot.projects())
         case ("GET", "/briefing"):
             return .json(200, await ControlSnapshot.briefing())
         case ("GET", "/permissions"):
@@ -759,6 +761,183 @@ enum OracleSnapshot {
     }
 }
 
+enum ProjectSnapshot {
+    static func projects() -> [String: Any] {
+        let commits = (OracleSnapshot.commits()["items"] as? [[String: Any]]) ?? []
+        let packs = contextPacks(limit: 40)
+        var buckets: [String: [String: Any]] = [:]
+
+        func ensure(_ name: String) -> String {
+            let cleanName = name.trimmingCharacters(in: .whitespacesAndNewlines).ifEmpty("General Brain")
+            let id = projectID(from: cleanName)
+            if buckets[id] == nil {
+                buckets[id] = [
+                    "id": id,
+                    "name": cleanName,
+                    "contextPacks": [],
+                    "oracleCommits": [],
+                    "openLoops": [],
+                    "decisions": []
+                ]
+            }
+            return id
+        }
+
+        for pack in packs {
+            let name = projectName(from: "\(pack["title"] ?? "") \(pack["detail"] ?? "")")
+            let id = ensure(name)
+            var existing = buckets[id]?["contextPacks"] as? [[String: Any]] ?? []
+            existing.append(pack)
+            buckets[id]?["contextPacks"] = existing
+        }
+
+        for commit in commits {
+            let name = projectName(from: "\(commit["title"] ?? "") \(commit["question"] ?? "") \(commit["preview"] ?? "") \((commit["tags"] as? [String] ?? []).joined(separator: " "))")
+            let id = ensure(name)
+            var existing = buckets[id]?["oracleCommits"] as? [[String: Any]] ?? []
+            existing.append(commit)
+            buckets[id]?["oracleCommits"] = existing
+        }
+
+        var items: [[String: Any]] = []
+        for (id, bucket) in buckets {
+            let context = bucket["contextPacks"] as? [[String: Any]] ?? []
+            let projectCommits = bucket["oracleCommits"] as? [[String: Any]] ?? []
+            let name = bucket["name"] as? String ?? "General Brain"
+            let signalCount = context.count + projectCommits.count
+            let delegated = projectCommits.filter { ($0["status"] as? String) == "delegated" }.count
+            let lastActivity = latestDateString(context: context, commits: projectCommits)
+            items.append([
+                "id": id,
+                "name": name,
+                "summary": "\(context.count) context pack\(context.count == 1 ? "" : "s") and \(projectCommits.count) committed read\(projectCommits.count == 1 ? "" : "s") are attached to \(name).",
+                "recommendedAction": recommendedAction(name: name, commits: projectCommits, context: context),
+                "signalCount": signalCount,
+                "delegatedCount": delegated,
+                "lastActivity": lastActivity,
+                "symbol": projectSymbol(for: name),
+                "contextPacks": Array(context.prefix(6)),
+                "oracleCommits": Array(projectCommits.prefix(8))
+            ])
+        }
+
+        return [
+            "generatedAt": ISO8601DateFormatter().string(from: Date()),
+            "items": items.sorted {
+                (($0["signalCount"] as? Int) ?? 0) > (($1["signalCount"] as? Int) ?? 0)
+            }
+        ]
+    }
+
+    private static func contextPacks(limit: Int) -> [[String: Any]] {
+        guard let urls = try? FileManager.default.contentsOfDirectory(
+            at: URL(fileURLWithPath: Paths.contextPacks),
+            includingPropertiesForKeys: [.contentModificationDateKey],
+            options: [.skipsHiddenFiles]
+        ) else {
+            return []
+        }
+        return urls
+            .filter { $0.pathExtension.lowercased() == "md" }
+            .compactMap { url -> (Date, [String: Any])? in
+                guard let modified = try? url.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate else {
+                    return nil
+                }
+                let text = (try? String(contentsOf: url, encoding: .utf8)) ?? ""
+                return (
+                    modified,
+                    [
+                        "id": "context-\(url.lastPathComponent)",
+                        "title": contextPackTitle(from: url),
+                        "detail": contextPackPreview(from: text),
+                        "path": url.path,
+                        "modifiedAt": ISO8601DateFormatter().string(from: modified)
+                    ]
+                )
+            }
+            .sorted { $0.0 > $1.0 }
+            .prefix(limit)
+            .map { $0.1 }
+    }
+
+    private static func projectName(from text: String) -> String {
+        let lowered = text.lowercased()
+        let known: [(needle: String, name: String)] = [
+            ("terminal brain", "Terminal Brain"),
+            ("mission control", "Mission Control"),
+            ("centrexai", "centrexAI"),
+            ("centrex ai", "centrexAI"),
+            ("franklin", "Franklin Systems"),
+            ("drafts", "Drafts"),
+            ("apple notes", "Apple Notes"),
+            ("obsidian", "Obsidian"),
+            ("rewst", "Rewst"),
+            ("mcp", "MCP Platform")
+        ]
+        if let match = known.first(where: { lowered.contains($0.needle) }) {
+            return match.name
+        }
+        let words = lowered
+            .components(separatedBy: CharacterSet.alphanumerics.inverted)
+            .filter { $0.count > 2 }
+            .filter { !["context", "pack", "oracle", "brain", "work", "with", "from", "local", "memory", "generated", "start"].contains($0) }
+        return words.prefix(2).joined(separator: " ").capitalized.ifEmpty("General Brain")
+    }
+
+    private static func projectID(from name: String) -> String {
+        name.lowercased()
+            .components(separatedBy: CharacterSet.alphanumerics.inverted)
+            .filter { !$0.isEmpty }
+            .joined(separator: "-")
+            .ifEmpty("general-brain")
+    }
+
+    private static func projectSymbol(for name: String) -> String {
+        let lowered = name.lowercased()
+        if lowered.contains("terminal") { return "terminal.fill" }
+        if lowered.contains("mission") { return "display" }
+        if lowered.contains("centrex") { return "building.2.fill" }
+        if lowered.contains("draft") { return "square.and.pencil" }
+        if lowered.contains("notes") { return "note.text" }
+        if lowered.contains("obsidian") { return "doc.text.magnifyingglass" }
+        if lowered.contains("mcp") { return "antenna.radiowaves.left.and.right" }
+        return "folder.fill"
+    }
+
+    private static func recommendedAction(name: String, commits: [[String: Any]], context: [[String: Any]]) -> String {
+        if let delegated = commits.first(where: { ($0["status"] as? String) == "delegated" }) {
+            return "Turn delegated read into a Start Work pack: \(delegated["title"] as? String ?? name)."
+        }
+        if let unread = commits.first(where: { ($0["status"] as? String) == "new" }) {
+            return "Review and classify the newest Oracle read: \(unread["title"] as? String ?? name)."
+        }
+        if let fresh = context.first {
+            return "Use the freshest context pack as the working frame: \(fresh["title"] as? String ?? name)."
+        }
+        return "Ask Oracle what changed for \(name), then commit the useful read."
+    }
+
+    private static func latestDateString(context: [[String: Any]], commits: [[String: Any]]) -> String {
+        let values = context.compactMap { $0["modifiedAt"] as? String } + commits.compactMap { $0["created"] as? String }
+        return values.sorted().last ?? ""
+    }
+
+    private static func contextPackTitle(from url: URL) -> String {
+        let base = url.deletingPathExtension().lastPathComponent
+        let parts = base.split(separator: "-", omittingEmptySubsequences: true)
+        let slug = parts.dropFirst(6).joined(separator: " ")
+        return slug.isEmpty ? base : slug.capitalized
+    }
+
+    private static func contextPackPreview(from text: String) -> String {
+        let lines = text
+            .split(separator: "\n")
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty && !$0.hasPrefix("#") && !$0.hasPrefix("---") }
+        return lines.prefix(2).joined(separator: " ").prefixString(maxLength: 220)
+    }
+}
+
 struct HTTPRequest {
     let method: String
     let path: String
@@ -1004,5 +1183,9 @@ private extension String {
     func prefixString(maxLength: Int) -> String {
         guard count > maxLength else { return self }
         return String(prefix(maxLength)).trimmingCharacters(in: .whitespacesAndNewlines) + "..."
+    }
+
+    func ifEmpty(_ fallback: String) -> String {
+        isEmpty ? fallback : self
     }
 }

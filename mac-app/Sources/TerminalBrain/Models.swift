@@ -197,6 +197,28 @@ struct OracleCommit: Identifiable {
     let tags: [String]
 }
 
+struct ProjectMemory: Identifiable {
+    let id: String
+    let name: String
+    let summary: String
+    let recommendedAction: String
+    let contextPacks: [BrainFeedItem]
+    let oracleCommits: [OracleCommit]
+    let openLoops: [OracleItem]
+    let decisions: [OracleItem]
+    let lastActivity: Date
+    let symbol: String
+    let accent: Color
+
+    var signalCount: Int {
+        contextPacks.count + oracleCommits.count + openLoops.count + decisions.count
+    }
+
+    var delegatedCount: Int {
+        oracleCommits.filter { $0.status == .delegated }.count
+    }
+}
+
 enum OracleCommitStatus: String, CaseIterable, Identifiable {
     case new
     case accepted
