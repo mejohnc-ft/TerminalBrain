@@ -79,6 +79,12 @@ Run the live verifier after integration changes:
 ./mac-app/scripts/verify-live.zsh
 ```
 
+Install the app into `~/Applications`:
+
+```zsh
+./mac-app/scripts/install-app.zsh
+```
+
 Integration paths are editable in the native Settings window. Environment variables can override saved settings for automation:
 
 - `TERMINAL_BRAIN_WORKSPACE`
