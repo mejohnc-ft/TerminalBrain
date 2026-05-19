@@ -30,6 +30,8 @@ esac
 
 zsh -n "$ROOT"/mac-app/scripts/*.zsh
 node --check "$ROOT/mcp-server/server.mjs" >/dev/null
+node --check "$ROOT/mcp-server/check-tools.mjs" >/dev/null
+node "$ROOT/mcp-server/check-tools.mjs"
 swiftc -typecheck "$ROOT"/mac-app/Sources/TerminalBrain/*.swift
 "$ROOT/mac-app/scripts/build-app.zsh" >/dev/null
 
