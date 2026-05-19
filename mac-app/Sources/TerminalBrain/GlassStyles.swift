@@ -3,22 +3,21 @@ import SwiftUI
 extension View {
     @ViewBuilder
     func terminalBackgroundExtension() -> some View {
-        if #available(macOS 26.0, *) {
-            self.backgroundExtensionEffect()
-        } else {
-            self
-        }
+        self
     }
 
     @ViewBuilder
     func floatingGlassSidebar(reduceGlass: Bool = false) -> some View {
-        if #available(macOS 26.0, *), !reduceGlass {
-            self
-                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 26, style: .continuous))
-                .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 26, style: .continuous))
-        } else {
+        if !reduceGlass {
             self
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 26, style: .continuous)
+                        .stroke(.white.opacity(0.16), lineWidth: 1)
+                )
+        } else {
+            self
+                .background(.black.opacity(0.42), in: RoundedRectangle(cornerRadius: 26, style: .continuous))
         }
     }
 
@@ -57,18 +56,10 @@ extension View {
 
     @ViewBuilder
     func terminalButtonStyle(prominent: Bool = false) -> some View {
-        if #available(macOS 26.0, *) {
-            if prominent {
-                self.buttonStyle(GlassProminentButtonStyle())
-            } else {
-                self.buttonStyle(GlassButtonStyle())
-            }
+        if prominent {
+            self.buttonStyle(.borderedProminent)
         } else {
-            if prominent {
-                self.buttonStyle(.borderedProminent)
-            } else {
-                self.buttonStyle(.bordered)
-            }
+            self.buttonStyle(.bordered)
         }
     }
 }
