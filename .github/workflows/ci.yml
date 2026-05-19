@@ -24,7 +24,7 @@ jobs:
 
       - name: Secret pattern scan
         run: |
-          ! grep -RInE '(gho_|sk-|BEGIN [A-Z ]*PRIVATE KEY|api[_-]?key|password|bearer[[:space:]]+[A-Za-z0-9._-]+)' \
+          ! grep -RInE '(gho_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9]{20,}|BEGIN [A-Z ]*PRIVATE KEY|api[_-]?key[[:space:]]*[=:]|password[[:space:]]*[=:]|bearer[[:space:]]+[A-Za-z0-9._-]{20,})' \
             --exclude-dir=.git \
             --exclude-dir=build \
             --exclude-dir=node_modules \

@@ -1062,26 +1062,59 @@ struct ContentView: View {
     private var briefingView: some View {
         HStack(alignment: .top, spacing: 18) {
             VStack(alignment: .leading, spacing: 14) {
-                SectionTitle("Briefing", symbol: "sun.max.fill")
+                SectionTitle("Command Queue", symbol: "sun.max.fill")
                 VStack(spacing: 0) {
-                    ForEach(model.briefing) { item in
-                        BriefingRow(item: item)
-                        if item.id != model.briefing.last?.id {
+                    ForEach(model.dailyCommands) { item in
+                        DailyCommandRow(item: item)
+                        if item.id != model.dailyCommands.last?.id {
                             Divider().overlay(.white.opacity(0.08)).padding(.leading, 48)
                         }
+                    }
+                    if model.dailyCommands.isEmpty {
+                        EmptyStateRow(title: "No command items", detail: "Refresh or ask Oracle to surface the next useful move.", symbol: "sun.max")
                     }
                 }
                 .darkPanel()
             }
             .frame(minWidth: 620)
             VStack(alignment: .leading, spacing: 14) {
-                SectionTitle("Next Actions", symbol: "sparkles")
-                VStack(alignment: .leading, spacing: 10) {
-                    PolicyLine("Build a Start Work pack before major agent sessions.")
-                    PolicyLine("Review source policy before enabling Apple Notes sync.")
-                    PolicyLine("Move Terminal Brain to /Applications after signing is stable.")
+                if let first = model.dailyCommands.first {
+                    SectionTitle("Do First", symbol: first.symbol)
+                    VStack(alignment: .leading, spacing: 14) {
+                        StatusPill(text: first.priority, state: first.state)
+                        Text(first.title)
+                            .font(.title2.weight(.bold))
+                            .foregroundStyle(.white)
+                        Text(first.detail)
+                            .font(.body)
+                            .foregroundStyle(.white.opacity(0.68))
+                            .fixedSize(horizontal: false, vertical: true)
+                        HStack {
+                            Button {
+                                applyDailyCommand(first)
+                            } label: {
+                                Label(first.action, systemImage: "arrow.right.circle.fill")
+                            }
+                            .buttonStyle(.borderedProminent)
+                            Button {
+                                model.oracleQuestion = "What should I do first for \(first.project)?"
+                                selectedSection = "oracle"
+                            } label: {
+                                Label("Ask", systemImage: "sparkle.magnifyingglass")
+                            }
+                            .buttonStyle(.bordered)
+                        }
+                    }
+                    .padding(16)
+                    .darkPanel()
                 }
-                .padding(16)
+
+                SectionTitle("Daily Baseline", symbol: "checklist")
+                VStack(alignment: .leading, spacing: 10) {
+                    ForEach(model.briefing) { item in
+                        BriefingRow(item: item)
+                    }
+                }
                 .darkPanel()
             }
             .frame(width: 390)
@@ -1220,6 +1253,34 @@ struct ContentView: View {
             selectedSection = "start"
             Task { await model.startWork() }
         }
+    }
+
+    private func applyDailyCommand(_ item: DailyCommandItem) {
+        if item.action == "Open Review" {
+            reviewProjectFilter = item.project.isEmpty ? "all" : item.project
+            selectedSection = "review"
+            return
+        }
+        if item.action == "Open Project", let project = model.projects.first(where: { $0.name == item.project }) {
+            selectedProjectID = project.id
+            selectedSection = "projects"
+            return
+        }
+        if item.action == "Open Pack", let pack = model.feedItems.first(where: { $0.title == item.query }), let path = pack.path {
+            model.openPath(path)
+            return
+        }
+        if item.action == "Open System" {
+            selectedSection = "system"
+            return
+        }
+        if item.action == "Ask Oracle" {
+            model.oracleQuestion = item.query
+            selectedSection = "oracle"
+            return
+        }
+        model.workQuery = item.query
+        selectedSection = "start"
     }
 
     @ViewBuilder
@@ -1726,6 +1787,45 @@ struct BriefingRow: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             Spacer()
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+    }
+}
+
+struct DailyCommandRow: View {
+    let item: DailyCommandItem
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 14) {
+            Image(systemName: item.symbol)
+                .font(.title3)
+                .foregroundStyle(item.state.color)
+                .frame(width: 30, height: 30)
+                .background(item.state.color.opacity(0.16), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            VStack(alignment: .leading, spacing: 5) {
+                HStack(spacing: 8) {
+                    Text(item.title)
+                        .font(.headline.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                    Spacer()
+                    Text(item.priority)
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(item.state.color)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(item.state.color.opacity(0.13), in: Capsule())
+                }
+                Text(item.project)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.white.opacity(0.48))
+                    .lineLimit(1)
+                Text(item.detail)
+                    .font(.callout)
+                    .foregroundStyle(.white.opacity(0.62))
+                    .lineLimit(3)
+            }
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)

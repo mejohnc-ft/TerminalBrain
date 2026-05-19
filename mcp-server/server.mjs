@@ -36,6 +36,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_today",
+    description: "Get the Daily Command Center queue: what to do first, stale reviews, delegated reads, and project actions.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_projects",
     description: "List Terminal Brain project memory pages derived from context packs and Oracle commits.",
     inputSchema: {
@@ -206,6 +215,8 @@ async function callTool(name, args = {}) {
       return api("/sources");
     case "terminal_brain_briefing":
       return api("/briefing");
+    case "terminal_brain_today":
+      return api("/today");
     case "terminal_brain_projects":
       return api("/projects");
     case "terminal_brain_oracle_brief":

@@ -7,6 +7,7 @@ final class BrainStatusModel: ObservableObject {
     @Published var cards: [HealthCard] = []
     @Published var sources: [BrainSource] = []
     @Published var briefing: [BriefingItem] = []
+    @Published var dailyCommands: [DailyCommandItem] = []
     @Published var feedItems: [BrainFeedItem] = []
     @Published var oracleBrief: [String] = []
     @Published var oracleItems: [OracleItem] = []
@@ -64,9 +65,11 @@ final class BrainStatusModel: ObservableObject {
         let builtOracleItems = buildOracleItems(from: sections, feedItems: builtFeed)
         let builtOracleCommits = loadOracleCommits()
         let builtProjects = buildProjectMemories(feedItems: builtFeed, oracleItems: builtOracleItems, oracleCommits: builtOracleCommits)
+        let builtDailyCommands = buildDailyCommands(cards: sections, projects: builtProjects, oracleCommits: builtOracleCommits, feedItems: builtFeed)
         cards = sections
         sources = builtSources
         briefing = builtBriefing
+        dailyCommands = builtDailyCommands
         feedItems = builtFeed
         oracleItems = builtOracleItems
         oracleCommits = builtOracleCommits
@@ -202,6 +205,7 @@ final class BrainStatusModel: ObservableObject {
             oracleCommitOutput = "Committed to \(path)"
             oracleCommits = loadOracleCommits()
             projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
+            dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems)
         } catch {
             oracleCommitOutput = "Commit failed: \(error.localizedDescription)"
         }
@@ -292,6 +296,7 @@ final class BrainStatusModel: ObservableObject {
         try? text.write(to: url, atomically: true, encoding: .utf8)
         oracleCommits = loadOracleCommits()
         projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
+        dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems)
     }
 
     func openOracleInbox() {
@@ -324,6 +329,7 @@ final class BrainStatusModel: ObservableObject {
         NSWorkspace.shared.open(URL(fileURLWithPath: "\(path)/\(fileName)"))
         oracleCommits = loadOracleCommits()
         projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
+        dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems)
     }
 
     private func processCards() async -> [HealthCard] {
@@ -681,6 +687,108 @@ final class BrainStatusModel: ObservableObject {
         return items.sorted { $0.timestamp > $1.timestamp }
     }
 
+    private func buildDailyCommands(cards: [HealthCard], projects: [ProjectMemory], oracleCommits: [OracleCommit], feedItems: [BrainFeedItem]) -> [DailyCommandItem] {
+        var items: [DailyCommandItem] = []
+
+        for commit in oracleCommits.filter({ $0.status == .delegated }).prefix(3) {
+            items.append(
+                DailyCommandItem(
+                    id: "delegated-\(commit.id)",
+                    title: "Execute delegated read",
+                    detail: commit.title,
+                    priority: "Now",
+                    action: "Start Work",
+                    project: commit.project,
+                    symbol: "paperplane.fill",
+                    state: .busy,
+                    query: [commit.project, commit.title].filter { !$0.isEmpty }.joined(separator: " - ")
+                )
+            )
+        }
+
+        for commit in oracleCommits.filter({ $0.status == .new }).prefix(3) {
+            items.append(
+                DailyCommandItem(
+                    id: "review-\(commit.id)",
+                    title: "Review new Oracle read",
+                    detail: commit.preview,
+                    priority: "Review",
+                    action: "Open Review",
+                    project: commit.project,
+                    symbol: "tray.and.arrow.down.fill",
+                    state: .warn,
+                    query: commit.title
+                )
+            )
+        }
+
+        for project in projects.prefix(4) {
+            items.append(
+                DailyCommandItem(
+                    id: "project-\(project.id)",
+                    title: "Move \(project.name) forward",
+                    detail: project.recommendedAction,
+                    priority: project.delegatedCount > 0 ? "Now" : "Next",
+                    action: "Open Project",
+                    project: project.name,
+                    symbol: project.symbol,
+                    state: project.delegatedCount > 0 ? .busy : .good,
+                    query: project.name
+                )
+            )
+        }
+
+        if let warning = cards.first(where: { $0.state == .warn }) {
+            items.append(
+                DailyCommandItem(
+                    id: "warning-\(warning.title)",
+                    title: "Fix system attention item",
+                    detail: "\(warning.title): \(warning.detail)",
+                    priority: "Safety",
+                    action: "Open System",
+                    project: "System",
+                    symbol: warning.symbol,
+                    state: .warn,
+                    query: warning.title
+                )
+            )
+        }
+
+        if let fresh = feedItems.first(where: { $0.kind == .context }) {
+            items.append(
+                DailyCommandItem(
+                    id: "fresh-\(fresh.id)",
+                    title: "Use freshest context",
+                    detail: fresh.title,
+                    priority: "Context",
+                    action: "Open Pack",
+                    project: projectName(from: "\(fresh.title) \(fresh.detail)"),
+                    symbol: "shippingbox.fill",
+                    state: .good,
+                    query: fresh.title
+                )
+            )
+        }
+
+        if items.isEmpty {
+            items.append(
+                DailyCommandItem(
+                    id: "ask-oracle",
+                    title: "Ask what changed",
+                    detail: "No urgent queue is visible. Ask Oracle to surface the next useful move.",
+                    priority: "Start",
+                    action: "Ask Oracle",
+                    project: "General Brain",
+                    symbol: "sparkle.magnifyingglass",
+                    state: .good,
+                    query: "What changed and what should I do first?"
+                )
+            )
+        }
+
+        return dedupeDailyCommands(items).prefix(8).map { $0 }
+    }
+
     private func buildOracleBrief(from cards: [HealthCard], feedItems: [BrainFeedItem], oracleItems: [OracleItem]) -> [String] {
         let stats = CommandRunner.readJSON(Paths.statsJSON)
         let agent = CommandRunner.readJSON(Paths.agentHistoryStatsJSON)
@@ -1010,6 +1118,18 @@ final class BrainStatusModel: ObservableObject {
         var output: [OracleItem] = []
         for item in items {
             let key = item.title.lowercased()
+            guard !seen.contains(key) else { continue }
+            seen.insert(key)
+            output.append(item)
+        }
+        return output
+    }
+
+    private func dedupeDailyCommands(_ items: [DailyCommandItem]) -> [DailyCommandItem] {
+        var seen = Set<String>()
+        var output: [DailyCommandItem] = []
+        for item in items {
+            let key = "\(item.title)-\(item.project)-\(item.query)".lowercased()
             guard !seen.contains(key) else { continue }
             seen.insert(key)
             output.append(item)

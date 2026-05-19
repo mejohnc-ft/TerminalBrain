@@ -162,6 +162,18 @@ struct BriefingItem: Identifiable {
     let symbol: String
 }
 
+struct DailyCommandItem: Identifiable {
+    let id: String
+    let title: String
+    let detail: String
+    let priority: String
+    let action: String
+    let project: String
+    let symbol: String
+    let state: HealthState
+    let query: String
+}
+
 struct BrainFeedItem: Identifiable {
     let id: String
     let title: String

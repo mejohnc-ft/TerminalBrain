@@ -63,6 +63,8 @@ final class LocalControlServer {
             return .json(200, await ControlSnapshot.sources())
         case ("GET", "/projects"):
             return .json(200, ProjectSnapshot.projects())
+        case ("GET", "/today"):
+            return .json(200, TodaySnapshot.today())
         case ("GET", "/briefing"):
             return .json(200, await ControlSnapshot.briefing())
         case ("GET", "/permissions"):
@@ -940,6 +942,87 @@ enum ProjectSnapshot {
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty && !$0.hasPrefix("#") && !$0.hasPrefix("---") }
         return lines.prefix(2).joined(separator: " ").prefixString(maxLength: 220)
+    }
+}
+
+enum TodaySnapshot {
+    static func today() -> [String: Any] {
+        let projects = (ProjectSnapshot.projects()["items"] as? [[String: Any]]) ?? []
+        let commits = (OracleSnapshot.commits()["items"] as? [[String: Any]]) ?? []
+        var commands: [[String: Any]] = []
+
+        for commit in commits.filter({ ($0["status"] as? String) == "delegated" }).prefix(3) {
+            commands.append(command(
+                id: "delegated-\(commit["id"] ?? "")",
+                title: "Execute delegated read",
+                detail: commit["title"] as? String ?? "Delegated Oracle read",
+                priority: "Now",
+                action: "Start Work",
+                project: commit["project"] as? String ?? "",
+                symbol: "paperplane.fill",
+                query: [commit["project"] as? String ?? "", commit["title"] as? String ?? ""].filter { !$0.isEmpty }.joined(separator: " - ")
+            ))
+        }
+
+        for commit in commits.filter({ ($0["status"] as? String) == "new" }).prefix(3) {
+            commands.append(command(
+                id: "review-\(commit["id"] ?? "")",
+                title: "Review new Oracle read",
+                detail: commit["preview"] as? String ?? "",
+                priority: "Review",
+                action: "Open Review",
+                project: commit["project"] as? String ?? "",
+                symbol: "tray.and.arrow.down.fill",
+                query: commit["title"] as? String ?? ""
+            ))
+        }
+
+        for project in projects.prefix(4) {
+            commands.append(command(
+                id: "project-\(project["id"] ?? "")",
+                title: "Move \(project["name"] as? String ?? "Project") forward",
+                detail: project["recommendedAction"] as? String ?? "",
+                priority: ((project["delegatedCount"] as? Int) ?? 0) > 0 ? "Now" : "Next",
+                action: "Open Project",
+                project: project["name"] as? String ?? "",
+                symbol: project["symbol"] as? String ?? "folder.fill",
+                query: project["name"] as? String ?? ""
+            ))
+        }
+
+        if commands.isEmpty {
+            commands.append(command(
+                id: "ask-oracle",
+                title: "Ask what changed",
+                detail: "No urgent queue is visible. Ask Oracle to surface the next useful move.",
+                priority: "Start",
+                action: "Ask Oracle",
+                project: "General Brain",
+                symbol: "sparkle.magnifyingglass",
+                query: "What changed and what should I do first?"
+            ))
+        }
+
+        return [
+            "generatedAt": ISO8601DateFormatter().string(from: Date()),
+            "commands": Array(commands.prefix(8)),
+            "projects": projects,
+            "reviewCount": commits.filter { ($0["status"] as? String) == "new" }.count,
+            "delegatedCount": commits.filter { ($0["status"] as? String) == "delegated" }.count
+        ]
+    }
+
+    private static func command(id: String, title: String, detail: String, priority: String, action: String, project: String, symbol: String, query: String) -> [String: Any] {
+        [
+            "id": id,
+            "title": title,
+            "detail": detail,
+            "priority": priority,
+            "action": action,
+            "project": project,
+            "symbol": symbol,
+            "query": query
+        ]
     }
 }
 

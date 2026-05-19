@@ -46,7 +46,7 @@ That means Apple Notes prompts should say **Terminal Brain**, not `node`, once N
 
 - **Cockpit**: Current health across MCP, config, indexes, sync, and Mission Control.
 - **Sources**: Permission-aware status for Obsidian, agent histories, Drafts, Apple Notes, and Mission Control.
-- **Today**: Deterministic local briefing from index, agent-memory, sync, and recent note state.
+- **Today**: Daily Command Center with ranked actions from review state, delegated reads, projects, source health, and fresh context.
 - **Start Work**: Creates a context pack from the local brain kernel before handing work to an agent.
 - **Oracle**: Ask Terminal Brain for grounded synthesis from local signals and Mission retrieval.
 - **Review**: Triage committed Oracle reads as new, accepted, linked, delegated, or dismissed.
@@ -54,6 +54,7 @@ That means Apple Notes prompts should say **Terminal Brain**, not `node`, once N
 - **System**: Tracks native macOS surfaces such as menu bar extra, settings, local API, widgets, login item, and shortcuts.
 
 Project pages include direct actions for asking a project-scoped Oracle question, building a project context pack, committing a project update, and opening the latest pack. Review can be filtered by project, and delegated reads can be sent straight into Start Work.
+Today turns those signals into a short command queue so the app opens on what to do first.
 
 ## macOS Shell
 
@@ -89,6 +90,7 @@ Routes:
 - `GET /health`
 - `GET /status`
 - `GET /sources`
+- `GET /today`
 - `GET /projects`
 - `GET /briefing`
 - `GET /permissions`
