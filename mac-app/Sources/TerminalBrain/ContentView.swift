@@ -651,6 +651,20 @@ struct ContentView: View {
                         .lineLimit(10)
                         .fixedSize(horizontal: false, vertical: true)
                         .textSelection(.enabled)
+
+                    if !model.oracleSuggestedActions.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            ForEach(model.oracleSuggestedActions.prefix(4), id: \.self) { action in
+                                Button {
+                                    applyOracleSuggestion(action)
+                                } label: {
+                                    Label(action, systemImage: symbolForOracleSuggestion(action))
+                                        .lineLimit(1)
+                                }
+                                .buttonStyle(.bordered)
+                            }
+                        }
+                    }
                 }
             }
             .padding(12)
@@ -1017,6 +1031,19 @@ struct ContentView: View {
                         .foregroundStyle(.white.opacity(0.72))
                         .fixedSize(horizontal: false, vertical: true)
                         .textSelection(.enabled)
+                    if !model.oracleSuggestedActions.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            ForEach(model.oracleSuggestedActions.prefix(3), id: \.self) { action in
+                                Button {
+                                    applyOracleSuggestion(action)
+                                } label: {
+                                    Label(action, systemImage: symbolForOracleSuggestion(action))
+                                        .lineLimit(1)
+                                }
+                            }
+                        }
+                        .buttonStyle(.bordered)
+                    }
                 }
                 .padding(16)
                 .darkPanel()
@@ -1841,6 +1868,32 @@ struct ContentView: View {
         Task {
             await model.askFocusOracle(item, question: question)
         }
+    }
+
+    private func applyOracleSuggestion(_ suggestion: String) {
+        let lower = suggestion.lowercased()
+        if lower.contains("commit") {
+            Task { await model.commitOracleAnswer(project: model.focusItem.project) }
+            selectedSection = "review"
+        } else if lower.contains("context pack") || lower.contains("start work") {
+            let focusQuery = model.focusItem.query.trimmingCharacters(in: .whitespacesAndNewlines)
+            model.workQuery = focusQuery.isEmpty ? model.oracleQuestion : focusQuery
+            selectedSection = "start"
+        } else if lower.contains("sync") {
+            Task { await model.runSyncNow() }
+        } else {
+            model.quickIdea = suggestion
+            selectedSection = "focus"
+        }
+    }
+
+    private func symbolForOracleSuggestion(_ suggestion: String) -> String {
+        let lower = suggestion.lowercased()
+        if lower.contains("commit") { return "square.and.arrow.down" }
+        if lower.contains("context") || lower.contains("start work") { return "shippingbox" }
+        if lower.contains("sync") { return "arrow.triangle.2.circlepath" }
+        if lower.contains("mission") { return "display" }
+        return "arrow.right.circle"
     }
 
     private func applyRadarAction(_ item: RadarItem) {

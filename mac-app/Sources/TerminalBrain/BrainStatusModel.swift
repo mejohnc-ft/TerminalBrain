@@ -16,6 +16,7 @@ final class BrainStatusModel: ObservableObject {
     @Published var oracleQuestion = "What am I missing?"
     @Published var oracleAnswer = ""
     @Published var oracleMode = "local"
+    @Published var oracleSuggestedActions: [String] = []
     @Published var oracleCommitOutput = ""
     @Published var isAskingOracle = false
     @Published var quickIdea = ""
@@ -228,13 +229,16 @@ final class BrainStatusModel: ObservableObject {
                   let answer = json["answer"] as? String else {
                 oracleMode = "local"
                 oracleAnswer = answerOracleQuestion(question, items: oracleItems, cards: cards)
+                oracleSuggestedActions = []
                 return
             }
             oracleMode = (json["mode"] as? String ?? "local").replacingOccurrences(of: "-", with: " ")
             oracleAnswer = answer
+            oracleSuggestedActions = json["suggestedActions"] as? [String] ?? []
         } catch {
             oracleMode = "local"
             oracleAnswer = answerOracleQuestion(question, items: oracleItems, cards: cards)
+            oracleSuggestedActions = []
         }
     }
 
@@ -261,13 +265,16 @@ final class BrainStatusModel: ObservableObject {
                   let answer = json["answer"] as? String else {
                 oracleMode = "local"
                 oracleAnswer = answerOracleQuestion(resolvedQuestion, items: oracleItems, cards: cards)
+                oracleSuggestedActions = []
                 return
             }
             oracleMode = (json["mode"] as? String ?? "focus").replacingOccurrences(of: "-", with: " ")
             oracleAnswer = answer
+            oracleSuggestedActions = json["suggestedActions"] as? [String] ?? []
         } catch {
             oracleMode = "local"
             oracleAnswer = answerOracleQuestion(resolvedQuestion, items: oracleItems, cards: cards)
+            oracleSuggestedActions = []
         }
     }
 
