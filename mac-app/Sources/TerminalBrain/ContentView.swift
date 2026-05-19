@@ -63,6 +63,7 @@ struct ContentView: View {
             BrainCommand(title: "Open Sources", subtitle: "Permissioned capture, memory, and compute surfaces", symbol: "tray.full.fill", category: "Navigate", action: .section("sources")),
             BrainCommand(title: "Open System", subtitle: "Native macOS surfaces and integration roadmap", symbol: "puzzlepiece.extension.fill", category: "Navigate", action: .section("system")),
             BrainCommand(title: "Run Sync", subtitle: "Refresh edge brain export with current permission policy", symbol: "arrow.triangle.2.circlepath", category: "Action", action: .runSync),
+            BrainCommand(title: "Copy Operator Snapshot", subtitle: "Prompt-ready Focus, Radar, actions, and memory trail", symbol: "doc.on.clipboard", category: "Action", action: .copySnapshot),
             BrainCommand(title: "Open Mission Control", subtitle: Paths.missionURL.absoluteString, symbol: "display", category: "Action", action: .openMission),
             BrainCommand(title: "Open Logs", subtitle: Paths.syncLog, symbol: "doc.text", category: "Action", action: .openLogs),
             BrainCommand(title: "Open Workspace", subtitle: Paths.workspace, symbol: "folder", category: "Action", action: .openWorkspace)
@@ -1871,6 +1872,8 @@ struct ContentView: View {
             model.openPath(path)
         case .runSync:
             Task { await model.runSyncNow() }
+        case .copySnapshot:
+            Task { await model.copyOperatorSnapshot() }
         case .askOracle(let question):
             model.oracleQuestion = question
             selectedSection = "oracle"
@@ -2092,6 +2095,7 @@ enum BrainCommandAction {
     case openWorkspace
     case openPath(String)
     case runSync
+    case copySnapshot
     case askOracle(String)
     case askFocus
     case draftIdea(String)
