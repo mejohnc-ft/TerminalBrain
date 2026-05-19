@@ -73,7 +73,13 @@ Terminal Brain uses a native macOS window shell:
 
 Start Work uses the local brain kernel configured in `Paths.brainCLI` and writes context packs under the local workspace `.brain/context-packs` folder.
 
-Run the live verifier after integration changes:
+Run the static verifier after normal integration changes. It does not launch or foreground Terminal Brain:
+
+```zsh
+./mac-app/scripts/verify-static.zsh
+```
+
+Run the live verifier only when Terminal Brain is already running and API/MCP behavior needs to be checked:
 
 ```zsh
 ./mac-app/scripts/verify-live.zsh

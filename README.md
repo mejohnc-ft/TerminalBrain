@@ -44,6 +44,16 @@ The installer builds the app and copies it to `~/Applications/Terminal Brain.app
 
 ## Live Verification
 
+For non-launching local QA:
+
+```zsh
+./mac-app/scripts/verify-static.zsh
+```
+
+The static verifier checks shell syntax, MCP syntax, Swift type-checking, app build, and secret patterns without launching or foregrounding Terminal Brain.
+
+For API/MCP checks against an already-running app:
+
 ```zsh
 ./mac-app/scripts/verify-live.zsh
 ```
