@@ -79,6 +79,8 @@ Run the live verifier after integration changes:
 ./mac-app/scripts/verify-live.zsh
 ```
 
+The verifier checks an already-running app. It does not launch or foreground Terminal Brain unless you pass `--launch`.
+
 Install the app into `~/Applications`:
 
 ```zsh

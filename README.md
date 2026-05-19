@@ -48,7 +48,11 @@ The installer builds the app and copies it to `~/Applications/Terminal Brain.app
 ./mac-app/scripts/verify-live.zsh
 ```
 
-The live verifier builds the app, launches it, checks `/health`, `/snapshot`, `/snapshot/markdown`, the MCP snapshot tool, MCP syntax, and Swift type-checking.
+The live verifier builds the app and checks an already-running Terminal Brain instance: `/health`, `/snapshot`, `/snapshot/markdown`, the MCP snapshot tool, MCP syntax, and Swift type-checking. It does not launch or foreground the app unless explicitly requested:
+
+```zsh
+./mac-app/scripts/verify-live.zsh --launch
+```
 
 The built app is emitted to:
 

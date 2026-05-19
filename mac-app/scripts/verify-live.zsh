@@ -4,19 +4,29 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 API="${TERMINAL_BRAIN_API:-http://127.0.0.1:8765}"
 APP="$ROOT/mac-app/build/Terminal Brain.app"
+ALLOW_LAUNCH="${TERMINAL_BRAIN_VERIFY_LAUNCH:-0}"
+
+if [[ "${1:-}" == "--launch" ]]; then
+  ALLOW_LAUNCH="1"
+fi
 
 "$ROOT/mac-app/scripts/build-app.zsh" >/dev/null
 
-osascript -e 'tell application "Terminal Brain" to quit' >/dev/null 2>&1 || true
-sleep 1
-open -a "$APP"
-
-for _ in {1..30}; do
-  if curl -fsS "$API/health" >/dev/null 2>&1; then
-    break
+if ! curl -fsS "$API/health" >/dev/null 2>&1; then
+  if [[ "$ALLOW_LAUNCH" != "1" ]]; then
+    echo "Terminal Brain is not reachable at $API." >&2
+    echo "Start the app yourself, or rerun with --launch to allow this script to foreground it." >&2
+    exit 2
   fi
-  sleep 0.5
-done
+
+  open -a "$APP"
+  for _ in {1..30}; do
+    if curl -fsS "$API/health" >/dev/null 2>&1; then
+      break
+    fi
+    sleep 0.5
+  done
+fi
 
 curl -fsS "$API/health" | ruby -rjson -e 'j=JSON.parse(STDIN.read); abort("health failed") unless j["ok"]; puts "health ok"'
 
