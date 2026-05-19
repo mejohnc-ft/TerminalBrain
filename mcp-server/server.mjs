@@ -18,6 +18,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_snapshot",
+    description: "Get one operator snapshot with Focus, top Radar signals, setup gaps, today's queue, memory trail, and suggested next actions.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_sources",
     description: "List Terminal Brain source modes for Obsidian, agent histories, Drafts, Apple Notes, and Mission Control.",
     inputSchema: {
@@ -300,6 +309,8 @@ async function callTool(name, args = {}) {
   switch (name) {
     case "terminal_brain_status":
       return api("/status");
+    case "terminal_brain_snapshot":
+      return api("/snapshot");
     case "terminal_brain_sources":
       return api("/sources");
     case "terminal_brain_setup":

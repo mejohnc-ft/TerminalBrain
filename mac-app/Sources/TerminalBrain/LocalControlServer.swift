@@ -59,6 +59,8 @@ final class LocalControlServer {
             return .json(200, ["ok": true, "service": "terminal-brain", "port": 8765])
         case ("GET", "/status"):
             return .json(200, await ControlSnapshot.status())
+        case ("GET", "/snapshot"):
+            return .json(200, await BrainSnapshot.snapshot())
         case ("GET", "/sources"):
             return .json(200, await ControlSnapshot.sources())
         case ("GET", "/setup"):
@@ -1069,6 +1071,66 @@ enum TodaySnapshot {
             "symbol": symbol,
             "query": query
         ]
+    }
+}
+
+enum BrainSnapshot {
+    static func snapshot() async -> [String: Any] {
+        let generatedAt = ISO8601DateFormatter().string(from: Date())
+        let focus = await FocusSnapshot.focus()
+        let radarPayload = await RadarSnapshot.radar()
+        let setupPayload = await SetupSnapshot.setup()
+        let todayPayload = await TodaySnapshot.today()
+        let commitsPayload = OracleSnapshot.commits()
+
+        let focusItem = (focus["item"] as? [String: Any]) ?? [:]
+        let radarItems = (radarPayload["items"] as? [[String: Any]]) ?? []
+        let setupSteps = (setupPayload["steps"] as? [[String: Any]]) ?? []
+        let todayCommands = (todayPayload["commands"] as? [[String: Any]]) ?? []
+        let commits = (commitsPayload["items"] as? [[String: Any]]) ?? []
+
+        return payload(
+            generatedAt: generatedAt,
+            focus: focus,
+            radarItems: Array(radarItems.prefix(5)),
+            setupSteps: attentionSteps(from: setupSteps),
+            todayCommands: Array(todayCommands.prefix(5)),
+            memoryTrail: Array(commits.prefix(5)),
+            suggestedActions: suggestedActions(focusItem: focusItem, setupSteps: setupSteps, commits: commits)
+        )
+    }
+
+    private static func payload(generatedAt: String, focus: [String: Any], radarItems: [[String: Any]], setupSteps: [[String: Any]], todayCommands: [[String: Any]], memoryTrail: [[String: Any]], suggestedActions: [String]) -> [String: Any] {
+        var result: [String: Any] = [:]
+        result["generatedAt"] = generatedAt
+        result["mode"] = "operator-snapshot"
+        result["focus"] = focus
+        result["radar"] = radarItems
+        result["setupAttention"] = setupSteps
+        result["today"] = todayCommands
+        result["memoryTrail"] = memoryTrail
+        result["suggestedActions"] = suggestedActions
+        return result
+    }
+
+    private static func attentionSteps(from steps: [[String: Any]]) -> [[String: Any]] {
+        Array(steps.filter { ($0["state"] as? String) == "Attention" }.prefix(5))
+    }
+
+    private static func suggestedActions(focusItem: [String: Any], setupSteps: [[String: Any]], commits: [[String: Any]]) -> [String] {
+        var actions: [String] = []
+        let focusTitle = focusItem["title"] as? String ?? "current focus"
+        let focusAction = focusItem["action"] as? String ?? "Act"
+        actions.append("\(focusAction): \(focusTitle)")
+        actions.append("Ask the Focus Oracle what is missing.")
+        if setupSteps.contains(where: { ($0["state"] as? String) == "Attention" }) {
+            actions.append("Clear the top setup attention item.")
+        }
+        if commits.contains(where: { ($0["status"] as? String) == "new" }) {
+            actions.append("Review the newest committed memory.")
+        }
+        actions.append("Capture any new thought before changing context.")
+        return actions
     }
 }
 

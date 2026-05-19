@@ -93,6 +93,7 @@ Routes:
 
 - `GET /health`
 - `GET /status`
+- `GET /snapshot`
 - `GET /sources`
 - `GET /setup`
 - `GET /focus`

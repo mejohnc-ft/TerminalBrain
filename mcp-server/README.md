@@ -30,6 +30,7 @@ Codex/workspace config can register this server as:
 ## Tools
 
 - `terminal_brain_status`
+- `terminal_brain_snapshot`
 - `terminal_brain_sources`
 - `terminal_brain_setup`
 - `terminal_brain_briefing`
