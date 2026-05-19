@@ -3,6 +3,31 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 
+case "${1:-}" in
+  --help|-h)
+    cat <<'EOF'
+Usage: ./mac-app/scripts/verify-static.zsh
+
+Runs non-launching local QA:
+  - shell script syntax
+  - MCP server syntax
+  - Swift typecheck
+  - macOS app build
+  - secret pattern scan
+
+This script never launches or foregrounds Terminal Brain.
+EOF
+    exit 0
+    ;;
+  "")
+    ;;
+  *)
+    echo "Unknown option: $1" >&2
+    echo "Run ./mac-app/scripts/verify-static.zsh --help" >&2
+    exit 64
+    ;;
+esac
+
 zsh -n "$ROOT"/mac-app/scripts/*.zsh
 node --check "$ROOT/mcp-server/server.mjs" >/dev/null
 swiftc -typecheck "$ROOT"/mac-app/Sources/TerminalBrain/*.swift

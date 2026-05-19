@@ -6,9 +6,31 @@ API="${TERMINAL_BRAIN_API:-http://127.0.0.1:8765}"
 APP="$ROOT/mac-app/build/Terminal Brain.app"
 ALLOW_LAUNCH="${TERMINAL_BRAIN_VERIFY_LAUNCH:-0}"
 
-if [[ "${1:-}" == "--launch" ]]; then
-  ALLOW_LAUNCH="1"
-fi
+case "${1:-}" in
+  --help|-h)
+    cat <<'EOF'
+Usage: ./mac-app/scripts/verify-live.zsh [--launch]
+
+Builds Terminal Brain, then checks API and MCP behavior against a running app.
+Default behavior does not launch, relaunch, quit, or foreground Terminal Brain.
+
+Options:
+  --launch  Launch Terminal Brain if it is not already reachable.
+  --help    Show this help.
+EOF
+    exit 0
+    ;;
+  --launch)
+    ALLOW_LAUNCH="1"
+    ;;
+  "")
+    ;;
+  *)
+    echo "Unknown option: $1" >&2
+    echo "Run ./mac-app/scripts/verify-live.zsh --help" >&2
+    exit 64
+    ;;
+esac
 
 "$ROOT/mac-app/scripts/build-app.zsh" >/dev/null
 
