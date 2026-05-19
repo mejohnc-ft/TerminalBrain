@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "type": "module",
   "private": true,
+  "scripts": {
+    "check": "node --check server.mjs && node --check check-tools.mjs",
+    "test": "node check-tools.mjs"
+  },
   "bin": {
     "terminal-brain-mcp": "server.mjs"
   }

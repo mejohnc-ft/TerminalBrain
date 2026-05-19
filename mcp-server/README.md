@@ -52,3 +52,5 @@ Codex/workspace config can register this server as:
 - `terminal_brain_start_work`
 
 `expected-tools.json` is the checked MCP contract. Run `node mcp-server/check-tools.mjs` or `./mac-app/scripts/verify-static.zsh` after changing tools.
+
+From `mcp-server/`, `npm run check` validates syntax and `npm test` validates the tool contract.
