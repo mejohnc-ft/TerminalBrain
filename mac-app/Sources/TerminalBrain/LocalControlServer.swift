@@ -1056,57 +1056,97 @@ enum TodaySnapshot {
 
 enum FocusSnapshot {
     static func focus() async -> [String: Any] {
+        let generatedAt = ISO8601DateFormatter().string(from: Date())
         let radarPayload = await RadarSnapshot.radar()
         let radar = (radarPayload["items"] as? [[String: Any]]) ?? []
         if let item = radar.first {
-            return [
-                "generatedAt": ISO8601DateFormatter().string(from: Date()),
-                "mode": "radar",
-                "item": [
-                    "id": item["id"] as? String ?? "",
-                    "title": item["title"] as? String ?? "",
-                    "detail": item["detail"] as? String ?? "",
-                    "reason": (item["evidence"] as? [String] ?? []).joined(separator: " • ").ifEmpty(item["reason"] as? String ?? ""),
-                    "action": item["action"] as? String ?? "Ask Oracle",
-                    "project": item["project"] as? String ?? "General Brain",
-                    "score": item["score"] as? Int ?? 0,
-                    "symbol": item["symbol"] as? String ?? "target",
-                    "state": item["state"] as? String ?? "Ready",
-                    "query": item["query"] as? String ?? "",
-                    "path": item["path"] as? String ?? ""
-                ],
-                "candidates": Array(radar.prefix(4))
-            ]
+            return focusPayload(
+                generatedAt: generatedAt,
+                mode: "radar",
+                item: radarFocusItem(from: item),
+                candidates: Array(radar.prefix(4))
+            )
         }
 
         let today = await TodaySnapshot.today()
         let commands = (today["commands"] as? [[String: Any]]) ?? []
-        let first = commands.first ?? [
-            "id": "ask-oracle",
-            "title": "Ask what changed",
-            "detail": "No active signal is available yet.",
-            "action": "Ask Oracle",
-            "project": "General Brain",
-            "symbol": "sparkle.magnifyingglass",
-            "query": "What am I not considering right now?"
-        ]
-        return [
-            "generatedAt": ISO8601DateFormatter().string(from: Date()),
-            "mode": "today",
-            "item": [
-                "id": first["id"] as? String ?? "",
-                "title": first["title"] as? String ?? "",
-                "detail": first["detail"] as? String ?? "",
-                "reason": "Top item from the Daily Command Center.",
-                "action": first["action"] as? String ?? "Ask Oracle",
-                "project": first["project"] as? String ?? "General Brain",
-                "score": 0,
-                "symbol": first["symbol"] as? String ?? "target",
-                "state": "Ready",
-                "query": first["query"] as? String ?? "",
-                "path": ""
-            ],
-            "candidates": commands
+        let first = commands.first ?? fallbackCommand()
+        return focusPayload(
+            generatedAt: generatedAt,
+            mode: "today",
+            item: commandFocusItem(from: first),
+            candidates: commands
+        )
+    }
+
+    private static func focusPayload(generatedAt: String, mode: String, item: [String: Any], candidates: [[String: Any]]) -> [String: Any] {
+        var payload: [String: Any] = [:]
+        payload["generatedAt"] = generatedAt
+        payload["mode"] = mode
+        payload["item"] = item
+        payload["candidates"] = candidates
+        return payload
+    }
+
+    private static func radarFocusItem(from item: [String: Any]) -> [String: Any] {
+        let evidence = (item["evidence"] as? [String]) ?? []
+        let reason = evidence.joined(separator: " • ").ifEmpty(item["reason"] as? String ?? "")
+        return focusItem(
+            id: item["id"] as? String ?? "",
+            title: item["title"] as? String ?? "",
+            detail: item["detail"] as? String ?? "",
+            reason: reason,
+            action: item["action"] as? String ?? "Ask Oracle",
+            project: item["project"] as? String ?? "General Brain",
+            score: item["score"] as? Int ?? 0,
+            symbol: item["symbol"] as? String ?? "target",
+            state: item["state"] as? String ?? "Ready",
+            query: item["query"] as? String ?? "",
+            path: item["path"] as? String ?? ""
+        )
+    }
+
+    private static func commandFocusItem(from item: [String: Any]) -> [String: Any] {
+        focusItem(
+            id: item["id"] as? String ?? "",
+            title: item["title"] as? String ?? "",
+            detail: item["detail"] as? String ?? "",
+            reason: "Top item from the Daily Command Center.",
+            action: item["action"] as? String ?? "Ask Oracle",
+            project: item["project"] as? String ?? "General Brain",
+            score: 0,
+            symbol: item["symbol"] as? String ?? "target",
+            state: "Ready",
+            query: item["query"] as? String ?? "",
+            path: ""
+        )
+    }
+
+    private static func fallbackCommand() -> [String: Any] {
+        var item: [String: Any] = [:]
+        item["id"] = "ask-oracle"
+        item["title"] = "Ask what changed"
+        item["detail"] = "No active signal is available yet."
+        item["action"] = "Ask Oracle"
+        item["project"] = "General Brain"
+        item["symbol"] = "sparkle.magnifyingglass"
+        item["query"] = "What am I not considering right now?"
+        return item
+    }
+
+    private static func focusItem(id: String, title: String, detail: String, reason: String, action: String, project: String, score: Int, symbol: String, state: String, query: String, path: String) -> [String: Any] {
+        [
+            "id": id,
+            "title": title,
+            "detail": detail,
+            "reason": reason,
+            "action": action,
+            "project": project,
+            "score": score,
+            "symbol": symbol,
+            "state": state,
+            "query": query,
+            "path": path
         ]
     }
 }
