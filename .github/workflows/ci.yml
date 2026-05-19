@@ -13,23 +13,5 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Swift typecheck
-        run: swiftc -typecheck mac-app/Sources/TerminalBrain/*.swift
-
-      - name: Build macOS app
-        run: ./mac-app/scripts/build-app.zsh
-
-      - name: Check MCP server syntax
-        run: node --check mcp-server/server.mjs
-
-      - name: Check shell script syntax
-        run: zsh -n mac-app/scripts/*.zsh
-
-      - name: Secret pattern scan
-        run: |
-          ! grep -RInE '(gho_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9]{20,}|BEGIN [A-Z ]*PRIVATE KEY|api[_-]?key[[:space:]]*[=:]|password[[:space:]]*[=:]|bearer[[:space:]]+[A-Za-z0-9._-]{20,})' \
-            --exclude-dir=.git \
-            --exclude-dir=build \
-            --exclude-dir=node_modules \
-            --exclude=ci.yml \
-            .
+      - name: Static verifier
+        run: ./mac-app/scripts/verify-static.zsh
