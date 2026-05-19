@@ -30,6 +30,14 @@ Terminal Brain is a native macOS control surface for a local-first personal brai
 ./mac-app/scripts/build-app.zsh
 ```
 
+## Live Verification
+
+```zsh
+./mac-app/scripts/verify-live.zsh
+```
+
+The live verifier builds the app, launches it, checks `/health`, `/snapshot`, `/snapshot/markdown`, the MCP snapshot tool, MCP syntax, and Swift type-checking.
+
 The built app is emitted to:
 
 ```text

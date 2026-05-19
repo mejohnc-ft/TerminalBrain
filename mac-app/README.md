@@ -73,6 +73,12 @@ Terminal Brain uses a native macOS window shell:
 
 Start Work uses the local brain kernel configured in `Paths.brainCLI` and writes context packs under the local workspace `.brain/context-packs` folder.
 
+Run the live verifier after integration changes:
+
+```zsh
+./mac-app/scripts/verify-live.zsh
+```
+
 Integration paths are editable in the native Settings window. Environment variables can override saved settings for automation:
 
 - `TERMINAL_BRAIN_WORKSPACE`
