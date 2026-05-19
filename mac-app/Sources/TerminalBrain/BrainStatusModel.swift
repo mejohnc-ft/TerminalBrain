@@ -7,6 +7,7 @@ final class BrainStatusModel: ObservableObject {
     @Published var cards: [HealthCard] = []
     @Published var sources: [BrainSource] = []
     @Published var briefing: [BriefingItem] = []
+    @Published var setupSteps: [SetupStep] = []
     @Published var dailyCommands: [DailyCommandItem] = []
     @Published var feedItems: [BrainFeedItem] = []
     @Published var oracleBrief: [String] = []
@@ -41,6 +42,10 @@ final class BrainStatusModel: ObservableObject {
         return "\(warnings) item\(warnings == 1 ? "" : "s") need attention"
     }
 
+    var setupAttentionCount: Int {
+        setupSteps.filter { $0.state == .warn }.count
+    }
+
     init() {
         appleNotesEnabledForManualSync = UserDefaults.standard.bool(forKey: "appleNotesEnabledForManualSync")
     }
@@ -61,6 +66,7 @@ final class BrainStatusModel: ObservableObject {
         let sections = await [processSnapshot, configSnapshot, indexSnapshot, missionSnapshot].flatMap { $0 }
         let builtSources = buildSources(from: sections)
         let builtBriefing = buildBriefing(from: sections)
+        let builtSetupSteps = buildSetupSteps(from: sections)
         let builtFeed = buildFeedItems(from: sections)
         let builtOracleItems = buildOracleItems(from: sections, feedItems: builtFeed)
         let builtOracleCommits = loadOracleCommits()
@@ -69,6 +75,7 @@ final class BrainStatusModel: ObservableObject {
         cards = sections
         sources = builtSources
         briefing = builtBriefing
+        setupSteps = builtSetupSteps
         dailyCommands = builtDailyCommands
         feedItems = builtFeed
         oracleItems = builtOracleItems
@@ -574,6 +581,108 @@ final class BrainStatusModel: ObservableObject {
                 symbol: "display",
                 state: card("Mission Control")?.state ?? .warn,
                 isSensitive: false
+            )
+        ]
+    }
+
+    private func buildSetupSteps(from cards: [HealthCard]) -> [SetupStep] {
+        func card(_ title: String) -> HealthCard? {
+            cards.first { $0.title == title }
+        }
+
+        func exists(_ path: String, directory: Bool? = nil) -> Bool {
+            var isDirectory: ObjCBool = false
+            guard FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory) else { return false }
+            if let directory {
+                return isDirectory.boolValue == directory
+            }
+            return true
+        }
+
+        let workspaceReady = exists(Paths.workspace, directory: true)
+        let cliReady = exists(Paths.brainCLI)
+        let syncReady = exists(Paths.syncScript)
+        let obsidianReady = card("Obsidian Index")?.state == .good
+        let missionReady = card("Mission Control")?.state == .good
+        let codexReady = card("Codex MCP Config")?.state == .good
+        let workspaceMCPReady = card("Workspace MCP Config")?.state == .good
+        let promptSafe = (card("Apple Notes MCP")?.state != .warn)
+            && (card("Drafts MCP")?.state != .warn)
+            && (card("Hourly Sync Agent")?.state != .warn)
+        let oracleReady = exists(Paths.oracleInbox, directory: true)
+
+        return [
+            SetupStep(
+                id: "workspace",
+                title: "Workspace",
+                detail: workspaceReady ? Paths.workspace : "Set the local workspace path in Settings.",
+                state: workspaceReady ? .good : .warn,
+                action: workspaceReady ? "Open Workspace" : "Open Settings",
+                symbol: "folder"
+            ),
+            SetupStep(
+                id: "brain-cli",
+                title: "Start Work CLI",
+                detail: cliReady ? Paths.brainCLI : "Set the brain CLI path before building context packs.",
+                state: cliReady ? .good : .warn,
+                action: cliReady ? "Start Work" : "Open Settings",
+                symbol: "terminal"
+            ),
+            SetupStep(
+                id: "sync-script",
+                title: "Sync Script",
+                detail: syncReady ? Paths.syncScript : "Set the Edge Brain sync wrapper path.",
+                state: syncReady ? .good : .warn,
+                action: syncReady ? "Run Sync" : "Open Settings",
+                symbol: "arrow.triangle.2.circlepath"
+            ),
+            SetupStep(
+                id: "obsidian-index",
+                title: "Obsidian Index",
+                detail: card("Obsidian Index")?.detail ?? "Run sync to populate local memory metadata.",
+                state: obsidianReady ? .good : .warn,
+                action: obsidianReady ? "Open Workspace" : "Run Sync",
+                symbol: "doc.text.magnifyingglass"
+            ),
+            SetupStep(
+                id: "mission",
+                title: "Mission Control",
+                detail: card("Mission Control")?.detail ?? Paths.missionURL.absoluteString,
+                state: missionReady ? .good : .warn,
+                action: missionReady ? "Open Mission" : "Open Settings",
+                symbol: "display"
+            ),
+            SetupStep(
+                id: "codex-mcp",
+                title: "Codex MCP",
+                detail: card("Codex MCP Config")?.detail ?? "Register the Terminal Brain MCP gateway.",
+                state: codexReady ? .good : .warn,
+                action: "Open Settings",
+                symbol: "antenna.radiowaves.left.and.right"
+            ),
+            SetupStep(
+                id: "workspace-mcp",
+                title: "Workspace MCP",
+                detail: card("Workspace MCP Config")?.detail ?? "Register the workspace MCP gateway.",
+                state: workspaceMCPReady ? .good : .warn,
+                action: "Open Workspace",
+                symbol: "folder.badge.gearshape"
+            ),
+            SetupStep(
+                id: "prompt-safety",
+                title: "Prompt Safety",
+                detail: promptSafe ? "Prompt-prone Apple Notes, Drafts, and hourly sync bridges are quiet." : "A prompt-prone bridge or background sync agent is active.",
+                state: promptSafe ? .good : .warn,
+                action: "Open Sources",
+                symbol: "lock.shield.fill"
+            ),
+            SetupStep(
+                id: "oracle-inbox",
+                title: "Oracle Inbox",
+                detail: oracleReady ? Paths.oracleInbox : "Create the Obsidian-backed Oracle Inbox by committing an Oracle read.",
+                state: oracleReady ? .good : .warn,
+                action: oracleReady ? "Open Review" : "Ask Oracle",
+                symbol: "tray.and.arrow.down.fill"
             )
         ]
     }

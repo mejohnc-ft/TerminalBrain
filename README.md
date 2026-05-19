@@ -10,6 +10,7 @@ Terminal Brain is a native macOS control surface for a local-first personal brai
 ## Current Capabilities
 
 - Local status, source, permission, briefing, and sync checks.
+- Setup readiness checklist for app, MCP config, workspace paths, sync, memory, Mission Control, prompt safety, and Oracle writeback.
 - Oracle ask flow with deterministic local fallback.
 - Mission-backed retrieval and synthesis when Mission Control is reachable.
 - Oracle commit/writeback into the Obsidian-backed `Oracle Inbox`.
@@ -17,7 +18,7 @@ Terminal Brain is a native macOS control surface for a local-first personal brai
 - Project Memory pages derived from context packs and Oracle commits.
 - Project-aware actions for asking Oracle, building packs, committing updates, filtering Review, and delegating reads into Start Work.
 - Daily Command Center with ranked actions for reviews, delegations, projects, system attention, and fresh context.
-- MCP tools for status, sources, briefing, permissions, sync, Start Work, Oracle ask, Oracle items, and Oracle commits.
+- MCP tools for status, setup, sources, briefing, permissions, sync, Start Work, Oracle ask, Oracle items, and Oracle commits.
 
 ## Build
 

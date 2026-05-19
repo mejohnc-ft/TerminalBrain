@@ -46,6 +46,7 @@ struct ContentView: View {
     private var commandItems: [BrainCommand] {
         var items: [BrainCommand] = [
             BrainCommand(title: "Open Cockpit", subtitle: "Local gateway, source health, and Mission reachability", symbol: "house.fill", category: "Navigate", action: .section("cockpit")),
+            BrainCommand(title: "Open Setup", subtitle: "Readiness checklist for app, MCP, sources, and sync", symbol: "checklist.checked", category: "Navigate", action: .section("setup")),
             BrainCommand(title: "Open Feed", subtitle: "Recent context packs, sync events, and source alerts", symbol: "list.bullet.rectangle.portrait.fill", category: "Navigate", action: .section("feed")),
             BrainCommand(title: "Open Oracle", subtitle: "Narrative brief, bubbling ideas, and open loops", symbol: "sparkle.magnifyingglass", category: "Navigate", action: .section("oracle")),
             BrainCommand(title: "Open Review Queue", subtitle: "Committed Oracle reads, decisions, and follow-ups", symbol: "tray.and.arrow.down.fill", category: "Navigate", action: .section("review")),
@@ -106,6 +107,7 @@ struct ContentView: View {
 
     private var sectionTitle: String {
         switch selectedSection {
+        case "setup": return "Setup"
         case "feed": return "Feed"
         case "oracle": return "Oracle"
         case "review": return "Review"
@@ -120,6 +122,7 @@ struct ContentView: View {
 
     private var sectionSubtitle: String {
         switch selectedSection {
+        case "setup": return "Readiness checklist for the app, MCP gateway, memory, sync, and permission posture."
         case "feed": return "Recent context packs, sync events, and source alerts."
         case "oracle": return "Narrative signals, open loops, and ideas worth revisiting."
         case "review": return "Committed Oracle reads that need acceptance, linking, delegation, or dismissal."
@@ -243,6 +246,7 @@ struct ContentView: View {
                 Text("Home")
                     .sidebarHeader()
                 NavRow(title: "Cockpit", symbol: "house.fill", badge: model.summaryLine == "Brain status ready" ? "" : "!", selected: selectedSection == "cockpit") { selectedSection = "cockpit" }
+                NavRow(title: "Setup", symbol: "checklist.checked", badge: model.setupAttentionCount == 0 ? "" : "\(model.setupAttentionCount)", selected: selectedSection == "setup") { selectedSection = "setup" }
                 NavRow(title: "Oracle", symbol: "sparkle.magnifyingglass", badge: "\(model.oracleItems.count)", selected: selectedSection == "oracle") { selectedSection = "oracle" }
                 NavRow(title: "Review", symbol: "tray.and.arrow.down.fill", badge: "\(model.oracleCommits.filter { $0.status == .new }.count)", selected: selectedSection == "review") { selectedSection = "review" }
                 NavRow(title: "Projects", symbol: "folder.fill.badge.gearshape", badge: "\(model.projects.count)", selected: selectedSection == "projects") { selectedSection = "projects" }
@@ -349,6 +353,7 @@ struct ContentView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     switch selectedSection {
+                    case "setup": setupView
                     case "oracle": oracleView
                     case "review": reviewView
                     case "projects": projectsView
@@ -423,6 +428,91 @@ struct ContentView: View {
             }
             syncOutput
         }
+    }
+
+    private var setupView: some View {
+        HStack(alignment: .top, spacing: 18) {
+            VStack(alignment: .leading, spacing: 14) {
+                SectionTitle("Readiness Checklist", symbol: "checklist.checked")
+                VStack(spacing: 0) {
+                    ForEach(model.setupSteps) { step in
+                        SetupStepRow(step: step)
+                        if step.id != model.setupSteps.last?.id {
+                            Divider().overlay(.white.opacity(0.08)).padding(.leading, 50)
+                        }
+                    }
+                    if model.setupSteps.isEmpty {
+                        EmptyStateRow(title: "Setup has not run yet", detail: "Refresh status to build the readiness checklist.", symbol: "checklist")
+                    }
+                }
+                .darkPanel()
+            }
+            .frame(minWidth: 560)
+
+            VStack(alignment: .leading, spacing: 14) {
+                SectionTitle("Bring Online", symbol: "switch.2")
+                VStack(alignment: .leading, spacing: 14) {
+                    HStack(spacing: 10) {
+                        SourceInfoPill(title: "Ready", value: "\(model.setupSteps.filter { $0.state == .good }.count)", symbol: "checkmark.seal")
+                        SourceInfoPill(title: "Attention", value: "\(model.setupAttentionCount)", symbol: "exclamationmark.triangle")
+                    }
+                    Text(setupSummary)
+                        .font(.body)
+                        .foregroundStyle(.white.opacity(0.68))
+                        .fixedSize(horizontal: false, vertical: true)
+                    HStack {
+                        Button { Task { await model.refresh() } } label: { Label("Refresh", systemImage: "arrow.clockwise") }
+                        Button { Task { await model.runSyncNow() } } label: { Label("Run Sync", systemImage: "arrow.triangle.2.circlepath") }
+                            .disabled(model.isSyncing)
+                        Button { model.openWorkspace() } label: { Label("Workspace", systemImage: "folder") }
+                        Button { model.openMissionControl() } label: { Label("Mission", systemImage: "display") }
+                    }
+                    .buttonStyle(.bordered)
+                    HStack {
+                        Button {
+                            model.oracleQuestion = "What is missing from my Terminal Brain setup?"
+                            selectedSection = "oracle"
+                        } label: {
+                            Label("Ask Oracle", systemImage: "sparkle.magnifyingglass")
+                        }
+                        .buttonStyle(.borderedProminent)
+                        Button {
+                            selectedSection = "start"
+                        } label: {
+                            Label("Start Work", systemImage: "shippingbox")
+                        }
+                        .buttonStyle(.bordered)
+                        SettingsLink {
+                            Label("Settings", systemImage: "gearshape")
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                }
+                .padding(16)
+                .darkPanel()
+
+                SectionTitle("Agent Contract", symbol: "antenna.radiowaves.left.and.right")
+                VStack(alignment: .leading, spacing: 10) {
+                    PolicyLine("Agents should read Terminal Brain readiness before starting work.")
+                    PolicyLine("Agents should use the app MCP gateway instead of starting separate source bridges.")
+                    PolicyLine("Apple Notes and Drafts stay explicit unless you opt in from the app.")
+                    PolicyLine("Useful reads should be committed back into the Oracle Inbox.")
+                }
+                .padding(14)
+                .darkPanel()
+                syncOutput
+            }
+            .frame(width: 480)
+        }
+    }
+
+    private var setupSummary: String {
+        let attention = model.setupSteps.filter { $0.state == .warn }
+        if attention.isEmpty {
+            return "Terminal Brain is ready for agent work. The local app, MCP gateway, source policy, workspace, and memory writeback path are connected."
+        }
+        let names = attention.prefix(3).map(\.title).joined(separator: ", ")
+        return "Resolve \(names) first. The checklist is generated from the current app state, local files, MCP config, and source policy."
     }
 
     private var heroPanel: some View {
@@ -1598,6 +1688,43 @@ struct HealthRow: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
+    }
+}
+
+struct SetupStepRow: View {
+    let step: SetupStep
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 14) {
+            Image(systemName: step.symbol)
+                .font(.title3)
+                .foregroundStyle(step.state.color)
+                .frame(width: 30, height: 30)
+                .background(step.state.color.opacity(0.16), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            VStack(alignment: .leading, spacing: 5) {
+                HStack(spacing: 8) {
+                    Text(step.title)
+                        .font(.headline.weight(.semibold))
+                        .foregroundStyle(.white)
+                    Spacer()
+                    Text(step.state.rawValue)
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(step.state.color)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(step.state.color.opacity(0.13), in: Capsule())
+                }
+                Text(step.detail)
+                    .font(.callout)
+                    .foregroundStyle(.white.opacity(0.58))
+                    .lineLimit(2)
+                Text(step.action)
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.white.opacity(0.44))
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
     }
 }
 

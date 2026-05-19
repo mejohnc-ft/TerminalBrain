@@ -133,6 +133,15 @@ struct HealthCard: Identifiable {
     let symbol: String
 }
 
+struct SetupStep: Identifiable {
+    let id: String
+    let title: String
+    let detail: String
+    let state: HealthState
+    let action: String
+    let symbol: String
+}
+
 struct BrainSource: Identifiable {
     let id: String
     let name: String

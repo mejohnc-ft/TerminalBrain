@@ -31,6 +31,7 @@ Codex/workspace config can register this server as:
 
 - `terminal_brain_status`
 - `terminal_brain_sources`
+- `terminal_brain_setup`
 - `terminal_brain_briefing`
 - `terminal_brain_today`
 - `terminal_brain_projects`

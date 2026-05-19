@@ -27,6 +27,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_setup",
+    description: "Read Terminal Brain readiness setup: app, MCP config, workspace, sync, memory, Mission Control, prompt safety, and Oracle writeback.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_briefing",
     description: "Get the current deterministic Terminal Brain briefing.",
     inputSchema: {
@@ -213,6 +222,8 @@ async function callTool(name, args = {}) {
       return api("/status");
     case "terminal_brain_sources":
       return api("/sources");
+    case "terminal_brain_setup":
+      return api("/setup");
     case "terminal_brain_briefing":
       return api("/briefing");
     case "terminal_brain_today":

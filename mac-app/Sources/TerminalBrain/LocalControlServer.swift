@@ -61,6 +61,8 @@ final class LocalControlServer {
             return .json(200, await ControlSnapshot.status())
         case ("GET", "/sources"):
             return .json(200, await ControlSnapshot.sources())
+        case ("GET", "/setup"):
+            return .json(200, await SetupSnapshot.setup())
         case ("GET", "/projects"):
             return .json(200, ProjectSnapshot.projects())
         case ("GET", "/today"):
@@ -492,10 +494,10 @@ enum OracleSnapshot {
             "",
             "Current Terminal Brain implementation:",
             "- Native macOS app with local control API on http://127.0.0.1:8765.",
-            "- Current API routes: /health, /status, /sources, /briefing, /permissions, /oracle/brief, /oracle/items, /oracle/ask, /oracle/commit, /sync, /start-work.",
+            "- Current API routes: /health, /status, /setup, /sources, /briefing, /permissions, /oracle/brief, /oracle/items, /oracle/ask, /oracle/commit, /sync, /start-work.",
             "- Oracle ask already combines local deterministic signals, Mission retrieval, Mission workbench synthesis, citations, supporting items, and fallback behavior.",
             "- Oracle commit can write synthesized decisions and outcomes into the Obsidian-backed Oracle Inbox.",
-            "- MCP proxy can call Terminal Brain status, sources, briefing, permissions, sync, start work, oracle brief, oracle items, oracle ask, and oracle commit.",
+            "- MCP proxy can call Terminal Brain status, setup, sources, briefing, permissions, sync, start work, oracle brief, oracle items, oracle ask, and oracle commit.",
             "- Do not describe these implemented capabilities as missing. Recommend what should come after them.",
             "",
             "Local deterministic read:",
@@ -1023,6 +1025,140 @@ enum TodaySnapshot {
             "symbol": symbol,
             "query": query
         ]
+    }
+}
+
+enum SetupSnapshot {
+    static func setup() async -> [String: Any] {
+        let status = await ControlSnapshot.status()
+        let indexes = status["indexes"] as? [String: Any] ?? [:]
+        let mission = status["mission"] as? [String: Any] ?? [:]
+        let mcp = status["mcp"] as? [String: Any] ?? [:]
+        let sync = status["sync"] as? [String: Any] ?? [:]
+        let promptSafe = status["promptSafe"] as? Bool ?? false
+        let codexConfig = CommandRunner.readText(Paths.codexConfig)
+        let workspaceConfig = CommandRunner.readText(Paths.workspaceMCP)
+        let codexReady = codexConfig.contains("[mcp_servers.local-brain]")
+            && !codexConfig.contains("[mcp_servers.apple-notes]")
+            && !codexConfig.contains("[mcp_servers.drafts-obsidian]")
+        let workspaceReady = workspaceConfig.contains("local-brain")
+            && !workspaceConfig.contains("apple-notes")
+            && !workspaceConfig.contains("drafts-obsidian")
+
+        let steps = [
+            step(
+                id: "app",
+                title: "Terminal Brain App",
+                detail: "Local control API is responding on 127.0.0.1:8765.",
+                ready: true,
+                action: "Keep app running",
+                symbol: "macwindow"
+            ),
+            step(
+                id: "workspace",
+                title: "Workspace",
+                detail: fileExists(Paths.workspace, directory: true) ? Paths.workspace : "Set the workspace path in Terminal Brain Settings.",
+                ready: fileExists(Paths.workspace, directory: true),
+                action: fileExists(Paths.workspace, directory: true) ? "Open Workspace" : "Open Settings",
+                symbol: "folder"
+            ),
+            step(
+                id: "brain-cli",
+                title: "Start Work CLI",
+                detail: fileExists(Paths.brainCLI) ? Paths.brainCLI : "Set the brain CLI path before Start Work can build packs.",
+                ready: fileExists(Paths.brainCLI),
+                action: fileExists(Paths.brainCLI) ? "Start Work" : "Open Settings",
+                symbol: "terminal"
+            ),
+            step(
+                id: "sync-script",
+                title: "Sync Script",
+                detail: fileExists(Paths.syncScript) ? Paths.syncScript : "Set the Edge Brain sync wrapper path.",
+                ready: fileExists(Paths.syncScript),
+                action: fileExists(Paths.syncScript) ? "Run Sync" : "Open Settings",
+                symbol: "arrow.triangle.2.circlepath"
+            ),
+            step(
+                id: "obsidian-index",
+                title: "Obsidian Index",
+                detail: "\(indexes["obsidianNotes"] ?? 0) notes and \(indexes["entities"] ?? 0) entities in derived memory.",
+                ready: ((indexes["obsidianNotes"] as? Int) ?? 0) > 0,
+                action: "Run Sync",
+                symbol: "doc.text.magnifyingglass"
+            ),
+            step(
+                id: "mission",
+                title: "Mission Control",
+                detail: (mission["reachable"] as? Bool ?? false) ? "\(mission["points"] ?? 0) Mission points reachable." : "Mission Control is not reachable at \(Paths.missionURL.absoluteString).",
+                ready: mission["reachable"] as? Bool ?? false,
+                action: "Open Mission",
+                symbol: "display"
+            ),
+            step(
+                id: "codex-mcp",
+                title: "Codex MCP Config",
+                detail: codexReady ? "Codex points to local-brain without auto-starting Apple Notes or Drafts." : "Register local-brain and remove prompt-prone auto-start bridges.",
+                ready: codexReady,
+                action: "Open Settings",
+                symbol: "antenna.radiowaves.left.and.right"
+            ),
+            step(
+                id: "workspace-mcp",
+                title: "Workspace MCP Config",
+                detail: workspaceReady ? "Workspace MCP points to local-brain only." : "Update workspace MCP config to route agents through Terminal Brain.",
+                ready: workspaceReady,
+                action: "Open Workspace",
+                symbol: "folder.badge.gearshape"
+            ),
+            step(
+                id: "prompt-safety",
+                title: "Prompt Safety",
+                detail: promptSafe ? "Apple Notes, Drafts, and hourly sync bridges are quiet." : "A prompt-prone bridge or launch agent is active.",
+                ready: promptSafe,
+                action: "Open Sources",
+                symbol: "lock.shield.fill"
+            ),
+            step(
+                id: "oracle-inbox",
+                title: "Oracle Inbox",
+                detail: fileExists(Paths.oracleInbox, directory: true) ? Paths.oracleInbox : "Commit an Oracle read to create the Obsidian writeback inbox.",
+                ready: fileExists(Paths.oracleInbox, directory: true),
+                action: fileExists(Paths.oracleInbox, directory: true) ? "Open Review" : "Ask Oracle",
+                symbol: "tray.and.arrow.down.fill"
+            )
+        ]
+
+        let readyCount = steps.filter { ($0["state"] as? String) == "Ready" }.count
+        let attentionCount = steps.filter { ($0["state"] as? String) == "Attention" }.count
+
+        return [
+            "generatedAt": ISO8601DateFormatter().string(from: Date()),
+            "readyCount": readyCount,
+            "attentionCount": attentionCount,
+            "mcpLocalBrainRunning": mcp["localBrainRunning"] as? Bool ?? false,
+            "syncRecords": sync["records"] as? Int ?? 0,
+            "steps": steps
+        ]
+    }
+
+    private static func step(id: String, title: String, detail: String, ready: Bool, action: String, symbol: String) -> [String: Any] {
+        [
+            "id": id,
+            "title": title,
+            "detail": detail,
+            "state": ready ? "Ready" : "Attention",
+            "action": action,
+            "symbol": symbol
+        ]
+    }
+
+    private static func fileExists(_ path: String, directory: Bool? = nil) -> Bool {
+        var isDirectory: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory) else { return false }
+        if let directory {
+            return isDirectory.boolValue == directory
+        }
+        return true
     }
 }
 

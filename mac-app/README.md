@@ -45,6 +45,7 @@ That means Apple Notes prompts should say **Terminal Brain**, not `node`, once N
 ## Views
 
 - **Cockpit**: Current health across MCP, config, indexes, sync, and Mission Control.
+- **Setup**: Readiness checklist for app, MCP config, workspace, sync, memory, Mission Control, prompt safety, and Oracle writeback.
 - **Sources**: Permission-aware status for Obsidian, agent histories, Drafts, Apple Notes, and Mission Control.
 - **Today**: Daily Command Center with ranked actions from review state, delegated reads, projects, source health, and fresh context.
 - **Start Work**: Creates a context pack from the local brain kernel before handing work to an agent.
@@ -90,6 +91,7 @@ Routes:
 - `GET /health`
 - `GET /status`
 - `GET /sources`
+- `GET /setup`
 - `GET /today`
 - `GET /projects`
 - `GET /briefing`
