@@ -7,13 +7,14 @@ Agent contributors should read `AGENTS.md` before running local commands. The de
 Common commands:
 
 ```zsh
+make
 make verify
 make build
 make install
 make snapshot
 ```
 
-`make verify`, `make build`, and `make install` do not launch or foreground Terminal Brain.
+Plain `make` prints help. `make verify`, `make build`, and `make install` do not launch or foreground Terminal Brain.
 
 ## Components
 
