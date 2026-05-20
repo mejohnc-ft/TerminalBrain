@@ -566,7 +566,9 @@ struct ContentView: View {
 
     private var workBlockView: some View {
         let focus = model.focusItem
-        let openReviewCount = model.oracleCommits.filter { $0.status == .new || $0.status == .delegated }.count
+        let openReviews = model.oracleCommits.filter { $0.status == .new || $0.status == .delegated }
+        let topReview = openReviews.first
+        let openReviewCount = openReviews.count
         return VStack(alignment: .leading, spacing: 18) {
             VStack(alignment: .leading, spacing: 16) {
                 HStack(alignment: .top, spacing: 14) {
@@ -581,7 +583,7 @@ struct ContentView: View {
                             .font(.caption.weight(.bold))
                             .foregroundStyle(settings.theme.accent)
                             .textCase(.uppercase)
-                        Text("Pull one signal forward.")
+                        Text(topReview.map { "Triage \($0.title)" } ?? "Pull one signal forward.")
                             .font(.system(size: 34, weight: .bold, design: .rounded))
                             .foregroundStyle(.white)
                             .lineLimit(2)
@@ -608,6 +610,10 @@ struct ContentView: View {
 
                     Button {
                         reviewProjectFilter = focus.project.isEmpty ? "all" : focus.project
+                        if let topReview {
+                            selectedCommitID = topReview.id
+                            reviewProjectFilter = topReview.project.isEmpty ? "all" : topReview.project
+                        }
                         selectedSection = "review"
                     } label: {
                         Label("Review Queue", systemImage: "tray.and.arrow.down.fill")
@@ -646,12 +652,16 @@ struct ContentView: View {
 
                 ValueBriefTile(
                     label: "2. Triage",
-                    title: openReviewCount == 0 ? "Review queue is clear" : "\(openReviewCount) review items",
-                    detail: "Accept, delegate, dismiss, or link Oracle Inbox items before they become background noise.",
+                    title: topReview?.title ?? "Review queue is clear",
+                    detail: topReview?.preview ?? "Accept, delegate, dismiss, or link Oracle Inbox items before they become background noise.",
                     action: "Open Review",
-                    symbol: "tray.and.arrow.down.fill",
-                    accent: .orange
+                    symbol: topReview?.status.symbol ?? "tray.and.arrow.down.fill",
+                    accent: topReview?.status.color ?? .green
                 ) {
+                    if let topReview {
+                        selectedCommitID = topReview.id
+                        reviewProjectFilter = topReview.project.isEmpty ? "all" : topReview.project
+                    }
                     selectedSection = "review"
                 }
 
