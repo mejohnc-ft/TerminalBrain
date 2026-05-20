@@ -7,35 +7,68 @@ enum ShortcutClient {
 
     static func text(path: String) async throws -> String {
         guard let url = URL(string: path, relativeTo: api)?.absoluteURL else {
-            throw ShortcutError.requestFailed
+            throw ShortcutError.invalidURL
         }
-        let (data, response) = try await URLSession.shared.data(from: url)
-        guard (response as? HTTPURLResponse)?.statusCode == 200,
-              let text = String(data: data, encoding: .utf8),
-              !text.isEmpty else {
-            throw ShortcutError.requestFailed
+        do {
+            let (data, response) = try await URLSession.shared.data(from: url)
+            let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+            guard status == 200 else {
+                throw ShortcutError.requestFailed(status: status)
+            }
+            guard let text = String(data: data, encoding: .utf8), !text.isEmpty else {
+                throw ShortcutError.emptyResponse
+            }
+            return text
+        } catch let error as ShortcutError {
+            throw error
+        } catch {
+            throw ShortcutError.unreachable(error.localizedDescription)
         }
-        return text
     }
 
     static func post(path: String, body: [String: Any]) async throws {
         guard let url = URL(string: path, relativeTo: api)?.absoluteURL else {
-            throw ShortcutError.requestFailed
+            throw ShortcutError.invalidURL
         }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
-        let (_, response) = try await URLSession.shared.data(for: request)
-        guard (response as? HTTPURLResponse)?.statusCode == 200 else {
-            throw ShortcutError.requestFailed
+        do {
+            let (_, response) = try await URLSession.shared.data(for: request)
+            let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+            guard status == 200 else {
+                throw ShortcutError.requestFailed(status: status)
+            }
+        } catch let error as ShortcutError {
+            throw error
+        } catch {
+            throw ShortcutError.unreachable(error.localizedDescription)
         }
     }
 }
 
-enum ShortcutError: Error {
-    case requestFailed
+enum ShortcutError: LocalizedError {
+    case invalidURL
+    case unreachable(String)
+    case requestFailed(status: Int)
+    case emptyResponse
     case emptyQuery
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidURL:
+            return "Terminal Brain shortcut URL is invalid."
+        case .unreachable(let detail):
+            return "Terminal Brain is not reachable at 127.0.0.1:8765. Open the app, then try again. \(detail)"
+        case .requestFailed(let status):
+            return "Terminal Brain returned HTTP \(status)."
+        case .emptyResponse:
+            return "Terminal Brain returned an empty response."
+        case .emptyQuery:
+            return "Enter a project, task, repo, or question before building a context pack."
+        }
+    }
 }
 
 struct CopyOperatorDeckIntent: AppIntent {
