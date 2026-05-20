@@ -49,4 +49,8 @@ mcp_doctor_output="$(call_mcp_tool terminal_brain_doctor_markdown)"
 require_contains "$mcp_doctor_output" '# Terminal Brain Doctor' "MCP doctor title"
 require_contains "$mcp_doctor_output" 'MCP tool contract valid' "MCP doctor contract"
 
+mcp_audit_output="$(call_mcp_tool terminal_brain_audit_markdown)"
+require_contains "$mcp_audit_output" '# Terminal Brain Capability Audit' "MCP audit title"
+require_contains "$mcp_audit_output" 'MCP Outcome Commit' "MCP audit outcome evidence"
+
 echo "entrypoints ok"

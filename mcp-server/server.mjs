@@ -50,6 +50,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_audit_markdown",
+    description: "Run the non-launching Terminal Brain capability audit and return evidence for value, MCP, safety, readiness, and first commands as Markdown.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_status",
     description: "Read Terminal Brain app status, including MCP, sync, index, Mission Control, and prompt-safety state.",
     inputSchema: {
@@ -937,6 +946,24 @@ function doctorMarkdown() {
   ].join("\n");
 }
 
+function auditMarkdown() {
+  const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "audit.zsh")], { timeout: 10000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Capability Audit",
+    "",
+    "Audit failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 async function valueNowMarkdown() {
   const health = await apiHealth();
   if (health.reachable) {
@@ -1010,6 +1037,8 @@ async function callTool(name, args = {}) {
       return doctorMarkdown();
     case "terminal_brain_value_now_markdown":
       return valueNowMarkdown();
+    case "terminal_brain_audit_markdown":
+      return auditMarkdown();
     case "terminal_brain_status":
       return api("/status");
     case "terminal_brain_snapshot":

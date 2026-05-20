@@ -59,6 +59,7 @@ require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_runtime_status' "R
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_next_markdown' "Next Move MCP tool"
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_doctor_markdown' "Doctor MCP tool"
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_value_now_markdown' "Value Now MCP tool"
+require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_audit_markdown' "Audit MCP tool"
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_start_here_markdown' "Start Here MCP tool"
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_oracle_digest_markdown' "Oracle Digest MCP tool"
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_commit_outcome' "Outcome MCP tool"
@@ -66,6 +67,7 @@ require_in_file "$ROOT/mcp-server/expected-tools.json" 'terminal_brain_runtime_s
 require_in_file "$ROOT/mcp-server/expected-tools.json" 'terminal_brain_next_markdown' "Next Move MCP contract"
 require_in_file "$ROOT/mcp-server/expected-tools.json" 'terminal_brain_doctor_markdown' "Doctor MCP contract"
 require_in_file "$ROOT/mcp-server/expected-tools.json" 'terminal_brain_value_now_markdown' "Value Now MCP contract"
+require_in_file "$ROOT/mcp-server/expected-tools.json" 'terminal_brain_audit_markdown' "Audit MCP contract"
 require_in_file "$ROOT/mcp-server/expected-tools.json" 'terminal_brain_start_here_markdown' "Start Here MCP contract"
 require_in_file "$ROOT/mcp-server/expected-tools.json" 'terminal_brain_oracle_digest_markdown' "Oracle Digest MCP contract"
 
@@ -73,6 +75,7 @@ require_in_file "$ROOT/AGENTS.md" 'Do not use Computer Use' "UI automation guard
 require_in_file "$ROOT/AGENTS.md" 'terminal_brain_value_now_markdown' "agent value instruction"
 require_in_file "$ROOT/AGENTS.md" 'terminal_brain_next_markdown' "agent next move instruction"
 require_in_file "$ROOT/AGENTS.md" 'terminal_brain_doctor_markdown' "agent doctor instruction"
+require_in_file "$ROOT/AGENTS.md" 'terminal_brain_audit_markdown' "agent audit instruction"
 require_in_file "$ROOT/AGENTS.md" 'terminal_brain_runtime_status' "agent runtime status instruction"
 require_in_file "$ROOT/AGENTS.md" 'terminal_brain_start_here_markdown' "agent Start Here instruction"
 require_in_file "$ROOT/README.md" 'START-HERE.md' "README Start Here link"
