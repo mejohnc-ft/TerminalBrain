@@ -33,6 +33,13 @@ require_contains "$next_output" 'make agent-prompt' "next closed-app Agent Promp
 require_contains "$next_output" 'make outcome' "next closed-app outcome command"
 require_contains "$next_output" 'did not launch or foreground' "next guardrail"
 
+start_here_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/snapshot.zsh" --start-here)"
+require_contains "$start_here_output" '# Terminal Brain Start Here' "start here title"
+require_contains "$start_here_output" 'local closed-app Start Here path' "start here local fallback"
+require_contains "$start_here_output" 'Oracle Signal' "start here Oracle signal"
+require_contains "$start_here_output" 'Done Criteria' "start here done criteria"
+require_contains "$start_here_output" 'did not launch or foreground' "start here guardrail"
+
 first_minute_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_FIRST_MINUTE_PROOF_API="$CLOSED_API" "$ROOT/mac-app/scripts/first-minute.zsh")"
 require_contains "$first_minute_output" '# Terminal Brain First Minute' "first minute title"
 require_contains "$first_minute_output" 'What You Can Get Immediately' "first minute value section"
@@ -151,6 +158,11 @@ require_contains "$mcp_next_output" 'make work-block' "MCP next Work Block fallb
 require_contains "$mcp_next_output" 'make bubble-up' "MCP next Bubble Up fallback"
 require_contains "$mcp_next_output" 'make agent-prompt' "MCP next Agent Prompt fallback"
 require_contains "$mcp_next_output" 'make outcome' "MCP next outcome fallback"
+
+mcp_start_here_output="$(call_mcp_tool terminal_brain_start_here_markdown)"
+require_contains "$mcp_start_here_output" '# Terminal Brain Start Here' "MCP start here title"
+require_contains "$mcp_start_here_output" 'local closed-app Start Here path' "MCP start here local fallback"
+require_contains "$mcp_start_here_output" 'Done Criteria' "MCP start here done criteria"
 
 mcp_first_minute_output="$(call_mcp_tool terminal_brain_first_minute_markdown)"
 require_contains "$mcp_first_minute_output" '# Terminal Brain First Minute' "MCP first minute title"

@@ -5,7 +5,7 @@ This repository builds a local macOS app used during active work. Do not steal t
 ## Safe Defaults
 
 - Use `make work-block` or MCP `terminal_brain_work_block_markdown` first when the operator needs one concrete closed-app work surface: pull forward, triage, do the smallest useful work, and close the loop.
-- Use `make next` as the safest fallback command when you need to know the next move without launching the app; when the app is closed, it includes the Work Block path.
+- Use `make start-here`, MCP `terminal_brain_start_here_markdown`, or `make next` as the safest first commands when you need the one-block value path without launching the app; when the app is closed, they include local Oracle and Work Block paths.
 - Use `make first-minute` or MCP `terminal_brain_first_minute_markdown` when the operator needs the fastest explanation of what Terminal Brain is, why it matters, and proof the loop works.
 - Use `make prove-value` or MCP `terminal_brain_value_proof_markdown` when you need to prove the closed-app loop works without touching the real workspace.
 - Use `make idea IDEA="..." PROJECT="..."` or MCP `terminal_brain_capture_idea` when a thought needs to be saved immediately; both have a closed-app fallback into the Oracle Inbox.

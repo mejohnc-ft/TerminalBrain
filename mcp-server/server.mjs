@@ -1127,6 +1127,24 @@ function nowMarkdown() {
   ].join("\n");
 }
 
+function startHereMarkdown() {
+  const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "snapshot.zsh"), "--start-here"], { timeout: 15000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Start Here",
+    "",
+    "Start Here failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 function firstMinuteMarkdown() {
   const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "first-minute.zsh")], { timeout: 25000 });
   if (result.ok) return result.text;
@@ -1629,7 +1647,7 @@ async function callTool(name, args = {}) {
     case "terminal_brain_agent_prompt_markdown":
       return agentPromptMarkdown();
     case "terminal_brain_start_here_markdown":
-      return api("/start-here/markdown", { rawText: true });
+      return startHereMarkdown();
     case "terminal_brain_sources":
       return api("/sources");
     case "terminal_brain_setup":

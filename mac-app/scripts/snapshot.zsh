@@ -1,6 +1,7 @@
 #!/usr/bin/env zsh
 set -euo pipefail
 
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 API="${TERMINAL_BRAIN_API:-http://127.0.0.1:8765}"
 FORMAT="markdown"
 COPY="0"
@@ -120,61 +121,127 @@ EOF
   shift
 done
 
-if ! curl -fsS "$API/health" >/dev/null 2>&1; then
-  echo "Terminal Brain is not reachable at $API. Start it yourself, then rerun this command." >&2
-  exit 2
-fi
+health="$(curl -fsS --max-time 0.5 "$API/health" 2>/dev/null || true)"
 
-case "$FORMAT" in
-  json)
-    OUTPUT="$(curl -fsS "$API/snapshot")"
-    ;;
-  deck)
-    OUTPUT="$(curl -fsS "$API/operator-deck")"
-    ;;
-  brief)
-    OUTPUT="$(curl -fsS "$API/operator-brief")"
-    ;;
-  brief-markdown)
-    OUTPUT="$(curl -fsS "$API/operator-brief/markdown")"
-    ;;
-  value)
-    OUTPUT="$(curl -fsS "$API/value-brief/markdown")"
-    ;;
-  digest)
-    OUTPUT="$(curl -fsS "$API/oracle-digest/markdown")"
-    ;;
-  oracle-brief)
-    OUTPUT="$(curl -fsS "$API/oracle/brief/markdown")"
-    ;;
-  today)
-    OUTPUT="$(curl -fsS "$API/today/markdown")"
-    ;;
-  blindspots)
-    OUTPUT="$(curl -fsS "$API/blindspots/markdown")"
-    ;;
-  ideas)
-    OUTPUT="$(curl -fsS "$API/ideas/markdown")"
-    ;;
-  projects)
-    OUTPUT="$(curl -fsS "$API/projects/markdown")"
-    ;;
-  deck-markdown)
-    OUTPUT="$(curl -fsS "$API/operator-deck/markdown")"
-    ;;
-  latest-pack)
-    OUTPUT="$(curl -fsS "$API/context-packs/latest/markdown")"
-    ;;
-  agent-prompt)
-    OUTPUT="$(curl -fsS "$API/agent-prompt/markdown")"
-    ;;
-  start-here)
-    OUTPUT="$(curl -fsS "$API/start-here/markdown")"
-    ;;
-  markdown)
-    OUTPUT="$(curl -fsS "$API/snapshot/markdown")"
-    ;;
-esac
+local_start_here() {
+  cat <<EOF
+# Terminal Brain Start Here
+
+Terminal Brain is not currently reachable at $API, so this is the local closed-app Start Here path.
+
+## One Block
+
+1. Read the Oracle signal below.
+2. Pull one item forward.
+3. Ask or commit if the signal needs shaping.
+4. Write the outcome back.
+
+\`\`\`zsh
+make oracle-brief
+make work-block
+make ask QUERY="What is the smallest useful next action?" PROJECT="Terminal Brain"
+make outcome TITLE="..." OUTCOME="..." PROJECT="Terminal Brain" NEXT="..."
+\`\`\`
+
+## Oracle Signal
+
+EOF
+
+  TERMINAL_BRAIN_API="$API" "$ROOT/mac-app/scripts/oracle-brief.zsh" | awk '
+    /^# Terminal Brain Oracle Brief$/ { next }
+    /^Terminal Brain is not currently reachable at / { next }
+    /^## Runtime Truth$/ { skip = 1; next }
+    skip { next }
+    /^## / { print "### " substr($0, 4); next }
+    /^### / { print "#### " substr($0, 5); next }
+    { print }
+  '
+
+  cat <<'EOF'
+
+## Done Criteria
+
+- One concrete artifact, decision, or note exists.
+- The result is committed with `make outcome` or MCP `terminal_brain_commit_outcome`.
+- No app launch, foreground, quit, or UI automation happened.
+
+## Guardrail
+
+- This Start Here fallback did not launch or foreground Terminal Brain.
+EOF
+}
+
+if [[ -z "$health" ]]; then
+  case "$FORMAT" in
+    start-here)
+      OUTPUT="$(local_start_here)"
+      ;;
+    oracle-brief)
+      OUTPUT="$(TERMINAL_BRAIN_API="$API" "$ROOT/mac-app/scripts/oracle-brief.zsh")"
+      ;;
+    agent-prompt)
+      OUTPUT="$(TERMINAL_BRAIN_API="$API" "$ROOT/mac-app/scripts/agent-prompt.zsh")"
+      ;;
+    value)
+      OUTPUT="$(TERMINAL_BRAIN_API="$API" "$ROOT/mac-app/scripts/value.zsh")"
+      ;;
+    *)
+      echo "Terminal Brain is not reachable at $API. Start it yourself, then rerun this command." >&2
+      exit 2
+      ;;
+  esac
+else
+  case "$FORMAT" in
+    json)
+      OUTPUT="$(curl -fsS "$API/snapshot")"
+      ;;
+    deck)
+      OUTPUT="$(curl -fsS "$API/operator-deck")"
+      ;;
+    brief)
+      OUTPUT="$(curl -fsS "$API/operator-brief")"
+      ;;
+    brief-markdown)
+      OUTPUT="$(curl -fsS "$API/operator-brief/markdown")"
+      ;;
+    value)
+      OUTPUT="$(curl -fsS "$API/value-brief/markdown")"
+      ;;
+    digest)
+      OUTPUT="$(curl -fsS "$API/oracle-digest/markdown")"
+      ;;
+    oracle-brief)
+      OUTPUT="$(curl -fsS "$API/oracle/brief/markdown")"
+      ;;
+    today)
+      OUTPUT="$(curl -fsS "$API/today/markdown")"
+      ;;
+    blindspots)
+      OUTPUT="$(curl -fsS "$API/blindspots/markdown")"
+      ;;
+    ideas)
+      OUTPUT="$(curl -fsS "$API/ideas/markdown")"
+      ;;
+    projects)
+      OUTPUT="$(curl -fsS "$API/projects/markdown")"
+      ;;
+    deck-markdown)
+      OUTPUT="$(curl -fsS "$API/operator-deck/markdown")"
+      ;;
+    latest-pack)
+      OUTPUT="$(curl -fsS "$API/context-packs/latest/markdown")"
+      ;;
+    agent-prompt)
+      OUTPUT="$(curl -fsS "$API/agent-prompt/markdown")"
+      ;;
+    start-here)
+      OUTPUT="$(curl -fsS "$API/start-here/markdown")"
+      ;;
+    markdown)
+      OUTPUT="$(curl -fsS "$API/snapshot/markdown")"
+      ;;
+  esac
+fi
 
 if [[ "$COPY" == "1" ]]; then
   printf "%s" "$OUTPUT" | pbcopy
