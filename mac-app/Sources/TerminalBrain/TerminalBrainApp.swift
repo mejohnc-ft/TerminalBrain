@@ -50,6 +50,10 @@ struct TerminalBrainApp: App {
                 }
                 .keyboardShortcut("p", modifiers: [.command, .shift])
 
+                Button("Copy Latest Context Pack") {
+                    Task { await model.copyLatestContextPack() }
+                }
+
                 Button("Open Mission Control") {
                     model.openMissionControl()
                 }
@@ -68,6 +72,9 @@ struct TerminalBrainApp: App {
             }
             Button("Open Latest Context Pack") {
                 model.openLatestContextPack()
+            }
+            Button("Copy Latest Context Pack") {
+                Task { await model.copyLatestContextPack() }
             }
             Divider()
             Button("Refresh Status") {

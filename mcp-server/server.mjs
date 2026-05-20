@@ -190,6 +190,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_latest_context_pack_markdown",
+    description: "Get the newest Terminal Brain context pack as Markdown for direct agent handoff.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_oracle_brief",
     description: "Get Terminal Brain Oracle narrative brief lines and current operating signals.",
     inputSchema: {
@@ -417,6 +426,8 @@ async function callTool(name, args = {}) {
       return api("/projects");
     case "terminal_brain_latest_context_pack":
       return api("/context-packs/latest");
+    case "terminal_brain_latest_context_pack_markdown":
+      return api("/context-packs/latest/markdown", { rawText: true });
     case "terminal_brain_oracle_brief":
       return api("/oracle/brief");
     case "terminal_brain_oracle_items":

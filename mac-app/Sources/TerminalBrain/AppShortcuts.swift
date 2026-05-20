@@ -166,6 +166,19 @@ struct OpenLatestContextPackIntent: AppIntent {
     }
 }
 
+struct CopyLatestContextPackIntent: AppIntent {
+    static var title: LocalizedStringResource = "Copy Latest Context Pack"
+    static var description = IntentDescription("Copy the newest Terminal Brain context pack as Markdown.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let markdown = try await ShortcutClient.text(path: "/context-packs/latest/markdown")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "Latest context pack copied.")
+    }
+}
+
 struct TerminalBrainShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
@@ -212,6 +225,15 @@ struct TerminalBrainShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Open Pack",
             systemImageName: "doc.richtext"
+        )
+        AppShortcut(
+            intent: CopyLatestContextPackIntent(),
+            phrases: [
+                "Copy latest \(.applicationName) context pack",
+                "Copy \(.applicationName) latest pack"
+            ],
+            shortTitle: "Copy Pack",
+            systemImageName: "doc.on.doc"
         )
     }
 }

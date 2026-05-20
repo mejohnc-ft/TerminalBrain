@@ -7,6 +7,7 @@
   "GET /setup",
   "GET /projects",
   "GET /context-packs/latest",
+  "GET /context-packs/latest/markdown",
   "GET /today",
   "GET /focus",
   "GET /operator-deck",

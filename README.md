@@ -29,7 +29,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Operator Deck for app and agents: do first, ask about, review or capture, and project/start-work cards.
 - Prompt-ready Operator Deck Markdown for agent handoffs and quick paste workflows.
 - Operator Deck action tool for agents to mark directly actionable Radar and Oracle commit cards without opening the app.
-- Latest context pack API/MCP surface for opening or handing off the newest agent-ready artifact.
+- Latest context pack API/MCP/CLI/Shortcut surface for opening, copying, or handing off the newest agent-ready artifact.
 - Setup readiness checklist for app, MCP config, workspace paths, sync, memory, Mission Control, prompt safety, and Oracle writeback.
 - Oracle ask flow with deterministic local fallback and a Focus-grounded ask flow for the current best action.
 - Mission-backed retrieval and synthesis when Mission Control is reachable.
@@ -90,6 +90,7 @@ To print or copy the current operator snapshot from an already-running app:
 ./mac-app/scripts/snapshot.zsh --json
 ./mac-app/scripts/snapshot.zsh --deck
 ./mac-app/scripts/snapshot.zsh --deck-markdown
+./mac-app/scripts/snapshot.zsh --latest-pack
 ./mac-app/scripts/snapshot.zsh --markdown --copy
 ./mac-app/scripts/snapshot.zsh --markdown --output /tmp/terminal-brain-snapshot.md
 ```

@@ -71,6 +71,8 @@ final class LocalControlServer {
             return .json(200, ProjectSnapshot.projects())
         case ("GET", "/context-packs/latest"):
             return .json(200, ControlSnapshot.latestContextPack())
+        case ("GET", "/context-packs/latest/markdown"):
+            return .text(200, ControlSnapshot.latestContextPackMarkdown())
         case ("GET", "/today"):
             return .json(200, await TodaySnapshot.today())
         case ("GET", "/focus"):
@@ -597,7 +599,7 @@ enum OracleSnapshot {
             "",
             "Current Terminal Brain implementation:",
             "- Native macOS app with local control API on http://127.0.0.1:8765.",
-            "- Current API routes: /health, /status, /setup, /focus, /operator-deck, /operator-deck/markdown, /operator-deck/action, /context-packs/latest, /radar, /radar/disposition, /sources, /briefing, /permissions, /oracle/brief, /oracle/items, /oracle/ask, /oracle/commit, /sync, /start-work.",
+            "- Current API routes: /health, /status, /setup, /focus, /operator-deck, /operator-deck/markdown, /operator-deck/action, /context-packs/latest, /context-packs/latest/markdown, /radar, /radar/disposition, /sources, /briefing, /permissions, /oracle/brief, /oracle/items, /oracle/ask, /oracle/commit, /sync, /start-work.",
             "- Oracle ask already combines local deterministic signals, Mission retrieval, Mission workbench synthesis, citations, supporting items, and fallback behavior.",
             "- Oracle commit can write synthesized decisions and outcomes into the Obsidian-backed Oracle Inbox.",
             "- MCP proxy can call Terminal Brain status, setup, focus, operator deck, operator deck action, radar, radar triage, sources, briefing, permissions, sync, start work, oracle brief, oracle items, oracle ask, and oracle commit.",
@@ -2233,6 +2235,16 @@ enum ControlSnapshot {
             "title": url.deletingPathExtension().lastPathComponent,
             "modifiedAt": ISO8601DateFormatter().string(from: modified)
         ]
+    }
+
+    static func latestContextPackMarkdown() -> String {
+        let path = newestContextPackPath()
+        guard !path.isEmpty,
+              let text = try? String(contentsOfFile: path, encoding: .utf8),
+              !text.isEmpty else {
+            return "# Terminal Brain Context Pack\n\nNo context pack found."
+        }
+        return text
     }
 
     static func newestContextPackPath() -> String {

@@ -17,6 +17,9 @@ while [[ $# -gt 0 ]]; do
     --deck-markdown|--deck-md)
       FORMAT="deck-markdown"
       ;;
+    --latest-pack)
+      FORMAT="latest-pack"
+      ;;
     --markdown)
       FORMAT="markdown"
       ;;
@@ -40,7 +43,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     --help|-h)
       cat <<'EOF'
-Usage: ./mac-app/scripts/snapshot.zsh [--markdown|--json|--deck|--deck-markdown] [--copy] [--output FILE]
+Usage: ./mac-app/scripts/snapshot.zsh [--markdown|--json|--deck|--deck-markdown|--latest-pack] [--copy] [--output FILE]
 
 Prints the current Terminal Brain operator snapshot from an already-running app.
 This script never launches or foregrounds Terminal Brain.
@@ -51,6 +54,8 @@ Options:
   --deck      Print raw Operator Deck JSON.
   --deck-markdown
               Print prompt-ready Operator Deck Markdown.
+  --latest-pack
+              Print the latest context pack Markdown.
   --copy      Copy output to the clipboard as well as printing it.
   --output    Write output to a file as well as printing it.
   --help      Show this help.
@@ -80,6 +85,9 @@ case "$FORMAT" in
     ;;
   deck-markdown)
     OUTPUT="$(curl -fsS "$API/operator-deck/markdown")"
+    ;;
+  latest-pack)
+    OUTPUT="$(curl -fsS "$API/context-packs/latest/markdown")"
     ;;
   markdown)
     OUTPUT="$(curl -fsS "$API/snapshot/markdown")"
