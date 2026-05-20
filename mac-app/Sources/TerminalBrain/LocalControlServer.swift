@@ -2710,12 +2710,14 @@ enum AgentPromptSnapshot {
         let generated = ISO8601DateFormatter().string(from: Date())
         let focusPayload = await FocusSnapshot.focus()
         let valuePayload = await ValueBriefSnapshot.brief()
+        let digestPayload = await OracleDigestSnapshot.digest()
         let ideaPayload = await IdeaPulseSnapshot.ideas()
         let blindspotPayload = await BlindspotSnapshot.blindspots()
         let pack = ControlSnapshot.latestContextPack()
 
         let focus = (focusPayload["item"] as? [String: Any]) ?? [:]
         let drivers = (valuePayload["drivers"] as? [[String: Any]]) ?? []
+        let digestSections = (digestPayload["sections"] as? [[String: Any]]) ?? []
         let ideas = (ideaPayload["items"] as? [[String: Any]]) ?? []
         let blindspots = (blindspotPayload["items"] as? [[String: Any]]) ?? []
         let title = focus["title"] as? String ?? "Move the current Terminal Brain focus forward"
@@ -2736,9 +2738,21 @@ enum AgentPromptSnapshot {
             "- Working query: \(query.ifEmpty(title))",
             "",
             "## Why This Matters",
-            valuePayload["thesis"] as? String ?? "Use the current Value Brief as the reason for prioritizing this task.",
+            (digestPayload["thesis"] as? String) ?? (valuePayload["thesis"] as? String) ?? "Use the current Value Brief as the reason for prioritizing this task.",
             ""
         ]
+
+        lines.append("## Oracle Digest")
+        for section in digestSections.prefix(5) {
+            lines.append("- \(section["label"] as? String ?? "Signal"): \(section["title"] as? String ?? "Untitled") -> \(section["action"] as? String ?? "Act")")
+            if let question = section["question"] as? String, !question.isEmpty {
+                lines.append("  Question: \(question.prefixString(maxLength: 220))")
+            }
+        }
+        if digestSections.isEmpty {
+            lines.append("- No Oracle Digest lanes are available. Use Focus, Value Brief, and Project Memory.")
+        }
+        lines.append("")
 
         lines.append("## Value Drivers")
         for driver in drivers.prefix(4) {

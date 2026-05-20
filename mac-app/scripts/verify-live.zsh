@@ -152,6 +152,7 @@ curl -fsS "$API/agent-prompt/markdown" | ruby -e '
   text = STDIN.read
   abort("agent prompt missing title") unless text.include?("# Terminal Brain Agent Prompt")
   abort("agent prompt missing task") unless text.include?("## Task")
+  abort("agent prompt missing oracle digest") unless text.include?("## Oracle Digest")
   abort("agent prompt missing acceptance criteria") unless text.include?("## Acceptance Criteria")
   abort("agent prompt missing guardrails") unless text.include?("## Guardrails")
   puts "agent prompt ok chars=#{text.length}"
@@ -296,6 +297,7 @@ printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal
       response = JSON.parse(line)
       text = response.dig("result", "content", 0, "text").to_s
       abort("mcp agent prompt missing title") unless text.include?("# Terminal Brain Agent Prompt")
+      abort("mcp agent prompt missing oracle digest") unless text.include?("## Oracle Digest")
       abort("mcp agent prompt missing acceptance criteria") unless text.include?("## Acceptance Criteria")
       abort("mcp agent prompt missing guardrails") unless text.include?("## Guardrails")
       puts "mcp agent prompt ok chars=#{text.length}"
