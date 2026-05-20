@@ -38,6 +38,7 @@ for script in \
   "$ROOT/mac-app/scripts/now.zsh" \
   "$ROOT/mac-app/scripts/status.zsh" \
   "$ROOT/mac-app/scripts/processes.zsh" \
+  "$ROOT/mac-app/scripts/cleanup-plan.zsh" \
   "$ROOT/mac-app/scripts/next.zsh" \
   "$ROOT/mac-app/scripts/value.zsh" \
   "$ROOT/mac-app/scripts/doctor.zsh" \

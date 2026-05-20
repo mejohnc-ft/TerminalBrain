@@ -29,6 +29,7 @@ make doctor
 make audit
 make status
 make processes
+make cleanup-plan
 make verify
 make live
 make ask QUERY="what should I work on next?"
@@ -46,7 +47,7 @@ make start-here
 make handoff
 ```
 
-Plain `make` prints help. `make verify`, `make now`, `make status`, `make processes`, `make next`, `make value`, `make doctor`, `make audit`, `make live`, `make build`, and `make install` do not launch or foreground Terminal Brain. `make now` prints the fastest orientation: bottom line, next action, process truth, and readiness. `make value` explains what value is available now and prints the live Value Brief when the app is reachable. `make next` prints Start Here when the app is reachable, or a safe status and manual next step when it is closed. `make doctor` audits repo, CI, app install freshness, MCP contract, agent config references, prompt-prone Apple Notes/Drafts bridges, process state, launchctl, API readiness, and an explicit readiness verdict. `make audit` prints a capability/evidence checklist across value, agent, safety, and readiness surfaces. `make status` answers what is currently running across repo, CI, process, launchctl, and localhost API state. `make processes` maps Terminal Brain, Codex, MCP, kernel, Drafts, and brain-console process noise without killing anything. `make live` expects the app to already be running.
+Plain `make` prints help. `make verify`, `make now`, `make status`, `make processes`, `make cleanup-plan`, `make next`, `make value`, `make doctor`, `make audit`, `make live`, `make build`, and `make install` do not launch or foreground Terminal Brain. `make now` prints the fastest orientation: bottom line, next action, process truth, and readiness. `make value` explains what value is available now and prints the live Value Brief when the app is reachable. `make next` prints Start Here when the app is reachable, or a safe status and manual next step when it is closed. `make doctor` audits repo, CI, app install freshness, MCP contract, agent config references, prompt-prone Apple Notes/Drafts bridges, process state, launchctl, API readiness, and an explicit readiness verdict. `make audit` prints a capability/evidence checklist across value, agent, safety, and readiness surfaces. `make status` answers what is currently running across repo, CI, process, launchctl, and localhost API state. `make processes` maps Terminal Brain, Codex, MCP, kernel, Drafts, and brain-console process noise without killing anything. `make cleanup-plan` prints a non-destructive cleanup plan for stale MCP/kernel process noise. `make live` expects the app to already be running.
 
 ## Components
 
@@ -64,6 +65,7 @@ Plain `make` prints help. `make verify`, `make now`, `make status`, `make proces
 - Runtime Status, Doctor, Audit, Value, and Next Move for humans and agents: `make value`, `make next`, `make status`, `make doctor`, `make audit`, `terminal_brain_value_now_markdown`, `terminal_brain_next_markdown`, `terminal_brain_doctor_markdown`, `terminal_brain_audit_markdown`, and `terminal_brain_runtime_status` report what value is available, what to do, what evidence exists, repo, CI, process, launchctl, app install, MCP contract, agent config, and API state without requiring or launching the app.
 - Now orientation: `make now`, `/now`, `/now/markdown`, `terminal_brain_now`, `terminal_brain_now_markdown`, Copy Now in the app/menu bar, and the Copy Now App Shortcut give structured and Markdown views of the bottom line, next action, process truth, readiness, and outcome close loop.
 - Process Map for "what is still going": `make processes` and `terminal_brain_process_map_markdown` separate real focus stealers from agent runtime noise by listing Terminal Brain app state, launchctl, API reachability, Codex sessions, MCP children, brain-kernel children, brain-console helpers, and Drafts processes without launching or killing anything.
+- Cleanup Plan for stale runtime noise: `make cleanup-plan` and `terminal_brain_cleanup_plan_markdown` print candidate MCP/kernel child processes, Codex parent context, and manual review/kill commands without terminating anything.
 - Native Now landing surface so the app opens on the bottom line, next action, process truth, readiness, and outcome close loop instead of a metrics-first dashboard.
 - Agent Prompt generator that turns the Oracle Digest and Value Brief into a concise Codex/Claude execution prompt with acceptance criteria and guardrails.
 - Structured Outcome commit endpoint/tool/CLI so agents can write back what changed, evidence, and next action without launching the app; outcome notes enter memory as accepted instead of unresolved review items.
@@ -142,6 +144,14 @@ make processes
 ```
 
 This answers what is still running across Terminal Brain, Codex, MCP, brain-kernel, brain-console, Drafts, launchctl, and the localhost API without starting, killing, quitting, or foregrounding anything. Add `--details` when calling `./mac-app/scripts/processes.zsh` directly to print matching process rows.
+
+For a non-destructive cleanup plan:
+
+```zsh
+make cleanup-plan
+```
+
+This prints stale MCP/kernel cleanup candidates and manual review commands without killing anything.
 
 For the safest first command:
 

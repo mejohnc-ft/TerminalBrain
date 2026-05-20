@@ -34,6 +34,12 @@ Terminal Brain is useful when it turns scattered local context into one work blo
    make processes
    ```
 
+   To get a cleanup plan without killing anything, run:
+
+   ```zsh
+   make cleanup-plan
+   ```
+
    To audit setup wiring without launching the app, run:
 
    ```zsh
@@ -65,6 +71,7 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 - `Value` says what Terminal Brain is useful for right now.
 - `Status` shows repo, CI, process, launchctl, and API state without touching app focus.
 - `Processes` separates app/runtime focus stealers from Codex, MCP, kernel, brain-console, and Drafts background noise.
+- `Cleanup Plan` prints stale MCP/kernel candidates and manual review commands without terminating anything.
 - `Doctor` checks app install, MCP contract, agent config references, and runtime readiness.
 - `Oracle Digest` says what to notice, decide, test, create, and avoid.
 - `Agent Prompt` turns the current signal into a bounded Codex/Claude task.

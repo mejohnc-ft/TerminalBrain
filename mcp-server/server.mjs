@@ -55,6 +55,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_cleanup_plan_markdown",
+    description: "Get a non-destructive cleanup plan for stale Terminal Brain MCP/kernel runtime noise. Prints candidates and manual review commands without killing anything.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_next_markdown",
     description: "Get the safest next move as Markdown. Returns Start Here when the app is reachable, otherwise returns non-launching runtime status and the manual next step.",
     inputSchema: {
@@ -1036,6 +1045,24 @@ function nowMarkdown() {
   ].join("\n");
 }
 
+function cleanupPlanMarkdown() {
+  const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "cleanup-plan.zsh")], { timeout: 10000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Cleanup Plan",
+    "",
+    "Cleanup plan failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 async function valueNowMarkdown() {
   const health = await apiHealth();
   if (health.reachable) {
@@ -1109,6 +1136,8 @@ async function callTool(name, args = {}) {
       return api("/now");
     case "terminal_brain_process_map_markdown":
       return processMapMarkdown(args);
+    case "terminal_brain_cleanup_plan_markdown":
+      return cleanupPlanMarkdown();
     case "terminal_brain_next_markdown":
       return nextMarkdown();
     case "terminal_brain_doctor_markdown":
