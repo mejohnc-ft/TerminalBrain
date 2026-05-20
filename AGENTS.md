@@ -17,11 +17,13 @@ When Terminal Brain is already running and the user asks for useful work, start 
 ./mac-app/scripts/handoff.zsh --output /tmp/terminal-brain-handoff.md
 ```
 
-The handoff combines the Value Brief, Operator Brief, Blindspot Brief, Idea Pulse, Decision Lane, Operator Deck, Project Memory, and latest context pack. It never launches or foregrounds Terminal Brain. If using MCP, prefer `terminal_brain_agent_prompt_markdown` when you need one focused execution prompt, or `terminal_brain_handoff_markdown` when you need the broader state. Then use `terminal_brain_value_brief_markdown`, Idea Pulse ask/commit, Blindspot ask/commit, Decision Lane, Project Memory, Operator Deck, and Start Work tools for follow-up actions. When work produces a durable result, close the loop with `terminal_brain_commit_outcome`.
+The handoff combines the Value Brief, Operator Brief, Blindspot Brief, Idea Pulse, Decision Lane, Operator Deck, Project Memory, and latest context pack. It never launches or foregrounds Terminal Brain. If using MCP, prefer `terminal_brain_agent_prompt_markdown` when you need one focused execution prompt, or `terminal_brain_handoff_markdown` when you need the broader state. Then use `terminal_brain_value_brief_markdown`, Idea Pulse ask/commit, Blindspot ask/commit, Decision Lane, Project Memory, Operator Deck, and Start Work tools for follow-up actions. When work produces a durable result, close the loop with `terminal_brain_commit_outcome` or `make outcome TITLE="..." OUTCOME="..." PROJECT="..." NEXT="..."`.
 
 ## Foregrounding Policy
 
 Do not run commands that launch, relaunch, quit, or foreground Terminal Brain unless the user explicitly asks for that behavior in the current turn.
+
+Do not use Computer Use, AppleScript UI control, or any other UI automation against Terminal Brain unless the user explicitly asks for a visual/UI inspection in the current turn.
 
 Do not run these without explicit user approval:
 

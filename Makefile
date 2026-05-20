@@ -1,4 +1,4 @@
-.PHONY: help build install verify live ask ask-commit snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live ask ask-commit outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
@@ -6,6 +6,7 @@ help:
 	@echo "  make live          API/MCP QA against an already-running app"
 	@echo "  make ask QUERY=... Ask Terminal Brain Oracle from an already-running app"
 	@echo "  make ask-commit QUERY=... PROJECT=... Ask Oracle and commit the answer"
+	@echo "  make outcome TITLE=... OUTCOME=... PROJECT=... Commit structured outcome"
 	@echo "  make build         Build the macOS app without launching it"
 	@echo "  make install       Copy the app to ~/Applications without launching it"
 	@echo "  make snapshot      Print Markdown snapshot from an already-running app"
@@ -45,6 +46,10 @@ ask:
 ask-commit:
 	@if test -z "$$QUERY"; then echo "Set QUERY='question to ask'" >&2; exit 64; fi
 	@if test -n "$$PROJECT"; then ./mac-app/scripts/oracle.zsh --commit --project "$$PROJECT" "$$QUERY"; else ./mac-app/scripts/oracle.zsh --commit "$$QUERY"; fi
+
+outcome:
+	@if test -z "$$OUTCOME"; then echo "Set OUTCOME='what changed and why it matters'" >&2; exit 64; fi
+	@TITLE="$$TITLE" PROJECT="$$PROJECT" NEXT_ACTION="$${NEXT_ACTION:-$$NEXT}" SOURCE="$$SOURCE" ./mac-app/scripts/outcome.zsh "$$OUTCOME"
 
 snapshot:
 	./mac-app/scripts/snapshot.zsh --markdown

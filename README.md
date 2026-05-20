@@ -12,6 +12,7 @@ make verify
 make live
 make ask QUERY="what should I work on next?"
 make ask-commit QUERY="what changed?" PROJECT="Terminal Brain"
+make outcome TITLE="Shipped Review Queue" OUTCOME="Added triage for committed Oracle reads." PROJECT="Terminal Brain" NEXT="Review stale reads tomorrow."
 make build
 make install
 make snapshot
@@ -36,7 +37,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Plain-language Operator Brief that says what matters, why it matters, what not to miss, and what artifact to create next.
 - Value Brief that collapses Focus, Idea Pulse, Blindspots, and Project Memory into one compact value read.
 - Agent Prompt generator that turns the current Value Brief into a concise Codex/Claude execution prompt with acceptance criteria and guardrails.
-- Structured Outcome commit endpoint/tool so agents can write back what changed, evidence, and next action.
+- Structured Outcome commit endpoint/tool/CLI so agents can write back what changed, evidence, and next action without launching the app.
 - Operator Deck for app and agents: do first, ask about, review or capture, and project/start-work cards.
 - Prompt-ready Operator Deck Markdown for agent handoffs and quick paste workflows.
 - Operator Deck action tool for agents to mark directly actionable Radar and Oracle commit cards without opening the app.
@@ -59,7 +60,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Review Queue for committed Oracle reads with triage states.
 - Project Memory pages derived from context packs and Oracle commits.
 - Project-aware actions for asking Oracle, building packs, committing updates, filtering Review, and delegating reads into Start Work.
-- Non-launching Oracle CLI for terminal and agent workflows: `make ask QUERY="what am I missing?"` or `make ask-commit QUERY="what changed?" PROJECT="Terminal Brain"`.
+- Non-launching Oracle and outcome CLIs for terminal and agent workflows: `make ask QUERY="what am I missing?"`, `make ask-commit QUERY="what changed?" PROJECT="Terminal Brain"`, or `make outcome TITLE="Shipped fix" OUTCOME="What changed and why it matters." PROJECT="Terminal Brain" NEXT="Next concrete action."`.
 - Proactive Radar for delegated reads, stale reviews, quiet project risks, open loops, and ideas worth testing, with scores, evidence, and persistent watch/acted/snooze/dismiss triage.
 - Focus Mode that opens to one recommended action, why it won, the fastest next move, and inline Oracle follow-up prompts.
 - Daily Command Center with ranked actions for reviews, delegations, projects, system attention, and fresh context.
@@ -102,6 +103,7 @@ To print or copy the current operator snapshot from an already-running app:
 ```zsh
 ./mac-app/scripts/oracle.zsh "what should I work on next?"
 ./mac-app/scripts/oracle.zsh --commit --project "Terminal Brain" "what changed?"
+./mac-app/scripts/outcome.zsh --title "Shipped Review Queue" --project "Terminal Brain" --next "Review stale reads tomorrow." "Added triage for committed Oracle reads."
 ./mac-app/scripts/snapshot.zsh --markdown
 ./mac-app/scripts/snapshot.zsh --json
 ./mac-app/scripts/snapshot.zsh --value
@@ -119,7 +121,7 @@ To print or copy the current operator snapshot from an already-running app:
 ./mac-app/scripts/handoff.zsh --output /tmp/terminal-brain-handoff.md
 ```
 
-The Oracle and snapshot helpers never launch or foreground Terminal Brain. `oracle.zsh` prints a prompt-ready Oracle answer and can commit it with `--commit`, `--value` prints the compact Value Brief, `--agent-prompt` prints a focused Codex/Claude execution prompt, `--brief-markdown` prints the plain-language Operator Brief, `--today` prints the ranked Decision Lane, `--blindspots` prints the counter-signal brief, `--ideas` prints Idea Pulse, `--projects` prints Project Memory, `--deck` returns the four Operator Deck cards as JSON, and `--deck-markdown` prints the same deck in prompt-ready Markdown. `--output` is useful for handoffs without touching the clipboard.
+The Oracle, outcome, and snapshot helpers never launch or foreground Terminal Brain. `oracle.zsh` prints a prompt-ready Oracle answer and can commit it with `--commit`; `outcome.zsh` writes a structured result with title, outcome, evidence, next action, project, and source through an already-running app; `--value` prints the compact Value Brief, `--agent-prompt` prints a focused Codex/Claude execution prompt, `--brief-markdown` prints the plain-language Operator Brief, `--today` prints the ranked Decision Lane, `--blindspots` prints the counter-signal brief, `--ideas` prints Idea Pulse, `--projects` prints Project Memory, `--deck` returns the four Operator Deck cards as JSON, and `--deck-markdown` prints the same deck in prompt-ready Markdown. `--output` is useful for handoffs without touching the clipboard.
 The handoff helper also never launches or foregrounds Terminal Brain. It writes the Value Brief, Operator Brief, Blindspot Brief, Idea Pulse, Decision Lane, Operator Deck, Project Memory, and latest context pack into one Markdown file.
 
 The built app is emitted to:

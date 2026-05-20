@@ -32,6 +32,7 @@ esac
 zsh -n "$ROOT"/mac-app/scripts/*.zsh
 for script in \
   "$ROOT/mac-app/scripts/oracle.zsh" \
+  "$ROOT/mac-app/scripts/outcome.zsh" \
   "$ROOT/mac-app/scripts/snapshot.zsh" \
   "$ROOT/mac-app/scripts/handoff.zsh" \
   "$ROOT/mac-app/scripts/install-app.zsh" \
