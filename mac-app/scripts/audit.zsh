@@ -76,6 +76,7 @@ require_evidence "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CopyC
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CopyProcessMapIntent' "Copy Process Map shortcut"
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CopySupportBundleIntent' "Copy Support Bundle shortcut"
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Commit Outcome' "native outcome close loop"
+require_evidence "$ROOT/mac-app/scripts/outcome.zsh" 'local-fallback' "closed-app outcome writeback fallback"
 echo
 
 echo "## Agent Surfaces"
@@ -105,6 +106,7 @@ require_evidence "$ROOT/mac-app/scripts/support-bundle.zsh" 'did not launch, for
 require_evidence "$ROOT/mac-app/scripts/doctor.zsh" 'Prompt Safety' "prompt safety doctor section"
 require_evidence "$ROOT/mac-app/scripts/doctor.zsh" 'installed app executable matches current build' "installed app freshness"
 require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_value_now_markdown' "closed-API entrypoint regression"
+require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'reviewStatus":"accepted' "closed outcome fallback regression"
 require_evidence "$ROOT/mac-app/scripts/verify-static.zsh" 'check-entrypoints.zsh' "entrypoint guard in static verifier"
 echo
 

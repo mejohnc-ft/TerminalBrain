@@ -64,7 +64,9 @@ require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '
 
 require_in_file "$ROOT/mac-app/scripts/snapshot.zsh" '--start-here' "Start Here CLI flag"
 require_in_file "$ROOT/mac-app/scripts/snapshot.zsh" '--digest' "Oracle Digest CLI flag"
-require_in_file "$ROOT/mac-app/scripts/outcome.zsh" '/outcomes/commit' "Outcome CLI writeback"
+require_in_file "$ROOT/mac-app/scripts/outcome.zsh" '/outcomes/commit' "Outcome CLI API writeback"
+require_in_file "$ROOT/mac-app/scripts/outcome.zsh" 'local-fallback' "Outcome CLI local fallback"
+require_in_file "$ROOT/mac-app/scripts/outcome.zsh" 'reviewStatus: accepted' "Outcome fallback closes as accepted"
 require_in_file "$ROOT/mac-app/scripts/now.zsh" 'Terminal Brain Now' "non-launching Now orientation"
 require_in_file "$ROOT/mac-app/scripts/now.zsh" 'make outcome' "Now outcome close loop"
 require_in_file "$ROOT/mac-app/scripts/status.zsh" 'App process' "non-launching status process check"

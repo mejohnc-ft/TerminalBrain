@@ -78,6 +78,8 @@ Terminal Brain is useful when it turns scattered local context into one work blo
    make outcome TITLE="..." OUTCOME="..." PROJECT="..." NEXT="..."
    ```
 
+   If the app is closed, `make outcome` writes the accepted note directly into the workspace Oracle Inbox.
+
 ## What To Look For
 
 - `Start Here` gives the shortest path from signal to action to outcome.

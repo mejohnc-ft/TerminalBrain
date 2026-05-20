@@ -47,6 +47,17 @@ require_contains "$agent_prompt_output" '# Terminal Brain Agent Prompt' "agent p
 require_contains "$agent_prompt_output" 'make oracle-brief' "agent prompt fallback command"
 require_contains "$agent_prompt_output" 'did not launch, foreground, quit, kill, or control' "agent prompt guardrail"
 
+outcome_workspace="$(mktemp -d)"
+outcome_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$outcome_workspace" "$ROOT/mac-app/scripts/outcome.zsh" --title "Entrypoint Test" --project "Terminal Brain" --next "Remove temp workspace" "Verified local fallback.")"
+require_contains "$outcome_output" '"mode":"local-fallback"' "outcome local fallback mode"
+require_contains "$outcome_output" '"reviewStatus":"accepted"' "outcome accepted fallback status"
+test -f "$outcome_workspace/Oracle Inbox/"*.md || {
+  echo "Entrypoint check failed: outcome fallback did not write note" >&2
+  echo "$outcome_output" >&2
+  exit 1
+}
+rm -rf "$outcome_workspace"
+
 mcp_next_output="$(call_mcp_tool terminal_brain_next_markdown)"
 require_contains "$mcp_next_output" '# Terminal Brain Next' "MCP next title"
 require_contains "$mcp_next_output" 'terminal_brain_runtime_status' "MCP next fallback"
