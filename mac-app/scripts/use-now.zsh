@@ -118,7 +118,7 @@ one_move_from_work_block() {
     pull_forward && in_code && /^make recent-work INDEX=/ { print; found = 1; exit }
     pull_forward && in_code && /^make idea / { print; found = 1; exit }
     END {
-      if (!found) { print "make agent-prompt" }
+      if (!found) { print "__NO_SIGNAL__" }
     }
   '
 }
@@ -167,6 +167,9 @@ fi
 
 work_block_output="$("$ROOT/mac-app/scripts/work-block.zsh" --project "$PROJECT" --limit "$LIMIT")"
 one_move="$(printf '%s\n' "$work_block_output" | one_move_from_work_block)"
+if [[ "$one_move" == "__NO_SIGNAL__" ]]; then
+  one_move="make use-now IDEA=\"I need Terminal Brain to help me with ...\" PROJECT=\"$PROJECT\""
+fi
 
 echo "## One Move"
 echo
