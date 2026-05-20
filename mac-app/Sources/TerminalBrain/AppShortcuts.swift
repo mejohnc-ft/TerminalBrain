@@ -393,6 +393,32 @@ struct CopyProjectMemoryIntent: AppIntent {
     }
 }
 
+struct CopySourceInventoryIntent: AppIntent {
+    static var title: LocalizedStringResource = "Copy Source Inventory"
+    static var description = IntentDescription("Copy Terminal Brain's guarded local source inventory as Markdown.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let markdown = try await ShortcutClient.text(path: "/sources/markdown")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "Source Inventory copied.")
+    }
+}
+
+struct CopyMemoryBriefIntent: AppIntent {
+    static var title: LocalizedStringResource = "Copy Memory Brief"
+    static var description = IntentDescription("Copy Terminal Brain's derived Codex and Claude continuity brief as Markdown.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let markdown = try await ShortcutClient.text(path: "/memory/markdown")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "Memory Brief copied.")
+    }
+}
+
 struct RunTerminalBrainSyncIntent: AppIntent {
     static var title: LocalizedStringResource = "Run Terminal Brain Sync"
     static var description = IntentDescription("Run Terminal Brain sync with Apple Notes excluded by default.")
@@ -777,6 +803,24 @@ struct TerminalBrainShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Copy Projects",
             systemImageName: "folder.fill.badge.gearshape"
+        )
+        AppShortcut(
+            intent: CopySourceInventoryIntent(),
+            phrases: [
+                "Copy \(.applicationName) source inventory",
+                "Copy \(.applicationName) sources"
+            ],
+            shortTitle: "Copy Sources",
+            systemImageName: "tray.full.fill"
+        )
+        AppShortcut(
+            intent: CopyMemoryBriefIntent(),
+            phrases: [
+                "Copy \(.applicationName) memory brief",
+                "Copy \(.applicationName) agent memory"
+            ],
+            shortTitle: "Copy Memory",
+            systemImageName: "brain.head.profile"
         )
         AppShortcut(
             intent: RunTerminalBrainSyncIntent(),

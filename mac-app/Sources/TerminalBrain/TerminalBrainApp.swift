@@ -110,6 +110,14 @@ struct TerminalBrainApp: App {
                     Task { await model.copyProjectMemory() }
                 }
 
+                Button("Copy Source Inventory") {
+                    Task { await model.copySourceInventory() }
+                }
+
+                Button("Copy Memory Brief") {
+                    Task { await model.copyMemoryBrief() }
+                }
+
                 Button("Copy Operator Deck") {
                     Task { await model.copyOperatorDeck() }
                 }
@@ -210,6 +218,12 @@ struct TerminalBrainApp: App {
             }
             Button("Copy Project Memory") {
                 Task { await model.copyProjectMemory() }
+            }
+            Button("Copy Source Inventory") {
+                Task { await model.copySourceInventory() }
+            }
+            Button("Copy Memory Brief") {
+                Task { await model.copyMemoryBrief() }
             }
             Divider()
             Button("Refresh Status") {

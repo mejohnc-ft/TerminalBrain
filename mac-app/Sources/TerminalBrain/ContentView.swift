@@ -79,6 +79,7 @@ struct ContentView: View {
             BrainCommand(title: "Open Oracle", subtitle: "Narrative brief, bubbling ideas, and open loops", symbol: "sparkle.magnifyingglass", category: "Navigate", action: .section("oracle")),
             BrainCommand(title: "Open Review Queue", subtitle: "Committed Oracle reads, decisions, and follow-ups", symbol: "tray.and.arrow.down.fill", category: "Navigate", action: .section("review")),
             BrainCommand(title: "Open Projects", subtitle: "Project memory pages and active work surfaces", symbol: "folder.fill.badge.gearshape", category: "Navigate", action: .section("projects")),
+            BrainCommand(title: "Open Memory", subtitle: "Derived Codex/Claude continuity leads and promotion prompts", symbol: "brain.head.profile", category: "Navigate", action: .section("memory")),
             BrainCommand(title: "Open Today", subtitle: "Deterministic daily briefing", symbol: "sun.max.fill", category: "Navigate", action: .section("briefing")),
             BrainCommand(title: "Open Sources", subtitle: "Permissioned capture, memory, and compute surfaces", symbol: "tray.full.fill", category: "Navigate", action: .section("sources")),
             BrainCommand(title: "Open System", subtitle: "Native macOS surfaces and integration roadmap", symbol: "puzzlepiece.extension.fill", category: "Navigate", action: .section("system")),
@@ -102,6 +103,8 @@ struct ContentView: View {
             BrainCommand(title: "Copy Blindspot Brief", subtitle: "Counter-signal before broad planning", symbol: "eye.fill", category: "Action", action: .copyBlindspots),
             BrainCommand(title: "Copy Idea Pulse", subtitle: "Cheap-test queue for captured ideas", symbol: "lightbulb.fill", category: "Action", action: .copyIdeas),
             BrainCommand(title: "Copy Project Memory", subtitle: "Active work surfaces and recommended actions", symbol: "folder.fill.badge.gearshape", category: "Action", action: .copyProjectMemory),
+            BrainCommand(title: "Copy Source Inventory", subtitle: "Visible local sources and raw-transcript policy", symbol: "tray.full.fill", category: "Action", action: .copySourceInventory),
+            BrainCommand(title: "Copy Memory Brief", subtitle: "Derived Codex/Claude continuity leads", symbol: "brain.head.profile", category: "Action", action: .copyMemoryBrief),
             BrainCommand(title: "Copy Operator Deck", subtitle: "Prompt-ready four-card deck for handoffs", symbol: "rectangle.stack.fill.badge.person.crop", category: "Action", action: .copyDeck),
             BrainCommand(title: "Copy Agent Prompt", subtitle: "Focused execution prompt for Codex or Claude", symbol: "paperplane.fill", category: "Action", action: .copyAgentPrompt),
             BrainCommand(title: "Copy Latest Context Pack", subtitle: "Copy newest context pack Markdown", symbol: "doc.on.doc", category: "Action", action: .copyLatestPack),
@@ -211,6 +214,7 @@ struct ContentView: View {
         case "oracle": return "Oracle"
         case "review": return "Review"
         case "projects": return "Projects"
+        case "memory": return "Memory"
         case "sources": return "Sources"
         case "briefing": return "Today"
         case "start": return "Start Work"
@@ -238,6 +242,7 @@ struct ContentView: View {
         case "oracle": return "Narrative signals, open loops, and ideas worth revisiting."
         case "review": return "Committed Oracle reads that need acceptance, linking, delegation, or dismissal."
         case "projects": return "Durable project memory pages assembled from context packs and Oracle commits."
+        case "memory": return "Derived Codex and Claude continuity leads with safe promotion commands."
         case "sources": return "Permissioned capture, memory, and compute surfaces."
         case "briefing": return "A deterministic briefing from local memory and Mission Control."
         case "start": return "Build a context pack before handing work to an agent."
@@ -383,6 +388,7 @@ struct ContentView: View {
                 NavRow(title: "Oracle", symbol: "sparkle.magnifyingglass", badge: "\(model.oracleItems.count)", selected: selectedSection == "oracle") { selectedSection = "oracle" }
                 NavRow(title: "Review", symbol: "tray.and.arrow.down.fill", badge: "\(model.oracleCommits.filter { $0.status == .new }.count)", selected: selectedSection == "review") { selectedSection = "review" }
                 NavRow(title: "Projects", symbol: "folder.fill.badge.gearshape", badge: "\(model.projects.count)", selected: selectedSection == "projects") { selectedSection = "projects" }
+                NavRow(title: "Memory", symbol: "brain.head.profile", badge: "", selected: selectedSection == "memory") { selectedSection = "memory" }
                 NavRow(title: "Feed", symbol: "list.bullet.rectangle.portrait.fill", badge: "\(model.feedItems.count)", selected: selectedSection == "feed") { selectedSection = "feed" }
                 NavRow(title: "Today", symbol: "sun.max.fill", badge: "\(model.briefing.count)", selected: selectedSection == "briefing") { selectedSection = "briefing" }
                 NavRow(title: "Start Work", symbol: "sparkles", badge: "", selected: selectedSection == "start") { selectedSection = "start" }
@@ -519,6 +525,7 @@ struct ContentView: View {
                     case "oracle": oracleView
                     case "review": reviewView
                     case "projects": projectsView
+                    case "memory": memoryBriefView
                     case "feed": feedView
                     case "sources": sourcesView
                     case "briefing": briefingView
@@ -3302,6 +3309,128 @@ struct ContentView: View {
         }
     }
 
+    private var memoryBriefView: some View {
+        let agentSource = model.sources.first { $0.id == "agent-history" }
+        let agentCard = healthCard(named: "Agent Histories")
+        return HStack(alignment: .top, spacing: 18) {
+            VStack(alignment: .leading, spacing: 14) {
+                SectionTitle("Agent Memory", symbol: "brain.head.profile")
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack(alignment: .top, spacing: 14) {
+                        Image(systemName: "brain.head.profile")
+                            .font(.title2)
+                            .foregroundStyle(agentCard?.state.color ?? .green)
+                            .frame(width: 42, height: 42)
+                            .background((agentCard?.state.color ?? .green).opacity(0.16), in: RoundedRectangle(cornerRadius: 11, style: .continuous))
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Codex / Claude Continuity")
+                                .font(.title2.weight(.bold))
+                                .foregroundStyle(.white)
+                            Text(agentCard?.value ?? agentSource?.status ?? "derived memory")
+                                .font(.callout.weight(.semibold))
+                                .foregroundStyle(agentCard?.state.color ?? .green)
+                        }
+                        Spacer()
+                        StatusPill(text: "Raw guarded", state: .good)
+                    }
+
+                    Text(agentSource?.detail ?? "Derived work memory from prior agent sessions. Raw transcripts stay out of normal search; useful findings are promoted into reviewable memory.")
+                        .font(.body)
+                        .foregroundStyle(.white.opacity(0.70))
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 10)], spacing: 10) {
+                        if let agentSource {
+                            ForEach(agentSource.metrics) { metric in
+                                SourceMetricTile(metric: metric, accent: agentSource.state.color)
+                            }
+                        } else {
+                            SourceInfoPill(title: "Mode", value: "Derived", symbol: "list.bullet.rectangle")
+                            SourceInfoPill(title: "Raw", value: "Guarded", symbol: "lock.shield")
+                        }
+                    }
+
+                    HStack(spacing: 10) {
+                        Button {
+                            Task { await model.copyMemoryBrief() }
+                        } label: {
+                            Label("Copy Memory Brief", systemImage: "doc.on.clipboard")
+                        }
+                        .buttonStyle(.borderedProminent)
+
+                        Button {
+                            Task { await model.copySourceInventory() }
+                        } label: {
+                            Label("Copy Sources", systemImage: "tray.full")
+                        }
+                        .buttonStyle(.bordered)
+
+                        Button {
+                            Task { await model.copyProjectMemory() }
+                        } label: {
+                            Label("Copy Projects", systemImage: "folder.fill.badge.gearshape")
+                        }
+                        .buttonStyle(.bordered)
+
+                        Button {
+                            Task { await model.copyAgentPrompt() }
+                        } label: {
+                            Label("Agent Prompt", systemImage: "paperplane.fill")
+                        }
+                        .buttonStyle(.bordered)
+                    }
+
+                    if !model.memoryBriefCopyOutput.isEmpty || !model.sourceInventoryCopyOutput.isEmpty || !model.projectMemoryCopyOutput.isEmpty {
+                        Text(!model.memoryBriefCopyOutput.isEmpty ? model.memoryBriefCopyOutput : (!model.sourceInventoryCopyOutput.isEmpty ? model.sourceInventoryCopyOutput : model.projectMemoryCopyOutput))
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.white.opacity(0.50))
+                    }
+                }
+                .padding(16)
+                .darkPanel()
+
+                ProjectSignalSection(title: "Operating Policy", symbol: "lock.shield.fill") {
+                    PolicyLine("Use derived memory for continuity; do not make raw transcripts normal search input.")
+                    PolicyLine("Promote only useful history into Oracle Inbox with the generated `make idea` commands.")
+                    PolicyLine("Use `make work-block` after promotion so old history becomes action, not archive.")
+                }
+            }
+            .frame(width: 520)
+
+            VStack(alignment: .leading, spacing: 14) {
+                SectionTitle("Active Project Memory", symbol: "folder.fill.badge.gearshape")
+                VStack(spacing: 0) {
+                    ForEach(model.projects.prefix(8)) { project in
+                        Button {
+                            selectedProjectID = project.id
+                            selectedSection = "projects"
+                        } label: {
+                            ProjectMemoryRow(project: project, selected: false)
+                        }
+                        .buttonStyle(.plain)
+                        if project.id != model.projects.prefix(8).last?.id {
+                            Divider().overlay(.white.opacity(0.08)).padding(.leading, 54)
+                        }
+                    }
+                    if model.projects.isEmpty {
+                        EmptyStateRow(title: "No project memory yet", detail: "Run sync or build a context pack to populate project pages.", symbol: "folder")
+                    }
+                }
+                .darkPanel()
+
+                SectionTitle("Use It", symbol: "sparkles")
+                VStack(alignment: .leading, spacing: 10) {
+                    PolicyLine("Run `make memory` to review derived continuity leads without opening the app.")
+                    PolicyLine("Copy Memory Brief for a prompt-ready handoff to Codex or Claude.")
+                    PolicyLine("Copy Sources when you need proof of what local memory stores are visible.")
+                }
+                .padding(14)
+                .darkPanel()
+            }
+            .frame(minWidth: 560)
+        }
+    }
+
     private var feedView: some View {
         HStack(alignment: .top, spacing: 18) {
             VStack(alignment: .leading, spacing: 14) {
@@ -3625,7 +3754,7 @@ struct ContentView: View {
             SystemSurfaceCard(title: "Control API", value: "127.0.0.1:8765", detail: "Local-only gateway for agents and MCP.", symbol: "network")
             SystemSurfaceCard(title: "Widget", value: "Next", detail: "A desktop/Notification Center widget should show prompt-safety, sync age, and Mission points.", symbol: "rectangle.on.rectangle")
             SystemSurfaceCard(title: "Login Item", value: "Next", detail: "Launch at login after the gateway has a signed release bundle.", symbol: "power")
-            SystemSurfaceCard(title: "Shortcuts", value: "Native", detail: "App Shortcuts expose Copy Now, Copy Process Map, Copy Cleanup Plan, Copy Support Bundle, Copy Handoff, Copy Start Here, Copy Prompt, Copy Oracle Digest, Commit Outcome, Copy Value, Copy Deck, Copy Snapshot, Copy Blindspots, Copy Ideas, Run Sync, Start Work, and Open/Copy Latest Context Pack to Spotlight, Siri, and automation.", symbol: "wand.and.stars")
+            SystemSurfaceCard(title: "Shortcuts", value: "Native", detail: "App Shortcuts expose Copy Now, Copy Sources, Copy Memory, Copy Process Map, Copy Cleanup Plan, Copy Support Bundle, Copy Handoff, Copy Start Here, Copy Prompt, Copy Oracle Digest, Commit Outcome, Copy Value, Copy Deck, Copy Snapshot, Copy Blindspots, Copy Ideas, Run Sync, Start Work, and Open/Copy Latest Context Pack to Spotlight, Siri, and automation.", symbol: "wand.and.stars")
         }
     }
 
@@ -3757,6 +3886,10 @@ struct ContentView: View {
             Task { await model.copyIdeaPulse() }
         case .copyProjectMemory:
             Task { await model.copyProjectMemory() }
+        case .copySourceInventory:
+            Task { await model.copySourceInventory() }
+        case .copyMemoryBrief:
+            Task { await model.copyMemoryBrief() }
         case .copyDeck:
             Task { await model.copyOperatorDeck() }
         case .copyAgentPrompt:
@@ -4046,6 +4179,8 @@ enum BrainCommandAction {
     case copyBlindspots
     case copyIdeas
     case copyProjectMemory
+    case copySourceInventory
+    case copyMemoryBrief
     case copyDeck
     case copyAgentPrompt
     case copyLatestPack
