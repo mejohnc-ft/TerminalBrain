@@ -117,6 +117,10 @@ final class LocalControlServer {
             return .json(200, await ValueBriefSnapshot.brief())
         case ("GET", "/value-brief/markdown"):
             return .text(200, await ValueBriefSnapshot.markdown())
+        case ("GET", "/oracle-digest"):
+            return .json(200, await OracleDigestSnapshot.digest())
+        case ("GET", "/oracle-digest/markdown"):
+            return .text(200, await OracleDigestSnapshot.markdown())
         case ("GET", "/operator-deck"):
             return .json(200, await OperatorDeckSnapshot.deck())
         case ("GET", "/operator-deck/markdown"):
@@ -1625,6 +1629,171 @@ enum ValueBriefSnapshot {
     }
 }
 
+enum OracleDigestSnapshot {
+    static func digest() async -> [String: Any] {
+        let generatedAt = ISO8601DateFormatter().string(from: Date())
+        let focusPayload = await FocusSnapshot.focus()
+        let todayPayload = await TodaySnapshot.today()
+        let radarPayload = await RadarSnapshot.radar()
+        let blindspotPayload = await BlindspotSnapshot.blindspots()
+        let ideaPayload = await IdeaPulseSnapshot.ideas()
+        let projectsPayload = ProjectSnapshot.projects()
+        let commitsPayload = OracleSnapshot.commits()
+
+        let focus = (focusPayload["item"] as? [String: Any]) ?? [:]
+        let commands = (todayPayload["commands"] as? [[String: Any]]) ?? []
+        let radar = (radarPayload["items"] as? [[String: Any]]) ?? []
+        let blindspots = (blindspotPayload["items"] as? [[String: Any]]) ?? []
+        let ideas = (ideaPayload["items"] as? [[String: Any]]) ?? []
+        let projects = (projectsPayload["items"] as? [[String: Any]]) ?? []
+        let commits = (commitsPayload["items"] as? [[String: Any]]) ?? []
+
+        let focusTitle = focus["title"] as? String ?? "Ask what changed"
+        let focusProject = focus["project"] as? String ?? "General Brain"
+        let focusAction = focus["action"] as? String ?? "Ask Oracle"
+        let focusReason = focus["reason"] as? String ?? focus["detail"] as? String ?? "No focus signal is available yet."
+        let commit = commits.first { ["new", "delegated"].contains($0["status"] as? String ?? "") } ?? commits.first
+        let blindspot = blindspots.first
+        let idea = ideas.first
+        let project = projects.first
+        let command = commands.first
+        let radarSignal = radar.first
+
+        let decideTitle = commit?["title"] as? String ?? blindspot?["title"] as? String ?? "No unresolved decision visible"
+        let decideDetail = commit?["preview"] as? String ?? blindspot?["question"] as? String ?? "Ask what should be accepted, linked, delegated, or dismissed."
+        let decideProject = commit?["project"] as? String ?? blindspot?["project"] as? String ?? focusProject
+
+        let createTitle = project?["name"] as? String ?? command?["title"] as? String ?? focusTitle
+        let createDetail = project?["recommendedAction"] as? String ?? command?["detail"] as? String ?? "Create one durable artifact from the current focus."
+        let createProject = project?["name"] as? String ?? command?["project"] as? String ?? focusProject
+
+        let sections = [
+            section(
+                id: "notice",
+                label: "Notice",
+                title: focusTitle,
+                detail: focusReason,
+                action: focusAction,
+                project: focusProject,
+                symbol: focus["symbol"] as? String ?? "target",
+                source: "Focus",
+                question: "What changed that makes \(focusTitle) the thing to notice right now?"
+            ),
+            section(
+                id: "decide",
+                label: "Decide",
+                title: decideTitle,
+                detail: decideDetail,
+                action: commit == nil ? "Ask Oracle" : "Open Review",
+                project: decideProject,
+                symbol: commit?["status"] as? String == "delegated" ? "paperplane.fill" : "tray.and.arrow.down.fill",
+                source: commit == nil ? "Blindspot Brief" : "Oracle Review",
+                question: "Should this be accepted, linked, delegated, dismissed, or turned into a concrete task?"
+            ),
+            section(
+                id: "test",
+                label: "Test",
+                title: idea?["title"] as? String ?? "No idea test visible",
+                detail: idea?["nextPrompt"] as? String ?? "Capture one rough thought or sync more material to surface a cheap test.",
+                action: "Pressure Test",
+                project: idea?["project"] as? String ?? focusProject,
+                symbol: idea?["symbol"] as? String ?? "lightbulb.fill",
+                source: "Idea Pulse",
+                question: idea?["nextPrompt"] as? String ?? "What cheap test would prove this is worth more attention?"
+            ),
+            section(
+                id: "create",
+                label: "Create",
+                title: createTitle,
+                detail: createDetail,
+                action: "Start Work",
+                project: createProject,
+                symbol: project?["symbol"] as? String ?? "shippingbox.fill",
+                source: "Project Memory",
+                question: "What artifact would make this useful by the end of the next work block?"
+            ),
+            section(
+                id: "avoid",
+                label: "Avoid",
+                title: blindspot?["title"] as? String ?? radarSignal?["title"] as? String ?? "Avoid collecting signals without closure",
+                detail: blindspot?["why"] as? String ?? radarSignal?["reason"] as? String ?? "Do not let asks, reviews, and ideas pile up without a committed outcome.",
+                action: blindspot?["nextAction"] as? String ?? radarSignal?["action"] as? String ?? "Commit Outcome",
+                project: blindspot?["project"] as? String ?? radarSignal?["project"] as? String ?? focusProject,
+                symbol: blindspot?["symbol"] as? String ?? "eye.fill",
+                source: blindspot == nil ? "Radar" : "Blindspot Brief",
+                question: blindspot?["question"] as? String ?? "What am I avoiding because it is ambiguous or annoying?"
+            )
+        ]
+
+        return [
+            "generatedAt": generatedAt,
+            "mode": "oracle-digest",
+            "headline": "Notice \(focusTitle)",
+            "thesis": "Use the next block to \(focusAction.lowercased()) for \(focusProject), decide the review queue, pressure-test one idea, and finish with a written outcome.",
+            "sections": sections,
+            "questions": sections.map { $0["question"] as? String ?? "" }.filter { !$0.isEmpty },
+            "actions": sections.map { item in
+                "\(item["action"] as? String ?? "Act"): \(item["title"] as? String ?? "Untitled")"
+            }
+        ]
+    }
+
+    static func markdown() async -> String {
+        let payload = await digest()
+        let sections = (payload["sections"] as? [[String: Any]]) ?? []
+        let questions = (payload["questions"] as? [String]) ?? []
+        let actions = (payload["actions"] as? [String]) ?? []
+
+        var lines: [String] = [
+            "# Terminal Brain Oracle Digest",
+            "",
+            "Generated: \(payload["generatedAt"] as? String ?? ISO8601DateFormatter().string(from: Date()))",
+            "",
+            "\(payload["headline"] as? String ?? "Notice the strongest current signal.")",
+            "",
+            "\(payload["thesis"] as? String ?? "")",
+            ""
+        ]
+
+        for item in sections {
+            lines.append("## \(item["label"] as? String ?? "Signal"): \(item["title"] as? String ?? "Untitled")")
+            lines.append("- Action: \(item["action"] as? String ?? "Act")")
+            lines.append("- Project: \(item["project"] as? String ?? "General Brain")")
+            lines.append("- Source: \(item["source"] as? String ?? "")")
+            lines.append("- Question: \(item["question"] as? String ?? "What should I notice?")")
+            if let detail = item["detail"] as? String, !detail.isEmpty {
+                lines.append("- Detail: \(detail)")
+            }
+            lines.append("")
+        }
+
+        lines.append("## Next Questions")
+        lines.append(contentsOf: questions.prefix(5).map { "- \($0)" })
+        if questions.isEmpty { lines.append("- Ask what changed and what deserves attention now.") }
+        lines.append("")
+
+        lines.append("## Closure Actions")
+        lines.append(contentsOf: actions.prefix(5).map { "- \($0)" })
+        if actions.isEmpty { lines.append("- Commit one outcome before switching context.") }
+
+        return lines.joined(separator: "\n")
+    }
+
+    private static func section(id: String, label: String, title: String, detail: String, action: String, project: String, symbol: String, source: String, question: String) -> [String: Any] {
+        [
+            "id": id,
+            "label": label,
+            "title": title,
+            "detail": detail,
+            "action": action,
+            "project": project,
+            "symbol": symbol,
+            "source": source,
+            "question": question
+        ]
+    }
+}
+
 enum OperatorDeckSnapshot {
     static func deck() async -> [String: Any] {
         let generatedAt = ISO8601DateFormatter().string(from: Date())
@@ -2626,6 +2795,7 @@ enum AgentPromptSnapshot {
 enum BrainHandoffSnapshot {
     static func markdown() async -> String {
         let generated = ISO8601DateFormatter().string(from: Date())
+        let digest = await OracleDigestSnapshot.markdown()
         let value = await ValueBriefSnapshot.markdown()
         let brief = await OperatorBriefSnapshot.markdown()
         let blindspots = await BlindspotSnapshot.markdown()
@@ -2640,6 +2810,7 @@ enum BrainHandoffSnapshot {
             "Generated: \(generated)",
             "",
             "## How To Use This",
+            "- Start with the Oracle Digest when you want the plain-language read: what to notice, decide, test, create, and avoid.",
             "- Start with the Operator Brief for plain-language value, then use the Operator Deck for concrete actions.",
             "- Treat the first action card as the default next move unless new evidence contradicts it.",
             "- Read the Blindspot Brief before broad planning; it lists the thing most likely to be ignored or left unresolved.",
@@ -2651,6 +2822,7 @@ enum BrainHandoffSnapshot {
             "- Do not relaunch or foreground Terminal Brain unless the operator explicitly asks.",
             "",
             "## Contents",
+            "- Oracle Digest: narrative read on what deserves attention and closure.",
             "- Value Brief: compact read on why the current move is worth attention.",
             "- Operator Brief: plain-language value read.",
             "- Blindspot Brief: counter-signal for ignored, stale, or under-tested work.",
@@ -2659,6 +2831,10 @@ enum BrainHandoffSnapshot {
             "- Operator Deck: four action cards.",
             "- Project Memory: active work surfaces and source paths.",
             "- Latest Context Pack: freshest working-memory bundle.",
+            "",
+            digest,
+            "",
+            "---",
             "",
             value,
             "",

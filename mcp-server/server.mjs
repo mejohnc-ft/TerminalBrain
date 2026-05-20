@@ -295,6 +295,24 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_oracle_digest",
+    description: "Get Terminal Brain's Oracle Digest: notice, decide, test, create, and avoid lanes for the next work block.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
+    name: "terminal_brain_oracle_digest_markdown",
+    description: "Get Terminal Brain's Oracle Digest as prompt-ready Markdown.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_operator_deck",
     description: "Get the same four-card Operator Deck shown in the app: do first, ask about, review or capture, and project/start-work card.",
     inputSchema: {
@@ -804,6 +822,10 @@ async function callTool(name, args = {}) {
       return api("/value-brief");
     case "terminal_brain_value_brief_markdown":
       return api("/value-brief/markdown", { rawText: true });
+    case "terminal_brain_oracle_digest":
+      return api("/oracle-digest");
+    case "terminal_brain_oracle_digest_markdown":
+      return api("/oracle-digest/markdown", { rawText: true });
     case "terminal_brain_operator_deck":
       return api("/operator-deck");
     case "terminal_brain_operator_deck_markdown":

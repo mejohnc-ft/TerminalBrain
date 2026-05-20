@@ -534,6 +534,7 @@ struct ContentView: View {
         let item = model.focusItem
         return VStack(alignment: .leading, spacing: 18) {
             valueBriefPanel
+            oracleDigestPanel
             operatorBriefPanel
             operatorDeck
 
@@ -759,6 +760,108 @@ struct ContentView: View {
                     } else {
                         model.workQuery = focus.query.isEmpty ? focus.title : focus.query
                         selectedSection = "start"
+                    }
+                }
+            }
+        }
+        .padding(16)
+        .darkPanel()
+    }
+
+    private var oracleDigestPanel: some View {
+        let focus = model.focusItem
+        let review = model.oracleCommits.first { $0.status == .new || $0.status == .delegated } ?? model.oracleCommits.first
+        let idea = model.ideaPulseItems.first
+        let blindspot = model.blindspotItems.first
+        let project = model.projects.first
+
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .firstTextBaseline) {
+                SectionTitle("Oracle Digest", symbol: "sparkle.magnifyingglass")
+                Spacer()
+                Text("Notice, decide, test, create, avoid")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.white.opacity(0.42))
+                    .textCase(.uppercase)
+            }
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 210), spacing: 12)], spacing: 12) {
+                ValueBriefTile(
+                    label: "Notice",
+                    title: focus.title,
+                    detail: focus.reason,
+                    action: focus.action,
+                    symbol: focus.symbol,
+                    accent: focus.state.color
+                ) {
+                    applyFocusAction(focus)
+                }
+
+                ValueBriefTile(
+                    label: "Decide",
+                    title: review?.title ?? blindspot?.title ?? "No unresolved decision visible",
+                    detail: review?.preview ?? blindspot?.question ?? "Ask what should be accepted, linked, delegated, or dismissed.",
+                    action: review == nil ? "Ask Oracle" : "Open Review",
+                    symbol: review?.status.symbol ?? blindspot?.symbol ?? "tray.and.arrow.down.fill",
+                    accent: review?.status.color ?? blindspot?.state.color ?? .orange
+                ) {
+                    if let review {
+                        selectedCommitID = review.id
+                        reviewProjectFilter = review.project.isEmpty ? "all" : review.project
+                        selectedSection = "review"
+                    } else if let blindspot {
+                        selectedBlindspotID = blindspot.id
+                        selectedSection = "blindspots"
+                    } else {
+                        model.oracleQuestion = "What decision am I avoiding right now?"
+                        selectedSection = "oracle"
+                    }
+                }
+
+                ValueBriefTile(
+                    label: "Test",
+                    title: idea?.title ?? "No idea test visible",
+                    detail: idea?.nextPrompt ?? "Capture one rough thought or sync more material to surface a cheap test.",
+                    action: "Pressure Test",
+                    symbol: idea?.symbol ?? "lightbulb.fill",
+                    accent: idea?.state.color ?? .cyan
+                ) {
+                    if let idea {
+                        selectedIdeaID = idea.id
+                    }
+                    selectedSection = "ideas"
+                }
+
+                ValueBriefTile(
+                    label: "Create",
+                    title: project?.name ?? model.dailyCommands.first?.title ?? focus.title,
+                    detail: project?.recommendedAction ?? model.dailyCommands.first?.detail ?? "Create one durable artifact from the current focus.",
+                    action: "Start Work",
+                    symbol: project?.symbol ?? "shippingbox.fill",
+                    accent: project?.accent ?? settings.theme.accent
+                ) {
+                    if let project {
+                        selectedProjectID = project.id
+                        selectedSection = "projects"
+                    } else {
+                        model.workQuery = focus.query.isEmpty ? focus.title : focus.query
+                        selectedSection = "start"
+                    }
+                }
+
+                ValueBriefTile(
+                    label: "Avoid",
+                    title: blindspot?.title ?? "Signal collection without closure",
+                    detail: blindspot?.why ?? "Do not let asks, reviews, and ideas pile up without a committed outcome.",
+                    action: blindspot?.nextAction ?? "Commit Outcome",
+                    symbol: blindspot?.symbol ?? "eye.fill",
+                    accent: blindspot?.state.color ?? .red
+                ) {
+                    if let blindspot {
+                        selectedBlindspotID = blindspot.id
+                        selectedSection = "blindspots"
+                    } else {
+                        model.quickIdea = "Outcome: "
                     }
                 }
             }

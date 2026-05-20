@@ -17,7 +17,7 @@ When Terminal Brain is already running and the user asks for useful work, start 
 ./mac-app/scripts/handoff.zsh --output /tmp/terminal-brain-handoff.md
 ```
 
-The handoff combines the Value Brief, Operator Brief, Blindspot Brief, Idea Pulse, Decision Lane, Operator Deck, Project Memory, and latest context pack. It never launches or foregrounds Terminal Brain. If using MCP, prefer `terminal_brain_agent_prompt_markdown` when you need one focused execution prompt, or `terminal_brain_handoff_markdown` when you need the broader state. Then use `terminal_brain_value_brief_markdown`, Idea Pulse ask/commit, Blindspot ask/commit, Decision Lane, Project Memory, Operator Deck, and Start Work tools for follow-up actions. When work produces a durable result, close the loop with `terminal_brain_commit_outcome` or `make outcome TITLE="..." OUTCOME="..." PROJECT="..." NEXT="..."`.
+The handoff combines the Oracle Digest, Value Brief, Operator Brief, Blindspot Brief, Idea Pulse, Decision Lane, Operator Deck, Project Memory, and latest context pack. It never launches or foregrounds Terminal Brain. If using MCP, prefer `terminal_brain_agent_prompt_markdown` when you need one focused execution prompt, or `terminal_brain_handoff_markdown` when you need the broader state. Then use `terminal_brain_oracle_digest_markdown`, `terminal_brain_value_brief_markdown`, Idea Pulse ask/commit, Blindspot ask/commit, Decision Lane, Project Memory, Operator Deck, and Start Work tools for follow-up actions. When work produces a durable result, close the loop with `terminal_brain_commit_outcome` or `make outcome TITLE="..." OUTCOME="..." PROJECT="..." NEXT="..."`.
 
 ## Foregrounding Policy
 

@@ -53,6 +53,8 @@ Codex/workspace config can register this server as:
 - `terminal_brain_operator_brief_markdown`
 - `terminal_brain_value_brief`
 - `terminal_brain_value_brief_markdown`
+- `terminal_brain_oracle_digest`
+- `terminal_brain_oracle_digest_markdown`
 - `terminal_brain_operator_deck`
 - `terminal_brain_operator_deck_markdown`
 - `terminal_brain_operator_deck_action`

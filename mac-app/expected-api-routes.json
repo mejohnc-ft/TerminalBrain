@@ -25,6 +25,8 @@
   "GET /operator-brief/markdown",
   "GET /value-brief",
   "GET /value-brief/markdown",
+  "GET /oracle-digest",
+  "GET /oracle-digest/markdown",
   "GET /operator-deck",
   "GET /operator-deck/markdown",
   "POST /operator-deck/action",
