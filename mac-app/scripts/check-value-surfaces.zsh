@@ -39,6 +39,7 @@ require_in_file "$ROOT/mac-app/scripts/status.zsh" 'App process' "non-launching 
 require_in_file "$ROOT/mac-app/scripts/next.zsh" 'make start-here' "non-launching next move handoff"
 require_in_file "$ROOT/mac-app/scripts/value.zsh" 'Terminal Brain Value Now' "non-launching value read"
 require_in_file "$ROOT/mac-app/scripts/doctor.zsh" 'MCP tool contract valid' "non-launching doctor MCP check"
+require_in_file "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_value_now_markdown' "entrypoint fallback verifier"
 require_in_file "$ROOT/Makefile" '^start-here:' "Start Here Make target"
 require_in_file "$ROOT/Makefile" '^outcome:' "Outcome Make target"
 require_in_file "$ROOT/Makefile" '^status:' "Status Make target"

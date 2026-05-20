@@ -48,6 +48,7 @@ done
 "$ROOT/mac-app/scripts/check-no-foreground.zsh"
 "$ROOT/mac-app/scripts/check-ui-copy.zsh"
 "$ROOT/mac-app/scripts/check-value-surfaces.zsh"
+"$ROOT/mac-app/scripts/check-entrypoints.zsh"
 node --check "$ROOT/mcp-server/server.mjs" >/dev/null
 node --check "$ROOT/mcp-server/check-tools.mjs" >/dev/null
 node "$ROOT/mcp-server/check-tools.mjs"

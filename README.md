@@ -99,7 +99,7 @@ For non-launching local QA:
 ./mac-app/scripts/verify-static.zsh
 ```
 
-The static verifier checks shell syntax, MCP syntax, Swift type-checking, app build, value-surface coverage, no-foreground guardrails, and secret patterns without launching or foregrounding Terminal Brain. The foreground guard rejects `open -a`, direct app-bundle `open`, AppleScript app control, and Computer Use automation hooks in scripts and MCP tooling.
+The static verifier checks shell syntax, MCP syntax, Swift type-checking, app build, value-surface coverage, entrypoint fallbacks, no-foreground guardrails, and secret patterns without launching or foregrounding Terminal Brain. The foreground guard rejects `open -a`, direct app-bundle `open`, AppleScript app control, and Computer Use automation hooks in scripts and MCP tooling.
 
 For a non-launching status check:
 
