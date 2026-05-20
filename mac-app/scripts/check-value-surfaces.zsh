@@ -43,6 +43,7 @@ require_in_file "$ROOT/mac-app/scripts/value.zsh" 'Terminal Brain Value Now' "no
 require_in_file "$ROOT/mac-app/scripts/doctor.zsh" 'MCP tool contract valid' "non-launching doctor MCP check"
 require_in_file "$ROOT/mac-app/scripts/doctor.zsh" 'installed app executable matches current build' "doctor installed app freshness check"
 require_in_file "$ROOT/mac-app/scripts/doctor.zsh" 'latest GitHub CI succeeded' "doctor CI state check"
+require_in_file "$ROOT/mac-app/scripts/doctor.zsh" 'readiness: package ready' "doctor readiness verdict"
 require_in_file "$ROOT/mac-app/scripts/doctor.zsh" 'Prompt Safety' "doctor prompt safety check"
 require_in_file "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_value_now_markdown' "entrypoint fallback verifier"
 require_in_file "$ROOT/Makefile" '^start-here:' "Start Here Make target"

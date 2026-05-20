@@ -38,6 +38,19 @@ esac
 
 ok_count=0
 warn_count=0
+repo_clean=0
+ci_green=0
+built_ready=0
+installed_ready=0
+installed_fresh=0
+app_running=0
+api_ready=0
+mcp_syntax_ready=0
+mcp_contract_ready=0
+agent_config_ready=0
+prompt_config_safe=0
+bridge_process_safe=0
+apple_notes_opt_in_safe=0
 
 ok() {
   ok_count=$((ok_count + 1))
@@ -62,6 +75,7 @@ ok "branch ${branch:-unknown}"
 ok "head ${head:-unknown}"
 if [[ -z "$dirty" ]]; then
   ok "working tree clean"
+  repo_clean=1
 else
   warn "working tree has uncommitted changes"
   printf '%s\n' "$dirty" | sed 's/^/     /'
@@ -74,6 +88,7 @@ if command -v gh >/dev/null 2>&1; then
   if [[ -n "$latest_run" ]]; then
     if grep -qE '^completed[[:space:]]+success' <<<"$latest_run"; then
       ok "latest GitHub CI succeeded"
+      ci_green=1
     else
       warn "latest GitHub CI is not green"
     fi
@@ -89,12 +104,14 @@ echo
 echo "## App"
 if [[ -d "$BUILT_APP" ]]; then
   ok "built app exists at $BUILT_APP"
+  built_ready=1
 else
   warn "built app missing; run make build"
 fi
 
 if [[ -d "$INSTALLED_APP" ]]; then
   ok "installed app exists at $INSTALLED_APP"
+  installed_ready=1
 else
   warn "installed app missing; run make install when you want to copy it to ~/Applications"
 fi
@@ -102,6 +119,7 @@ fi
 if [[ -x "$BUILT_EXE" && -x "$INSTALLED_EXE" ]]; then
   if cmp -s "$BUILT_EXE" "$INSTALLED_EXE"; then
     ok "installed app executable matches current build"
+    installed_fresh=1
   else
     warn "installed app executable differs from current build; run make install"
   fi
@@ -112,6 +130,7 @@ fi
 process_pids="$(pgrep -x TerminalBrain 2>/dev/null || true)"
 if [[ -n "$process_pids" ]]; then
   ok "TerminalBrain process is running"
+  app_running=1
 else
   warn "TerminalBrain process is not running; open it manually when you want the UI/API active"
 fi
@@ -125,6 +144,7 @@ fi
 
 if curl -fsS --max-time 0.5 "$API/health" >/dev/null 2>&1; then
   ok "API reachable at $API"
+  api_ready=1
 else
   warn "API not reachable at $API; app-backed tools need the app open"
 fi
@@ -139,12 +159,14 @@ fi
 
 if node --check "$MCP_SERVER" >/dev/null 2>&1; then
   ok "MCP server syntax valid"
+  mcp_syntax_ready=1
 else
   warn "MCP server syntax check failed; run node --check mcp-server/server.mjs"
 fi
 
 if node "$ROOT/mcp-server/check-tools.mjs" >/dev/null 2>&1; then
   ok "MCP tool contract valid"
+  mcp_contract_ready=1
 else
   warn "MCP tool contract failed; run make mcp-test"
 fi
@@ -166,6 +188,7 @@ done
 
 if (( ${#config_hits[@]} > 0 )); then
   ok "agent config references Terminal Brain MCP"
+  agent_config_ready=1
   printf '     %s\n' "${config_hits[@]}"
 else
   warn "no common Codex/Claude config reference found for Terminal Brain MCP"
@@ -186,6 +209,7 @@ if (( ${#prompt_config_hits[@]} > 0 )); then
   printf '     %s\n' "${prompt_config_hits[@]}"
 else
   ok "no prompt-prone Apple Notes/Drafts MCP auto-start entries found in common configs"
+  prompt_config_safe=1
 fi
 
 bridge_processes="$(ps ax -o pid=,args= | grep -Ei 'apple[-_ ]?notes|drafts[-_ ]?(obsidian|mcp|bridge)' | grep -Ev 'grep -Ei|doctor\.zsh|check-entrypoints\.zsh|verify-static\.zsh' || true)"
@@ -194,16 +218,32 @@ if [[ -n "$bridge_processes" ]]; then
   printf '%s\n' "$bridge_processes" | sed 's/^/     /'
 else
   ok "no prompt-prone Apple Notes/Drafts bridge process detected"
+  bridge_process_safe=1
 fi
 
 if [[ "${EDGE_BRAIN_INCLUDE_APPLE_NOTES:-0}" == "1" ]]; then
   warn "EDGE_BRAIN_INCLUDE_APPLE_NOTES=1; Apple Notes export is opt-in enabled for this shell"
 else
   ok "Apple Notes export remains opt-in disabled for this shell"
+  apple_notes_opt_in_safe=1
 fi
 echo
 
 echo "## Summary"
+core_ready=0
+if (( repo_clean && ci_green && built_ready && installed_ready && installed_fresh && mcp_syntax_ready && mcp_contract_ready && agent_config_ready && prompt_config_safe && bridge_process_safe && apple_notes_opt_in_safe )); then
+  core_ready=1
+fi
+
+if (( core_ready && api_ready )); then
+  echo "- readiness: app-backed ready"
+elif (( core_ready && app_running )); then
+  echo "- readiness: package ready, but app API is not reachable"
+elif (( core_ready )); then
+  echo "- readiness: package ready; open Terminal Brain manually for app-backed tools"
+else
+  echo "- readiness: needs setup attention"
+fi
 echo "- ok: $ok_count"
 echo "- warnings: $warn_count"
 echo "- next: run make next for the safest current workflow"
