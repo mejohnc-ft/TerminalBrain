@@ -303,6 +303,29 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_memory_promote",
+    description: "Promote one derived Codex/Claude memory lead into Oracle Inbox as a reviewable idea. Use dryRun first to preview without writing.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        index: {
+          type: "number",
+          description: "One-based continuity lead index from the Memory Brief."
+        },
+        project: {
+          type: "string",
+          description: "Optional project substring filter matching the Memory Brief."
+        },
+        dryRun: {
+          type: "boolean",
+          description: "Preview the selected memory lead without writing. Defaults to false."
+        }
+      },
+      required: ["index"],
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_setup",
     description: "Read Terminal Brain readiness setup: app, MCP config, workspace, sync, memory, Mission Control, prompt safety, and Oracle writeback.",
     inputSchema: {
@@ -1505,6 +1528,41 @@ function memoryBriefMarkdown(args = {}) {
   ].join("\n");
 }
 
+function promoteMemory(args = {}) {
+  if (!Number.isFinite(args.index)) {
+    throw new Error("index is required");
+  }
+  const commandArgs = [
+    join(ROOT, "mac-app", "scripts", "memory-promote.zsh"),
+    "--index",
+    String(Math.max(1, Math.floor(args.index)))
+  ];
+  if (typeof args.project === "string" && args.project.trim()) {
+    commandArgs.push("--project", args.project.trim());
+  }
+  if (args.dryRun === true) {
+    commandArgs.push("--dry-run");
+  }
+  const result = runCommand("zsh", commandArgs, { timeout: 20000 });
+  if (!result.ok) {
+    return {
+      ok: false,
+      error: result.error || "Memory promotion failed.",
+      output: result.text || "",
+      guardrail: "memory promotion did not launch or foreground Terminal Brain"
+    };
+  }
+  try {
+    return JSON.parse(result.text);
+  } catch {
+    return {
+      ok: true,
+      output: result.text,
+      guardrail: "memory promotion did not launch or foreground Terminal Brain"
+    };
+  }
+}
+
 function setReviewStatus(args = {}) {
   const id = typeof args.id === "string" ? args.id.trim() : "";
   const status = typeof args.status === "string" ? args.status.trim() : "";
@@ -1897,6 +1955,8 @@ async function callTool(name, args = {}) {
       return sourcesMarkdown();
     case "terminal_brain_memory_brief_markdown":
       return memoryBriefMarkdown(args);
+    case "terminal_brain_memory_promote":
+      return promoteMemory(args);
     case "terminal_brain_setup":
       return api("/setup");
     case "terminal_brain_briefing":
