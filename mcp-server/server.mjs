@@ -41,6 +41,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_value_now_markdown",
+    description: "Get the current Terminal Brain value read as Markdown. Returns the live Value Brief when reachable, otherwise explains the value path and safe next commands.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_status",
     description: "Read Terminal Brain app status, including MCP, sync, index, Mission Control, and prompt-safety state.",
     inputSchema: {
@@ -928,6 +937,46 @@ function doctorMarkdown() {
   ].join("\n");
 }
 
+async function valueNowMarkdown() {
+  const health = await apiHealth();
+  if (health.reachable) {
+    const response = await fetch(`${API}/value-brief/markdown`);
+    const text = await response.text();
+    if (response.ok) return text;
+  }
+
+  const status = await runtimeStatus();
+  return [
+    "# Terminal Brain Value Now",
+    "",
+    "Terminal Brain is built to turn scattered local work context into one useful next move and a durable written outcome.",
+    "",
+    "## What You Can Get From It",
+    "",
+    "- A one-block work path: what to notice, decide, test, create, and avoid.",
+    "- Agent-ready prompts grounded in local project memory.",
+    "- Obsidian-backed writeback for ideas, reads, outcomes, and next actions.",
+    "- Runtime checks that prove whether the app, MCP, config, and API are actually ready.",
+    "- Guardrails that prevent background agents from launching or stealing focus.",
+    "",
+    "## Fastest Useful Path",
+    "",
+    "Open Terminal Brain manually when you want the UI/API active, then run:",
+    "",
+    "```zsh",
+    "make start-here",
+    "```",
+    "",
+    "If you only want to inspect readiness without opening the app:",
+    "",
+    "```zsh",
+    "make doctor",
+    "```",
+    "",
+    runtimeStatusMarkdown(status)
+  ].join("\n");
+}
+
 async function api(path, { method = "GET", body, rawText = false } = {}) {
   const response = await fetch(`${API}${path}`, {
     method,
@@ -959,6 +1008,8 @@ async function callTool(name, args = {}) {
       return nextMarkdown();
     case "terminal_brain_doctor_markdown":
       return doctorMarkdown();
+    case "terminal_brain_value_now_markdown":
+      return valueNowMarkdown();
     case "terminal_brain_status":
       return api("/status");
     case "terminal_brain_snapshot":

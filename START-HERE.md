@@ -7,10 +7,16 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 1. Read the current value path:
 
    ```zsh
+   make value
+   ```
+
+   If the app is already reachable, `make value` prints the live Value Brief. If it is closed, it explains what the system is useful for without starting anything. To read the next concrete move, run:
+
+   ```zsh
    make next
    ```
 
-   If the app is already reachable, `make next` prints Start Here. If it is closed, it prints the manual next move and status without starting anything. To read only status, run:
+   To read only status, run:
 
    ```zsh
    make status
@@ -43,6 +49,7 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 ## What To Look For
 
 - `Start Here` gives the shortest path from signal to action to outcome.
+- `Value` says what Terminal Brain is useful for right now.
 - `Status` shows repo, CI, process, launchctl, and API state without touching app focus.
 - `Doctor` checks app install, MCP contract, agent config references, and runtime readiness.
 - `Oracle Digest` says what to notice, decide, test, create, and avoid.

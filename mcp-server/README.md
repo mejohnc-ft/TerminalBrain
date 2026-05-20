@@ -9,10 +9,10 @@ directly. It talks to the trusted local app API:
 http://127.0.0.1:8765
 ```
 
-Start Terminal Brain before using app-backed MCP tools. `terminal_brain_next_markdown`,
-`terminal_brain_doctor_markdown`, and `terminal_brain_runtime_status` are
-server-side and can be used first to get the next move, audit setup readiness, or
-check whether the app, API, repo, CI, and launch service are active without
+Start Terminal Brain before using app-backed MCP tools. `terminal_brain_value_now_markdown`,
+`terminal_brain_next_markdown`, `terminal_brain_doctor_markdown`, and
+`terminal_brain_runtime_status` are server-side and can be used first to get the
+value path, next move, setup readiness, or app/API/repo/CI/launch state without
 launching or foregrounding anything.
 
 Oracle commits accept an optional `project` argument. When provided, Terminal Brain writes that project into note frontmatter so Review filters and Project Memory pages can attach the read to the correct work surface.
@@ -37,6 +37,7 @@ Codex/workspace config can register this server as:
 - `terminal_brain_runtime_status`
 - `terminal_brain_next_markdown`
 - `terminal_brain_doctor_markdown`
+- `terminal_brain_value_now_markdown`
 - `terminal_brain_snapshot`
 - `terminal_brain_snapshot_markdown`
 - `terminal_brain_handoff_markdown`

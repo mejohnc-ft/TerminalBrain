@@ -5,6 +5,7 @@ This repository builds a local macOS app used during active work. Do not steal t
 ## Safe Defaults
 
 - Use `make next` as the safest first command when you need to know the next move without launching the app.
+- Use `make value` when the operator needs a plain-language read on why Terminal Brain is useful right now.
 - Use `make doctor` when setup readiness is unclear; it audits app install, MCP contract, agent config, process state, launchctl, and API reachability without launching the app.
 - Use `./mac-app/scripts/verify-static.zsh` for normal verification.
 - Use `./mac-app/scripts/build-app.zsh` for build-only checks.
@@ -13,7 +14,7 @@ This repository builds a local macOS app used during active work. Do not steal t
 
 ## Fast Context Path
 
-When Terminal Brain may not be running, use `make next`, `make status`, `make doctor`, MCP `terminal_brain_next_markdown`, MCP `terminal_brain_doctor_markdown`, or MCP `terminal_brain_runtime_status` first. These checks do not launch or foreground the app.
+When Terminal Brain may not be running, use `make value`, `make next`, `make status`, `make doctor`, MCP `terminal_brain_value_now_markdown`, MCP `terminal_brain_next_markdown`, MCP `terminal_brain_doctor_markdown`, or MCP `terminal_brain_runtime_status` first. These checks do not launch or foreground the app.
 
 When Terminal Brain is already running and the user asks for useful work, start from the handoff instead of re-discovering the system:
 
