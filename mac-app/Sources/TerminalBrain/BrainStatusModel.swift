@@ -40,6 +40,7 @@ final class BrainStatusModel: ObservableObject {
     @Published var deckCopyOutput = ""
     @Published var latestPackCopyOutput = ""
     @Published var handoffCopyOutput = ""
+    @Published var agentPromptCopyOutput = ""
     @Published var oracleCommits: [OracleCommit] = []
     @Published var projects: [ProjectMemory] = []
     @Published var findings: [String] = []
@@ -224,6 +225,12 @@ final class BrainStatusModel: ObservableObject {
             handoffCopyOutput = "Handoff copied."
         } catch {
             handoffCopyOutput = "Handoff copy failed: \(error.localizedDescription)"
+        }
+    }
+
+    func copyAgentPrompt() async {
+        await copyMarkdown(path: "/agent-prompt/markdown", label: "Agent Prompt") { message in
+            agentPromptCopyOutput = message
         }
     }
 

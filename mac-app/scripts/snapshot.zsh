@@ -41,6 +41,9 @@ while [[ $# -gt 0 ]]; do
     --latest-pack)
       FORMAT="latest-pack"
       ;;
+    --agent-prompt|--prompt)
+      FORMAT="agent-prompt"
+      ;;
     --markdown)
       FORMAT="markdown"
       ;;
@@ -64,7 +67,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     --help|-h)
       cat <<'EOF'
-Usage: ./mac-app/scripts/snapshot.zsh [--markdown|--json|--brief|--brief-markdown|--value|--today|--blindspots|--ideas|--projects|--deck|--deck-markdown|--latest-pack] [--copy] [--output FILE]
+Usage: ./mac-app/scripts/snapshot.zsh [--markdown|--json|--brief|--brief-markdown|--value|--today|--blindspots|--ideas|--projects|--deck|--deck-markdown|--latest-pack|--agent-prompt] [--copy] [--output FILE]
 
 Prints the current Terminal Brain operator snapshot from an already-running app.
 This script never launches or foregrounds Terminal Brain.
@@ -86,6 +89,8 @@ Options:
               Print prompt-ready Operator Deck Markdown.
   --latest-pack
               Print the latest context pack Markdown.
+  --agent-prompt
+              Print a focused execution prompt for Codex or Claude.
   --copy      Copy output to the clipboard as well as printing it.
   --output    Write output to a file as well as printing it.
   --help      Show this help.
@@ -139,6 +144,9 @@ case "$FORMAT" in
     ;;
   latest-pack)
     OUTPUT="$(curl -fsS "$API/context-packs/latest/markdown")"
+    ;;
+  agent-prompt)
+    OUTPUT="$(curl -fsS "$API/agent-prompt/markdown")"
     ;;
   markdown)
     OUTPUT="$(curl -fsS "$API/snapshot/markdown")"

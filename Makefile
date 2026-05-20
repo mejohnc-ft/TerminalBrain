@@ -1,4 +1,4 @@
-.PHONY: help build install verify live ask ask-commit snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live ask ask-commit snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
@@ -20,6 +20,7 @@ help:
 	@echo "  make snapshot-deck Print Operator Deck JSON from an already-running app"
 	@echo "  make snapshot-deck-md Print Operator Deck Markdown from an already-running app"
 	@echo "  make latest-pack   Print latest context pack Markdown from an already-running app"
+	@echo "  make agent-prompt  Print focused agent execution prompt from an already-running app"
 	@echo "  make handoff OUTPUT=/tmp/terminal-brain-handoff.md"
 	@echo "  make snapshot-file OUTPUT=/tmp/terminal-brain-snapshot.md"
 	@echo "  make mcp-check     Check MCP server syntax"
@@ -80,6 +81,9 @@ snapshot-deck-md:
 
 latest-pack:
 	./mac-app/scripts/snapshot.zsh --latest-pack
+
+agent-prompt:
+	./mac-app/scripts/snapshot.zsh --agent-prompt
 
 handoff:
 	./mac-app/scripts/handoff.zsh

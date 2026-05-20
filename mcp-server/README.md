@@ -33,6 +33,7 @@ Codex/workspace config can register this server as:
 - `terminal_brain_snapshot`
 - `terminal_brain_snapshot_markdown`
 - `terminal_brain_handoff_markdown`
+- `terminal_brain_agent_prompt_markdown`
 - `terminal_brain_sources`
 - `terminal_brain_setup`
 - `terminal_brain_briefing`

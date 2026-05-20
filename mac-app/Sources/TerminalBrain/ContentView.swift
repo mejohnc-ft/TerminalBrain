@@ -83,6 +83,7 @@ struct ContentView: View {
             BrainCommand(title: "Copy Idea Pulse", subtitle: "Cheap-test queue for captured ideas", symbol: "lightbulb.fill", category: "Action", action: .copyIdeas),
             BrainCommand(title: "Copy Project Memory", subtitle: "Active work surfaces and recommended actions", symbol: "folder.fill.badge.gearshape", category: "Action", action: .copyProjectMemory),
             BrainCommand(title: "Copy Operator Deck", subtitle: "Prompt-ready four-card deck for handoffs", symbol: "rectangle.stack.fill.badge.person.crop", category: "Action", action: .copyDeck),
+            BrainCommand(title: "Copy Agent Prompt", subtitle: "Focused execution prompt for Codex or Claude", symbol: "paperplane.fill", category: "Action", action: .copyAgentPrompt),
             BrainCommand(title: "Copy Latest Context Pack", subtitle: "Copy newest context pack Markdown", symbol: "doc.on.doc", category: "Action", action: .copyLatestPack),
             BrainCommand(title: "Copy Agent Handoff", subtitle: "Copy Operator Deck plus latest context pack", symbol: "doc.richtext", category: "Action", action: .copyHandoff),
             BrainCommand(title: "Open Mission Control", subtitle: Paths.missionURL.absoluteString, symbol: "display", category: "Action", action: .openMission),
@@ -665,18 +666,25 @@ struct ContentView: View {
             HStack(alignment: .firstTextBaseline) {
                 SectionTitle("Value Brief", symbol: "bolt.fill")
                 Spacer()
-                if !model.valueBriefCopyOutput.isEmpty {
-                    Text(model.valueBriefCopyOutput)
+                if !model.agentPromptCopyOutput.isEmpty || !model.valueBriefCopyOutput.isEmpty {
+                    Text(model.agentPromptCopyOutput.isEmpty ? model.valueBriefCopyOutput : model.agentPromptCopyOutput)
                         .font(.caption.weight(.medium))
                         .foregroundStyle(.white.opacity(0.48))
                         .lineLimit(1)
                 }
                 Button {
+                    Task { await model.copyAgentPrompt() }
+                } label: {
+                    Label("Agent Prompt", systemImage: "paperplane.fill")
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+                Button {
                     Task { await model.copyValueBrief() }
                 } label: {
                     Label("Copy", systemImage: "doc.on.clipboard")
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.bordered)
                 .controlSize(.small)
                 Text("Why this is worth it")
                     .font(.caption.weight(.bold))
@@ -2609,7 +2617,7 @@ struct ContentView: View {
             SystemSurfaceCard(title: "Control API", value: "127.0.0.1:8765", detail: "Local-only gateway for agents and MCP.", symbol: "network")
             SystemSurfaceCard(title: "Widget", value: "Next", detail: "A desktop/Notification Center widget should show prompt-safety, sync age, and Mission points.", symbol: "rectangle.on.rectangle")
             SystemSurfaceCard(title: "Login Item", value: "Next", detail: "Launch at login after the gateway has a signed release bundle.", symbol: "power")
-            SystemSurfaceCard(title: "Shortcuts", value: "Native", detail: "App Shortcuts expose Copy Handoff, Copy Value, Copy Deck, Copy Snapshot, Copy Blindspots, Copy Ideas, Run Sync, Start Work, and Open/Copy Latest Context Pack to Spotlight, Siri, and automation.", symbol: "wand.and.stars")
+            SystemSurfaceCard(title: "Shortcuts", value: "Native", detail: "App Shortcuts expose Copy Handoff, Copy Prompt, Copy Value, Copy Deck, Copy Snapshot, Copy Blindspots, Copy Ideas, Run Sync, Start Work, and Open/Copy Latest Context Pack to Spotlight, Siri, and automation.", symbol: "wand.and.stars")
         }
     }
 
@@ -2719,6 +2727,8 @@ struct ContentView: View {
             Task { await model.copyProjectMemory() }
         case .copyDeck:
             Task { await model.copyOperatorDeck() }
+        case .copyAgentPrompt:
+            Task { await model.copyAgentPrompt() }
         case .copyLatestPack:
             Task { await model.copyLatestContextPack() }
         case .copyHandoff:
@@ -2993,6 +3003,7 @@ enum BrainCommandAction {
     case copyIdeas
     case copyProjectMemory
     case copyDeck
+    case copyAgentPrompt
     case copyLatestPack
     case copyHandoff
     case askOracle(String)

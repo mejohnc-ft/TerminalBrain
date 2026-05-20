@@ -65,6 +65,8 @@ final class LocalControlServer {
             return .text(200, await BrainSnapshot.markdown())
         case ("GET", "/handoff/markdown"):
             return .text(200, await BrainHandoffSnapshot.markdown())
+        case ("GET", "/agent-prompt/markdown"):
+            return .text(200, await AgentPromptSnapshot.markdown())
         case ("GET", "/sources"):
             return .json(200, await ControlSnapshot.sources())
         case ("GET", "/setup"):
@@ -2495,6 +2497,93 @@ enum BrainSnapshot {
             return "- \(title) (\(project), \(status))"
         })
         if trail.isEmpty { lines.append("- No committed memory yet.") }
+
+        return lines.joined(separator: "\n")
+    }
+}
+
+enum AgentPromptSnapshot {
+    static func markdown() async -> String {
+        let generated = ISO8601DateFormatter().string(from: Date())
+        let focusPayload = await FocusSnapshot.focus()
+        let valuePayload = await ValueBriefSnapshot.brief()
+        let ideaPayload = await IdeaPulseSnapshot.ideas()
+        let blindspotPayload = await BlindspotSnapshot.blindspots()
+        let pack = ControlSnapshot.latestContextPack()
+
+        let focus = (focusPayload["item"] as? [String: Any]) ?? [:]
+        let drivers = (valuePayload["drivers"] as? [[String: Any]]) ?? []
+        let ideas = (ideaPayload["items"] as? [[String: Any]]) ?? []
+        let blindspots = (blindspotPayload["items"] as? [[String: Any]]) ?? []
+        let title = focus["title"] as? String ?? "Move the current Terminal Brain focus forward"
+        let project = focus["project"] as? String ?? "General Brain"
+        let action = focus["action"] as? String ?? "Act"
+        let query = focus["query"] as? String ?? title
+
+        var lines: [String] = [
+            "# Terminal Brain Agent Prompt",
+            "",
+            "Generated: \(generated)",
+            "",
+            "## Task",
+            "Move this forward now: \(title)",
+            "",
+            "- Project: \(project)",
+            "- Action: \(action)",
+            "- Working query: \(query.ifEmpty(title))",
+            "",
+            "## Why This Matters",
+            valuePayload["thesis"] as? String ?? "Use the current Value Brief as the reason for prioritizing this task.",
+            ""
+        ]
+
+        lines.append("## Value Drivers")
+        for driver in drivers.prefix(4) {
+            lines.append("- \(driver["label"] as? String ?? "Value"): \(driver["title"] as? String ?? "Untitled") -> \(driver["action"] as? String ?? "Act")")
+            if let detail = driver["detail"] as? String, !detail.isEmpty {
+                lines.append("  Detail: \(detail.prefixString(maxLength: 240))")
+            }
+        }
+        if drivers.isEmpty {
+            lines.append("- No value drivers are available. Ask Terminal Brain Oracle what changed.")
+        }
+        lines.append("")
+
+        lines.append("## Acceptance Criteria")
+        lines.append("- Produce one concrete artifact, patch, decision, or written recommendation tied to \(project).")
+        lines.append("- State what changed, why it matters, and the next action.")
+        lines.append("- Commit useful findings back through Terminal Brain Oracle or the Obsidian-backed Oracle Inbox.")
+        lines.append("- If implementation is unsafe or under-specified, return the smallest clarifying question and a proposed next test.")
+        lines.append("")
+
+        lines.append("## Signals To Consider")
+        if let idea = ideas.first {
+            lines.append("- Idea to pressure-test: \(idea["title"] as? String ?? "Idea")")
+            lines.append("  Prompt: \(idea["nextPrompt"] as? String ?? "What is the cheapest test?")")
+        }
+        if let blindspot = blindspots.first {
+            lines.append("- Blindspot to check: \(blindspot["title"] as? String ?? "Blindspot")")
+            lines.append("  Question: \(blindspot["question"] as? String ?? "What am I not considering?")")
+        }
+        if ideas.isEmpty && blindspots.isEmpty {
+            lines.append("- No Idea Pulse or Blindspot signal is available; use Focus and Project Memory.")
+        }
+        lines.append("")
+
+        lines.append("## Context")
+        if pack["ok"] as? Bool == true {
+            lines.append("- Latest context pack: \(pack["path"] as? String ?? "")")
+        } else {
+            lines.append("- No latest context pack is available. Build one if the task needs local source grounding.")
+        }
+        lines.append("- Terminal Brain API: http://127.0.0.1:8765")
+        lines.append("")
+
+        lines.append("## Guardrails")
+        lines.append("- Do not launch, relaunch, quit, or foreground Terminal Brain unless John explicitly asks in the current turn.")
+        lines.append("- Prefer non-launching static verification first: `make verify`.")
+        lines.append("- Preserve unrelated working-tree changes.")
+        lines.append("- End with files changed, verification run, and any remaining risk.")
 
         return lines.joined(separator: "\n")
     }

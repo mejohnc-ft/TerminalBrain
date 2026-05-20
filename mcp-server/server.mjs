@@ -45,6 +45,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_agent_prompt_markdown",
+    description: "Get a concise execution prompt for Codex/Claude from the current Value Brief, Focus, Idea Pulse, and guardrails.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_sources",
     description: "List Terminal Brain source modes for Obsidian, agent histories, Drafts, Apple Notes, and Mission Control.",
     inputSchema: {
@@ -675,6 +684,8 @@ async function callTool(name, args = {}) {
       return api("/snapshot/markdown", { rawText: true });
     case "terminal_brain_handoff_markdown":
       return api("/handoff/markdown", { rawText: true });
+    case "terminal_brain_agent_prompt_markdown":
+      return api("/agent-prompt/markdown", { rawText: true });
     case "terminal_brain_sources":
       return api("/sources");
     case "terminal_brain_setup":

@@ -367,6 +367,19 @@ struct CopyAgentHandoffIntent: AppIntent {
     }
 }
 
+struct CopyAgentPromptIntent: AppIntent {
+    static var title: LocalizedStringResource = "Copy Agent Prompt"
+    static var description = IntentDescription("Copy a concise Terminal Brain execution prompt for Codex or Claude.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let markdown = try await ShortcutClient.text(path: "/agent-prompt/markdown")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "Agent prompt copied.")
+    }
+}
+
 struct TerminalBrainShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
@@ -503,6 +516,15 @@ struct TerminalBrainShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Copy Handoff",
             systemImageName: "doc.richtext"
+        )
+        AppShortcut(
+            intent: CopyAgentPromptIntent(),
+            phrases: [
+                "Copy \(.applicationName) agent prompt",
+                "Copy \(.applicationName) prompt"
+            ],
+            shortTitle: "Copy Prompt",
+            systemImageName: "paperplane.fill"
         )
     }
 }

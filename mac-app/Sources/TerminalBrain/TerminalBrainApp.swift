@@ -65,6 +65,10 @@ struct TerminalBrainApp: App {
                 }
                 .keyboardShortcut("d", modifiers: [.command, .shift])
 
+                Button("Copy Agent Prompt") {
+                    Task { await model.copyAgentPrompt() }
+                }
+
                 Button("Open Latest Context Pack") {
                     model.openLatestContextPack()
                 }
@@ -102,6 +106,9 @@ struct TerminalBrainApp: App {
             }
             Button("Copy Agent Handoff") {
                 Task { await model.copyHandoff() }
+            }
+            Button("Copy Agent Prompt") {
+                Task { await model.copyAgentPrompt() }
             }
             Button("Copy Operator Brief") {
                 Task { await model.copyOperatorBrief() }

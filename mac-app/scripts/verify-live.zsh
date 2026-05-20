@@ -140,6 +140,15 @@ curl -fsS "$API/handoff/markdown" | ruby -e '
   puts "handoff ok chars=#{text.length}"
 '
 
+curl -fsS "$API/agent-prompt/markdown" | ruby -e '
+  text = STDIN.read
+  abort("agent prompt missing title") unless text.include?("# Terminal Brain Agent Prompt")
+  abort("agent prompt missing task") unless text.include?("## Task")
+  abort("agent prompt missing acceptance criteria") unless text.include?("## Acceptance Criteria")
+  abort("agent prompt missing guardrails") unless text.include?("## Guardrails")
+  puts "agent prompt ok chars=#{text.length}"
+'
+
 printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_snapshot","arguments":{}}}\n' \
   | node "$ROOT/mcp-server/server.mjs" \
   | ruby -rjson -e '
@@ -259,6 +268,18 @@ printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal
       abort("mcp handoff missing operator deck") unless text.include?("# Terminal Brain Operator Deck")
       abort("mcp handoff missing project memory") unless text.include?("# Terminal Brain Project Memory")
       puts "mcp handoff ok chars=#{text.length}"
+    '
+
+printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_agent_prompt_markdown","arguments":{}}}\n' \
+  | node "$ROOT/mcp-server/server.mjs" \
+  | ruby -rjson -e '
+      line = STDIN.each_line.find { |l| l.include?("\"result\"") } || "{}"
+      response = JSON.parse(line)
+      text = response.dig("result", "content", 0, "text").to_s
+      abort("mcp agent prompt missing title") unless text.include?("# Terminal Brain Agent Prompt")
+      abort("mcp agent prompt missing acceptance criteria") unless text.include?("## Acceptance Criteria")
+      abort("mcp agent prompt missing guardrails") unless text.include?("## Guardrails")
+      puts "mcp agent prompt ok chars=#{text.length}"
     '
 
 node --check "$ROOT/mcp-server/server.mjs" >/dev/null
