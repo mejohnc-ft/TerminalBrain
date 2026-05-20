@@ -270,6 +270,10 @@ review_status_output="$(TERMINAL_BRAIN_WORKSPACE="$review_workspace" "$ROOT/mac-
 require_contains "$review_status_output" '"status":"accepted"' "review status accepted"
 review_accepted_output="$(TERMINAL_BRAIN_WORKSPACE="$review_workspace" "$ROOT/mac-app/scripts/review.zsh" --status accepted --limit 3)"
 require_contains "$review_accepted_output" 'Status: accepted' "review queue accepted status"
+completed_bubble_output="$(TERMINAL_BRAIN_WORKSPACE="$review_workspace" "$ROOT/mac-app/scripts/bubble-up.zsh" --limit 2)"
+require_contains "$completed_bubble_output" 'Completed Evidence' "bubble up completed evidence lane"
+require_contains "$completed_bubble_output" 'Recent Work Signals' "bubble up fresh recent-work lane after review queue is clean"
+require_contains "$completed_bubble_output" 'make recent-work INDEX=1' "bubble up recent work action after review queue is clean"
 rm -rf "$review_workspace"
 
 recent_work_workspace="$(mktemp -d)"

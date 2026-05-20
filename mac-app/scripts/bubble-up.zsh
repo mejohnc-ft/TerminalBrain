@@ -137,13 +137,13 @@ WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtim
     []
   end
 
-  def print_recent_work_fallback(root, limit)
+  def print_recent_work_fallback(root, limit, intro = nil)
     signals = recent_work_signals(root, limit)
     return false if signals.empty?
 
     puts "## Recent Work Signals"
     puts
-    puts "The Oracle Inbox has no reviewable items, so Bubble Up is using recent repo history as the fallback signal."
+    puts intro || "The Oracle Inbox has no reviewable items, so Bubble Up is using recent repo history as the fallback signal."
     puts
     signals.first(limit).each_with_index do |signal, index|
       puts "### #{index + 1}. #{signal[:title]}"
@@ -178,7 +178,7 @@ WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtim
     puts "- No Oracle Inbox exists yet."
     puts "- Recent repo work can still be converted into reviewable memory."
     puts
-    print_recent_work_fallback(root, limit)
+    print_recent_work_fallback(root, limit, "No Oracle Inbox exists yet, so Bubble Up is using recent repo history as the fallback signal.")
     puts
     puts "## Prime The Brain"
     puts
@@ -277,6 +277,7 @@ WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtim
     end
     if unclosed.empty? && completed.any?
       puts "- There is no open review pressure right now. That is good: the next useful move is to start from completed evidence or capture a new pressure point."
+      puts "- Fresh implementation work may still need durable memory even when the review queue is clean."
       puts "- Do not keep reworking accepted notes unless they reveal a new decision, artifact, or risk."
     end
   end
@@ -302,6 +303,7 @@ WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtim
         puts item[:preview].empty? ? "(no preview)" : item[:preview]
         puts
       end
+      print_recent_work_fallback(root, limit, "There are no open review items, so Bubble Up is showing recent shipped work as the next memory/action signal.")
     elsif fallback_signals.empty?
       puts "No items matched."
       puts
