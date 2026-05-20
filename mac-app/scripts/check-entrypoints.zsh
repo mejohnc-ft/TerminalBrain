@@ -76,6 +76,78 @@ require_contains "$now_output" 'make bubble-up' "now Bubble Up command"
 require_contains "$now_output" 'make outcome' "now outcome command"
 require_contains "$now_output" 'did not launch, foreground, quit, kill, or control' "now guardrail"
 
+sources_workspace="$(mktemp -d)"
+sources_output="$(TERMINAL_BRAIN_WORKSPACE="$sources_workspace" "$ROOT/mac-app/scripts/sources.zsh")"
+require_contains "$sources_output" '# Terminal Brain Source Inventory' "sources title"
+require_contains "$sources_output" 'Guarded Import Plan' "sources guarded import plan"
+require_contains "$sources_output" 'does not dump raw transcript content' "sources raw transcript guardrail"
+rm -rf "$sources_workspace"
+
+memory_workspace="$(mktemp -d)"
+mkdir -p "$memory_workspace/.brain"
+cat >"$memory_workspace/.brain/agent-history-stats.json" <<'JSON'
+{
+  "generatedAt": "2026-05-20T00:00:00Z",
+  "sessions": 1,
+  "records": 10,
+  "bySource": { "codex": 1 }
+}
+JSON
+cat >"$memory_workspace/.brain/agent-work-memory.json" <<'JSON'
+{
+  "generatedAt": "2026-05-20T00:00:00Z",
+  "count": 1,
+  "memories": [
+    {
+      "id": "entrypoint-memory",
+      "source": "codex",
+      "project": "Terminal Brain",
+      "cwd": "/tmp/TerminalBrain",
+      "startedAt": "2026-05-20T00:00:00Z",
+      "endedAt": "2026-05-20T01:00:00Z",
+      "records": 10,
+      "textChars": 1000,
+      "taskHint": "Prove memory promotion works",
+      "outcomeHint": "Synthetic memory can be promoted into Oracle Inbox without raw transcript content."
+    }
+  ]
+}
+JSON
+cat >"$memory_workspace/.brain/project-dossiers.json" <<'JSON'
+{
+  "generatedAt": "2026-05-20T00:00:00Z",
+  "count": 1,
+  "dossiers": [
+    {
+      "key": "terminal-brain",
+      "title": "Terminal Brain",
+      "cwd": "/tmp/TerminalBrain",
+      "sessions": 1,
+      "lastSeen": "2026-05-20T01:00:00Z",
+      "sources": [{ "name": "codex", "count": 1 }]
+    }
+  ]
+}
+JSON
+memory_output="$(TERMINAL_BRAIN_WORKSPACE="$memory_workspace" "$ROOT/mac-app/scripts/memory.zsh" --limit 1)"
+require_contains "$memory_output" '# Terminal Brain Memory Brief' "memory title"
+require_contains "$memory_output" 'Continuity Leads' "memory continuity leads"
+require_contains "$memory_output" 'Prove memory promotion works' "memory synthetic lead"
+require_contains "$memory_output" 'Promote If Useful' "memory promotion command"
+require_contains "$memory_output" 'does not dump raw Codex or Claude transcript bodies' "memory raw transcript guardrail"
+memory_promote_dry_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$memory_workspace" "$ROOT/mac-app/scripts/memory-promote.zsh" --index 1 --dry-run)"
+require_contains "$memory_promote_dry_output" '"title":"Follow up: Prove memory promotion works"' "memory promote dry title"
+require_contains "$memory_promote_dry_output" 'derived summaries only' "memory promote dry guardrail"
+memory_promote_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$memory_workspace" "$ROOT/mac-app/scripts/memory-promote.zsh" --index 1)"
+require_contains "$memory_promote_output" '"mode":"local-fallback"' "memory promote local fallback"
+require_contains "$memory_promote_output" '"reviewStatus":"new"' "memory promote review status"
+test -f "$memory_workspace/Oracle Inbox/"*.md || {
+  echo "Entrypoint check failed: memory promotion did not write note" >&2
+  echo "$memory_promote_output" >&2
+  exit 1
+}
+rm -rf "$memory_workspace"
+
 doctor_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/doctor.zsh")"
 require_contains "$doctor_output" '# Terminal Brain Doctor' "doctor title"
 require_contains "$doctor_output" 'MCP tool contract valid' "doctor MCP contract"
@@ -268,6 +340,68 @@ mcp_value_audit_output="$(call_mcp_tool terminal_brain_value_audit_markdown)"
 require_contains "$mcp_value_audit_output" '# Terminal Brain Value Audit' "MCP value audit title"
 require_contains "$mcp_value_audit_output" 'Prompt-To-Artifact Checklist' "MCP value audit checklist"
 require_contains "$mcp_value_audit_output" 'Remaining Gaps' "MCP value audit gaps"
+
+mcp_memory_workspace="$(mktemp -d)"
+mkdir -p "$mcp_memory_workspace/.brain"
+cat >"$mcp_memory_workspace/.brain/agent-history-stats.json" <<'JSON'
+{
+  "generatedAt": "2026-05-20T00:00:00Z",
+  "sessions": 1,
+  "records": 10,
+  "bySource": { "codex": 1 }
+}
+JSON
+cat >"$mcp_memory_workspace/.brain/agent-work-memory.json" <<'JSON'
+{
+  "generatedAt": "2026-05-20T00:00:00Z",
+  "count": 1,
+  "memories": [
+    {
+      "id": "mcp-memory",
+      "source": "codex",
+      "project": "Terminal Brain",
+      "cwd": "/tmp/TerminalBrain",
+      "startedAt": "2026-05-20T00:00:00Z",
+      "endedAt": "2026-05-20T01:00:00Z",
+      "records": 10,
+      "textChars": 1000,
+      "taskHint": "Prove MCP memory promotion works",
+      "outcomeHint": "Synthetic MCP memory can be promoted without raw transcript content."
+    }
+  ]
+}
+JSON
+cat >"$mcp_memory_workspace/.brain/project-dossiers.json" <<'JSON'
+{
+  "generatedAt": "2026-05-20T00:00:00Z",
+  "count": 1,
+  "dossiers": [
+    {
+      "key": "terminal-brain",
+      "title": "Terminal Brain",
+      "cwd": "/tmp/TerminalBrain",
+      "sessions": 1,
+      "lastSeen": "2026-05-20T01:00:00Z",
+      "sources": [{ "name": "codex", "count": 1 }]
+    }
+  ]
+}
+JSON
+mcp_memory_output="$(TERMINAL_BRAIN_WORKSPACE="$mcp_memory_workspace" printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_memory_brief_markdown","arguments":{"limit":1}}}' | TERMINAL_BRAIN_WORKSPACE="$mcp_memory_workspace" node "$ROOT/mcp-server/server.mjs")"
+require_contains "$mcp_memory_output" '# Terminal Brain Memory Brief' "MCP memory title"
+require_contains "$mcp_memory_output" 'Prove MCP memory promotion works' "MCP memory synthetic lead"
+mcp_memory_promote_dry_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$mcp_memory_workspace" printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_memory_promote","arguments":{"index":1,"dryRun":true}}}' | TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$mcp_memory_workspace" node "$ROOT/mcp-server/server.mjs")"
+require_contains "$mcp_memory_promote_dry_output" 'Prove MCP memory promotion works' "MCP memory promote dry title"
+require_contains "$mcp_memory_promote_dry_output" 'derived summaries only' "MCP memory promote dry guardrail"
+mcp_memory_promote_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$mcp_memory_workspace" printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_memory_promote","arguments":{"index":1}}}' | TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$mcp_memory_workspace" node "$ROOT/mcp-server/server.mjs")"
+require_contains "$mcp_memory_promote_output" 'local-fallback' "MCP memory promote local fallback"
+require_contains "$mcp_memory_promote_output" 'reviewStatus.*new' "MCP memory promote review status"
+test -f "$mcp_memory_workspace/Oracle Inbox/"*.md || {
+  echo "Entrypoint check failed: MCP memory promotion did not write note" >&2
+  echo "$mcp_memory_promote_output" >&2
+  exit 1
+}
+rm -rf "$mcp_memory_workspace"
 
 mcp_oracle_output="$(call_mcp_tool terminal_brain_oracle_brief_markdown)"
 require_contains "$mcp_oracle_output" '# Terminal Brain Oracle Brief' "MCP Oracle Brief title"

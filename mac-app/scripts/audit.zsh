@@ -198,6 +198,8 @@ require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_r
 require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_oracle_review_status' "closed review status regression"
 require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_bubble_up_markdown' "closed Bubble Up regression"
 require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_work_block_markdown' "closed Work Block regression"
+require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'memory-promote.zsh.*--dry-run' "closed memory promote dry-run regression"
+require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_memory_promote' "MCP memory promote regression"
 require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_first_minute_markdown' "MCP first minute regression"
 require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_value_proof_markdown' "MCP value proof regression"
 require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_demo_markdown' "MCP demo regression"
