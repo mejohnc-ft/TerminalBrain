@@ -1770,6 +1770,7 @@ enum BrainHandoffSnapshot {
         let brief = await OperatorBriefSnapshot.markdown()
         let decisions = await TodaySnapshot.markdown()
         let deck = await OperatorDeckSnapshot.markdown()
+        let projects = ProjectSnapshot.markdown()
         let pack = ControlSnapshot.latestContextPackMarkdown()
         return [
             "# Terminal Brain Handoff",
@@ -1780,6 +1781,7 @@ enum BrainHandoffSnapshot {
             "- Start with the Operator Brief for plain-language value, then use the Operator Deck for concrete actions.",
             "- Treat the first action card as the default next move unless new evidence contradicts it.",
             "- Use the Decision Lane as the ranked execution queue before asking broad follow-up questions.",
+            "- Use Project Memory to keep agent work attached to durable work surfaces.",
             "- Use the latest context pack as the working memory bundle for implementation, review, or planning.",
             "- Prefer concrete actions: build a pack, ask a focused question, commit useful findings, or mark queue items acted/dismissed.",
             "- Do not relaunch or foreground Terminal Brain unless the operator explicitly asks.",
@@ -1793,6 +1795,10 @@ enum BrainHandoffSnapshot {
             "---",
             "",
             deck,
+            "",
+            "---",
+            "",
+            projects,
             "",
             "---",
             "",

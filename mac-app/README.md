@@ -106,7 +106,7 @@ Print or copy the current operator snapshot from an already-running app:
 ```
 
 The snapshot helper never launches or foregrounds Terminal Brain. Use `--brief-markdown` for the plain-language value read, `--today` for the ranked Decision Lane, `--projects` for Project Memory, `--deck` for app-aligned action-card JSON, `--deck-markdown` for paste-ready cards, `--latest-pack` for the newest context pack Markdown, and `--output` for handoff files.
-The handoff helper also never launches or foregrounds Terminal Brain. It writes the Operator Brief, Decision Lane, Operator Deck, and latest context pack into one Markdown file.
+The handoff helper also never launches or foregrounds Terminal Brain. It writes the Operator Brief, Decision Lane, Operator Deck, Project Memory, and latest context pack into one Markdown file.
 
 Install the app into `~/Applications`:
 

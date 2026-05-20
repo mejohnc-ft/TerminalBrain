@@ -17,7 +17,7 @@ When Terminal Brain is already running and the user asks for useful work, start 
 ./mac-app/scripts/handoff.zsh --output /tmp/terminal-brain-handoff.md
 ```
 
-The handoff combines the Operator Brief, Decision Lane, Operator Deck, and latest context pack. It never launches or foregrounds Terminal Brain. If using MCP, prefer `terminal_brain_handoff_markdown` as the first read, then use the Decision Lane, Operator Deck, and Start Work tools for follow-up actions.
+The handoff combines the Operator Brief, Decision Lane, Operator Deck, Project Memory, and latest context pack. It never launches or foregrounds Terminal Brain. If using MCP, prefer `terminal_brain_handoff_markdown` as the first read, then use the Decision Lane, Project Memory, Operator Deck, and Start Work tools for follow-up actions.
 
 ## Foregrounding Policy
 

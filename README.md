@@ -34,7 +34,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Latest context pack API/MCP/CLI/Shortcut surface for opening, copying, or handing off the newest agent-ready artifact.
 - Prompt-ready Decision Lane Markdown for the ranked Today action queue and project signals.
 - Prompt-ready Project Memory Markdown for active work surfaces, recommended actions, context packs, and Oracle reads.
-- Single-file handoff API/MCP/CLI generator that combines the Operator Brief, Decision Lane, Operator Deck, and latest context pack.
+- Single-file handoff API/MCP/CLI generator that combines the Operator Brief, Decision Lane, Operator Deck, Project Memory, and latest context pack.
 - Setup readiness checklist for app, MCP config, workspace paths, sync, memory, Mission Control, prompt safety, and Oracle writeback.
 - Oracle ask flow with deterministic local fallback and a Focus-grounded ask flow for the current best action.
 - Mission-backed retrieval and synthesis when Mission Control is reachable.
@@ -97,7 +97,7 @@ To print or copy the current operator snapshot from an already-running app:
 ```
 
 The snapshot helper never launches or foregrounds Terminal Brain. `--brief-markdown` prints the plain-language Operator Brief, `--today` prints the ranked Decision Lane, `--projects` prints Project Memory, `--deck` returns the four Operator Deck cards as JSON, and `--deck-markdown` prints the same deck in prompt-ready Markdown. `--output` is useful for handoffs without touching the clipboard.
-The handoff helper also never launches or foregrounds Terminal Brain. It writes the Operator Brief, Decision Lane, Operator Deck, and latest context pack into one Markdown file.
+The handoff helper also never launches or foregrounds Terminal Brain. It writes the Operator Brief, Decision Lane, Operator Deck, Project Memory, and latest context pack into one Markdown file.
 
 The built app is emitted to:
 

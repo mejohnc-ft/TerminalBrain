@@ -94,6 +94,7 @@ curl -fsS "$API/handoff/markdown" | ruby -e '
   abort("handoff missing operator brief") unless text.include?("# Terminal Brain Operator Brief")
   abort("handoff missing decision lane") unless text.include?("# Terminal Brain Decision Lane")
   abort("handoff missing operator deck") unless text.include?("# Terminal Brain Operator Deck")
+  abort("handoff missing project memory") unless text.include?("# Terminal Brain Project Memory")
   abort("handoff missing latest context pack") unless text.include?("# Latest Context Pack")
   puts "handoff ok chars=#{text.length}"
 '
@@ -163,6 +164,7 @@ printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal
       abort("mcp handoff missing operator brief") unless text.include?("# Terminal Brain Operator Brief")
       abort("mcp handoff missing decision lane") unless text.include?("# Terminal Brain Decision Lane")
       abort("mcp handoff missing operator deck") unless text.include?("# Terminal Brain Operator Deck")
+      abort("mcp handoff missing project memory") unless text.include?("# Terminal Brain Project Memory")
       puts "mcp handoff ok chars=#{text.length}"
     '
 
