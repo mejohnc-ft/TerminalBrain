@@ -56,6 +56,7 @@ curl -fsS "$API/snapshot/markdown" | ruby -e '
   abort("markdown missing focus") unless text.include?("## Focus")
   abort("markdown missing radar") unless text.include?("## Radar")
   abort("markdown missing blindspot brief") unless text.include?("## Blindspot Brief")
+  abort("markdown missing idea pulse") unless text.include?("## Idea Pulse")
   puts "markdown ok chars=#{text.length}"
 '
 
@@ -88,6 +89,26 @@ curl -fsS "$API/blindspots/markdown" | ruby -e '
   puts "blindspot brief ok chars=#{text.length}"
 '
 
+curl -fsS "$API/ideas/markdown" | ruby -e '
+  text = STDIN.read
+  abort("idea pulse missing title") unless text.include?("# Terminal Brain Idea Pulse")
+  abort("idea pulse missing scoring") unless text.include?("- Score:")
+  abort("idea pulse missing next prompt") unless text.include?("- Next prompt:")
+  puts "idea pulse ok chars=#{text.length}"
+'
+
+curl -fsS -X POST "$API/ideas/ask" \
+  -H "content-type: application/json" \
+  -d '{"question":"What is the cheapest test for the top idea?"}' \
+  | ruby -rjson -e '
+      j=JSON.parse(STDIN.read)
+      abort("idea ask failed") if j["ok"] == false
+      abort("idea ask missing answer") if j["answer"].to_s.empty?
+      abort("idea ask missing grounded question") if j["groundedQuestion"].to_s.empty?
+      abort("idea ask missing item") unless j["idea"].is_a?(Hash)
+      puts "idea ask ok mode=#{j["mode"]}"
+    '
+
 curl -fsS "$API/projects/markdown" | ruby -e '
   text = STDIN.read
   abort("project memory missing title") unless text.include?("# Terminal Brain Project Memory")
@@ -102,6 +123,7 @@ curl -fsS "$API/handoff/markdown" | ruby -e '
   abort("handoff missing contents") unless text.include?("## Contents")
   abort("handoff missing operator brief") unless text.include?("# Terminal Brain Operator Brief")
   abort("handoff missing blindspot brief") unless text.include?("# Terminal Brain Blindspot Brief")
+  abort("handoff missing idea pulse") unless text.include?("# Terminal Brain Idea Pulse")
   abort("handoff missing decision lane") unless text.include?("# Terminal Brain Decision Lane")
   abort("handoff missing operator deck") unless text.include?("# Terminal Brain Operator Deck")
   abort("handoff missing project memory") unless text.include?("# Terminal Brain Project Memory")
@@ -130,6 +152,7 @@ printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal
       abort("mcp markdown missing title") unless text.include?("# Terminal Brain Snapshot")
       abort("mcp markdown missing focus") unless text.include?("## Focus")
       abort("mcp markdown missing blindspot brief") unless text.include?("## Blindspot Brief")
+      abort("mcp markdown missing idea pulse") unless text.include?("## Idea Pulse")
       puts "mcp markdown ok chars=#{text.length}"
     '
 
@@ -166,6 +189,30 @@ printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal
       puts "mcp blindspot brief ok chars=#{text.length}"
     '
 
+printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_ideas_markdown","arguments":{}}}\n' \
+  | node "$ROOT/mcp-server/server.mjs" \
+  | ruby -rjson -e '
+      line = STDIN.each_line.find { |l| l.include?("\"result\"") } || "{}"
+      response = JSON.parse(line)
+      text = response.dig("result", "content", 0, "text").to_s
+      abort("mcp idea pulse missing title") unless text.include?("# Terminal Brain Idea Pulse")
+      abort("mcp idea pulse missing scoring") unless text.include?("- Score:")
+      abort("mcp idea pulse missing next prompt") unless text.include?("- Next prompt:")
+      puts "mcp idea pulse ok chars=#{text.length}"
+    '
+
+printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_idea_ask","arguments":{"question":"What is the cheapest test for the top idea?"}}}\n' \
+  | node "$ROOT/mcp-server/server.mjs" \
+  | ruby -rjson -e '
+      line = STDIN.each_line.find { |l| l.include?("\"result\"") } || "{}"
+      response = JSON.parse(line)
+      text = response.dig("result", "content", 0, "text").to_s
+      payload = JSON.parse(text)
+      abort("mcp idea ask missing answer") if payload["answer"].to_s.empty?
+      abort("mcp idea ask missing item") unless payload["idea"].is_a?(Hash)
+      puts "mcp idea ask ok mode=#{payload["mode"]}"
+    '
+
 printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_projects_markdown","arguments":{}}}\n' \
   | node "$ROOT/mcp-server/server.mjs" \
   | ruby -rjson -e '
@@ -186,6 +233,7 @@ printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal
       abort("mcp handoff missing contents") unless text.include?("## Contents")
       abort("mcp handoff missing operator brief") unless text.include?("# Terminal Brain Operator Brief")
       abort("mcp handoff missing blindspot brief") unless text.include?("# Terminal Brain Blindspot Brief")
+      abort("mcp handoff missing idea pulse") unless text.include?("# Terminal Brain Idea Pulse")
       abort("mcp handoff missing decision lane") unless text.include?("# Terminal Brain Decision Lane")
       abort("mcp handoff missing operator deck") unless text.include?("# Terminal Brain Operator Deck")
       abort("mcp handoff missing project memory") unless text.include?("# Terminal Brain Project Memory")
