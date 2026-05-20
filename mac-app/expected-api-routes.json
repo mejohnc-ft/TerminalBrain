@@ -10,6 +10,7 @@
   "GET /context-packs/latest",
   "GET /context-packs/latest/markdown",
   "GET /today",
+  "GET /today/markdown",
   "GET /focus",
   "GET /operator-brief",
   "GET /operator-brief/markdown",

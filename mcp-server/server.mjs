@@ -81,6 +81,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_today_markdown",
+    description: "Get the Daily Command Center as a prompt-ready Decision Lane with ranked actions and project signals.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_focus",
     description: "Get the single best current Terminal Brain focus item: one action, reason, score, and candidates.",
     inputSchema: {
@@ -429,6 +438,8 @@ async function callTool(name, args = {}) {
       return api("/briefing");
     case "terminal_brain_today":
       return api("/today");
+    case "terminal_brain_today_markdown":
+      return api("/today/markdown", { rawText: true });
     case "terminal_brain_focus":
       return api("/focus");
     case "terminal_brain_operator_brief":

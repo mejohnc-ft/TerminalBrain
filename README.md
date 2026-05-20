@@ -32,6 +32,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Prompt-ready Operator Deck Markdown for agent handoffs and quick paste workflows.
 - Operator Deck action tool for agents to mark directly actionable Radar and Oracle commit cards without opening the app.
 - Latest context pack API/MCP/CLI/Shortcut surface for opening, copying, or handing off the newest agent-ready artifact.
+- Prompt-ready Decision Lane Markdown for the ranked Today action queue and project signals.
 - Single-file handoff API/MCP/CLI generator that combines the Operator Deck and latest context pack.
 - Setup readiness checklist for app, MCP config, workspace paths, sync, memory, Mission Control, prompt safety, and Oracle writeback.
 - Oracle ask flow with deterministic local fallback and a Focus-grounded ask flow for the current best action.
@@ -84,6 +85,7 @@ To print or copy the current operator snapshot from an already-running app:
 ./mac-app/scripts/snapshot.zsh --markdown
 ./mac-app/scripts/snapshot.zsh --json
 ./mac-app/scripts/snapshot.zsh --brief-markdown
+./mac-app/scripts/snapshot.zsh --today
 ./mac-app/scripts/snapshot.zsh --deck
 ./mac-app/scripts/snapshot.zsh --deck-markdown
 ./mac-app/scripts/snapshot.zsh --latest-pack
@@ -92,7 +94,7 @@ To print or copy the current operator snapshot from an already-running app:
 ./mac-app/scripts/handoff.zsh --output /tmp/terminal-brain-handoff.md
 ```
 
-The snapshot helper never launches or foregrounds Terminal Brain. `--brief-markdown` prints the plain-language Operator Brief, `--deck` returns the four Operator Deck cards as JSON, and `--deck-markdown` prints the same deck in prompt-ready Markdown. `--output` is useful for handoffs without touching the clipboard.
+The snapshot helper never launches or foregrounds Terminal Brain. `--brief-markdown` prints the plain-language Operator Brief, `--today` prints the ranked Decision Lane, `--deck` returns the four Operator Deck cards as JSON, and `--deck-markdown` prints the same deck in prompt-ready Markdown. `--output` is useful for handoffs without touching the clipboard.
 The handoff helper also never launches or foregrounds Terminal Brain. It writes the Operator Brief, Operator Deck, and latest context pack into one Markdown file.
 
 The built app is emitted to:

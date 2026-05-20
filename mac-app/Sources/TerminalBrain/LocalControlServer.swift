@@ -77,6 +77,8 @@ final class LocalControlServer {
             return .text(200, ControlSnapshot.latestContextPackMarkdown())
         case ("GET", "/today"):
             return .json(200, await TodaySnapshot.today())
+        case ("GET", "/today/markdown"):
+            return .text(200, await TodaySnapshot.markdown())
         case ("GET", "/focus"):
             return .json(200, await FocusSnapshot.focus())
         case ("GET", "/operator-brief"):
@@ -1138,6 +1140,47 @@ enum TodaySnapshot {
             "reviewCount": commits.filter { ($0["status"] as? String) == "new" }.count,
             "delegatedCount": commits.filter { ($0["status"] as? String) == "delegated" }.count
         ]
+    }
+
+    static func markdown() async -> String {
+        let payload = await today()
+        let commands = (payload["commands"] as? [[String: Any]]) ?? []
+        let projects = (payload["projects"] as? [[String: Any]]) ?? []
+        var lines: [String] = [
+            "# Terminal Brain Decision Lane",
+            "",
+            "Generated: \(payload["generatedAt"] as? String ?? ISO8601DateFormatter().string(from: Date()))",
+            "",
+            "Use this as the ranked action queue. Prefer the first item unless new evidence changes the priority.",
+            ""
+        ]
+
+        lines.append("## Ranked Decisions")
+        for (index, command) in commands.prefix(8).enumerated() {
+            lines.append("### \(index + 1). \(command["title"] as? String ?? "Decision")")
+            lines.append("- Priority: \(command["priority"] as? String ?? "Next")")
+            lines.append("- Action: \(command["action"] as? String ?? "Act")")
+            lines.append("- Project: \(command["project"] as? String ?? "General Brain")")
+            lines.append("- Detail: \(command["detail"] as? String ?? "")")
+            if let query = command["query"] as? String, !query.isEmpty {
+                lines.append("- Query: \(query)")
+            }
+            lines.append("")
+        }
+        if commands.isEmpty {
+            lines.append("- No command items are available. Ask the Focus Oracle what changed.")
+            lines.append("")
+        }
+
+        lines.append("## Project Signals")
+        for project in projects.prefix(5) {
+            lines.append("- \(project["name"] as? String ?? "Project"): \(project["recommendedAction"] as? String ?? "Open project memory.")")
+        }
+        if projects.isEmpty {
+            lines.append("- No project memory pages are available yet.")
+        }
+
+        return lines.joined(separator: "\n")
     }
 
     private static func command(id: String, title: String, detail: String, priority: String, action: String, project: String, symbol: String, query: String) -> [String: Any] {

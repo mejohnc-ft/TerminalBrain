@@ -95,6 +95,7 @@ Print or copy the current operator snapshot from an already-running app:
 ./mac-app/scripts/snapshot.zsh --markdown
 ./mac-app/scripts/snapshot.zsh --json
 ./mac-app/scripts/snapshot.zsh --brief-markdown
+./mac-app/scripts/snapshot.zsh --today
 ./mac-app/scripts/snapshot.zsh --deck
 ./mac-app/scripts/snapshot.zsh --deck-markdown
 ./mac-app/scripts/snapshot.zsh --latest-pack
@@ -103,7 +104,7 @@ Print or copy the current operator snapshot from an already-running app:
 ./mac-app/scripts/handoff.zsh --output /tmp/terminal-brain-handoff.md
 ```
 
-The snapshot helper never launches or foregrounds Terminal Brain. Use `--brief-markdown` for the plain-language value read, `--deck` for app-aligned action-card JSON, `--deck-markdown` for paste-ready cards, `--latest-pack` for the newest context pack Markdown, and `--output` for handoff files.
+The snapshot helper never launches or foregrounds Terminal Brain. Use `--brief-markdown` for the plain-language value read, `--today` for the ranked Decision Lane, `--deck` for app-aligned action-card JSON, `--deck-markdown` for paste-ready cards, `--latest-pack` for the newest context pack Markdown, and `--output` for handoff files.
 The handoff helper also never launches or foregrounds Terminal Brain. It writes the Operator Brief, Operator Deck, and latest context pack into one Markdown file.
 
 Install the app into `~/Applications`:
@@ -152,6 +153,7 @@ Routes:
 - `GET /radar`
 - `POST /radar/disposition`
 - `GET /today`
+- `GET /today/markdown`
 - `GET /projects`
 - `GET /briefing`
 - `GET /permissions`

@@ -73,6 +73,13 @@ curl -fsS "$API/operator-brief/markdown" | ruby -e '
   puts "operator brief markdown ok chars=#{text.length}"
 '
 
+curl -fsS "$API/today/markdown" | ruby -e '
+  text = STDIN.read
+  abort("decision lane missing title") unless text.include?("# Terminal Brain Decision Lane")
+  abort("decision lane missing ranked decisions") unless text.include?("## Ranked Decisions")
+  puts "decision lane ok chars=#{text.length}"
+'
+
 curl -fsS "$API/handoff/markdown" | ruby -e '
   text = STDIN.read
   abort("handoff missing title") unless text.include?("# Terminal Brain Handoff")
@@ -115,6 +122,17 @@ printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal
       abort("mcp operator brief missing title") unless text.include?("# Terminal Brain Operator Brief")
       abort("mcp operator brief missing value section") unless text.include?("## What matters:")
       puts "mcp operator brief ok chars=#{text.length}"
+    '
+
+printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_today_markdown","arguments":{}}}\n' \
+  | node "$ROOT/mcp-server/server.mjs" \
+  | ruby -rjson -e '
+      line = STDIN.each_line.find { |l| l.include?("\"result\"") } || "{}"
+      response = JSON.parse(line)
+      text = response.dig("result", "content", 0, "text").to_s
+      abort("mcp decision lane missing title") unless text.include?("# Terminal Brain Decision Lane")
+      abort("mcp decision lane missing ranked decisions") unless text.include?("## Ranked Decisions")
+      puts "mcp decision lane ok chars=#{text.length}"
     '
 
 printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_handoff_markdown","arguments":{}}}\n' \
