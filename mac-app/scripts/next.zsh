@@ -13,7 +13,7 @@ Prints the next useful Terminal Brain move without launching the app.
 
 Behavior:
   - If Terminal Brain is already reachable, print Start Here.
-  - If Terminal Brain is closed, print the useful closed-app loop and runtime status.
+  - If Terminal Brain is closed, print the local Oracle Brief and closed-app loop.
 
 This script never launches, foregrounds, quits, or controls Terminal Brain.
 EOF
@@ -35,31 +35,55 @@ if [[ -n "$health" ]]; then
   exit 0
 fi
 
+demote_oracle() {
+  awk '
+    /^# Terminal Brain Oracle Brief$/ { next }
+    /^## Runtime Truth$/ { skip_runtime = 1; next }
+    skip_runtime { next }
+    /^## / { print "### " substr($0, 4); next }
+    /^### / { print "#### " substr($0, 5); next }
+    { print }
+  '
+}
+
 cat <<EOF
 # Terminal Brain Next
 
-Terminal Brain is not currently reachable at $API.
+Terminal Brain is not currently reachable at $API, so this stays local and closed-app.
 
 ## Next Move
 
-Use the closed-app loop now:
+Start with the local oracle read:
 
 \`\`\`zsh
 make oracle-brief
+\`\`\`
+
+## Oracle Read
+
+EOF
+
+TERMINAL_BRAIN_API="$API" "$ROOT/mac-app/scripts/oracle-brief.zsh" | demote_oracle
+
+cat <<EOF
+
+## Closed-App Loop
+
+\`\`\`zsh
 make work-block
 make bubble-up
 make agent-prompt
 make outcome TITLE="..." OUTCOME="..." PROJECT="Terminal Brain" NEXT="..."
 \`\`\`
 
-Open Terminal Brain manually only when you want the UI/API active. Then run:
+Open Terminal Brain manually only when you want the UI/API active, then run:
 
 \`\`\`zsh
 make start-here
 \`\`\`
 
-## Runtime State
+## Guardrail
 
+- This command did not launch or foreground Terminal Brain.
+- It read local artifacts and status only.
 EOF
-
-"$ROOT/mac-app/scripts/status.zsh"

@@ -121,6 +121,7 @@ require_in_file "$ROOT/mac-app/scripts/support-bundle.zsh" 'did not launch, fore
 require_in_file "$ROOT/mac-app/scripts/first-minute.zsh" 'Terminal Brain First Minute' "non-launching first minute"
 require_in_file "$ROOT/mac-app/scripts/first-minute.zsh" 'prove-value.zsh' "first minute includes proof"
 require_in_file "$ROOT/mac-app/scripts/next.zsh" 'make oracle-brief' "non-launching next move Oracle Brief"
+require_in_file "$ROOT/mac-app/scripts/next.zsh" 'Oracle Read' "non-launching next move inline Oracle Read"
 require_in_file "$ROOT/mac-app/scripts/next.zsh" 'make work-block' "non-launching next move Work Block"
 require_in_file "$ROOT/mac-app/scripts/next.zsh" 'make bubble-up' "non-launching next move Bubble Up"
 require_in_file "$ROOT/mac-app/scripts/next.zsh" 'make agent-prompt' "non-launching next move Agent Prompt"
