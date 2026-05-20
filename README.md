@@ -9,13 +9,13 @@ For the shortest value path, start with [`START-HERE.md`](START-HERE.md).
 Start here:
 
 ```zsh
+make work-block
+make next
 make now
 make first-minute
 make prove-value
 make value
 make bubble-up
-make work-block
-make next
 make doctor
 make processes
 ```
@@ -26,11 +26,12 @@ Common commands:
 
 ```zsh
 make
+make work-block
+make next
 make first-minute
 make now
 make prove-value
 make value
-make next
 make doctor
 make audit
 make status

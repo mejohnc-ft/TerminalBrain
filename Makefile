@@ -2,11 +2,12 @@
 
 help:
 	@echo "Terminal Brain commands:"
+	@echo "  make work-block    Non-launching work block: pull forward, triage, close loop"
+	@echo "  make next          Non-launching next move; prints Start Here if app is reachable"
 	@echo "  make first-minute  Non-launching one-command value path and working proof"
 	@echo "  make now           Non-launching one-page orientation: value, next action, process truth, readiness"
 	@echo "  make prove-value   Non-launching proof of Oracle Brief -> Agent Prompt -> Outcome"
 	@echo "  make value         Non-launching value read; prints live Value Brief if app is reachable"
-	@echo "  make next          Non-launching next move; prints Start Here if app is reachable"
 	@echo "  make oracle-brief  Non-launching direct read: next moves, missing signal, cheap test, handoff"
 	@echo "  make doctor        Non-launching readiness audit with concrete setup warnings"
 	@echo "  make audit         Non-launching capability audit and evidence checklist"
@@ -22,7 +23,6 @@ help:
 	@echo "  make review        Non-launching Oracle Inbox review queue"
 	@echo "  make review-status ID=... STATUS=accepted"
 	@echo "  make bubble-up     Non-launching signals that should be pulled forward"
-	@echo "  make work-block    Non-launching work block: pull forward, triage, close loop"
 	@echo "  make outcome TITLE=... OUTCOME=... PROJECT=... Commit structured outcome"
 	@echo "  make build         Build the macOS app without launching it"
 	@echo "  make install       Copy the app to ~/Applications without launching it"

@@ -4,13 +4,27 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 
 ## One-Block Loop
 
-1. Read the current value path:
+1. Start with the current work block:
+
+   ```zsh
+   make work-block
+   ```
+
+   `make work-block` gives one immediate pull-forward, triage, and close-loop surface.
+
+   ```zsh
+   make next
+   ```
+
+   `make next` gives the safest current path without launching or foregrounding the app.
+
+   To prove the loop in a temporary workspace, run:
 
    ```zsh
    make prove-value
    ```
 
-   `make prove-value` demonstrates the full closed-app loop in a temporary workspace without touching the real vault.
+   `make prove-value` demonstrates the full closed-app loop without touching the real vault.
 
    ```zsh
    make now
@@ -35,16 +49,6 @@ Terminal Brain is useful when it turns scattered local context into one work blo
    ```
 
    `make bubble-up` surfaces neglected ideas, delegated loops, and repeated project pressure from the Oracle Inbox.
-
-   ```zsh
-   make work-block
-   ```
-
-   `make work-block` gives one immediate pull-forward, triage, and close-loop surface.
-
-   ```zsh
-   make next
-   ```
 
    To read only status, run:
 
