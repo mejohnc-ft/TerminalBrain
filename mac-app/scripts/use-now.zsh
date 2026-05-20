@@ -82,7 +82,7 @@ demote_work_block() {
       item_blank = 0
     }
     /^## Next Clean Move$/ { skip_next_clean = 1; next }
-    skip_next_clean && /^## Broader Queue$/ { skip_next_clean = 0; print "### Broader Queue"; next }
+    skip_next_clean && /^## Broader Queue$/ { skip_next_clean = 0; skip_completed = 0; print "### Broader Queue"; next }
     skip_next_clean { next }
     /^## Guardrail$/ { skip = 1; next }
     skip { next }
@@ -103,6 +103,9 @@ demote_work_block() {
 one_move_from_work_block() {
   awk '
     /^## Pull Forward$/ { pull_forward = 1; next }
+    pull_forward && /^## Completed Evidence$/ { pull_forward = 0; next }
+    pull_forward && /^## Next Clean Move$/ { pull_forward = 0; next }
+    pull_forward && /^## Broader Queue$/ { pull_forward = 0; next }
     pull_forward && /^```zsh$/ { in_code = 1; note = ""; next }
     pull_forward && in_code && /^```$/ { in_code = 0; note = ""; next }
     pull_forward && in_code && /^NOTE=/ { note = $0; next }
