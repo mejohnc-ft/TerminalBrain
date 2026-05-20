@@ -91,6 +91,7 @@ curl -fsS "$API/handoff/markdown" | ruby -e '
   text = STDIN.read
   abort("handoff missing title") unless text.include?("# Terminal Brain Handoff")
   abort("handoff missing operating instructions") unless text.include?("## How To Use This")
+  abort("handoff missing contents") unless text.include?("## Contents")
   abort("handoff missing operator brief") unless text.include?("# Terminal Brain Operator Brief")
   abort("handoff missing decision lane") unless text.include?("# Terminal Brain Decision Lane")
   abort("handoff missing operator deck") unless text.include?("# Terminal Brain Operator Deck")
@@ -161,6 +162,7 @@ printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal
       response = JSON.parse(line)
       text = response.dig("result", "content", 0, "text").to_s
       abort("mcp handoff missing title") unless text.include?("# Terminal Brain Handoff")
+      abort("mcp handoff missing contents") unless text.include?("## Contents")
       abort("mcp handoff missing operator brief") unless text.include?("# Terminal Brain Operator Brief")
       abort("mcp handoff missing decision lane") unless text.include?("# Terminal Brain Decision Lane")
       abort("mcp handoff missing operator deck") unless text.include?("# Terminal Brain Operator Deck")
