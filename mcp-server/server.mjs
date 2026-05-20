@@ -23,6 +23,20 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_process_map_markdown",
+    description: "Get a non-launching process map for Terminal Brain, Codex sessions, MCP children, brain-kernel children, brain-console helpers, Drafts, launchctl, and API reachability.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        details: {
+          type: "boolean",
+          description: "Include matching process rows for debugging. Defaults to false."
+        }
+      },
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_next_markdown",
     description: "Get the safest next move as Markdown. Returns Start Here when the app is reachable, otherwise returns non-launching runtime status and the manual next step.",
     inputSchema: {
@@ -964,6 +978,28 @@ function auditMarkdown() {
   ].join("\n");
 }
 
+function processMapMarkdown({ details = false } = {}) {
+  const args = [join(ROOT, "mac-app", "scripts", "processes.zsh")];
+  if (details === true) {
+    args.push("--details");
+  }
+  const result = runCommand("zsh", args, { timeout: 10000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Process Map",
+    "",
+    "Process map failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 async function valueNowMarkdown() {
   const health = await apiHealth();
   if (health.reachable) {
@@ -1031,6 +1067,8 @@ async function callTool(name, args = {}) {
   switch (name) {
     case "terminal_brain_runtime_status":
       return runtimeStatus();
+    case "terminal_brain_process_map_markdown":
+      return processMapMarkdown(args);
     case "terminal_brain_next_markdown":
       return nextMarkdown();
     case "terminal_brain_doctor_markdown":

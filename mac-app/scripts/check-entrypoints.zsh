@@ -45,6 +45,10 @@ mcp_value_output="$(call_mcp_tool terminal_brain_value_now_markdown)"
 require_contains "$mcp_value_output" '# Terminal Brain Value Now' "MCP value title"
 require_contains "$mcp_value_output" 'What You Can Get From It' "MCP value explanation"
 
+mcp_process_output="$(call_mcp_tool terminal_brain_process_map_markdown)"
+require_contains "$mcp_process_output" '# Terminal Brain Process Map' "MCP process map title"
+require_contains "$mcp_process_output" 'did not launch, foreground, quit, kill, or control anything' "MCP process map guardrail"
+
 mcp_doctor_output="$(call_mcp_tool terminal_brain_doctor_markdown)"
 require_contains "$mcp_doctor_output" '# Terminal Brain Doctor' "MCP doctor title"
 require_contains "$mcp_doctor_output" 'MCP tool contract valid' "MCP doctor contract"

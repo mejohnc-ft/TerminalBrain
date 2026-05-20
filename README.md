@@ -15,7 +15,7 @@ make doctor
 make processes
 ```
 
-These commands do not launch or foreground Terminal Brain. `make processes` is the quickest answer for "what is still going" across Terminal Brain, Codex, MCP, kernel, Drafts, launchctl, and the localhost API.
+These commands do not launch or foreground Terminal Brain. `make processes` and MCP `terminal_brain_process_map_markdown` are the quickest answers for "what is still going" across Terminal Brain, Codex, MCP, kernel, Drafts, launchctl, and the localhost API.
 
 Common commands:
 
@@ -60,7 +60,7 @@ Plain `make` prints help. `make verify`, `make status`, `make processes`, `make 
 - Oracle Digest that turns current signals into a Notice / Decide / Test / Create / Avoid read for the next work block, available in the app, command palette, App Shortcuts, CLI, API, and MCP.
 - Start Here app/API/MCP/CLI/App Shortcut surface that gives a one-block path from digest to agent prompt to context pack to structured outcome writeback, with direct copy actions in the app, menu bar, command palette, and Shortcuts.
 - Runtime Status, Doctor, Audit, Value, and Next Move for humans and agents: `make value`, `make next`, `make status`, `make doctor`, `make audit`, `terminal_brain_value_now_markdown`, `terminal_brain_next_markdown`, `terminal_brain_doctor_markdown`, `terminal_brain_audit_markdown`, and `terminal_brain_runtime_status` report what value is available, what to do, what evidence exists, repo, CI, process, launchctl, app install, MCP contract, agent config, and API state without requiring or launching the app.
-- Process Map for "what is still going": `make processes` separates real focus stealers from agent runtime noise by listing Terminal Brain app state, launchctl, API reachability, Codex sessions, MCP children, brain-kernel children, brain-console helpers, and Drafts processes without launching or killing anything.
+- Process Map for "what is still going": `make processes` and `terminal_brain_process_map_markdown` separate real focus stealers from agent runtime noise by listing Terminal Brain app state, launchctl, API reachability, Codex sessions, MCP children, brain-kernel children, brain-console helpers, and Drafts processes without launching or killing anything.
 - Native Value Now landing surface so the app opens on the plain-language value read, fastest useful path, and outcome close loop instead of a metrics-first dashboard.
 - Agent Prompt generator that turns the Oracle Digest and Value Brief into a concise Codex/Claude execution prompt with acceptance criteria and guardrails.
 - Structured Outcome commit endpoint/tool/CLI so agents can write back what changed, evidence, and next action without launching the app; outcome notes enter memory as accepted instead of unresolved review items.
