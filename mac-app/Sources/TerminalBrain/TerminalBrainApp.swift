@@ -53,6 +53,15 @@ struct TerminalBrainApp: App {
         }
 
         MenuBarExtra("Terminal Brain", systemImage: "brain.head.profile") {
+            Text("Focus: \(model.focusItem.title)")
+            Button("Ask Current Focus") {
+                Task { await model.askFocusOracle(model.focusItem) }
+            }
+            Button("Build Focus Pack") {
+                model.workQuery = model.focusItem.query.isEmpty ? model.focusItem.title : model.focusItem.query
+                Task { await model.startWork() }
+            }
+            Divider()
             Button("Refresh Status") {
                 Task { await model.refresh() }
             }
