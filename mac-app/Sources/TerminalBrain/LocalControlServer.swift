@@ -87,6 +87,10 @@ final class LocalControlServer {
             return .json(200, await BlindspotSnapshot.blindspots())
         case ("GET", "/blindspots/markdown"):
             return .text(200, await BlindspotSnapshot.markdown())
+        case ("POST", "/blindspots/ask"):
+            let id = (request.jsonBody?["id"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            let question = (request.jsonBody?["question"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            return .json(200, await BlindspotSnapshot.ask(id: id, question: question))
         case ("GET", "/operator-brief"):
             return .json(200, await OperatorBriefSnapshot.brief())
         case ("GET", "/operator-brief/markdown"):
@@ -620,7 +624,7 @@ enum OracleSnapshot {
             "",
             "Current Terminal Brain implementation:",
             "- Native macOS app with local control API on http://127.0.0.1:8765.",
-            "- Current API routes: /health, /status, /setup, /focus, /blindspots, /blindspots/markdown, /operator-deck, /operator-deck/markdown, /operator-deck/action, /handoff/markdown, /context-packs/latest, /context-packs/latest/markdown, /radar, /radar/disposition, /sources, /briefing, /permissions, /oracle/brief, /oracle/items, /oracle/ask, /oracle/commit, /sync, /start-work.",
+            "- Current API routes: /health, /status, /setup, /focus, /blindspots, /blindspots/markdown, /blindspots/ask, /operator-deck, /operator-deck/markdown, /operator-deck/action, /handoff/markdown, /context-packs/latest, /context-packs/latest/markdown, /radar, /radar/disposition, /sources, /briefing, /permissions, /oracle/brief, /oracle/items, /oracle/ask, /oracle/commit, /sync, /start-work.",
             "- Oracle ask already combines local deterministic signals, Mission retrieval, Mission workbench synthesis, citations, supporting items, and fallback behavior.",
             "- Oracle commit can write synthesized decisions and outcomes into the Obsidian-backed Oracle Inbox.",
             "- MCP proxy can call Terminal Brain status, setup, focus, blindspots, operator deck, operator deck action, radar, radar triage, sources, briefing, permissions, sync, start work, oracle brief, oracle items, oracle ask, oracle commit, and oracle review status.",
@@ -1838,6 +1842,45 @@ enum BlindspotSnapshot {
         return lines.joined(separator: "\n")
     }
 
+    static func ask(id: String, question: String) async -> [String: Any] {
+        let payload = await blindspots()
+        let items = (payload["items"] as? [[String: Any]]) ?? []
+        guard let item = selectedItem(id: id, items: items) ?? items.first else {
+            return [
+                "ok": false,
+                "error": "No blindspot items are available"
+            ]
+        }
+
+        let title = item["title"] as? String ?? "Blindspot"
+        let project = item["project"] as? String ?? "General Brain"
+        let resolvedQuestion = question.ifEmpty(item["question"] as? String ?? "What am I not considering?")
+        let groundedQuestion = [
+            resolvedQuestion,
+            "",
+            "Current Terminal Brain blindspot:",
+            "Title: \(title)",
+            "Project: \(project)",
+            "Score: \(item["score"] as? Int ?? 0)",
+            "Why: \(item["why"] as? String ?? "")",
+            "Recommended next action: \(item["nextAction"] as? String ?? "Ask Oracle")",
+            "Source: \(item["source"] as? String ?? "") \(item["sourceID"] as? String ?? "")"
+        ].joined(separator: "\n")
+
+        let oracle = await OracleSnapshot.ask(question: groundedQuestion)
+        var result = oracle
+        result["blindspot"] = item
+        result["question"] = resolvedQuestion
+        result["groundedQuestion"] = groundedQuestion
+        result["mode"] = "blindspot-\(oracle["mode"] as? String ?? "local")"
+        result["commitSuggestion"] = [
+            "title": "Blindspot - \(title)",
+            "project": project,
+            "tags": ["terminal-brain", "blindspot", "oracle"]
+        ]
+        return result
+    }
+
     private static func card(id: String, title: String, why: String, question: String, nextAction: String, project: String, source: String, sourceID: String, score: Int, symbol: String, path: String) -> [String: Any] {
         [
             "id": id,
@@ -1864,6 +1907,15 @@ enum BlindspotSnapshot {
             output.append(item)
         }
         return output
+    }
+
+    private static func selectedItem(id: String, items: [[String: Any]]) -> [String: Any]? {
+        guard !id.isEmpty else { return nil }
+        return items.first {
+            ($0["id"] as? String) == id ||
+            ($0["sourceID"] as? String) == id ||
+            ($0["title"] as? String) == id
+        }
     }
 }
 

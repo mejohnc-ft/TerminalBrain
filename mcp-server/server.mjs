@@ -117,6 +117,51 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_blindspot_ask",
+    description: "Ask Terminal Brain Oracle about the top Blindspot Brief item or a selected blindspot id.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: {
+          type: "string",
+          description: "Optional blindspot id, sourceID, or title. Defaults to the top blindspot."
+        },
+        question: {
+          type: "string",
+          description: "Optional question. Defaults to the blindspot's own question."
+        }
+      },
+      additionalProperties: false
+    }
+  },
+  {
+    name: "terminal_brain_blindspot_ask_commit",
+    description: "Ask Terminal Brain Oracle about a Blindspot Brief item, then commit the answer into the Oracle Inbox.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: {
+          type: "string",
+          description: "Optional blindspot id, sourceID, or title. Defaults to the top blindspot."
+        },
+        question: {
+          type: "string",
+          description: "Optional question. Defaults to the blindspot's own question."
+        },
+        project: {
+          type: "string",
+          description: "Optional project override for the committed read."
+        },
+        tags: {
+          type: "array",
+          items: { type: "string" },
+          description: "Optional additional tags."
+        }
+      },
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_operator_brief",
     description: "Get the plain-language Operator Brief: what matters, why it matters, what not to miss, and the next artifact.",
     inputSchema: {
@@ -540,6 +585,28 @@ async function callTool(name, args = {}) {
       return api("/blindspots");
     case "terminal_brain_blindspots_markdown":
       return api("/blindspots/markdown", { rawText: true });
+    case "terminal_brain_blindspot_ask":
+      return api("/blindspots/ask", { method: "POST", body: { id: args.id || "", question: args.question || "" } });
+    case "terminal_brain_blindspot_ask_commit": {
+      const asked = await api("/blindspots/ask", {
+        method: "POST",
+        body: { id: args.id || "", question: args.question || "" }
+      });
+      const suggestion = asked.commitSuggestion || {};
+      const committed = await api("/oracle/commit", {
+        method: "POST",
+        body: {
+          title: suggestion.title || `Blindspot - ${asked.question || "Oracle Read"}`,
+          content: asked.answer || "",
+          question: asked.groundedQuestion || asked.question || "",
+          source: "Terminal Brain MCP",
+          project: args.project || suggestion.project || "",
+          tags: (Array.isArray(suggestion.tags) ? suggestion.tags : ["terminal-brain", "blindspot", "oracle"])
+            .concat(Array.isArray(args.tags) ? args.tags : [])
+        }
+      });
+      return { ok: true, ask: asked, commit: committed };
+    }
     case "terminal_brain_operator_brief":
       return api("/operator-brief");
     case "terminal_brain_operator_brief_markdown":
