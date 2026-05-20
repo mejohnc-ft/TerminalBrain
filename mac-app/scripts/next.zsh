@@ -13,7 +13,7 @@ Prints the next useful Terminal Brain move without launching the app.
 
 Behavior:
   - If Terminal Brain is already reachable, print Start Here.
-  - If Terminal Brain is closed, print runtime status and the manual next step.
+  - If Terminal Brain is closed, print the useful closed-app loop and runtime status.
 
 This script never launches, foregrounds, quits, or controls Terminal Brain.
 EOF
@@ -42,17 +42,21 @@ Terminal Brain is not currently reachable at $API.
 
 ## Next Move
 
-Open Terminal Brain manually when you want it in focus, then run:
+Use the closed-app loop now:
+
+\`\`\`zsh
+make oracle-brief
+make agent-prompt
+make outcome TITLE="..." OUTCOME="..." PROJECT="Terminal Brain" NEXT="..."
+\`\`\`
+
+Open Terminal Brain manually only when you want the UI/API active. Then run:
 
 \`\`\`zsh
 make start-here
 \`\`\`
 
-Until then, this repo can still answer runtime state:
-
-\`\`\`zsh
-make status
-\`\`\`
+## Runtime State
 
 EOF
 

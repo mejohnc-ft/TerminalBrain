@@ -24,7 +24,9 @@ call_mcp_tool() {
 
 next_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/next.zsh")"
 require_contains "$next_output" '# Terminal Brain Next' "next title"
-require_contains "$next_output" 'make start-here' "next manual start command"
+require_contains "$next_output" 'make oracle-brief' "next closed-app Oracle Brief command"
+require_contains "$next_output" 'make agent-prompt' "next closed-app Agent Prompt command"
+require_contains "$next_output" 'make outcome' "next closed-app outcome command"
 require_contains "$next_output" 'did not launch or foreground' "next guardrail"
 
 value_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/value.zsh")"
@@ -60,7 +62,9 @@ rm -rf "$outcome_workspace"
 
 mcp_next_output="$(call_mcp_tool terminal_brain_next_markdown)"
 require_contains "$mcp_next_output" '# Terminal Brain Next' "MCP next title"
-require_contains "$mcp_next_output" 'terminal_brain_runtime_status' "MCP next fallback"
+require_contains "$mcp_next_output" 'make oracle-brief' "MCP next Oracle Brief fallback"
+require_contains "$mcp_next_output" 'make agent-prompt' "MCP next Agent Prompt fallback"
+require_contains "$mcp_next_output" 'make outcome' "MCP next outcome fallback"
 
 mcp_now_output="$(call_mcp_tool terminal_brain_now_markdown)"
 require_contains "$mcp_now_output" '# Terminal Brain Now' "MCP now title"

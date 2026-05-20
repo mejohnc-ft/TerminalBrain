@@ -4,7 +4,7 @@ This repository builds a local macOS app used during active work. Do not steal t
 
 ## Safe Defaults
 
-- Use `make next` as the safest first command when you need to know the next move without launching the app.
+- Use `make next` as the safest first command when you need to know the next move without launching the app; when the app is closed, it shows the Oracle Brief -> Agent Prompt -> Outcome loop.
 - Use `make value` when the operator needs a plain-language read on why Terminal Brain is useful right now.
 - Use `make oracle-brief` or MCP `terminal_brain_oracle_brief_markdown` when the operator needs a direct read: what to do next, what may be missing, the cheapest test, and the agent handoff.
 - Use `make agent-prompt` or MCP `terminal_brain_agent_prompt_markdown` when you need a bounded execution prompt; both have closed-app fallbacks and do not launch Terminal Brain.
