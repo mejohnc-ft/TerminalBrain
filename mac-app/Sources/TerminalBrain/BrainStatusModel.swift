@@ -24,6 +24,7 @@ final class BrainStatusModel: ObservableObject {
     @Published var snapshotCopyOutput = ""
     @Published var deckCopyOutput = ""
     @Published var latestPackCopyOutput = ""
+    @Published var handoffCopyOutput = ""
     @Published var oracleCommits: [OracleCommit] = []
     @Published var projects: [ProjectMemory] = []
     @Published var findings: [String] = []
@@ -199,6 +200,22 @@ final class BrainStatusModel: ObservableObject {
             latestPackCopyOutput = "Latest pack copied."
         } catch {
             latestPackCopyOutput = "Latest pack copy failed: \(error.localizedDescription)"
+        }
+    }
+
+    func copyHandoff() async {
+        guard let url = URL(string: "http://127.0.0.1:8765/handoff/markdown") else { return }
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            guard let markdown = String(data: data, encoding: .utf8), !markdown.isEmpty else {
+                handoffCopyOutput = "Handoff copy failed."
+                return
+            }
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(markdown, forType: .string)
+            handoffCopyOutput = "Handoff copied."
+        } catch {
+            handoffCopyOutput = "Handoff copy failed: \(error.localizedDescription)"
         }
     }
 

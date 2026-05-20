@@ -68,8 +68,8 @@ Terminal Brain uses a native macOS window shell:
 - Native toolbar items for sidebar toggle, back, search, status, refresh, sync, and profile.
 - Command palette entries for asking the current Focus, copying the operator snapshot or Operator Deck, asking Oracle from typed text, drafting captured ideas, and building context packs.
 - One-click operator snapshot and Operator Deck copy for pasting current Focus, Radar, suggested actions, memory trail, or four-card handoff into another agent or work surface.
-- App Shortcuts for Copy Deck, Copy Snapshot, Run Sync, Start Work, Open Latest Context Pack, and Copy Latest Context Pack in Spotlight, Siri, and automation.
-- Menu bar extra with current Focus, Ask Current Focus, Build Focus Pack, Open/Copy Latest Context Pack, refresh, sync, copy, Mission, and logs.
+- App Shortcuts for Copy Handoff, Copy Deck, Copy Snapshot, Run Sync, Start Work, Open Latest Context Pack, and Copy Latest Context Pack in Spotlight, Siri, and automation.
+- Menu bar extra with current Focus, Ask Current Focus, Build Focus Pack, Open/Copy Latest Context Pack, Copy Agent Handoff, refresh, sync, copy, Mission, and logs.
 - Floating rounded sidebar surface over the main background.
 - Dense Music/Reeder-style dark content lists instead of equal-weight dashboard cards.
 

@@ -54,6 +54,10 @@ struct TerminalBrainApp: App {
                     Task { await model.copyLatestContextPack() }
                 }
 
+                Button("Copy Agent Handoff") {
+                    Task { await model.copyHandoff() }
+                }
+
                 Button("Open Mission Control") {
                     model.openMissionControl()
                 }
@@ -75,6 +79,9 @@ struct TerminalBrainApp: App {
             }
             Button("Copy Latest Context Pack") {
                 Task { await model.copyLatestContextPack() }
+            }
+            Button("Copy Agent Handoff") {
+                Task { await model.copyHandoff() }
             }
             Divider()
             Button("Refresh Status") {

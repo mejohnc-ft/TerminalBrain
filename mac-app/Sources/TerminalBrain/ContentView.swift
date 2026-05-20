@@ -66,6 +66,7 @@ struct ContentView: View {
             BrainCommand(title: "Copy Operator Snapshot", subtitle: "Prompt-ready Focus, Radar, actions, and memory trail", symbol: "doc.on.clipboard", category: "Action", action: .copySnapshot),
             BrainCommand(title: "Copy Operator Deck", subtitle: "Prompt-ready four-card deck for handoffs", symbol: "rectangle.stack.fill.badge.person.crop", category: "Action", action: .copyDeck),
             BrainCommand(title: "Copy Latest Context Pack", subtitle: "Copy newest context pack Markdown", symbol: "doc.on.doc", category: "Action", action: .copyLatestPack),
+            BrainCommand(title: "Copy Agent Handoff", subtitle: "Copy Operator Deck plus latest context pack", symbol: "doc.richtext", category: "Action", action: .copyHandoff),
             BrainCommand(title: "Open Mission Control", subtitle: Paths.missionURL.absoluteString, symbol: "display", category: "Action", action: .openMission),
             BrainCommand(title: "Open Logs", subtitle: Paths.syncLog, symbol: "doc.text", category: "Action", action: .openLogs),
             BrainCommand(title: "Open Workspace", subtitle: Paths.workspace, symbol: "folder", category: "Action", action: .openWorkspace)
@@ -1954,7 +1955,7 @@ struct ContentView: View {
             SystemSurfaceCard(title: "Control API", value: "127.0.0.1:8765", detail: "Local-only gateway for agents and MCP.", symbol: "network")
             SystemSurfaceCard(title: "Widget", value: "Next", detail: "A desktop/Notification Center widget should show prompt-safety, sync age, and Mission points.", symbol: "rectangle.on.rectangle")
             SystemSurfaceCard(title: "Login Item", value: "Next", detail: "Launch at login after the gateway has a signed release bundle.", symbol: "power")
-            SystemSurfaceCard(title: "Shortcuts", value: "Native", detail: "App Shortcuts expose Copy Deck, Copy Snapshot, Run Sync, Start Work, and Open/Copy Latest Context Pack to Spotlight, Siri, and automation.", symbol: "wand.and.stars")
+            SystemSurfaceCard(title: "Shortcuts", value: "Native", detail: "App Shortcuts expose Copy Handoff, Copy Deck, Copy Snapshot, Run Sync, Start Work, and Open/Copy Latest Context Pack to Spotlight, Siri, and automation.", symbol: "wand.and.stars")
         }
     }
 
@@ -2048,6 +2049,8 @@ struct ContentView: View {
             Task { await model.copyOperatorDeck() }
         case .copyLatestPack:
             Task { await model.copyLatestContextPack() }
+        case .copyHandoff:
+            Task { await model.copyHandoff() }
         case .askOracle(let question):
             model.oracleQuestion = question
             selectedSection = "oracle"
@@ -2272,6 +2275,7 @@ enum BrainCommandAction {
     case copySnapshot
     case copyDeck
     case copyLatestPack
+    case copyHandoff
     case askOracle(String)
     case askFocus
     case draftIdea(String)

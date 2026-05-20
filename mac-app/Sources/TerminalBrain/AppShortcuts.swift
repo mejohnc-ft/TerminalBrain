@@ -186,6 +186,19 @@ struct CopyLatestContextPackIntent: AppIntent {
     }
 }
 
+struct CopyAgentHandoffIntent: AppIntent {
+    static var title: LocalizedStringResource = "Copy Agent Handoff"
+    static var description = IntentDescription("Copy the Terminal Brain Operator Deck and latest context pack as one Markdown handoff.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let markdown = try await ShortcutClient.text(path: "/handoff/markdown")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "Agent handoff copied.")
+    }
+}
+
 struct TerminalBrainShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
@@ -241,6 +254,15 @@ struct TerminalBrainShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Copy Pack",
             systemImageName: "doc.on.doc"
+        )
+        AppShortcut(
+            intent: CopyAgentHandoffIntent(),
+            phrases: [
+                "Copy \(.applicationName) handoff",
+                "Copy \(.applicationName) agent handoff"
+            ],
+            shortTitle: "Copy Handoff",
+            systemImageName: "doc.richtext"
         )
     }
 }
