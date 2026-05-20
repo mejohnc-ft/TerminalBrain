@@ -79,6 +79,15 @@ final class BrainStatusModel: ObservableObject {
         )
     }
 
+    var ideaPulseItems: [IdeaPulseItem] {
+        buildIdeaPulse(
+            oracleItems: oracleItems,
+            oracleCommits: oracleCommits,
+            projects: projects,
+            feedItems: feedItems
+        )
+    }
+
     init() {
         appleNotesEnabledForManualSync = UserDefaults.standard.bool(forKey: "appleNotesEnabledForManualSync")
     }
@@ -1522,6 +1531,120 @@ final class BrainStatusModel: ObservableObject {
         }
 
         return Array(items.prefix(4))
+    }
+
+    private func buildIdeaPulse(oracleItems: [OracleItem], oracleCommits: [OracleCommit], projects: [ProjectMemory], feedItems: [BrainFeedItem]) -> [IdeaPulseItem] {
+        var items: [IdeaPulseItem] = []
+
+        for commit in oracleCommits.filter({ $0.tags.contains("idea") || $0.tags.contains("capture") }).prefix(8) {
+            let unresolved = commit.status == .new || commit.status == .delegated
+            items.append(
+                IdeaPulseItem(
+                    id: "commit-\(commit.id)",
+                    title: commit.title,
+                    detail: commit.preview,
+                    whyNow: unresolved ? "This captured idea is still unclassified. Decide whether it deserves a test, a project link, or dismissal." : "This idea has been classified, but it may still be useful as project memory.",
+                    nextPrompt: "What is the cheapest test for this idea, and what would make it not worth pursuing?",
+                    project: commit.project,
+                    source: "Oracle Inbox",
+                    score: unresolved ? 86 : 58,
+                    symbol: "lightbulb.fill",
+                    state: unresolved ? .warn : .good,
+                    path: commit.path
+                )
+            )
+        }
+
+        for item in oracleItems.filter({ $0.kind == .idea || $0.kind == .opportunity || $0.kind == .bubbling }).prefix(8) {
+            let project = projectName(from: "\(item.title) \(item.detail) \(item.source)")
+            let isIdea = item.kind == .idea
+            items.append(
+                IdeaPulseItem(
+                    id: "oracle-\(item.id)",
+                    title: item.title,
+                    detail: item.detail,
+                    whyNow: isIdea ? "This surfaced as an idea signal. It needs a small test before it becomes real work." : "This is bubbling up from recent context and may be a useful adjacent opportunity.",
+                    nextPrompt: isIdea ? "What is the smallest proof that this idea is worth keeping?" : "What decision would turn this opportunity into a useful next action?",
+                    project: project,
+                    source: item.source,
+                    score: isIdea ? 78 : 70,
+                    symbol: item.symbol,
+                    state: .good,
+                    path: item.path
+                )
+            )
+        }
+
+        for project in projects.prefix(8) where project.signalCount > 0 && project.delegatedCount == 0 {
+            items.append(
+                IdeaPulseItem(
+                    id: "project-\(project.id)",
+                    title: "Untested edge for \(project.name)",
+                    detail: project.recommendedAction,
+                    whyNow: "This project has memory attached but no delegated execution edge. It may need a sharper experiment instead of more browsing.",
+                    nextPrompt: "What would prove the next useful artifact for \(project.name) in under an hour?",
+                    project: project.name,
+                    source: "Project Memory",
+                    score: max(50, min(76, 54 + project.signalCount * 4)),
+                    symbol: project.symbol,
+                    state: .good,
+                    path: project.contextPacks.first?.path
+                )
+            )
+        }
+
+        if let fresh = feedItems.first(where: { $0.kind == .context }) {
+            items.append(
+                IdeaPulseItem(
+                    id: "context-\(fresh.id)",
+                    title: "Fresh context worth mining",
+                    detail: fresh.title,
+                    whyNow: "The newest context pack may contain a useful idea or open loop before it goes stale.",
+                    nextPrompt: "What idea, risk, or unresolved question is hidden in \(fresh.title)?",
+                    project: projectName(from: "\(fresh.title) \(fresh.detail)"),
+                    source: "Context pack",
+                    score: 62,
+                    symbol: fresh.symbol,
+                    state: .good,
+                    path: fresh.path
+                )
+            )
+        }
+
+        if items.isEmpty {
+            items.append(
+                IdeaPulseItem(
+                    id: "fallback",
+                    title: "Capture the next raw thought",
+                    detail: "No strong idea signal is visible yet.",
+                    whyNow: "The system needs captured material before it can surface surprising connections.",
+                    nextPrompt: "What rough idea keeps returning, even if it is not ready?",
+                    project: "General Brain",
+                    source: "Fallback",
+                    score: 35,
+                    symbol: "lightbulb",
+                    state: .good,
+                    path: nil
+                )
+            )
+        }
+
+        var seen = Set<String>()
+        return items
+            .sorted {
+                if $0.score == $1.score {
+                    return $0.title < $1.title
+                }
+                return $0.score > $1.score
+            }
+            .filter { item in
+                let key = "\(item.title)-\(item.project)-\(item.source)".lowercased()
+                guard !seen.contains(key) else { return false }
+                seen.insert(key)
+                return true
+            }
+            .prefix(10)
+            .map { $0 }
     }
 
     private func buildBlindspots(focus: FocusItem, radarItems: [RadarItem], setupSteps: [SetupStep], projects: [ProjectMemory], oracleItems: [OracleItem], oracleCommits: [OracleCommit]) -> [BlindspotItem] {

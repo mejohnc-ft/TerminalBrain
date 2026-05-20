@@ -41,6 +41,8 @@ Codex/workspace config can register this server as:
 - `terminal_brain_focus`
 - `terminal_brain_blindspots`
 - `terminal_brain_blindspots_markdown`
+- `terminal_brain_ideas`
+- `terminal_brain_ideas_markdown`
 - `terminal_brain_blindspot_ask`
 - `terminal_brain_blindspot_ask_commit`
 - `terminal_brain_blindspot_action`

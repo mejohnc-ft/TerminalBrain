@@ -8,6 +8,7 @@ struct ContentView: View {
     @State private var selectedCommitID = ""
     @State private var selectedRadarID = ""
     @State private var selectedBlindspotID = ""
+    @State private var selectedIdeaID = ""
     @State private var selectedProjectID = ""
     @State private var reviewProjectFilter = "all"
     @State private var feedFilter: FeedKind = .all
@@ -44,6 +45,10 @@ struct ContentView: View {
         model.blindspotItems.first { $0.id == selectedBlindspotID } ?? model.blindspotItems.first
     }
 
+    private var selectedIdeaItem: IdeaPulseItem? {
+        model.ideaPulseItems.first { $0.id == selectedIdeaID } ?? model.ideaPulseItems.first
+    }
+
     private var selectedProject: ProjectMemory? {
         model.projects.first { $0.id == selectedProjectID } ?? model.projects.first
     }
@@ -61,6 +66,7 @@ struct ContentView: View {
             BrainCommand(title: "Open Setup", subtitle: "Readiness checklist for app, MCP, sources, and sync", symbol: "checklist.checked", category: "Navigate", action: .section("setup")),
             BrainCommand(title: "Open Radar", subtitle: "Proactive signals, stale reads, risks, and opportunities", symbol: "scope", category: "Navigate", action: .section("radar")),
             BrainCommand(title: "Open Blindspots", subtitle: "Ignored, stale, under-tested, or unresolved work", symbol: "eye.fill", category: "Navigate", action: .section("blindspots")),
+            BrainCommand(title: "Open Ideas", subtitle: "Captured thoughts, bubbling opportunities, and cheap tests", symbol: "lightbulb.fill", category: "Navigate", action: .section("ideas")),
             BrainCommand(title: "Open Feed", subtitle: "Recent context packs, sync events, and source alerts", symbol: "list.bullet.rectangle.portrait.fill", category: "Navigate", action: .section("feed")),
             BrainCommand(title: "Open Oracle", subtitle: "Narrative brief, bubbling ideas, and open loops", symbol: "sparkle.magnifyingglass", category: "Navigate", action: .section("oracle")),
             BrainCommand(title: "Open Review Queue", subtitle: "Committed Oracle reads, decisions, and follow-ups", symbol: "tray.and.arrow.down.fill", category: "Navigate", action: .section("review")),
@@ -144,6 +150,10 @@ struct ContentView: View {
             BrainCommand(title: item.title, subtitle: "\(item.score) - \(item.question)", symbol: item.symbol, category: "Blindspot", action: .blindspot(item.id))
         })
 
+        items.append(contentsOf: model.ideaPulseItems.map { item in
+            BrainCommand(title: item.title, subtitle: "\(item.score) - \(item.nextPrompt)", symbol: item.symbol, category: "Idea", action: .idea(item.id))
+        })
+
         items.append(contentsOf: model.projects.map { project in
             BrainCommand(title: project.name, subtitle: project.summary, symbol: project.symbol, category: "Project", action: .project(project.id))
         })
@@ -165,6 +175,7 @@ struct ContentView: View {
         case "setup": return "Setup"
         case "radar": return "Radar"
         case "blindspots": return "Blindspots"
+        case "ideas": return "Ideas"
         case "feed": return "Feed"
         case "oracle": return "Oracle"
         case "review": return "Review"
@@ -183,6 +194,7 @@ struct ContentView: View {
         case "setup": return "Readiness checklist for the app, MCP gateway, memory, sync, and permission posture."
         case "radar": return "Proactive signals, stale reads, quiet risks, and opportunities worth a decision."
         case "blindspots": return "The counter-signal lane for ignored, stale, under-tested, or unresolved work."
+        case "ideas": return "Captured thoughts and resurfaced opportunities ranked by what deserves a cheap test."
         case "feed": return "Recent context packs, sync events, and source alerts."
         case "oracle": return "Narrative signals, open loops, and ideas worth revisiting."
         case "review": return "Committed Oracle reads that need acceptance, linking, delegation, or dismissal."
@@ -310,6 +322,7 @@ struct ContentView: View {
                 NavRow(title: "Setup", symbol: "checklist.checked", badge: model.setupAttentionCount == 0 ? "" : "\(model.setupAttentionCount)", selected: selectedSection == "setup") { selectedSection = "setup" }
                 NavRow(title: "Radar", symbol: "scope", badge: "\(model.radarItems.count)", selected: selectedSection == "radar") { selectedSection = "radar" }
                 NavRow(title: "Blindspots", symbol: "eye.fill", badge: "\(model.blindspotItems.count)", selected: selectedSection == "blindspots") { selectedSection = "blindspots" }
+                NavRow(title: "Ideas", symbol: "lightbulb.fill", badge: "\(model.ideaPulseItems.count)", selected: selectedSection == "ideas") { selectedSection = "ideas" }
                 NavRow(title: "Oracle", symbol: "sparkle.magnifyingglass", badge: "\(model.oracleItems.count)", selected: selectedSection == "oracle") { selectedSection = "oracle" }
                 NavRow(title: "Review", symbol: "tray.and.arrow.down.fill", badge: "\(model.oracleCommits.filter { $0.status == .new }.count)", selected: selectedSection == "review") { selectedSection = "review" }
                 NavRow(title: "Projects", symbol: "folder.fill.badge.gearshape", badge: "\(model.projects.count)", selected: selectedSection == "projects") { selectedSection = "projects" }
@@ -437,6 +450,7 @@ struct ContentView: View {
                     case "setup": setupView
                     case "radar": radarView
                     case "blindspots": blindspotsView
+                    case "ideas": ideasView
                     case "oracle": oracleView
                     case "review": reviewView
                     case "projects": projectsView
@@ -1563,6 +1577,134 @@ struct ContentView: View {
         return "Terminal Brain owns the local control plane: \(missionText), \(syncText), and \(memoryText). Sensitive sources remain explicit so agents can work through the MCP gateway without waking prompt-prone bridges."
     }
 
+    private var ideasView: some View {
+        HStack(alignment: .top, spacing: 18) {
+            VStack(alignment: .leading, spacing: 14) {
+                SectionTitle("Idea Pulse", symbol: "lightbulb.fill")
+                VStack(spacing: 0) {
+                    ForEach(model.ideaPulseItems) { item in
+                        Button {
+                            selectedIdeaID = item.id
+                        } label: {
+                            IdeaPulseRow(item: item, selected: selectedIdeaItem?.id == item.id)
+                        }
+                        .buttonStyle(.plain)
+                        if item.id != model.ideaPulseItems.last?.id {
+                            Divider().overlay(.white.opacity(0.08)).padding(.leading, 52)
+                        }
+                    }
+                    if model.ideaPulseItems.isEmpty {
+                        EmptyStateRow(title: "No ideas surfaced", detail: "Capture a thought or build a context pack so Terminal Brain has material to rank.", symbol: "lightbulb")
+                    }
+                }
+                .darkPanel()
+            }
+            .frame(width: 520)
+
+            VStack(alignment: .leading, spacing: 14) {
+                if let item = selectedIdeaItem {
+                    SectionTitle("Cheap Test", symbol: item.symbol)
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack(alignment: .top, spacing: 14) {
+                            Image(systemName: item.symbol)
+                                .font(.title2)
+                                .foregroundStyle(item.state.color)
+                                .frame(width: 42, height: 42)
+                                .background(item.state.color.opacity(0.16), in: RoundedRectangle(cornerRadius: 11, style: .continuous))
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(item.title)
+                                    .font(.title2.weight(.bold))
+                                    .foregroundStyle(.white)
+                                Text("\(item.project) - \(item.source)")
+                                    .font(.callout.weight(.semibold))
+                                    .foregroundStyle(item.state.color)
+                            }
+                            Spacer()
+                            Text("\(item.score)")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 5)
+                                .background(item.state.color.opacity(0.18), in: Capsule())
+                        }
+
+                        Text(item.nextPrompt)
+                            .font(.title3.weight(.semibold))
+                            .foregroundStyle(.white.opacity(0.86))
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        Text(item.whyNow)
+                            .font(.body)
+                            .foregroundStyle(.white.opacity(0.68))
+                            .fixedSize(horizontal: false, vertical: true)
+                            .textSelection(.enabled)
+
+                        Text(item.detail)
+                            .font(.callout)
+                            .foregroundStyle(.white.opacity(0.58))
+                            .fixedSize(horizontal: false, vertical: true)
+                            .textSelection(.enabled)
+
+                        if let path = item.path {
+                            Text(path)
+                                .font(.caption.monospaced())
+                                .foregroundStyle(.white.opacity(0.44))
+                                .lineLimit(2)
+                                .textSelection(.enabled)
+                        }
+
+                        HStack {
+                            Button {
+                                model.oracleQuestion = item.nextPrompt
+                                selectedSection = "oracle"
+                                Task { await model.askOracle() }
+                            } label: {
+                                Label("Pressure Test", systemImage: "sparkle.magnifyingglass")
+                            }
+                            .buttonStyle(.borderedProminent)
+
+                            Button {
+                                model.workQuery = [item.project, item.title].filter { !$0.isEmpty && $0 != "General Brain" }.joined(separator: " - ")
+                                selectedSection = "start"
+                            } label: {
+                                Label("Build Pack", systemImage: "shippingbox")
+                            }
+                            .buttonStyle(.bordered)
+
+                            Button {
+                                model.quickIdea = "\(item.title)\n\nQuestion: \(item.nextPrompt)\n\nWhy now: \(item.whyNow)"
+                                selectedSection = "focus"
+                            } label: {
+                                Label("Capture Test", systemImage: "tray.and.arrow.down")
+                            }
+                            .buttonStyle(.bordered)
+
+                            if let path = item.path {
+                                Button { model.openPath(path) } label: {
+                                    Label("Open", systemImage: "arrow.up.right.square")
+                                }
+                                .buttonStyle(.bordered)
+                            }
+                        }
+                    }
+                    .padding(16)
+                    .darkPanel()
+                }
+
+                SectionTitle("Idea Operating Loop", symbol: "slider.horizontal.3")
+                VStack(alignment: .leading, spacing: 10) {
+                    PolicyLine("Captured thoughts must become a cheap test, a project link, or a dismissal.")
+                    PolicyLine("Bubbling context is useful only when it changes a decision or next artifact.")
+                    PolicyLine("Prefer tests small enough to run before the next broad planning pass.")
+                    PolicyLine("Commit pressure-test answers so useful ideas become durable memory.")
+                }
+                .padding(14)
+                .darkPanel()
+            }
+            .frame(minWidth: 680)
+        }
+    }
+
     private var oracleView: some View {
         HStack(alignment: .top, spacing: 18) {
             VStack(alignment: .leading, spacing: 14) {
@@ -2378,6 +2520,9 @@ struct ContentView: View {
         case .blindspot(let id):
             selectedBlindspotID = id
             selectedSection = "blindspots"
+        case .idea(let id):
+            selectedIdeaID = id
+            selectedSection = "ideas"
         case .project(let id):
             selectedProjectID = id
             selectedSection = "projects"
@@ -2662,6 +2807,7 @@ enum BrainCommandAction {
     case commit(String)
     case radar(String)
     case blindspot(String)
+    case idea(String)
     case project(String)
     case openMission
     case openLogs
@@ -3284,6 +3430,51 @@ struct BlindspotItemRow: View {
                     .foregroundStyle(.white.opacity(0.66))
                     .lineLimit(2)
                 Text(item.why)
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.44))
+                    .lineLimit(2)
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(selected ? Color.white.opacity(0.10) : Color.clear, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+    }
+}
+
+struct IdeaPulseRow: View {
+    let item: IdeaPulseItem
+    let selected: Bool
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 14) {
+            Image(systemName: item.symbol)
+                .font(.title3)
+                .foregroundStyle(item.state.color)
+                .frame(width: 30, height: 30)
+                .background(item.state.color.opacity(0.16), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            VStack(alignment: .leading, spacing: 5) {
+                HStack(spacing: 8) {
+                    Text(item.title)
+                        .font(.headline.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                    Spacer()
+                    Text("\(item.score)")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(item.state.color.opacity(0.16), in: Capsule())
+                }
+                Text(item.project)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.white.opacity(0.48))
+                    .lineLimit(1)
+                Text(item.nextPrompt)
+                    .font(.callout)
+                    .foregroundStyle(.white.opacity(0.66))
+                    .lineLimit(2)
+                Text(item.whyNow)
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.44))
                     .lineLimit(2)

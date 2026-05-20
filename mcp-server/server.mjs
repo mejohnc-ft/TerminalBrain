@@ -117,6 +117,24 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_ideas",
+    description: "Get Terminal Brain's Idea Pulse: captured thoughts and resurfaced opportunities ranked by cheap-test value.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
+    name: "terminal_brain_ideas_markdown",
+    description: "Get Terminal Brain's Idea Pulse as prompt-ready Markdown for pressure-testing ideas.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_blindspot_ask",
     description: "Ask Terminal Brain Oracle about the top Blindspot Brief item or a selected blindspot id.",
     inputSchema: {
@@ -610,6 +628,10 @@ async function callTool(name, args = {}) {
       return api("/blindspots");
     case "terminal_brain_blindspots_markdown":
       return api("/blindspots/markdown", { rawText: true });
+    case "terminal_brain_ideas":
+      return api("/ideas");
+    case "terminal_brain_ideas_markdown":
+      return api("/ideas/markdown", { rawText: true });
     case "terminal_brain_blindspot_ask":
       return api("/blindspots/ask", { method: "POST", body: { id: args.id || "", question: args.question || "" } });
     case "terminal_brain_blindspot_ask_commit": {
