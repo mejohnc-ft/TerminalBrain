@@ -6,7 +6,7 @@ This repository builds a local macOS app used during active work. Do not steal t
 
 - Use `./mac-app/scripts/verify-static.zsh` for normal verification.
 - Use `./mac-app/scripts/build-app.zsh` for build-only checks.
-- Use `swiftc -typecheck mac-app/Sources/TerminalBrain/*.swift` for fast Swift checks.
+- Use `./mac-app/scripts/verify-static.zsh` for Swift type-checking because the app now depends on SwiftUI, AppKit, Network, and AppIntents framework flags.
 - Use `node --check mcp-server/server.mjs` for MCP syntax checks.
 
 ## Fast Context Path
