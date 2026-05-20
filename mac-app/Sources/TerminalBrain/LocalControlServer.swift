@@ -1719,6 +1719,7 @@ enum BrainHandoffSnapshot {
     static func markdown() async -> String {
         let generated = ISO8601DateFormatter().string(from: Date())
         let brief = await OperatorBriefSnapshot.markdown()
+        let decisions = await TodaySnapshot.markdown()
         let deck = await OperatorDeckSnapshot.markdown()
         let pack = ControlSnapshot.latestContextPackMarkdown()
         return [
@@ -1729,11 +1730,16 @@ enum BrainHandoffSnapshot {
             "## How To Use This",
             "- Start with the Operator Brief for plain-language value, then use the Operator Deck for concrete actions.",
             "- Treat the first action card as the default next move unless new evidence contradicts it.",
+            "- Use the Decision Lane as the ranked execution queue before asking broad follow-up questions.",
             "- Use the latest context pack as the working memory bundle for implementation, review, or planning.",
             "- Prefer concrete actions: build a pack, ask a focused question, commit useful findings, or mark queue items acted/dismissed.",
             "- Do not relaunch or foreground Terminal Brain unless the operator explicitly asks.",
             "",
             brief,
+            "",
+            "---",
+            "",
+            decisions,
             "",
             "---",
             "",
