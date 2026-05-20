@@ -72,6 +72,7 @@ use_now_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/use-no
 require_contains "$use_now_output" '# Terminal Brain Use Now' "use now title"
 require_contains "$use_now_output" 'What You Get In 60 Seconds' "use now value section"
 require_contains "$use_now_output" 'Current Work Block' "use now work block section"
+require_contains "$use_now_output" 'Recent Work Signals' "use now preserves recent work signal section"
 require_contains "$use_now_output" 'Ask, Capture, Delegate, Close' "use now command section"
 require_contains "$use_now_output" 'make ask QUERY=' "use now ask command"
 require_contains "$use_now_output" 'make idea IDEA=' "use now idea command"
@@ -246,6 +247,13 @@ test -f "$outcome_workspace/Oracle Inbox/"*.md || {
 }
 rm -rf "$outcome_workspace"
 
+make_outcome_workspace="$(mktemp -d)"
+make_outcome_output="$(cd "$ROOT" && TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$make_outcome_workspace" TITLE="Make Outcome Evidence" PROJECT="Terminal Brain" OUTCOME="Verified Make outcome evidence passthrough." EVIDENCE="commit evidence-123" make outcome)"
+require_contains "$make_outcome_output" '"mode":"local-fallback"' "make outcome local fallback mode"
+make_outcome_note="$(find "$make_outcome_workspace/Oracle Inbox" -type f -name '*.md' | head -n 1)"
+require_contains "$(cat "$make_outcome_note")" 'commit evidence-123' "make outcome evidence passthrough"
+rm -rf "$make_outcome_workspace"
+
 idea_workspace="$(mktemp -d)"
 idea_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$idea_workspace" "$ROOT/mac-app/scripts/idea.zsh" --title "Entrypoint Idea" --project "Terminal Brain" "Captured idea fallback.")"
 require_contains "$idea_output" '"mode":"local-fallback"' "idea local fallback mode"
@@ -324,11 +332,15 @@ LATEST_SUBJECT="$latest_subject" LATEST_SHORT="$latest_short" WORKSPACE="$covere
       - outcome
     ---
 
-    # Outcome - #{ENV.fetch("LATEST_SUBJECT")}
+    # Outcome - Covered recent work
 
     ## Outcome
 
-    Commit #{ENV.fetch("LATEST_SHORT")} is already covered by accepted memory: #{ENV.fetch("LATEST_SUBJECT")}.
+    Latest work is already covered by accepted memory.
+
+    ## Evidence
+
+    - Commit #{ENV.fetch("LATEST_SHORT")}: #{ENV.fetch("LATEST_SUBJECT")}
   MARKDOWN
 '
 if (( commit_count > 1 )); then

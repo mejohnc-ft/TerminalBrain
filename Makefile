@@ -160,7 +160,7 @@ review-status:
 
 outcome:
 	@if test -z "$$OUTCOME"; then echo "Set OUTCOME='what changed and why it matters'" >&2; exit 64; fi
-	@TITLE="$$TITLE" PROJECT="$$PROJECT" NEXT_ACTION="$${NEXT_ACTION:-$$NEXT}" SOURCE="$$SOURCE" ./mac-app/scripts/outcome.zsh "$$OUTCOME"
+	@if test -n "$$EVIDENCE"; then TITLE="$$TITLE" PROJECT="$$PROJECT" NEXT_ACTION="$${NEXT_ACTION:-$$NEXT}" SOURCE="$$SOURCE" ./mac-app/scripts/outcome.zsh --evidence "$$EVIDENCE" "$$OUTCOME"; else TITLE="$$TITLE" PROJECT="$$PROJECT" NEXT_ACTION="$${NEXT_ACTION:-$$NEXT}" SOURCE="$$SOURCE" ./mac-app/scripts/outcome.zsh "$$OUTCOME"; fi
 
 snapshot:
 	./mac-app/scripts/snapshot.zsh --markdown

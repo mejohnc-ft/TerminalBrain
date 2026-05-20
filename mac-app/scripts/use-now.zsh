@@ -71,6 +71,7 @@ demote_work_block() {
     /^## Guardrail$/ { skip = 1; next }
     skip { next }
     /^## Completed Evidence$/ { skip_completed = 1; next }
+    skip_completed && /^## Recent Work Signals$/ { skip_completed = 0; print "### Recent Work Signals"; next }
     skip_completed && /^## Next Clean Move$/ { skip_completed = 0; print "### Next Clean Move"; next }
     skip_completed && /^## Broader Queue$/ { skip_completed = 0; print "### Broader Queue"; next }
     skip_completed { next }

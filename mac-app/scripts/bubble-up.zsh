@@ -82,6 +82,7 @@ WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtim
       read: read,
       outcome: outcome,
       follow_up: follow_up,
+      search_text: body.downcase,
       preview: preview_source.gsub(/\s+/, " ").strip[0, 280].to_s,
       status: (frontmatter["reviewStatus"] || frontmatter["status"] || "new").downcase,
       project: (frontmatter["project"] || "General Brain").strip,
@@ -147,7 +148,7 @@ WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtim
     subject_words = meaningful_words(signal[:title])
     items.any? do |item|
       next false unless ["accepted", "linked"].include?(item[:status])
-      memory_text = [item[:title], item[:question], item[:read], item[:outcome], item[:follow_up], item[:preview]].join(" ").downcase
+      memory_text = [item[:title], item[:question], item[:read], item[:outcome], item[:follow_up], item[:preview], item[:search_text]].join(" ").downcase
       return true if !signal[:sha].to_s.empty? && memory_text.include?(signal[:sha].downcase)
       return true if !signal[:full_sha].to_s.empty? && memory_text.include?(signal[:full_sha].downcase)
       next false if subject_words.empty?
