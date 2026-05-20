@@ -621,13 +621,19 @@ struct ContentView: View {
                     kicker: "Do First",
                     title: focus.title,
                     detail: focus.reason,
-                    symbol: focus.symbol,
-                    accent: focus.state.color,
-                    primaryTitle: focus.action,
-                    primarySymbol: "arrow.right.circle.fill"
-                ) {
-                    applyFocusAction(focus)
-                }
+                        symbol: focus.symbol,
+                        accent: focus.state.color,
+                        primaryTitle: focus.action,
+                        primarySymbol: "arrow.right.circle.fill",
+                        secondaryTitle: "Ask",
+                        secondarySymbol: "sparkle.magnifyingglass",
+                        secondaryAction: {
+                            model.oracleQuestion = "What should I do about \(focus.title)? \(focus.reason)"
+                            selectedSection = "oracle"
+                        }
+                    ) {
+                        applyFocusAction(focus)
+                    }
 
                 if let bubble {
                     OperatorDeckCard(
@@ -637,7 +643,12 @@ struct ContentView: View {
                         symbol: bubble.symbol,
                         accent: settings.theme.accent,
                         primaryTitle: "Ask",
-                        primarySymbol: "sparkle.magnifyingglass"
+                        primarySymbol: "sparkle.magnifyingglass",
+                        secondaryTitle: "Promote",
+                        secondarySymbol: "pin.fill",
+                        secondaryAction: {
+                            model.promoteOracleItem(bubble)
+                        }
                     ) {
                         model.oracleQuestion = "What should I notice about \(bubble.title)? \(bubble.detail)"
                         selectedSection = "oracle"
@@ -651,7 +662,12 @@ struct ContentView: View {
                         symbol: radar.symbol,
                         accent: radar.state.color,
                         primaryTitle: radar.action,
-                        primarySymbol: "scope"
+                        primarySymbol: "scope",
+                        secondaryTitle: "Watch",
+                        secondarySymbol: "eye",
+                        secondaryAction: {
+                            model.setRadarDisposition(radar, disposition: .watching)
+                        }
                     ) {
                         selectedRadarID = radar.id
                         applyRadarAction(radar)
@@ -666,7 +682,17 @@ struct ContentView: View {
                         symbol: review.status.symbol,
                         accent: review.status.color,
                         primaryTitle: "Review",
-                        primarySymbol: "tray.and.arrow.down.fill"
+                        primarySymbol: "tray.and.arrow.down.fill",
+                        secondaryTitle: review.status == .new ? "Accept" : "Delegate",
+                        secondarySymbol: review.status == .new ? "checkmark.seal.fill" : "paperplane.fill",
+                        secondaryAction: {
+                            if review.status == .new {
+                                model.setOracleCommitStatus(review, status: .accepted)
+                            } else {
+                                model.delegateOracleCommitToStartWork(review)
+                                selectedSection = "start"
+                            }
+                        }
                     ) {
                         selectedCommitID = review.id
                         reviewProjectFilter = review.project.isEmpty ? "all" : review.project
@@ -695,7 +721,15 @@ struct ContentView: View {
                         symbol: project.symbol,
                         accent: project.accent,
                         primaryTitle: "Open",
-                        primarySymbol: "folder.fill"
+                        primarySymbol: "folder.fill",
+                        secondaryTitle: "Pack",
+                        secondarySymbol: "shippingbox.fill",
+                        secondaryAction: {
+                            Task {
+                                await model.buildPack(for: project)
+                                selectedSection = "start"
+                            }
+                        }
                     ) {
                         selectedProjectID = project.id
                         selectedSection = "projects"
@@ -2811,7 +2845,36 @@ struct OperatorDeckCard: View {
     let accent: Color
     let primaryTitle: String
     let primarySymbol: String
+    let secondaryTitle: String?
+    let secondarySymbol: String?
+    let secondaryAction: (() -> Void)?
     let action: () -> Void
+
+    init(
+        kicker: String,
+        title: String,
+        detail: String,
+        symbol: String,
+        accent: Color,
+        primaryTitle: String,
+        primarySymbol: String,
+        secondaryTitle: String? = nil,
+        secondarySymbol: String? = nil,
+        secondaryAction: (() -> Void)? = nil,
+        action: @escaping () -> Void
+    ) {
+        self.kicker = kicker
+        self.title = title
+        self.detail = detail
+        self.symbol = symbol
+        self.accent = accent
+        self.primaryTitle = primaryTitle
+        self.primarySymbol = primarySymbol
+        self.secondaryTitle = secondaryTitle
+        self.secondarySymbol = secondarySymbol
+        self.secondaryAction = secondaryAction
+        self.action = action
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -2842,14 +2905,27 @@ struct OperatorDeckCard: View {
 
             Spacer(minLength: 0)
 
-            Button(action: action) {
-                Label(primaryTitle, systemImage: primarySymbol)
-                    .font(.callout.weight(.semibold))
-                    .frame(maxWidth: .infinity)
+            HStack(spacing: 8) {
+                Button(action: action) {
+                    Label(primaryTitle, systemImage: primarySymbol)
+                        .font(.callout.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.regular)
+                .tint(accent)
+
+                if let secondaryAction, let secondaryTitle, let secondarySymbol {
+                    Button(action: secondaryAction) {
+                        Label(secondaryTitle, systemImage: secondarySymbol)
+                            .font(.callout.weight(.semibold))
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.regular)
+                    .tint(accent)
+                }
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.regular)
-            .tint(accent)
         }
         .padding(14)
         .frame(maxWidth: .infinity, minHeight: 196, alignment: .topLeading)
