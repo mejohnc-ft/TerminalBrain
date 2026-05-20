@@ -312,6 +312,44 @@ struct CaptureBrainIdeaIntent: AppIntent {
     }
 }
 
+struct CommitBrainOutcomeIntent: AppIntent {
+    static var title: LocalizedStringResource = "Commit Brain Outcome"
+    static var description = IntentDescription("Commit what changed, why it matters, and the next action into Terminal Brain memory.")
+
+    @Parameter(title: "Outcome", description: "What changed and why it matters.")
+    var outcome: String
+
+    @Parameter(title: "Title", description: "Optional short title.")
+    var title: String?
+
+    @Parameter(title: "Project", description: "Optional project name.")
+    var project: String?
+
+    @Parameter(title: "Next Action", description: "Optional next action.")
+    var nextAction: String?
+
+    static var parameterSummary: some ParameterSummary {
+        Summary("Commit outcome \(\.$outcome)")
+    }
+
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let trimmed = outcome.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            throw ShortcutError.emptyQuery
+        }
+        let resolvedTitle = title?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        _ = try await ShortcutClient.postJSON(path: "/outcomes/commit", body: [
+            "title": resolvedTitle.isEmpty ? "Shortcut Outcome" : resolvedTitle,
+            "outcome": trimmed,
+            "nextAction": nextAction?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "",
+            "project": project?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "",
+            "source": "Terminal Brain Shortcut",
+            "tags": ["terminal-brain", "outcome", "shortcut"]
+        ])
+        return .result(dialog: "Outcome committed.")
+    }
+}
+
 struct BuildContextPackIntent: AppIntent {
     static var title: LocalizedStringResource = "Build Context Pack"
     static var description = IntentDescription("Build a Terminal Brain context pack for a project, task, repo, or question.")
@@ -502,6 +540,15 @@ struct TerminalBrainShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Capture Idea",
             systemImageName: "lightbulb"
+        )
+        AppShortcut(
+            intent: CommitBrainOutcomeIntent(),
+            phrases: [
+                "Commit outcome to \(.applicationName)",
+                "Save outcome to \(.applicationName)"
+            ],
+            shortTitle: "Commit Outcome",
+            systemImageName: "square.and.arrow.down"
         )
         AppShortcut(
             intent: BuildContextPackIntent(),
