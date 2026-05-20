@@ -3,7 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject private var model: BrainStatusModel
     @EnvironmentObject private var settings: AppSettings
-    @State private var selectedSection = "first-minute"
+    @State private var selectedSection = "work-block"
     @State private var selectedFeedID = ""
     @State private var selectedCommitID = ""
     @State private var selectedRadarID = ""
@@ -60,6 +60,7 @@ struct ContentView: View {
 
     private var commandItems: [BrainCommand] {
         var items: [BrainCommand] = [
+            BrainCommand(title: "Open Work Block", subtitle: "Pull forward, triage, and close the loop", symbol: "target", category: "Navigate", action: .section("work-block")),
             BrainCommand(title: "Open First Minute", subtitle: "Shortest value path, next step, and working proof", symbol: "1.circle.fill", category: "Navigate", action: .section("first-minute")),
             BrainCommand(title: "Open Now", subtitle: "Bottom line, next action, process truth, and outcome loop", symbol: "sparkles", category: "Navigate", action: .section("now")),
             BrainCommand(title: "Open Value Now", subtitle: "Plain-language value read and fastest useful path", symbol: "bolt.fill", category: "Navigate", action: .section("value")),
@@ -187,6 +188,7 @@ struct ContentView: View {
 
     private var sectionTitle: String {
         switch selectedSection {
+        case "work-block": return "Work Block"
         case "first-minute": return "First Minute"
         case "now": return "Now"
         case "value": return "Value Now"
@@ -210,6 +212,7 @@ struct ContentView: View {
 
     private var sectionSubtitle: String {
         switch selectedSection {
+        case "work-block": return "Pull forward the strongest signal, triage it, do the smallest useful work, and write back the outcome."
         case "first-minute": return "The shortest path to value: what this is, what to do, and proof the loop works."
         case "now": return "Bottom line, next action, process truth, readiness, and close loop."
         case "value": return "What this is worth right now, what to do next, and what artifact to create."
@@ -341,6 +344,7 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 7) {
                 Text("Home")
                     .sidebarHeader()
+                NavRow(title: "Work Block", symbol: "target", badge: "\(model.oracleCommits.filter { $0.status == .new || $0.status == .delegated }.count)", selected: selectedSection == "work-block") { selectedSection = "work-block" }
                 NavRow(title: "First Minute", symbol: "1.circle.fill", badge: "", selected: selectedSection == "first-minute") { selectedSection = "first-minute" }
                 NavRow(title: "Now", symbol: "sparkles", badge: model.setupAttentionCount == 0 ? "" : "\(model.setupAttentionCount)", selected: selectedSection == "now") { selectedSection = "now" }
                 NavRow(title: "Value", symbol: "bolt.fill", badge: "\(model.focusItem.score)", selected: selectedSection == "value") { selectedSection = "value" }
@@ -474,6 +478,7 @@ struct ContentView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     switch selectedSection {
+                    case "work-block": workBlockView
                     case "first-minute": firstMinuteView
                     case "now": nowView
                     case "value": valueNowView
@@ -556,6 +561,128 @@ struct ContentView: View {
                 .frame(width: 420)
             }
             syncOutput
+        }
+    }
+
+    private var workBlockView: some View {
+        let focus = model.focusItem
+        let openReviewCount = model.oracleCommits.filter { $0.status == .new || $0.status == .delegated }.count
+        return VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack(alignment: .top, spacing: 14) {
+                    Image(systemName: "target")
+                        .font(.system(size: 36, weight: .semibold))
+                        .foregroundStyle(settings.theme.accent)
+                        .frame(width: 58, height: 58)
+                        .background(settings.theme.accent.opacity(0.16), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Work Block")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(settings.theme.accent)
+                            .textCase(.uppercase)
+                        Text("Pull one signal forward.")
+                            .font(.system(size: 34, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.72)
+                        Text("Triage it, do the smallest useful work, and commit the outcome.")
+                            .font(.headline)
+                            .foregroundStyle(.white.opacity(0.62))
+                    }
+
+                    Spacer()
+                    StatusPill(text: openReviewCount == 0 ? "Clear" : "\(openReviewCount) open", state: openReviewCount == 0 ? .good : .warn)
+                }
+
+                HStack(spacing: 8) {
+                    Button { Task { await model.copyWorkBlock() } } label: {
+                        Label("Copy Work Block", systemImage: "target")
+                    }
+                    .buttonStyle(.borderedProminent)
+
+                    Button { Task { await model.copyAgentPrompt() } } label: {
+                        Label("Agent Prompt", systemImage: "paperplane.fill")
+                    }
+                    .buttonStyle(.bordered)
+
+                    Button {
+                        reviewProjectFilter = focus.project.isEmpty ? "all" : focus.project
+                        selectedSection = "review"
+                    } label: {
+                        Label("Review Queue", systemImage: "tray.and.arrow.down.fill")
+                    }
+                    .buttonStyle(.bordered)
+
+                    Button {
+                        model.workQuery = focus.query.isEmpty ? focus.title : focus.query
+                        selectedSection = "start"
+                    } label: {
+                        Label("Start Work", systemImage: "shippingbox.fill")
+                    }
+                    .buttonStyle(.bordered)
+                }
+
+                if !model.workBlockCopyOutput.isEmpty || !model.agentPromptCopyOutput.isEmpty {
+                    Text(!model.workBlockCopyOutput.isEmpty ? model.workBlockCopyOutput : model.agentPromptCopyOutput)
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.58))
+                }
+            }
+            .padding(20)
+            .darkPanel()
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 240), spacing: 12)], spacing: 12) {
+                ValueBriefTile(
+                    label: "1. Pull Forward",
+                    title: focus.title,
+                    detail: focus.reason,
+                    action: focus.action,
+                    symbol: focus.symbol,
+                    accent: focus.state.color
+                ) {
+                    applyFocusAction(focus)
+                }
+
+                ValueBriefTile(
+                    label: "2. Triage",
+                    title: openReviewCount == 0 ? "Review queue is clear" : "\(openReviewCount) review items",
+                    detail: "Accept, delegate, dismiss, or link Oracle Inbox items before they become background noise.",
+                    action: "Open Review",
+                    symbol: "tray.and.arrow.down.fill",
+                    accent: .orange
+                ) {
+                    selectedSection = "review"
+                }
+
+                ValueBriefTile(
+                    label: "3. Do",
+                    title: "Smallest useful work",
+                    detail: "Build a context pack or hand a bounded prompt to an agent instead of scanning another dashboard.",
+                    action: "Start Work",
+                    symbol: "shippingbox.fill",
+                    accent: .blue
+                ) {
+                    model.workQuery = focus.query.isEmpty ? focus.title : focus.query
+                    selectedSection = "start"
+                }
+
+                ValueBriefTile(
+                    label: "4. Remember",
+                    title: "Outcome writeback",
+                    detail: "Commit what changed, why it matters, evidence, and the next action to durable memory.",
+                    action: "Commit Outcome",
+                    symbol: "square.and.arrow.down.fill",
+                    accent: .green
+                ) {
+                    model.outcomeTitle = focus.title
+                    model.outcomeNextAction = "Review the next Work Block."
+                    selectedSection = "start-here"
+                }
+            }
+
+            valueBriefPanel
+            startHereOutcomePanel(project: focus.project)
         }
     }
 

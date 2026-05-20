@@ -75,7 +75,7 @@ Plain `make` prints help. `make verify`, `make first-minute`, `make now`, `make 
 - Closed-app review queue: `make review` and `terminal_brain_review_queue_markdown` list captured ideas, delegated reads, outcomes, and exact review-status commands without opening the app.
 - Closed-app review triage: `make review-status ID="..." STATUS=accepted` and `terminal_brain_oracle_review_status` update Oracle Inbox review state without opening the app.
 - Bubble Up: `make bubble-up` and `terminal_brain_bubble_up_markdown` surface neglected ideas, delegated loops, repeated project pressure, and exact triage commands without opening the app.
-- Work Block: `make work-block`, `/work-block/markdown`, Copy Work Block in the app/menu bar, the Copy Work Block App Shortcut, and `terminal_brain_work_block_markdown` combine Bubble Up, Review Queue, and outcome writeback into one work surface.
+- Work Block: the default native app surface, `make work-block`, `/work-block/markdown`, Copy Work Block in the app/menu bar, the Copy Work Block App Shortcut, and `terminal_brain_work_block_markdown` combine Bubble Up, Review Queue, and outcome writeback into one work surface.
 - One-call operator snapshot for agents: Focus, Operator Brief, Operator Deck, Blindspot Brief, Radar, setup gaps, Today, memory trail, and suggested next actions.
 - Plain-language Operator Brief that says what matters, why it matters, what not to miss, and what artifact to create next.
 - Value Brief that collapses Focus, Idea Pulse, Blindspots, and Project Memory into one compact value read.
