@@ -172,6 +172,19 @@ struct CopyDecisionLaneIntent: AppIntent {
     }
 }
 
+struct CopyBlindspotBriefIntent: AppIntent {
+    static var title: LocalizedStringResource = "Copy Blindspot Brief"
+    static var description = IntentDescription("Copy Terminal Brain's Blindspot Brief as Markdown.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let markdown = try await ShortcutClient.text(path: "/blindspots/markdown")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "Blindspot Brief copied.")
+    }
+}
+
 struct CopyProjectMemoryIntent: AppIntent {
     static var title: LocalizedStringResource = "Copy Project Memory"
     static var description = IntentDescription("Copy Terminal Brain's project memory map as Markdown.")
@@ -365,6 +378,15 @@ struct TerminalBrainShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Copy Decisions",
             systemImageName: "list.number"
+        )
+        AppShortcut(
+            intent: CopyBlindspotBriefIntent(),
+            phrases: [
+                "Copy \(.applicationName) blindspots",
+                "Copy \(.applicationName) blindspot brief"
+            ],
+            shortTitle: "Copy Blindspots",
+            systemImageName: "eye.fill"
         )
         AppShortcut(
             intent: CopyProjectMemoryIntent(),

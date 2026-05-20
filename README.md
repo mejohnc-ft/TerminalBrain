@@ -35,6 +35,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Prompt-ready Operator Deck Markdown for agent handoffs and quick paste workflows.
 - Operator Deck action tool for agents to mark directly actionable Radar and Oracle commit cards without opening the app.
 - Blindspot Brief that highlights ignored, stale, under-tested, or unresolved work before broad planning.
+- Native app section, command palette entries, copy action, and App Shortcut for the Blindspot Brief.
 - Latest context pack API/MCP/CLI/Shortcut surface for opening, copying, or handing off the newest agent-ready artifact.
 - Prompt-ready Decision Lane Markdown for the ranked Today action queue and project signals.
 - Prompt-ready Project Memory Markdown for active work surfaces, recommended actions, context packs, and Oracle reads.
