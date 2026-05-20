@@ -1672,13 +1672,20 @@ struct ContentView: View {
 
                         HStack {
                             Button {
-                                model.oracleQuestion = item.nextPrompt
-                                selectedSection = "oracle"
-                                Task { await model.askOracle() }
+                                Task { await model.askIdea(item) }
                             } label: {
-                                Label("Pressure Test", systemImage: "sparkle.magnifyingglass")
+                                Label(model.isAskingIdea ? "Testing" : "Pressure Test", systemImage: "sparkle.magnifyingglass")
                             }
                             .buttonStyle(.borderedProminent)
+                            .disabled(model.isAskingIdea)
+
+                            Button {
+                                Task { await model.askIdea(item, commit: true) }
+                            } label: {
+                                Label("Test + Commit", systemImage: "square.and.arrow.down")
+                            }
+                            .buttonStyle(.bordered)
+                            .disabled(model.isAskingIdea)
 
                             Button {
                                 model.workQuery = [item.project, item.title].filter { !$0.isEmpty && $0 != "General Brain" }.joined(separator: " - ")
@@ -1702,6 +1709,36 @@ struct ContentView: View {
                                 }
                                 .buttonStyle(.bordered)
                             }
+                        }
+
+                        if !model.ideaAnswer.isEmpty {
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Label(model.ideaAnswerTitle.isEmpty ? "Idea Answer" : model.ideaAnswerTitle, systemImage: "text.bubble.fill")
+                                        .font(.caption.weight(.bold))
+                                        .foregroundStyle(item.state.color)
+                                    Spacer()
+                                    if !model.ideaOutput.isEmpty {
+                                        Text(model.ideaOutput)
+                                            .font(.caption.weight(.medium))
+                                            .foregroundStyle(.white.opacity(0.46))
+                                            .lineLimit(1)
+                                    }
+                                }
+                                Text(model.ideaAnswer)
+                                    .font(.callout)
+                                    .foregroundStyle(.white.opacity(0.72))
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .textSelection(.enabled)
+                            }
+                            .padding(12)
+                            .background(.white.opacity(0.07), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(.white.opacity(0.09), lineWidth: 1))
+                        } else if !model.ideaOutput.isEmpty {
+                            Text(model.ideaOutput)
+                                .font(.caption)
+                                .foregroundStyle(.white.opacity(0.52))
+                                .lineLimit(2)
                         }
                     }
                     .padding(16)

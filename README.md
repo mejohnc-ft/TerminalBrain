@@ -40,6 +40,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Blindspot Oracle ask and ask-and-commit tools for turning counter-signals into durable reads.
 - Blindspot action tool for resolving directly actionable Oracle commit and Radar sources.
 - Idea Pulse for captured thoughts and resurfaced opportunities ranked by cheap-test value, available in the app, handoff, menu bar, App Shortcuts, CLI, API, and MCP.
+- Idea Pulse ask and ask-and-commit tools for pressure-testing ideas with cheap tests, kill criteria, and first actions.
 - Latest context pack API/MCP/CLI/Shortcut surface for opening, copying, or handing off the newest agent-ready artifact.
 - Prompt-ready Decision Lane Markdown for the ranked Today action queue and project signals.
 - Prompt-ready Project Memory Markdown for active work surfaces, recommended actions, context packs, and Oracle reads.
@@ -56,7 +57,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Proactive Radar for delegated reads, stale reviews, quiet project risks, open loops, and ideas worth testing, with scores, evidence, and persistent watch/acted/snooze/dismiss triage.
 - Focus Mode that opens to one recommended action, why it won, the fastest next move, and inline Oracle follow-up prompts.
 - Daily Command Center with ranked actions for reviews, delegations, projects, system attention, and fresh context.
-- MCP tools for status, snapshot, snapshot Markdown, setup, focus, Blindspot Brief, Idea Pulse, Blindspot ask, Blindspot ask-and-commit, Blindspot action, Operator Brief, focus ask, focus ask-and-commit, radar, sources, briefing, permissions, sync, Start Work, Oracle ask, ask-and-commit, idea capture, Oracle items, Oracle commits, and Oracle review status.
+- MCP tools for status, snapshot, snapshot Markdown, setup, focus, Blindspot Brief, Idea Pulse, Idea ask, Idea ask-and-commit, Blindspot ask, Blindspot ask-and-commit, Blindspot action, Operator Brief, focus ask, focus ask-and-commit, radar, sources, briefing, permissions, sync, Start Work, Oracle ask, ask-and-commit, idea capture, Oracle items, Oracle commits, and Oracle review status.
 
 ## Build
 

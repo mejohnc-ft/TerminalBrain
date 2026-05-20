@@ -24,6 +24,10 @@ final class BrainStatusModel: ObservableObject {
     @Published var blindspotAnswerTitle = ""
     @Published var blindspotOutput = ""
     @Published var isAskingBlindspot = false
+    @Published var ideaAnswer = ""
+    @Published var ideaAnswerTitle = ""
+    @Published var ideaOutput = ""
+    @Published var isAskingIdea = false
     @Published var quickIdea = ""
     @Published var quickIdeaOutput = ""
     @Published var snapshotCopyOutput = ""
@@ -464,6 +468,90 @@ final class BrainStatusModel: ObservableObject {
             rebuildOperatorBrief()
         } catch {
             blindspotOutput = "Resolve failed: \(error.localizedDescription)"
+        }
+    }
+
+    func askIdea(_ item: IdeaPulseItem, commit: Bool = false) async {
+        guard !isAskingIdea else { return }
+        isAskingIdea = true
+        ideaAnswerTitle = item.title
+        ideaOutput = commit ? "Pressure testing and committing..." : "Pressure testing..."
+        defer { isAskingIdea = false }
+
+        guard let url = URL(string: "http://127.0.0.1:8765/ideas/ask") else {
+            ideaOutput = "Idea ask failed."
+            return
+        }
+
+        do {
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONSerialization.data(withJSONObject: [
+                "id": item.id,
+                "question": item.nextPrompt
+            ])
+            let (data, _) = try await URLSession.shared.data(for: request)
+            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let answer = json["answer"] as? String,
+                  !answer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                ideaOutput = "Idea ask failed."
+                return
+            }
+
+            let resolvedQuestion = json["question"] as? String ?? item.nextPrompt
+            let groundedQuestion = json["groundedQuestion"] as? String ?? resolvedQuestion
+            let mode = (json["mode"] as? String ?? "idea").replacingOccurrences(of: "-", with: " ")
+            oracleQuestion = resolvedQuestion
+            oracleAnswer = answer
+            oracleMode = mode
+            oracleSuggestedActions = json["suggestedActions"] as? [String] ?? []
+            ideaAnswer = answer
+            ideaOutput = "Idea pressure-tested."
+
+            if commit {
+                await commitIdeaAnswer(
+                    answer: answer,
+                    question: groundedQuestion,
+                    suggestion: json["commitSuggestion"] as? [String: Any] ?? [:],
+                    fallback: item
+                )
+            }
+        } catch {
+            ideaOutput = "Idea ask failed: \(error.localizedDescription)"
+        }
+    }
+
+    private func commitIdeaAnswer(answer: String, question: String, suggestion: [String: Any], fallback: IdeaPulseItem) async {
+        guard let url = URL(string: "http://127.0.0.1:8765/oracle/commit") else { return }
+        do {
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONSerialization.data(withJSONObject: [
+                "title": suggestion["title"] as? String ?? "Idea Test - \(fallback.title)",
+                "question": question,
+                "content": answer,
+                "source": "Terminal Brain.app Idea Pulse",
+                "project": suggestion["project"] as? String ?? fallback.project,
+                "tags": suggestion["tags"] as? [String] ?? ["terminal-brain", "idea", "pressure-test", "oracle"]
+            ])
+            let (data, _) = try await URLSession.shared.data(for: request)
+            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  json["ok"] as? Bool == true,
+                  let path = json["path"] as? String else {
+                ideaOutput = "Idea commit failed."
+                return
+            }
+            ideaOutput = "Committed to \(path)"
+            oracleCommitOutput = ideaOutput
+            oracleCommits = loadOracleCommits()
+            projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
+            radarItems = buildRadarItems(cards: cards, setupSteps: setupSteps, projects: projects, oracleItems: oracleItems, oracleCommits: oracleCommits, feedItems: feedItems)
+            dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems, radarItems: radarItems)
+            rebuildOperatorBrief()
+        } catch {
+            ideaOutput = "Idea commit failed: \(error.localizedDescription)"
         }
     }
 

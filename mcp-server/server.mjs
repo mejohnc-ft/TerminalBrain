@@ -135,6 +135,51 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_idea_ask",
+    description: "Ask Terminal Brain Oracle to pressure-test the top Idea Pulse item or a selected idea id.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: {
+          type: "string",
+          description: "Optional idea id, title, or path. Defaults to the top Idea Pulse item."
+        },
+        question: {
+          type: "string",
+          description: "Optional question. Defaults to the idea's cheap-test prompt."
+        }
+      },
+      additionalProperties: false
+    }
+  },
+  {
+    name: "terminal_brain_idea_ask_commit",
+    description: "Pressure-test an Idea Pulse item, then commit the answer into the Oracle Inbox.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: {
+          type: "string",
+          description: "Optional idea id, title, or path. Defaults to the top Idea Pulse item."
+        },
+        question: {
+          type: "string",
+          description: "Optional question. Defaults to the idea's cheap-test prompt."
+        },
+        project: {
+          type: "string",
+          description: "Optional project override for the committed read."
+        },
+        tags: {
+          type: "array",
+          items: { type: "string" },
+          description: "Optional additional tags."
+        }
+      },
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_blindspot_ask",
     description: "Ask Terminal Brain Oracle about the top Blindspot Brief item or a selected blindspot id.",
     inputSchema: {
@@ -632,6 +677,28 @@ async function callTool(name, args = {}) {
       return api("/ideas");
     case "terminal_brain_ideas_markdown":
       return api("/ideas/markdown", { rawText: true });
+    case "terminal_brain_idea_ask":
+      return api("/ideas/ask", { method: "POST", body: { id: args.id || "", question: args.question || "" } });
+    case "terminal_brain_idea_ask_commit": {
+      const asked = await api("/ideas/ask", {
+        method: "POST",
+        body: { id: args.id || "", question: args.question || "" }
+      });
+      const suggestion = asked.commitSuggestion || {};
+      const committed = await api("/oracle/commit", {
+        method: "POST",
+        body: {
+          title: suggestion.title || `Idea Test - ${asked.question || "Oracle Read"}`,
+          content: asked.answer || "",
+          question: asked.groundedQuestion || asked.question || "",
+          source: "Terminal Brain MCP",
+          project: args.project || suggestion.project || "",
+          tags: (Array.isArray(suggestion.tags) ? suggestion.tags : ["terminal-brain", "idea", "pressure-test", "oracle"])
+            .concat(Array.isArray(args.tags) ? args.tags : [])
+        }
+      });
+      return { ok: true, ask: asked, commit: committed };
+    }
     case "terminal_brain_blindspot_ask":
       return api("/blindspots/ask", { method: "POST", body: { id: args.id || "", question: args.question || "" } });
     case "terminal_brain_blindspot_ask_commit": {

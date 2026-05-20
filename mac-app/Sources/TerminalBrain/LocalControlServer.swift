@@ -91,6 +91,10 @@ final class LocalControlServer {
             return .json(200, await IdeaPulseSnapshot.ideas())
         case ("GET", "/ideas/markdown"):
             return .text(200, await IdeaPulseSnapshot.markdown())
+        case ("POST", "/ideas/ask"):
+            let id = (request.jsonBody?["id"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            let question = (request.jsonBody?["question"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            return .json(200, await IdeaPulseSnapshot.ask(id: id, question: question))
         case ("POST", "/blindspots/ask"):
             let id = (request.jsonBody?["id"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
             let question = (request.jsonBody?["question"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
@@ -1811,6 +1815,48 @@ enum IdeaPulseSnapshot {
         return lines.joined(separator: "\n")
     }
 
+    static func ask(id: String, question: String) async -> [String: Any] {
+        let payload = await ideas()
+        let items = (payload["items"] as? [[String: Any]]) ?? []
+        guard let item = selectedItem(id: id, items: items) ?? items.first else {
+            return [
+                "ok": false,
+                "error": "No idea pulse items are available"
+            ]
+        }
+
+        let title = item["title"] as? String ?? "Idea"
+        let project = item["project"] as? String ?? "General Brain"
+        let resolvedQuestion = question.ifEmpty(item["nextPrompt"] as? String ?? "What is the cheapest test for this idea?")
+        let groundedQuestion = [
+            resolvedQuestion,
+            "",
+            "Current Terminal Brain Idea Pulse item:",
+            "Title: \(title)",
+            "Project: \(project)",
+            "Score: \(item["score"] as? Int ?? 0)",
+            "Source: \(item["source"] as? String ?? "")",
+            "Why now: \(item["whyNow"] as? String ?? "")",
+            "Detail: \(item["detail"] as? String ?? "")",
+            "Source path: \(item["path"] as? String ?? "")",
+            "",
+            "Answer with: cheap test, kill criteria, first action, and whether to commit this into project memory."
+        ].joined(separator: "\n")
+
+        let oracle = await OracleSnapshot.ask(question: groundedQuestion)
+        var result = oracle
+        result["idea"] = item
+        result["question"] = resolvedQuestion
+        result["groundedQuestion"] = groundedQuestion
+        result["mode"] = "idea-\(oracle["mode"] as? String ?? "local")"
+        result["commitSuggestion"] = [
+            "title": "Idea Test - \(title)",
+            "project": project,
+            "tags": ["terminal-brain", "idea", "pressure-test", "oracle"]
+        ]
+        return result
+    }
+
     private static func card(id: String, title: String, detail: String, whyNow: String, nextPrompt: String, project: String, source: String, score: Int, symbol: String, state: String, path: String) -> [String: Any] {
         [
             "id": id,
@@ -1837,6 +1883,15 @@ enum IdeaPulseSnapshot {
             output.append(item)
         }
         return output
+    }
+
+    private static func selectedItem(id: String, items: [[String: Any]]) -> [String: Any]? {
+        guard !id.isEmpty else { return nil }
+        return items.first {
+            ($0["id"] as? String) == id ||
+            ($0["title"] as? String) == id ||
+            ($0["path"] as? String) == id
+        }
     }
 }
 
