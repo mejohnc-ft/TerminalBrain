@@ -175,6 +175,14 @@ WORKSPACE="$WORKSPACE" LIMIT="$LIMIT" STATUS="$STATUS" PROJECT="$PROJECT" ruby -
       puts
       puts item[:preview].empty? ? "(no preview)" : item[:preview]
       puts
+      puts "#### Actions"
+      puts
+      puts "```zsh"
+      puts "make review-status ID=#{item[:path].inspect} STATUS=accepted"
+      puts "make review-status ID=#{item[:path].inspect} STATUS=delegated"
+      puts "make review-status ID=#{item[:path].inspect} STATUS=dismissed"
+      puts "```"
+      puts
     end
   end
 

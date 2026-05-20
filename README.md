@@ -68,7 +68,7 @@ Plain `make` prints help. `make verify`, `make first-minute`, `make now`, `make 
 - Local status, source, permission, briefing, and sync checks.
 - First Minute: `make first-minute`, `/first-minute/markdown`, `terminal_brain_first_minute_markdown`, the default in-app First Minute surface with quick thought capture, Copy First Minute in the app/menu bar, and the Copy First Minute App Shortcut provide the shortest explanation, next step, and working proof for a new operator or agent.
 - Closed-app idea capture: `make idea IDEA="..."` and `terminal_brain_capture_idea` save thoughts to the Oracle Inbox through the app API when reachable or directly to the workspace when closed.
-- Closed-app review queue: `make review` and `terminal_brain_review_queue_markdown` list captured ideas, delegated reads, and outcomes without opening the app.
+- Closed-app review queue: `make review` and `terminal_brain_review_queue_markdown` list captured ideas, delegated reads, outcomes, and exact review-status commands without opening the app.
 - Closed-app review triage: `make review-status ID="..." STATUS=accepted` and `terminal_brain_oracle_review_status` update Oracle Inbox review state without opening the app.
 - One-call operator snapshot for agents: Focus, Operator Brief, Operator Deck, Blindspot Brief, Radar, setup gaps, Today, memory trail, and suggested next actions.
 - Plain-language Operator Brief that says what matters, why it matters, what not to miss, and what artifact to create next.

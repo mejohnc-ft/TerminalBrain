@@ -77,6 +77,7 @@ require_in_file "$ROOT/mac-app/scripts/snapshot.zsh" '--digest' "Oracle Digest C
 require_in_file "$ROOT/mac-app/scripts/idea.zsh" 'local-fallback' "Idea CLI local fallback"
 require_in_file "$ROOT/mac-app/scripts/idea.zsh" 'reviewStatus: new' "Idea fallback opens review"
 require_in_file "$ROOT/mac-app/scripts/review.zsh" 'Terminal Brain Review Queue' "Review Queue CLI"
+require_in_file "$ROOT/mac-app/scripts/review.zsh" 'make review-status' "Review Queue action commands"
 require_in_file "$ROOT/mac-app/scripts/review.zsh" 'did not launch, foreground, quit, kill, or control Terminal Brain' "Review Queue guardrail"
 require_in_file "$ROOT/mac-app/scripts/review-status.zsh" 'reviewStatus' "Review Status CLI"
 require_in_file "$ROOT/mac-app/scripts/review-status.zsh" 'did not launch or foreground Terminal Brain' "Review Status guardrail"

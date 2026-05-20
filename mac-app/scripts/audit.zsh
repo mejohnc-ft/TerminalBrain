@@ -87,6 +87,7 @@ require_evidence "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CopyV
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Commit Outcome' "native outcome close loop"
 require_evidence "$ROOT/mac-app/scripts/idea.zsh" 'local-fallback' "closed-app idea capture fallback"
 require_evidence "$ROOT/mac-app/scripts/review.zsh" 'Terminal Brain Review Queue' "closed-app review queue"
+require_evidence "$ROOT/mac-app/scripts/review.zsh" 'make review-status' "review queue action commands"
 require_evidence "$ROOT/mac-app/scripts/review-status.zsh" 'reviewStatus' "closed-app review status"
 require_evidence "$ROOT/mac-app/scripts/outcome.zsh" 'local-fallback' "closed-app outcome writeback fallback"
 echo
