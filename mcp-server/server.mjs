@@ -1145,6 +1145,31 @@ function startHereMarkdown() {
   ].join("\n");
 }
 
+function handoffMarkdown() {
+  const output = "/tmp/terminal-brain-mcp-handoff.md";
+  const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "handoff.zsh"), "--output", output], { timeout: 30000 });
+  if (!result.ok) {
+    return [
+      "# Terminal Brain Handoff",
+      "",
+      "Handoff failed before completing.",
+      "",
+      "## Error",
+      "",
+      result.error || "Unknown error",
+      "",
+      "## Output",
+      "",
+      result.text || "(no output)"
+    ].join("\n");
+  }
+  try {
+    return readFileSync(output, "utf8");
+  } catch {
+    return result.text;
+  }
+}
+
 function firstMinuteMarkdown() {
   const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "first-minute.zsh")], { timeout: 25000 });
   if (result.ok) return result.text;
@@ -1643,7 +1668,7 @@ async function callTool(name, args = {}) {
     case "terminal_brain_snapshot_markdown":
       return api("/snapshot/markdown", { rawText: true });
     case "terminal_brain_handoff_markdown":
-      return api("/handoff/markdown", { rawText: true });
+      return handoffMarkdown();
     case "terminal_brain_agent_prompt_markdown":
       return agentPromptMarkdown();
     case "terminal_brain_start_here_markdown":

@@ -40,6 +40,23 @@ require_contains "$start_here_output" 'Oracle Signal' "start here Oracle signal"
 require_contains "$start_here_output" 'Done Criteria' "start here done criteria"
 require_contains "$start_here_output" 'did not launch or foreground' "start here guardrail"
 
+handoff_workspace="$(mktemp -d)"
+handoff_path="$handoff_workspace/handoff.md"
+handoff_cli_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/handoff.zsh" --output "$handoff_path")"
+require_contains "$handoff_cli_output" "$handoff_path" "handoff output path"
+test -f "$handoff_path" || {
+  echo "Entrypoint check failed: handoff file was not written" >&2
+  echo "$handoff_cli_output" >&2
+  exit 1
+}
+handoff_output="$(cat "$handoff_path")"
+require_contains "$handoff_output" '# Terminal Brain Handoff' "handoff title"
+require_contains "$handoff_output" 'local closed-app handoff' "handoff local fallback"
+require_contains "$handoff_output" 'Terminal Brain Start Here' "handoff Start Here section"
+require_contains "$handoff_output" 'Terminal Brain Agent Prompt' "handoff Agent Prompt section"
+require_contains "$handoff_output" 'did not launch, foreground, quit, kill, or control' "handoff guardrail"
+rm -rf "$handoff_workspace"
+
 first_minute_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_FIRST_MINUTE_PROOF_API="$CLOSED_API" "$ROOT/mac-app/scripts/first-minute.zsh")"
 require_contains "$first_minute_output" '# Terminal Brain First Minute' "first minute title"
 require_contains "$first_minute_output" 'What You Can Get Immediately' "first minute value section"
@@ -163,6 +180,12 @@ mcp_start_here_output="$(call_mcp_tool terminal_brain_start_here_markdown)"
 require_contains "$mcp_start_here_output" '# Terminal Brain Start Here' "MCP start here title"
 require_contains "$mcp_start_here_output" 'local closed-app Start Here path' "MCP start here local fallback"
 require_contains "$mcp_start_here_output" 'Done Criteria' "MCP start here done criteria"
+
+mcp_handoff_output="$(call_mcp_tool terminal_brain_handoff_markdown)"
+require_contains "$mcp_handoff_output" '# Terminal Brain Handoff' "MCP handoff title"
+require_contains "$mcp_handoff_output" 'local closed-app handoff' "MCP handoff local fallback"
+require_contains "$mcp_handoff_output" 'Terminal Brain Start Here' "MCP handoff Start Here section"
+require_contains "$mcp_handoff_output" 'Terminal Brain Agent Prompt' "MCP handoff Agent Prompt section"
 
 mcp_first_minute_output="$(call_mcp_tool terminal_brain_first_minute_markdown)"
 require_contains "$mcp_first_minute_output" '# Terminal Brain First Minute' "MCP first minute title"
