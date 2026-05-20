@@ -14,6 +14,7 @@ struct ContentView: View {
     @State private var feedFilter: FeedKind = .all
     @State private var selectedSourceID = "obsidian"
     @State private var memoryLeadIndex = 1
+    @State private var recentWorkIndex = 1
     @State private var showCommandPalette = false
     @State private var commandQuery = ""
 
@@ -106,6 +107,7 @@ struct ContentView: View {
             BrainCommand(title: "Copy Project Memory", subtitle: "Active work surfaces and recommended actions", symbol: "folder.fill.badge.gearshape", category: "Action", action: .copyProjectMemory),
             BrainCommand(title: "Copy Source Inventory", subtitle: "Visible local sources and raw-transcript policy", symbol: "tray.full.fill", category: "Action", action: .copySourceInventory),
             BrainCommand(title: "Copy Memory Brief", subtitle: "Derived Codex/Claude continuity leads", symbol: "brain.head.profile", category: "Action", action: .copyMemoryBrief),
+            BrainCommand(title: "Promote Recent Work", subtitle: "Turn the newest git change into reviewable Oracle memory", symbol: "arrow.up.doc.fill", category: "Action", action: .promoteRecentWork),
             BrainCommand(title: "Copy Operator Deck", subtitle: "Prompt-ready four-card deck for handoffs", symbol: "rectangle.stack.fill.badge.person.crop", category: "Action", action: .copyDeck),
             BrainCommand(title: "Copy Agent Prompt", subtitle: "Focused execution prompt for Codex or Claude", symbol: "paperplane.fill", category: "Action", action: .copyAgentPrompt),
             BrainCommand(title: "Copy Latest Context Pack", subtitle: "Copy newest context pack Markdown", symbol: "doc.on.doc", category: "Action", action: .copyLatestPack),
@@ -3402,6 +3404,27 @@ struct ContentView: View {
                         .buttonStyle(.borderedProminent)
                     }
 
+                    HStack(spacing: 10) {
+                        Stepper("Recent \(recentWorkIndex)", value: $recentWorkIndex, in: 1...25)
+                            .font(.callout.weight(.semibold))
+                            .foregroundStyle(.white.opacity(0.76))
+                            .frame(width: 128, alignment: .leading)
+
+                        Button {
+                            Task { await model.previewRecentWork(index: recentWorkIndex) }
+                        } label: {
+                            Label("Preview Work", systemImage: "clock.badge.checkmark")
+                        }
+                        .buttonStyle(.bordered)
+
+                        Button {
+                            Task { await model.promoteRecentWork(index: recentWorkIndex) }
+                        } label: {
+                            Label("Promote Work", systemImage: "arrow.up.doc.fill")
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+
                     if !model.memoryBriefCopyOutput.isEmpty || !model.sourceInventoryCopyOutput.isEmpty || !model.projectMemoryCopyOutput.isEmpty {
                         Text(!model.memoryBriefCopyOutput.isEmpty ? model.memoryBriefCopyOutput : (!model.sourceInventoryCopyOutput.isEmpty ? model.sourceInventoryCopyOutput : model.projectMemoryCopyOutput))
                             .font(.caption.weight(.medium))
@@ -3412,13 +3435,18 @@ struct ContentView: View {
                             .font(.caption.weight(.medium))
                             .foregroundStyle(.white.opacity(0.58))
                     }
+                    if !model.recentWorkPromoteOutput.isEmpty {
+                        Text(model.recentWorkPromoteOutput)
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.white.opacity(0.58))
+                    }
                 }
                 .padding(16)
                 .darkPanel()
 
                 ProjectSignalSection(title: "Operating Policy", symbol: "lock.shield.fill") {
                     PolicyLine("Use derived memory for continuity; do not make raw transcripts normal search input.")
-                    PolicyLine("Promote only useful history into Oracle Inbox with the generated `make idea` commands.")
+                    PolicyLine("Promote useful agent history or recent shipped work into Oracle Inbox before it becomes invisible context.")
                     PolicyLine("Use `make work-block` after promotion so old history becomes action, not archive.")
                 }
             }
@@ -3917,6 +3945,9 @@ struct ContentView: View {
             Task { await model.copySourceInventory() }
         case .copyMemoryBrief:
             Task { await model.copyMemoryBrief() }
+        case .promoteRecentWork:
+            selectedSection = "memory"
+            Task { await model.promoteRecentWork(index: 1) }
         case .copyDeck:
             Task { await model.copyOperatorDeck() }
         case .copyAgentPrompt:
@@ -4208,6 +4239,7 @@ enum BrainCommandAction {
     case copyProjectMemory
     case copySourceInventory
     case copyMemoryBrief
+    case promoteRecentWork
     case copyDeck
     case copyAgentPrompt
     case copyLatestPack

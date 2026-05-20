@@ -127,6 +127,36 @@ final class LocalControlServer {
                 "stderr": result.stderr,
                 "guardrail": "memory promotion route did not launch or foreground Terminal Brain"
             ])
+        case ("POST", "/recent-work/promote"):
+            let index = request.jsonBody?["index"] as? Int ?? Int(request.jsonBody?["index"] as? Double ?? 1)
+            let project = (request.jsonBody?["project"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            let dryRun = request.jsonBody?["dryRun"] as? Bool ?? false
+            guard index > 0 else {
+                return .json(400, ["ok": false, "error": "index must be greater than zero"])
+            }
+            var args = [
+                "\(Paths.home)/Git/TerminalBrain/mac-app/scripts/recent-work.zsh",
+                "--index",
+                "\(index)"
+            ]
+            if !project.isEmpty {
+                args.append(contentsOf: ["--project", project])
+            }
+            if dryRun {
+                args.append("--dry-run")
+            }
+            let result = await CommandRunner.run("/bin/zsh", args)
+            if let data = result.stdout.data(using: .utf8),
+               let payload = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                return .json(result.succeeded ? 200 : 500, payload)
+            }
+            return .json(result.succeeded ? 200 : 500, [
+                "ok": result.succeeded,
+                "status": result.status,
+                "stdout": result.stdout,
+                "stderr": result.stderr,
+                "guardrail": "recent work promotion route did not launch or foreground Terminal Brain"
+            ])
         case ("GET", "/setup"):
             return .json(200, await SetupSnapshot.setup())
         case ("GET", "/projects"):

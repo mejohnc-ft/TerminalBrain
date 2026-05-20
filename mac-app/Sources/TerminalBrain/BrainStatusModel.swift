@@ -57,6 +57,7 @@ final class BrainStatusModel: ObservableObject {
     @Published var sourceInventoryCopyOutput = ""
     @Published var memoryBriefCopyOutput = ""
     @Published var memoryPromoteOutput = ""
+    @Published var recentWorkPromoteOutput = ""
     @Published var deckCopyOutput = ""
     @Published var latestPackCopyOutput = ""
     @Published var handoffCopyOutput = ""
@@ -413,6 +414,41 @@ final class BrainStatusModel: ObservableObject {
             }
         } catch {
             memoryPromoteOutput = "Memory promotion failed: \(error.localizedDescription)"
+        }
+    }
+
+    func previewRecentWork(index: Int) async {
+        await promoteRecentWork(index: index, dryRun: true)
+    }
+
+    func promoteRecentWork(index: Int, dryRun: Bool = false) async {
+        guard let url = URL(string: "http://127.0.0.1:8765/recent-work/promote") else { return }
+        do {
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONSerialization.data(withJSONObject: [
+                "index": max(1, index),
+                "dryRun": dryRun
+            ])
+            let (data, _) = try await URLSession.shared.data(for: request)
+            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                recentWorkPromoteOutput = dryRun ? "Recent work preview failed." : "Recent work promotion failed."
+                return
+            }
+            if dryRun {
+                let title = json["title"] as? String ?? "Selected recent work"
+                recentWorkPromoteOutput = "Preview: \(title)"
+            } else if json["ok"] as? Bool == true {
+                let path = json["path"] as? String ?? "Oracle Inbox"
+                recentWorkPromoteOutput = "Promoted recent work to \(path)"
+                oracleCommits = loadOracleCommits()
+                projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
+            } else {
+                recentWorkPromoteOutput = json["error"] as? String ?? "Recent work promotion failed."
+            }
+        } catch {
+            recentWorkPromoteOutput = "Recent work promotion failed: \(error.localizedDescription)"
         }
     }
 

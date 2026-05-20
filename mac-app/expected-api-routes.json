@@ -21,6 +21,7 @@
   "GET /sources/markdown",
   "GET /memory/markdown",
   "POST /memory/promote",
+  "POST /recent-work/promote",
   "GET /setup",
   "GET /projects",
   "GET /projects/markdown",
