@@ -92,7 +92,7 @@ echo
 echo "## Readiness"
 echo
 echo "- ${readiness:-unknown}"
-echo "- Next: ${doctor_next:-run make next}"
+echo "- Next: ${doctor_next:-run make work-block}"
 echo
 echo "## Guardrail"
 echo

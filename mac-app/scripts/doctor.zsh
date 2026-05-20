@@ -246,5 +246,5 @@ else
 fi
 echo "- ok: $ok_count"
 echo "- warnings: $warn_count"
-echo "- next: run make next for the safest current workflow"
+echo "- next: run make work-block for the current pull-forward, triage, and close-loop surface"
 echo "- guardrail: doctor did not launch or foreground Terminal Brain"
