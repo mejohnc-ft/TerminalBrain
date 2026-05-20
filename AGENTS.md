@@ -9,6 +9,16 @@ This repository builds a local macOS app used during active work. Do not steal t
 - Use `swiftc -typecheck mac-app/Sources/TerminalBrain/*.swift` for fast Swift checks.
 - Use `node --check mcp-server/server.mjs` for MCP syntax checks.
 
+## Fast Context Path
+
+When Terminal Brain is already running and the user asks for useful work, start from the handoff instead of re-discovering the system:
+
+```zsh
+./mac-app/scripts/handoff.zsh --output /tmp/terminal-brain-handoff.md
+```
+
+The handoff combines the Operator Deck and latest context pack. It never launches or foregrounds Terminal Brain. If using MCP, prefer `terminal_brain_handoff_markdown` as the first read, then use Operator Deck and Start Work tools for follow-up actions.
+
 ## Foregrounding Policy
 
 Do not run commands that launch, relaunch, quit, or foreground Terminal Brain unless the user explicitly asks for that behavior in the current turn.
