@@ -69,7 +69,7 @@ require_contains "$use_now_output" 'did not launch, foreground, screenshot, quit
 use_now_workspace="$(mktemp -d)"
 use_now_capture_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$use_now_workspace" "$ROOT/mac-app/scripts/use-now.zsh" --project "Terminal Brain" --idea "Capture this first-use pressure point." --limit 1)"
 require_contains "$use_now_capture_output" 'Captured First Signal' "use now capture section"
-require_contains "$use_now_capture_output" '"reviewStatus":"new"' "use now capture review status"
+require_contains "$use_now_capture_output" 'Review status: new' "use now capture review status"
 require_contains "$use_now_capture_output" 'Capture this first-use pressure point' "use now captured idea visible"
 test -f "$use_now_workspace/Oracle Inbox/"*.md || {
   echo "Entrypoint check failed: use now capture did not write note" >&2
@@ -344,8 +344,7 @@ require_contains "$mcp_use_now_output" 'make outcome TITLE=' "MCP use now outcom
 mcp_use_now_workspace="$(mktemp -d)"
 mcp_use_now_capture_output="$(TERMINAL_BRAIN_WORKSPACE="$mcp_use_now_workspace" call_mcp_tool_json terminal_brain_use_now_markdown '{"project":"Terminal Brain","idea":"MCP captured first-use pressure point.","title":"MCP Use Now Capture","limit":1}')"
 require_contains "$mcp_use_now_capture_output" 'Captured First Signal' "MCP use now capture section"
-require_contains "$mcp_use_now_capture_output" 'reviewStatus' "MCP use now capture review status field"
-require_contains "$mcp_use_now_capture_output" 'new' "MCP use now capture review status value"
+require_contains "$mcp_use_now_capture_output" 'Review status: new' "MCP use now capture review status"
 require_contains "$mcp_use_now_capture_output" 'MCP captured first-use pressure point' "MCP use now captured idea visible"
 test -f "$mcp_use_now_workspace/Oracle Inbox/"*.md || {
   echo "Entrypoint check failed: MCP use now capture did not write note" >&2

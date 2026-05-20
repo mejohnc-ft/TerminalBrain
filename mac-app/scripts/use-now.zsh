@@ -109,7 +109,16 @@ if [[ -n "$IDEA_TEXT" ]]; then
     SOURCE="$SOURCE" \
     "$ROOT/mac-app/scripts/idea.zsh"
   )"
-  printf '%s\n' "$capture_output"
+  if ! CAPTURE_OUTPUT="$capture_output" ruby -rjson -e '
+    payload = JSON.parse(ENV.fetch("CAPTURE_OUTPUT"))
+    puts "- Captured: #{payload.fetch("title", "Captured Idea")}"
+    puts "- Project: #{payload.fetch("project", "General Brain")}"
+    puts "- Review status: #{payload.fetch("reviewStatus", "new")}"
+    puts "- Path: #{payload.fetch("path", "(app API)")}"
+    puts "- Guardrail: #{payload.fetch("guardrail", "capture did not launch or foreground Terminal Brain")}"
+  '; then
+    printf '%s\n' "$capture_output"
+  fi
   echo
 fi
 echo "## Current Work Block"
