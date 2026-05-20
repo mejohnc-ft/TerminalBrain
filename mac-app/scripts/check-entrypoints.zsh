@@ -53,5 +53,6 @@ mcp_audit_output="$(call_mcp_tool terminal_brain_audit_markdown)"
 require_contains "$mcp_audit_output" '# Terminal Brain Capability Audit' "MCP audit title"
 require_contains "$mcp_audit_output" 'MCP Audit' "MCP audit self evidence"
 require_contains "$mcp_audit_output" 'MCP Outcome Commit' "MCP audit outcome evidence"
+require_contains "$mcp_audit_output" 'make audit' "MCP audit command evidence"
 
 echo "entrypoints ok"

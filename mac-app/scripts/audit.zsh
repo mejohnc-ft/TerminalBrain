@@ -87,6 +87,7 @@ echo
 echo "- make value"
 echo "- make next"
 echo "- make doctor"
+echo "- make audit"
 echo "- make status"
 echo "- make verify"
 echo
