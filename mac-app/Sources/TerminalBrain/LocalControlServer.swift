@@ -71,6 +71,8 @@ final class LocalControlServer {
             return .json(200, await SetupSnapshot.setup())
         case ("GET", "/projects"):
             return .json(200, ProjectSnapshot.projects())
+        case ("GET", "/projects/markdown"):
+            return .text(200, ProjectSnapshot.markdown())
         case ("GET", "/context-packs/latest"):
             return .json(200, ControlSnapshot.latestContextPack())
         case ("GET", "/context-packs/latest/markdown"):
@@ -949,6 +951,53 @@ enum ProjectSnapshot {
                 (($0["signalCount"] as? Int) ?? 0) > (($1["signalCount"] as? Int) ?? 0)
             }
         ]
+    }
+
+    static func markdown() -> String {
+        let payload = projects()
+        let items = (payload["items"] as? [[String: Any]]) ?? []
+        var lines: [String] = [
+            "# Terminal Brain Project Memory",
+            "",
+            "Generated: \(payload["generatedAt"] as? String ?? ISO8601DateFormatter().string(from: Date()))",
+            "",
+            "Use this as the current map of active work surfaces, durable context, and recommended project actions.",
+            ""
+        ]
+
+        for project in items.prefix(10) {
+            lines.append("## \(project["name"] as? String ?? "Project")")
+            lines.append("- Summary: \(project["summary"] as? String ?? "")")
+            lines.append("- Recommended action: \(project["recommendedAction"] as? String ?? "")")
+            lines.append("- Signal count: \(project["signalCount"] as? Int ?? 0)")
+            lines.append("- Delegated reads: \(project["delegatedCount"] as? Int ?? 0)")
+            if let lastActivity = project["lastActivity"] as? String, !lastActivity.isEmpty {
+                lines.append("- Last activity: \(lastActivity)")
+            }
+
+            let context = (project["contextPacks"] as? [[String: Any]]) ?? []
+            if !context.isEmpty {
+                lines.append("- Fresh context:")
+                for pack in context.prefix(3) {
+                    lines.append("  - \(pack["title"] as? String ?? "Context pack"): \(pack["detail"] as? String ?? "")")
+                }
+            }
+
+            let commits = (project["oracleCommits"] as? [[String: Any]]) ?? []
+            if !commits.isEmpty {
+                lines.append("- Oracle reads:")
+                for commit in commits.prefix(3) {
+                    lines.append("  - \(commit["title"] as? String ?? "Oracle read") (\(commit["status"] as? String ?? "new"))")
+                }
+            }
+            lines.append("")
+        }
+
+        if items.isEmpty {
+            lines.append("- No project memory pages are available yet.")
+        }
+
+        return lines.joined(separator: "\n")
     }
 
     private static func contextPacks(limit: Int) -> [[String: Any]] {

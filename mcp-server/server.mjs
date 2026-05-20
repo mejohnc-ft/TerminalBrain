@@ -217,6 +217,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_projects_markdown",
+    description: "Get Terminal Brain project memory as prompt-ready Markdown with recommended actions, context packs, and Oracle reads.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_latest_context_pack",
     description: "Get the newest Terminal Brain context pack path and metadata for opening or handing to an agent.",
     inputSchema: {
@@ -468,6 +477,8 @@ async function callTool(name, args = {}) {
       return api("/radar/disposition", { method: "POST", body: { id: args.id, disposition: args.disposition } });
     case "terminal_brain_projects":
       return api("/projects");
+    case "terminal_brain_projects_markdown":
+      return api("/projects/markdown", { rawText: true });
     case "terminal_brain_latest_context_pack":
       return api("/context-packs/latest");
     case "terminal_brain_latest_context_pack_markdown":

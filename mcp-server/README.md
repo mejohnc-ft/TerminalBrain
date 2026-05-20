@@ -48,6 +48,7 @@ Codex/workspace config can register this server as:
 - `terminal_brain_radar`
 - `terminal_brain_radar_triage`
 - `terminal_brain_projects`
+- `terminal_brain_projects_markdown`
 - `terminal_brain_latest_context_pack`
 - `terminal_brain_latest_context_pack_markdown`
 - `terminal_brain_oracle_brief`
