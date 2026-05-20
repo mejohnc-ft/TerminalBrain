@@ -1502,26 +1502,30 @@ struct ContentView: View {
     }
 
     private var heroPanel: some View {
-        HStack(alignment: .bottom, spacing: 22) {
+        let mission = healthCard(named: "Mission Control")
+        let sync = healthCard(named: "Edge Sync State")
+        let memory = healthCard(named: "Obsidian Index")
+        let attention = model.cards.filter { $0.state == .warn }.count
+        return HStack(alignment: .bottom, spacing: 22) {
             VStack(alignment: .leading, spacing: 12) {
                 Text("Brain gateway")
                     .font(.caption.weight(.bold))
                     .foregroundStyle(settings.theme.accent)
                     .textCase(.uppercase)
-                Text("Ready for agent work.")
+                Text(attention == 0 && !model.cards.isEmpty ? "Ready for agent work." : "\(attention) item\(attention == 1 ? "" : "s") need attention.")
                     .font(.system(size: 44, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.72)
-                Text("Terminal Brain owns the local control plane. Sensitive sources remain explicit, Mission Control is reachable, and agents can use the MCP gateway without waking Apple Notes or Drafts bridges.")
+                Text(heroDetail(mission: mission, sync: sync, memory: memory))
                     .font(.callout)
                     .foregroundStyle(.white.opacity(0.64))
                     .frame(maxWidth: 740, alignment: .leading)
             }
             Spacer()
-            MetricTile(title: "Mission", value: "10028", detail: "points", symbol: "display")
-            MetricTile(title: "Sync", value: "4231", detail: "records", symbol: "arrow.triangle.2.circlepath")
-            MetricTile(title: "Memory", value: "1.62M", detail: "agent records", symbol: "brain")
+            MetricTile(title: "Mission", value: mission?.value ?? "unknown", detail: mission?.state.rawValue ?? "not checked", symbol: mission?.symbol ?? "display")
+            MetricTile(title: "Sync", value: sync?.value ?? "unknown", detail: sync?.state.rawValue ?? "not checked", symbol: sync?.symbol ?? "arrow.triangle.2.circlepath")
+            MetricTile(title: "Memory", value: memory?.value ?? "unknown", detail: memory?.state.rawValue ?? "not checked", symbol: memory?.symbol ?? "brain")
         }
         .padding(20)
         .background(
@@ -1529,6 +1533,17 @@ struct ContentView: View {
             in: RoundedRectangle(cornerRadius: 18, style: .continuous)
         )
         .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(.white.opacity(0.12), lineWidth: 1))
+    }
+
+    private func healthCard(named title: String) -> HealthCard? {
+        model.cards.first { $0.title == title }
+    }
+
+    private func heroDetail(mission: HealthCard?, sync: HealthCard?, memory: HealthCard?) -> String {
+        let missionText = mission?.state == .good ? "Mission Control is reachable" : "Mission Control needs attention"
+        let syncText = sync?.state == .good ? "sync state is populated" : "sync state needs attention"
+        let memoryText = memory?.state == .good ? "durable memory is indexed" : "durable memory needs a refresh"
+        return "Terminal Brain owns the local control plane: \(missionText), \(syncText), and \(memoryText). Sensitive sources remain explicit so agents can work through the MCP gateway without waking prompt-prone bridges."
     }
 
     private var oracleView: some View {
