@@ -75,6 +75,15 @@ final class LocalControlServer {
             return .json(200, await FocusSnapshot.focus())
         case ("GET", "/operator-deck"):
             return .json(200, await OperatorDeckSnapshot.deck())
+        case ("POST", "/operator-deck/action"):
+            let sourceType = (request.jsonBody?["sourceType"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            let sourceID = (request.jsonBody?["sourceID"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            let disposition = (request.jsonBody?["disposition"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            let status = (request.jsonBody?["status"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !sourceType.isEmpty, !sourceID.isEmpty else {
+                return .json(400, ["ok": false, "error": "sourceType and sourceID are required"])
+            }
+            return .json(200, await OperatorDeckSnapshot.applyAction(sourceType: sourceType, sourceID: sourceID, disposition: disposition, status: status))
         case ("POST", "/focus/ask"):
             let question = (request.jsonBody?["question"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
             return .json(200, await FocusSnapshot.ask(question: question))
@@ -322,6 +331,61 @@ enum OracleSnapshot {
         ]
     }
 
+    static func setReviewStatus(id: String, status: String) -> [String: Any] {
+        let allowed = ["new", "accepted", "linked", "delegated", "dismissed"]
+        guard allowed.contains(status) else {
+            return ["ok": false, "error": "Invalid status", "allowed": allowed]
+        }
+        let standardizedInbox = (Paths.oracleInbox as NSString).standardizingPath
+        let standardizedPath = (id as NSString).standardizingPath
+        guard standardizedPath.hasPrefix(standardizedInbox), standardizedPath.hasSuffix(".md") else {
+            return ["ok": false, "error": "Commit id must be a note path inside the Oracle Inbox"]
+        }
+
+        let url = URL(fileURLWithPath: standardizedPath)
+        guard var text = try? String(contentsOf: url, encoding: .utf8) else {
+            return ["ok": false, "error": "Unable to read Oracle commit"]
+        }
+
+        if text.hasPrefix("---\n"), let end = text.range(of: "\n---\n", range: text.index(text.startIndex, offsetBy: 4)..<text.endIndex) {
+            var frontmatter = String(text[..<end.lowerBound])
+            let remainder = String(text[end.upperBound...])
+            let lines = frontmatter.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
+            var replaced = false
+            let nextLines = lines.map { line -> String in
+                if line.hasPrefix("reviewStatus:") {
+                    replaced = true
+                    return "reviewStatus: \(status)"
+                }
+                return line
+            }
+            frontmatter = nextLines.joined(separator: "\n")
+            if !replaced {
+                frontmatter += "\nreviewStatus: \(status)"
+            }
+            text = "\(frontmatter)\n---\n\(remainder)"
+        } else {
+            text = """
+            ---
+            reviewStatus: \(status)
+            ---
+
+            \(text)
+            """
+        }
+
+        do {
+            try text.write(to: url, atomically: true, encoding: .utf8)
+            return [
+                "ok": true,
+                "id": standardizedPath,
+                "status": status
+            ]
+        } catch {
+            return ["ok": false, "error": error.localizedDescription]
+        }
+    }
+
     private static func oracleItems() -> [[String: Any]] {
         var output: [[String: Any]] = [
             [
@@ -529,10 +593,10 @@ enum OracleSnapshot {
             "",
             "Current Terminal Brain implementation:",
             "- Native macOS app with local control API on http://127.0.0.1:8765.",
-            "- Current API routes: /health, /status, /setup, /focus, /operator-deck, /radar, /radar/disposition, /sources, /briefing, /permissions, /oracle/brief, /oracle/items, /oracle/ask, /oracle/commit, /sync, /start-work.",
+            "- Current API routes: /health, /status, /setup, /focus, /operator-deck, /operator-deck/action, /radar, /radar/disposition, /sources, /briefing, /permissions, /oracle/brief, /oracle/items, /oracle/ask, /oracle/commit, /sync, /start-work.",
             "- Oracle ask already combines local deterministic signals, Mission retrieval, Mission workbench synthesis, citations, supporting items, and fallback behavior.",
             "- Oracle commit can write synthesized decisions and outcomes into the Obsidian-backed Oracle Inbox.",
-            "- MCP proxy can call Terminal Brain status, setup, focus, radar, radar triage, sources, briefing, permissions, sync, start work, oracle brief, oracle items, oracle ask, and oracle commit.",
+            "- MCP proxy can call Terminal Brain status, setup, focus, operator deck, operator deck action, radar, radar triage, sources, briefing, permissions, sync, start work, oracle brief, oracle items, oracle ask, and oracle commit.",
             "- Do not describe these implemented capabilities as missing. Recommend what should come after them.",
             "",
             "Local deterministic read:",
@@ -1104,7 +1168,7 @@ enum OperatorDeckSnapshot {
             query: focusItem["query"] as? String ?? "",
             symbol: focusItem["symbol"] as? String ?? "target",
             sourceID: focusItem["id"] as? String ?? "focus",
-            sourceType: "focus"
+            sourceType: (focusPayload["mode"] as? String) == "radar" ? "radar" : "focus"
         ))
 
         if let bubble = oracleItems.first {
@@ -1196,6 +1260,32 @@ enum OperatorDeckSnapshot {
             "mode": "operator-deck",
             "items": items
         ]
+    }
+
+    static func applyAction(sourceType: String, sourceID: String, disposition: String, status: String) async -> [String: Any] {
+        switch sourceType {
+        case "radar":
+            let resolvedDisposition = disposition.isEmpty ? "acted" : disposition
+            return await RadarSnapshot.setDisposition(id: sourceID, disposition: resolvedDisposition)
+        case "oracleCommit":
+            let resolvedStatus = status.isEmpty ? "accepted" : status
+            return OracleSnapshot.setReviewStatus(id: sourceID, status: resolvedStatus)
+        case "focus":
+            return [
+                "ok": false,
+                "error": "This Focus card is an instruction, not a persistent queue item. Act through the card action or build a context pack.",
+                "sourceType": sourceType,
+                "sourceID": sourceID
+            ]
+        default:
+            return [
+                "ok": false,
+                "error": "Operator Deck card type is not directly triageable",
+                "sourceType": sourceType,
+                "sourceID": sourceID,
+                "supportedSourceTypes": ["focus", "radar", "oracleCommit"]
+            ]
+        }
     }
 
     private static func card(slot: String, kicker: String, title: String, detail: String, action: String, project: String, query: String, symbol: String, sourceID: String, sourceType: String) -> [String: Any] {

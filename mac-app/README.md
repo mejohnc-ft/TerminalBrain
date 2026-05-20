@@ -134,6 +134,7 @@ Routes:
 - `GET /setup`
 - `GET /focus`
 - `GET /operator-deck`
+- `POST /operator-deck/action`
 - `POST /focus/ask`
 - `GET /radar`
 - `POST /radar/disposition`

@@ -90,6 +90,36 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_operator_deck_action",
+    description: "Apply a triage action to a directly actionable Operator Deck card, such as marking Radar acted/watching/snoozed/dismissed or setting Oracle commit review status.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        sourceType: {
+          type: "string",
+          enum: ["radar", "oracleCommit"],
+          description: "Directly triageable Operator Deck sourceType from the card."
+        },
+        sourceID: {
+          type: "string",
+          description: "Operator Deck sourceID from the card."
+        },
+        disposition: {
+          type: "string",
+          enum: ["fresh", "watching", "acted", "snoozed", "dismissed"],
+          description: "Radar/focus disposition. Defaults to acted when sourceType is focus or radar."
+        },
+        status: {
+          type: "string",
+          enum: ["new", "accepted", "linked", "delegated", "dismissed"],
+          description: "Oracle commit review status. Defaults to accepted when sourceType is oracleCommit."
+        }
+      },
+      required: ["sourceType", "sourceID"],
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_focus_ask",
     description: "Ask Terminal Brain Oracle a question grounded in the current Focus item and its scoring evidence.",
     inputSchema: {
@@ -347,6 +377,16 @@ async function callTool(name, args = {}) {
       return api("/focus");
     case "terminal_brain_operator_deck":
       return api("/operator-deck");
+    case "terminal_brain_operator_deck_action":
+      return api("/operator-deck/action", {
+        method: "POST",
+        body: {
+          sourceType: args.sourceType,
+          sourceID: args.sourceID,
+          disposition: args.disposition || "",
+          status: args.status || ""
+        }
+      });
     case "terminal_brain_focus_ask":
       return api("/focus/ask", { method: "POST", body: { question: args.question || "" } });
     case "terminal_brain_radar":
