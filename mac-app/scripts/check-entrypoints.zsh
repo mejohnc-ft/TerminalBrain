@@ -151,6 +151,8 @@ rm -rf "$memory_workspace"
 doctor_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/doctor.zsh")"
 require_contains "$doctor_output" '# Terminal Brain Doctor' "doctor title"
 require_contains "$doctor_output" 'MCP tool contract valid' "doctor MCP contract"
+require_contains "$doctor_output" 'legacy local-brain/terminal-brain MCP auto-start entries' "doctor legacy MCP autostart guard"
+require_contains "$doctor_output" 'Terminal Brain MCP/kernel' "doctor duplicate MCP process guard"
 require_contains "$doctor_output" 'doctor did not launch or foreground' "doctor guardrail"
 
 agent_prompt_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/agent-prompt.zsh")"

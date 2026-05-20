@@ -51,6 +51,7 @@ agent_config_ready=0
 prompt_config_safe=0
 bridge_process_safe=0
 apple_notes_opt_in_safe=0
+runtime_noise_safe=0
 
 ok() {
   ok_count=$((ok_count + 1))
@@ -172,6 +173,7 @@ else
 fi
 
 config_hits=()
+legacy_autostart_hits=()
 config_files=(
   "$HOME/.codex/config.toml"
   "$HOME/.codex/config.json"
@@ -181,17 +183,46 @@ config_files=(
 )
 for file in "${config_files[@]}"; do
   [[ -f "$file" ]] || continue
-  if grep -qE 'terminal-brain|TerminalBrain|mcp-server/server\.mjs' "$file"; then
+  if grep -qE 'mcp-server/server\.mjs|TerminalBrain' "$file"; then
     config_hits+=("$file")
+  fi
+  if grep -qE 'Software/(brain-kernel|terminal-brain-mcp)/server\.mjs|\[mcp_servers\.(local-brain|terminal-brain)\]' "$file"; then
+    legacy_autostart_hits+=("$file")
   fi
 done
 
 if (( ${#config_hits[@]} > 0 )); then
-  ok "agent config references Terminal Brain MCP"
+  ok "agent config references packaged Terminal Brain MCP"
   agent_config_ready=1
   printf '     %s\n' "${config_hits[@]}"
 else
-  warn "no common Codex/Claude config reference found for Terminal Brain MCP"
+  ok "no per-agent Terminal Brain MCP auto-start entries found"
+  agent_config_ready=1
+fi
+
+if (( ${#legacy_autostart_hits[@]} > 0 )); then
+  warn "legacy local-brain/terminal-brain MCP auto-start entries can spawn duplicate Node children"
+  printf '     %s\n' "${legacy_autostart_hits[@]}"
+else
+  ok "no legacy local-brain/terminal-brain MCP auto-start entries found"
+fi
+echo
+
+echo "## Runtime Noise"
+terminal_brain_mcp_processes="$(ps ax -o pid=,args= | grep -E '/Users/.*/Software/terminal-brain-mcp/server\.mjs' | grep -Ev 'grep -E|doctor\.zsh|check-entrypoints\.zsh|verify-static\.zsh' || true)"
+brain_kernel_processes="$(ps ax -o pid=,args= | grep -E '/Users/.*/Software/brain-kernel/server\.mjs' | grep -Ev 'grep -E|doctor\.zsh|check-entrypoints\.zsh|verify-static\.zsh' || true)"
+terminal_brain_mcp_count="$(printf '%s\n' "$terminal_brain_mcp_processes" | sed '/^[[:space:]]*$/d' | wc -l | tr -d ' ')"
+brain_kernel_count="$(printf '%s\n' "$brain_kernel_processes" | sed '/^[[:space:]]*$/d' | wc -l | tr -d ' ')"
+if (( terminal_brain_mcp_count > 1 || brain_kernel_count > 1 )); then
+  warn "duplicate Terminal Brain MCP/kernel Node children detected"
+  [[ -z "$terminal_brain_mcp_processes" ]] || printf '%s\n' "$terminal_brain_mcp_processes" | sed 's/^/     /'
+  [[ -z "$brain_kernel_processes" ]] || printf '%s\n' "$brain_kernel_processes" | sed 's/^/     /'
+elif (( terminal_brain_mcp_count == 1 || brain_kernel_count == 1 )); then
+  ok "single Terminal Brain MCP/kernel child detected"
+  runtime_noise_safe=1
+else
+  ok "no Terminal Brain MCP/kernel Node children detected"
+  runtime_noise_safe=1
 fi
 echo
 
@@ -231,7 +262,7 @@ echo
 
 echo "## Summary"
 core_ready=0
-if (( repo_clean && ci_green && built_ready && installed_ready && installed_fresh && mcp_syntax_ready && mcp_contract_ready && agent_config_ready && prompt_config_safe && bridge_process_safe && apple_notes_opt_in_safe )); then
+if (( repo_clean && ci_green && built_ready && installed_ready && installed_fresh && mcp_syntax_ready && mcp_contract_ready && agent_config_ready && runtime_noise_safe && prompt_config_safe && bridge_process_safe && apple_notes_opt_in_safe )); then
   core_ready=1
 fi
 
