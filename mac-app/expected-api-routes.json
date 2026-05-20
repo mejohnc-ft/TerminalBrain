@@ -18,6 +18,7 @@
   "GET /value-proof/markdown",
   "GET /start-here/markdown",
   "GET /sources",
+  "GET /sources/markdown",
   "GET /setup",
   "GET /projects",
   "GET /projects/markdown",

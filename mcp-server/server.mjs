@@ -276,6 +276,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_sources_markdown",
+    description: "Get a non-launching source inventory with Obsidian, Codex, Claude, derived agent memory, and guarded import guidance.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_setup",
     description: "Read Terminal Brain readiness setup: app, MCP config, workspace, sync, memory, Mission Control, prompt safety, and Oracle writeback.",
     inputSchema: {
@@ -1435,6 +1444,24 @@ function workBlockMarkdown(args = {}) {
   ].join("\n");
 }
 
+function sourcesMarkdown() {
+  const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "sources.zsh")], { timeout: 20000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Source Inventory",
+    "",
+    "Source inventory failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 function setReviewStatus(args = {}) {
   const id = typeof args.id === "string" ? args.id.trim() : "";
   const status = typeof args.status === "string" ? args.status.trim() : "";
@@ -1813,7 +1840,18 @@ async function callTool(name, args = {}) {
     case "terminal_brain_start_here_markdown":
       return startHereMarkdown();
     case "terminal_brain_sources":
-      return api("/sources");
+      try {
+        return await api("/sources");
+      } catch {
+        return {
+          ok: true,
+          mode: "local-fallback",
+          markdown: sourcesMarkdown(),
+          guardrail: "MCP sources fallback did not launch or foreground Terminal Brain"
+        };
+      }
+    case "terminal_brain_sources_markdown":
+      return sourcesMarkdown();
     case "terminal_brain_setup":
       return api("/setup");
     case "terminal_brain_briefing":

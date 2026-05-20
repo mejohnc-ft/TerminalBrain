@@ -1,4 +1,4 @@
-.PHONY: help build install verify live first-minute demo playbook value-audit now status processes cleanup-plan support-bundle next value prove-value oracle-brief bubble-up work-block doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live first-minute demo playbook value-audit now sources status processes cleanup-plan support-bundle next value prove-value oracle-brief bubble-up work-block doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
@@ -9,6 +9,7 @@ help:
 	@echo "  make playbook      Non-launching operator playbook for using Terminal Brain today"
 	@echo "  make value-audit   Non-launching evidence audit for first-use value and gaps"
 	@echo "  make now           Non-launching one-page orientation: value, next action, process truth, readiness"
+	@echo "  make sources       Non-launching source inventory for Obsidian, Codex, Claude, Drafts, and agent memory"
 	@echo "  make prove-value   Non-launching proof of Oracle Brief -> Agent Prompt -> Outcome"
 	@echo "  make value         Non-launching value read; prints live Value Brief if app is reachable"
 	@echo "  make oracle-brief  Non-launching direct read: next moves, missing signal, cheap test, handoff"
@@ -73,6 +74,9 @@ value-audit:
 
 now:
 	./mac-app/scripts/now.zsh
+
+sources:
+	./mac-app/scripts/sources.zsh
 
 status:
 	./mac-app/scripts/status.zsh
