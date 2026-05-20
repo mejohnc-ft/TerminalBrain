@@ -1414,13 +1414,19 @@ struct ContentView: View {
                             }
                             .buttonStyle(.borderedProminent)
                             Button {
-                                model.oracleQuestion = item.question
-                                selectedSection = "oracle"
-                                Task { await model.askOracle() }
+                                Task { await model.askBlindspot(item) }
                             } label: {
-                                Label("Ask Oracle", systemImage: "sparkle.magnifyingglass")
+                                Label(model.isAskingBlindspot ? "Asking" : "Ask Oracle", systemImage: "sparkle.magnifyingglass")
                             }
                             .buttonStyle(.bordered)
+                            .disabled(model.isAskingBlindspot)
+                            Button {
+                                Task { await model.askBlindspot(item, commit: true) }
+                            } label: {
+                                Label("Ask + Commit", systemImage: "square.and.arrow.down")
+                            }
+                            .buttonStyle(.bordered)
+                            .disabled(model.isAskingBlindspot)
                             if item.source == "Oracle commit" {
                                 Button {
                                     selectedCommitID = item.sourceID
@@ -1436,6 +1442,36 @@ struct ContentView: View {
                                 }
                                 .buttonStyle(.bordered)
                             }
+                        }
+
+                        if !model.blindspotAnswer.isEmpty {
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Label(model.blindspotAnswerTitle.isEmpty ? "Oracle Answer" : model.blindspotAnswerTitle, systemImage: "text.bubble.fill")
+                                        .font(.caption.weight(.bold))
+                                        .foregroundStyle(item.state.color)
+                                    Spacer()
+                                    if !model.blindspotOutput.isEmpty {
+                                        Text(model.blindspotOutput)
+                                            .font(.caption.weight(.medium))
+                                            .foregroundStyle(.white.opacity(0.46))
+                                            .lineLimit(1)
+                                    }
+                                }
+                                Text(model.blindspotAnswer)
+                                    .font(.callout)
+                                    .foregroundStyle(.white.opacity(0.72))
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .textSelection(.enabled)
+                            }
+                            .padding(12)
+                            .background(.white.opacity(0.07), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(.white.opacity(0.09), lineWidth: 1))
+                        } else if !model.blindspotOutput.isEmpty {
+                            Text(model.blindspotOutput)
+                                .font(.caption)
+                                .foregroundStyle(.white.opacity(0.52))
+                                .lineLimit(2)
                         }
                     }
                     .padding(16)
@@ -2463,9 +2499,7 @@ struct ContentView: View {
             model.quickIdea = item.question
             selectedSection = "focus"
         case "Ask Oracle":
-            model.oracleQuestion = item.question
-            selectedSection = "oracle"
-            Task { await model.askOracle() }
+            Task { await model.askBlindspot(item) }
         default:
             model.workQuery = [item.project, item.question].filter { !$0.isEmpty && $0 != "General Brain" }.joined(separator: " - ")
             selectedSection = "start"

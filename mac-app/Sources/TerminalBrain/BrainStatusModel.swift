@@ -20,6 +20,10 @@ final class BrainStatusModel: ObservableObject {
     @Published var oracleSuggestedActions: [String] = []
     @Published var oracleCommitOutput = ""
     @Published var isAskingOracle = false
+    @Published var blindspotAnswer = ""
+    @Published var blindspotAnswerTitle = ""
+    @Published var blindspotOutput = ""
+    @Published var isAskingBlindspot = false
     @Published var quickIdea = ""
     @Published var quickIdeaOutput = ""
     @Published var snapshotCopyOutput = ""
@@ -331,6 +335,90 @@ final class BrainStatusModel: ObservableObject {
             oracleMode = "local"
             oracleAnswer = answerOracleQuestion(resolvedQuestion, items: oracleItems, cards: cards)
             oracleSuggestedActions = []
+        }
+    }
+
+    func askBlindspot(_ item: BlindspotItem, commit: Bool = false) async {
+        guard !isAskingBlindspot else { return }
+        isAskingBlindspot = true
+        blindspotAnswerTitle = item.title
+        blindspotOutput = commit ? "Asking and committing..." : "Asking Oracle..."
+        defer { isAskingBlindspot = false }
+
+        guard let url = URL(string: "http://127.0.0.1:8765/blindspots/ask") else {
+            blindspotOutput = "Blindspot ask failed."
+            return
+        }
+
+        do {
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONSerialization.data(withJSONObject: [
+                "id": item.id,
+                "question": item.question
+            ])
+            let (data, _) = try await URLSession.shared.data(for: request)
+            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let answer = json["answer"] as? String,
+                  !answer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                blindspotOutput = "Blindspot ask failed."
+                return
+            }
+
+            let resolvedQuestion = json["question"] as? String ?? item.question
+            let groundedQuestion = json["groundedQuestion"] as? String ?? resolvedQuestion
+            let mode = (json["mode"] as? String ?? "blindspot").replacingOccurrences(of: "-", with: " ")
+            oracleQuestion = resolvedQuestion
+            oracleAnswer = answer
+            oracleMode = mode
+            oracleSuggestedActions = json["suggestedActions"] as? [String] ?? []
+            blindspotAnswer = answer
+            blindspotOutput = "Oracle answered."
+
+            if commit {
+                await commitBlindspotAnswer(
+                    answer: answer,
+                    question: groundedQuestion,
+                    suggestion: json["commitSuggestion"] as? [String: Any] ?? [:],
+                    fallback: item
+                )
+            }
+        } catch {
+            blindspotOutput = "Blindspot ask failed: \(error.localizedDescription)"
+        }
+    }
+
+    private func commitBlindspotAnswer(answer: String, question: String, suggestion: [String: Any], fallback: BlindspotItem) async {
+        guard let url = URL(string: "http://127.0.0.1:8765/oracle/commit") else { return }
+        do {
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONSerialization.data(withJSONObject: [
+                "title": suggestion["title"] as? String ?? "Blindspot - \(fallback.title)",
+                "question": question,
+                "content": answer,
+                "source": "Terminal Brain.app Blindspot Brief",
+                "project": suggestion["project"] as? String ?? fallback.project,
+                "tags": suggestion["tags"] as? [String] ?? ["terminal-brain", "blindspot", "oracle"]
+            ])
+            let (data, _) = try await URLSession.shared.data(for: request)
+            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  json["ok"] as? Bool == true,
+                  let path = json["path"] as? String else {
+                blindspotOutput = "Blindspot commit failed."
+                return
+            }
+            blindspotOutput = "Committed to \(path)"
+            oracleCommitOutput = blindspotOutput
+            oracleCommits = loadOracleCommits()
+            projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
+            radarItems = buildRadarItems(cards: cards, setupSteps: setupSteps, projects: projects, oracleItems: oracleItems, oracleCommits: oracleCommits, feedItems: feedItems)
+            dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems, radarItems: radarItems)
+            rebuildOperatorBrief()
+        } catch {
+            blindspotOutput = "Blindspot commit failed: \(error.localizedDescription)"
         }
     }
 
