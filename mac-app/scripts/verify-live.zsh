@@ -60,6 +60,31 @@ curl -fsS "$API/snapshot/markdown" | ruby -e '
   puts "markdown ok chars=#{text.length}"
 '
 
+curl -fsS "$API/now" | ruby -rjson -e '
+  j=JSON.parse(STDIN.read)
+  abort("now missing bottom line") if j["bottomLine"].to_s.empty?
+  abort("now missing focus") unless j["focus"].is_a?(Hash)
+  abort("now missing do-this steps") if (j["doThis"] || []).empty?
+  abort("now missing process truth") unless j["processTruth"].is_a?(Hash)
+  puts "now json ok steps=#{(j["doThis"] || []).length}"
+'
+
+curl -fsS "$API/now/markdown" | ruby -e '
+  text = STDIN.read
+  abort("now markdown missing title") unless text.include?("# Terminal Brain Now")
+  abort("now markdown missing bottom line") unless text.include?("## Bottom Line")
+  abort("now markdown missing process truth") unless text.include?("## Process Truth")
+  abort("now markdown missing close loop") unless text.include?("## Close Loop")
+  puts "now markdown ok chars=#{text.length}"
+'
+
+curl -fsS "$API/cleanup-plan/markdown" | ruby -e '
+  text = STDIN.read
+  abort("cleanup plan missing title") unless text.include?("# Terminal Brain Cleanup Plan")
+  abort("cleanup plan missing guardrail") unless text.include?("did not launch, foreground, quit, kill, or control")
+  puts "cleanup plan ok chars=#{text.length}"
+'
+
 curl -fsS "$API/operator-brief" | ruby -rjson -e '
   j=JSON.parse(STDIN.read)
   items = j["items"] || []
@@ -178,6 +203,40 @@ printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal
       focus = snapshot.dig("focus", "item", "title").to_s
       abort("mcp snapshot missing focus") if focus.empty?
       puts "mcp snapshot ok focus=#{focus.inspect}"
+    '
+
+printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_now","arguments":{}}}\n' \
+  | node "$ROOT/mcp-server/server.mjs" \
+  | ruby -rjson -e '
+      line = STDIN.each_line.find { |l| l.include?("\"result\"") } || "{}"
+      response = JSON.parse(line)
+      text = response.dig("result", "content", 0, "text").to_s
+      payload = JSON.parse(text)
+      abort("mcp now missing bottom line") if payload["bottomLine"].to_s.empty?
+      abort("mcp now missing focus") unless payload["focus"].is_a?(Hash)
+      puts "mcp now json ok"
+    '
+
+printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_now_markdown","arguments":{}}}\n' \
+  | node "$ROOT/mcp-server/server.mjs" \
+  | ruby -rjson -e '
+      line = STDIN.each_line.find { |l| l.include?("\"result\"") } || "{}"
+      response = JSON.parse(line)
+      text = response.dig("result", "content", 0, "text").to_s
+      abort("mcp now markdown missing title") unless text.include?("# Terminal Brain Now")
+      abort("mcp now markdown missing process truth") unless text.include?("## Process Truth")
+      puts "mcp now markdown ok chars=#{text.length}"
+    '
+
+printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_cleanup_plan_markdown","arguments":{}}}\n' \
+  | node "$ROOT/mcp-server/server.mjs" \
+  | ruby -rjson -e '
+      line = STDIN.each_line.find { |l| l.include?("\"result\"") } || "{}"
+      response = JSON.parse(line)
+      text = response.dig("result", "content", 0, "text").to_s
+      abort("mcp cleanup plan missing title") unless text.include?("# Terminal Brain Cleanup Plan")
+      abort("mcp cleanup plan missing guardrail") unless text.include?("did not launch, foreground, quit, kill, or control")
+      puts "mcp cleanup plan ok chars=#{text.length}"
     '
 
 printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_snapshot_markdown","arguments":{}}}\n' \
