@@ -90,6 +90,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_operator_deck_markdown",
+    description: "Get the current Terminal Brain Operator Deck as prompt-ready Markdown.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_operator_deck_action",
     description: "Apply a triage action to a directly actionable Operator Deck card, such as marking Radar acted/watching/snoozed/dismissed or setting Oracle commit review status.",
     inputSchema: {
@@ -377,6 +386,8 @@ async function callTool(name, args = {}) {
       return api("/focus");
     case "terminal_brain_operator_deck":
       return api("/operator-deck");
+    case "terminal_brain_operator_deck_markdown":
+      return api("/operator-deck/markdown", { rawText: true });
     case "terminal_brain_operator_deck_action":
       return api("/operator-deck/action", {
         method: "POST",

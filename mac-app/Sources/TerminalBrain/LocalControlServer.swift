@@ -75,6 +75,8 @@ final class LocalControlServer {
             return .json(200, await FocusSnapshot.focus())
         case ("GET", "/operator-deck"):
             return .json(200, await OperatorDeckSnapshot.deck())
+        case ("GET", "/operator-deck/markdown"):
+            return .text(200, await OperatorDeckSnapshot.markdown())
         case ("POST", "/operator-deck/action"):
             let sourceType = (request.jsonBody?["sourceType"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
             let sourceID = (request.jsonBody?["sourceID"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
@@ -593,7 +595,7 @@ enum OracleSnapshot {
             "",
             "Current Terminal Brain implementation:",
             "- Native macOS app with local control API on http://127.0.0.1:8765.",
-            "- Current API routes: /health, /status, /setup, /focus, /operator-deck, /operator-deck/action, /radar, /radar/disposition, /sources, /briefing, /permissions, /oracle/brief, /oracle/items, /oracle/ask, /oracle/commit, /sync, /start-work.",
+            "- Current API routes: /health, /status, /setup, /focus, /operator-deck, /operator-deck/markdown, /operator-deck/action, /radar, /radar/disposition, /sources, /briefing, /permissions, /oracle/brief, /oracle/items, /oracle/ask, /oracle/commit, /sync, /start-work.",
             "- Oracle ask already combines local deterministic signals, Mission retrieval, Mission workbench synthesis, citations, supporting items, and fallback behavior.",
             "- Oracle commit can write synthesized decisions and outcomes into the Obsidian-backed Oracle Inbox.",
             "- MCP proxy can call Terminal Brain status, setup, focus, operator deck, operator deck action, radar, radar triage, sources, briefing, permissions, sync, start work, oracle brief, oracle items, oracle ask, and oracle commit.",
@@ -1260,6 +1262,43 @@ enum OperatorDeckSnapshot {
             "mode": "operator-deck",
             "items": items
         ]
+    }
+
+    static func markdown() async -> String {
+        let payload = await deck()
+        let items = (payload["items"] as? [[String: Any]]) ?? []
+        var lines: [String] = [
+            "# Terminal Brain Operator Deck",
+            "",
+            "Generated: \(payload["generatedAt"] as? String ?? ISO8601DateFormatter().string(from: Date()))",
+            "",
+            "Use these cards in order. Act on direct queue items, ask about uncertain items, and capture anything that should not be lost.",
+            ""
+        ]
+
+        for item in items.prefix(4) {
+            let kicker = item["kicker"] as? String ?? "Card"
+            let title = item["title"] as? String ?? "Untitled"
+            let detail = item["detail"] as? String ?? ""
+            let action = item["action"] as? String ?? "Act"
+            let project = item["project"] as? String ?? "General Brain"
+            let sourceType = item["sourceType"] as? String ?? ""
+            let sourceID = item["sourceID"] as? String ?? ""
+            lines.append("## \(kicker): \(title)")
+            lines.append("- Action: \(action)")
+            lines.append("- Project: \(project)")
+            lines.append("- Source: \(sourceType) \(sourceID)")
+            if !detail.isEmpty {
+                lines.append("- Detail: \(detail)")
+            }
+            lines.append("")
+        }
+
+        if items.isEmpty {
+            lines.append("- No Operator Deck cards are available.")
+        }
+
+        return lines.joined(separator: "\n")
     }
 
     static func applyAction(sourceType: String, sourceID: String, disposition: String, status: String) async -> [String: Any] {

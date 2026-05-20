@@ -9,6 +9,7 @@
   "GET /today",
   "GET /focus",
   "GET /operator-deck",
+  "GET /operator-deck/markdown",
   "POST /operator-deck/action",
   "POST /focus/ask",
   "GET /radar",

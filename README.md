@@ -27,6 +27,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Local status, source, permission, briefing, and sync checks.
 - One-call operator snapshot for agents: Focus, Operator Deck, Radar, setup gaps, Today, memory trail, and suggested next actions.
 - Operator Deck for app and agents: do first, ask about, review or capture, and project/start-work cards.
+- Prompt-ready Operator Deck Markdown for agent handoffs and quick paste workflows.
 - Operator Deck action tool for agents to mark directly actionable Radar and Oracle commit cards without opening the app.
 - Setup readiness checklist for app, MCP config, workspace paths, sync, memory, Mission Control, prompt safety, and Oracle writeback.
 - Oracle ask flow with deterministic local fallback and a Focus-grounded ask flow for the current best action.
@@ -87,11 +88,12 @@ To print or copy the current operator snapshot from an already-running app:
 ./mac-app/scripts/snapshot.zsh --markdown
 ./mac-app/scripts/snapshot.zsh --json
 ./mac-app/scripts/snapshot.zsh --deck
+./mac-app/scripts/snapshot.zsh --deck-markdown
 ./mac-app/scripts/snapshot.zsh --markdown --copy
 ./mac-app/scripts/snapshot.zsh --markdown --output /tmp/terminal-brain-snapshot.md
 ```
 
-The snapshot helper never launches or foregrounds Terminal Brain. `--deck` returns the four Operator Deck cards as JSON. `--output` is useful for prompt-ready handoffs to another agent or chat without touching the clipboard.
+The snapshot helper never launches or foregrounds Terminal Brain. `--deck` returns the four Operator Deck cards as JSON, and `--deck-markdown` prints the same deck in prompt-ready Markdown. `--output` is useful for handoffs without touching the clipboard.
 
 The built app is emitted to:
 
