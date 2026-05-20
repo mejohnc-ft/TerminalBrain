@@ -62,6 +62,11 @@ mcp_cleanup_output="$(call_mcp_tool terminal_brain_cleanup_plan_markdown)"
 require_contains "$mcp_cleanup_output" '# Terminal Brain Cleanup Plan' "MCP cleanup plan title"
 require_contains "$mcp_cleanup_output" 'did not launch, foreground, quit, kill, or control anything' "MCP cleanup plan guardrail"
 
+mcp_support_output="$(call_mcp_tool terminal_brain_support_bundle_markdown)"
+require_contains "$mcp_support_output" '# Terminal Brain Support Bundle' "MCP support bundle title"
+require_contains "$mcp_support_output" '# Now' "MCP support bundle now section"
+require_contains "$mcp_support_output" '# Cleanup Plan' "MCP support bundle cleanup section"
+
 mcp_doctor_output="$(call_mcp_tool terminal_brain_doctor_markdown)"
 require_contains "$mcp_doctor_output" '# Terminal Brain Doctor' "MCP doctor title"
 require_contains "$mcp_doctor_output" 'MCP tool contract valid' "MCP doctor contract"

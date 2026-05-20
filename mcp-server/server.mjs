@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -57,6 +58,15 @@ const tools = [
   {
     name: "terminal_brain_cleanup_plan_markdown",
     description: "Get a non-destructive cleanup plan for stale Terminal Brain MCP/kernel runtime noise. Prints candidates and manual review commands without killing anything.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
+    name: "terminal_brain_support_bundle_markdown",
+    description: "Get a non-launching Markdown support bundle with Now, Doctor, Audit, Process Map, Cleanup Plan, and Git state.",
     inputSchema: {
       type: "object",
       properties: {},
@@ -806,13 +816,14 @@ function toolText(value, isError = false) {
   return { content: [{ type: "text", text }], isError };
 }
 
-function runCommand(command, args, { cwd = ROOT, timeout = 3000 } = {}) {
+function runCommand(command, args, { cwd = ROOT, timeout = 3000, env = {} } = {}) {
   try {
     return {
       ok: true,
       text: execFileSync(command, args, {
         cwd,
         timeout,
+        env: { ...process.env, ...env },
         encoding: "utf8",
         stdio: ["ignore", "pipe", "pipe"]
       }).trim()
@@ -1063,6 +1074,42 @@ function cleanupPlanMarkdown() {
   ].join("\n");
 }
 
+function supportBundleMarkdown() {
+  const output = "/tmp/terminal-brain-mcp-support-bundle.md";
+  const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "support-bundle.zsh")], {
+    timeout: 20000,
+    env: { OUTPUT: output }
+  });
+  if (result.ok) {
+    try {
+      return readFileSync(output, "utf8").trim();
+    } catch (error) {
+      return [
+        "# Terminal Brain Support Bundle",
+        "",
+        "Support bundle command completed, but the output file could not be read.",
+        "",
+        "## Error",
+        "",
+        error instanceof Error ? error.message : String(error)
+      ].join("\n");
+    }
+  }
+  return [
+    "# Terminal Brain Support Bundle",
+    "",
+    "Support bundle failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 async function valueNowMarkdown() {
   const health = await apiHealth();
   if (health.reachable) {
@@ -1138,6 +1185,8 @@ async function callTool(name, args = {}) {
       return processMapMarkdown(args);
     case "terminal_brain_cleanup_plan_markdown":
       return cleanupPlanMarkdown();
+    case "terminal_brain_support_bundle_markdown":
+      return supportBundleMarkdown();
     case "terminal_brain_next_markdown":
       return nextMarkdown();
     case "terminal_brain_doctor_markdown":

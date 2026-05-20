@@ -1,4 +1,4 @@
-.PHONY: help build install verify live now status processes cleanup-plan next value doctor audit ask ask-commit outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live now status processes cleanup-plan support-bundle next value doctor audit ask ask-commit outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
@@ -10,6 +10,7 @@ help:
 	@echo "  make status        Non-launching repo, CI, process, launchctl, and API status"
 	@echo "  make processes     Non-launching process map for app, Codex, MCP, kernel, and Drafts"
 	@echo "  make cleanup-plan  Non-destructive stale MCP/kernel cleanup plan"
+	@echo "  make support-bundle Non-launching Markdown bundle for troubleshooting"
 	@echo "  make verify        Non-launching static QA"
 	@echo "  make live          API/MCP QA against an already-running app"
 	@echo "  make ask QUERY=... Ask Terminal Brain Oracle from an already-running app"
@@ -57,6 +58,9 @@ processes:
 
 cleanup-plan:
 	./mac-app/scripts/cleanup-plan.zsh
+
+support-bundle:
+	./mac-app/scripts/support-bundle.zsh
 
 next:
 	./mac-app/scripts/next.zsh
