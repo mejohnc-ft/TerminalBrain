@@ -11,6 +11,7 @@ Usage: ./mac-app/scripts/audit.zsh
 
 Prints a non-launching Terminal Brain capability audit:
   - value-first surfaces
+  - native macOS design shell evidence
   - agent/MCP surfaces
   - safety and readiness guardrails
   - current readiness verdict
@@ -61,6 +62,7 @@ require_evidence "$ROOT/Makefile" '^first-minute:' "make first-minute"
 require_evidence "$ROOT/Makefile" '^demo:' "make demo"
 require_evidence "$ROOT/Makefile" '^playbook:' "make playbook"
 require_evidence "$ROOT/Makefile" '^value-audit:' "make value-audit"
+require_evidence "$ROOT/Makefile" '^design-audit:' "make design-audit"
 require_evidence "$ROOT/Makefile" '^prove-value:' "make prove-value"
 require_evidence "$ROOT/Makefile" '^now:' "make now"
 require_evidence "$ROOT/Makefile" '^sources:' "make sources"
@@ -152,6 +154,20 @@ require_evidence "$ROOT/mac-app/scripts/playbook.zsh" 'Pick The Situation' "clos
 require_evidence "$ROOT/mac-app/scripts/value-audit.zsh" 'Prompt-To-Artifact Checklist' "closed-app value audit"
 echo
 
+echo "## Native Mac Design Shell"
+echo
+require_evidence "$ROOT/mac-app/scripts/design-audit.zsh" 'Terminal Brain Design Audit' "closed-app design audit"
+require_evidence "$ROOT/mac-app/scripts/design-audit.zsh" 'Liquid Glass' "liquid glass design evidence"
+require_evidence "$ROOT/mac-app/Sources/TerminalBrain/WindowConfigurator.swift" 'titlebarAppearsTransparent = true' "transparent native titlebar"
+require_evidence "$ROOT/mac-app/Sources/TerminalBrain/WindowConfigurator.swift" 'fullSizeContentView' "full-size content window"
+require_evidence "$ROOT/mac-app/Sources/TerminalBrain/GlassStyles.swift" 'ultraThinMaterial' "material-backed glass primitives"
+require_evidence "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'NavigationSplitView' "native split-view navigation"
+require_evidence "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'profileMenu' "profile menu"
+require_evidence "$ROOT/mac-app/Sources/TerminalBrain/SettingsView.swift" 'Picker\("Theme"' "theme settings"
+require_evidence "$ROOT/mac-app/Sources/TerminalBrain/SettingsView.swift" 'Reduce glass effects' "reduce-glass accessibility setting"
+require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'design-audit.zsh' "design audit regression"
+echo
+
 echo "## Agent Surfaces"
 echo
 echo "ok   MCP tool contract count: ${tool_count:-unknown}"
@@ -234,6 +250,7 @@ echo "- make first-minute"
 echo "- make demo"
 echo "- make playbook"
 echo "- make value-audit"
+echo "- make design-audit"
 echo "- make value"
 echo "- make prove-value"
 echo "- make idea"

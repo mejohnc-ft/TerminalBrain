@@ -1,4 +1,4 @@
-.PHONY: help build install verify live first-minute demo playbook value-audit now sources memory memory-promote recent-work status processes cleanup-plan support-bundle next value prove-value oracle-brief bubble-up work-block doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live first-minute demo playbook value-audit design-audit now sources memory memory-promote recent-work status processes cleanup-plan support-bundle next value prove-value oracle-brief bubble-up work-block doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
@@ -8,6 +8,7 @@ help:
 	@echo "  make demo          Non-launching temporary demo with seeded ideas, Bubble Up, Work Block"
 	@echo "  make playbook      Non-launching operator playbook for using Terminal Brain today"
 	@echo "  make value-audit   Non-launching evidence audit for first-use value and gaps"
+	@echo "  make design-audit  Non-launching static audit of native macOS shell and glass design"
 	@echo "  make now           Non-launching one-page orientation: value, next action, process truth, readiness"
 	@echo "  make sources       Non-launching source inventory for Obsidian, Codex, Claude, Drafts, and agent memory"
 	@echo "  make memory        Non-launching derived Codex/Claude memory brief and follow-up prompts"
@@ -74,6 +75,9 @@ playbook:
 
 value-audit:
 	./mac-app/scripts/value-audit.zsh
+
+design-audit:
+	./mac-app/scripts/design-audit.zsh
 
 now:
 	./mac-app/scripts/now.zsh

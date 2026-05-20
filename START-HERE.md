@@ -50,6 +50,12 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 
    `make value-audit` maps the first-use value objective to concrete artifacts, evidence, and remaining gaps.
 
+   To audit native macOS shell and liquid glass design evidence without opening the app, run:
+
+   ```zsh
+   make design-audit
+   ```
+
    ```zsh
    make now
    ```

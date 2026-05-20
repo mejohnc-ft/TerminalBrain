@@ -15,6 +15,7 @@ Runs non-launching local QA:
   - macOS app build
   - misleading static UI copy guard
   - value surface regression guard
+  - static native design audit
   - secret pattern scan
 
 This script never launches or foregrounds Terminal Brain.
@@ -49,6 +50,7 @@ for script in \
   "$ROOT/mac-app/scripts/demo.zsh" \
   "$ROOT/mac-app/scripts/playbook.zsh" \
   "$ROOT/mac-app/scripts/value-audit.zsh" \
+  "$ROOT/mac-app/scripts/design-audit.zsh" \
   "$ROOT/mac-app/scripts/prove-value.zsh" \
   "$ROOT/mac-app/scripts/oracle-brief.zsh" \
   "$ROOT/mac-app/scripts/agent-prompt.zsh" \
@@ -63,6 +65,7 @@ done
 "$ROOT/mac-app/scripts/check-no-foreground.zsh"
 "$ROOT/mac-app/scripts/check-ui-copy.zsh"
 "$ROOT/mac-app/scripts/check-value-surfaces.zsh"
+"$ROOT/mac-app/scripts/design-audit.zsh" >/dev/null
 "$ROOT/mac-app/scripts/check-entrypoints.zsh"
 node --check "$ROOT/mcp-server/server.mjs" >/dev/null
 node --check "$ROOT/mcp-server/check-tools.mjs" >/dev/null
