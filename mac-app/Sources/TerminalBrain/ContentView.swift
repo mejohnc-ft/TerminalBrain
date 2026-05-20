@@ -532,6 +532,7 @@ struct ContentView: View {
     private var focusView: some View {
         let item = model.focusItem
         return VStack(alignment: .leading, spacing: 18) {
+            valueBriefPanel
             operatorBriefPanel
             operatorDeck
 
@@ -652,6 +653,110 @@ struct ContentView: View {
                 .frame(width: 420)
             }
         }
+    }
+
+    private var valueBriefPanel: some View {
+        let focus = model.focusItem
+        let idea = model.ideaPulseItems.first
+        let blindspot = model.blindspotItems.first
+        let project = model.projects.first
+
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .firstTextBaseline) {
+                SectionTitle("Value Brief", symbol: "bolt.fill")
+                Spacer()
+                if !model.valueBriefCopyOutput.isEmpty {
+                    Text(model.valueBriefCopyOutput)
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.white.opacity(0.48))
+                        .lineLimit(1)
+                }
+                Button {
+                    Task { await model.copyValueBrief() }
+                } label: {
+                    Label("Copy", systemImage: "doc.on.clipboard")
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+                Text("Why this is worth it")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.white.opacity(0.42))
+                    .textCase(.uppercase)
+            }
+
+            Text("Do \(focus.title)")
+                .font(.system(size: 30, weight: .bold, design: .rounded))
+                .foregroundStyle(.white)
+                .lineLimit(2)
+                .minimumScaleFactor(0.76)
+
+            Text("The highest-value move is \(focus.action.lowercased()) for \(focus.project). It has an execution signal, an upside test, a risk check, and a next artifact path.")
+                .font(.callout)
+                .foregroundStyle(.white.opacity(0.64))
+                .fixedSize(horizontal: false, vertical: true)
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 230), spacing: 12)], spacing: 12) {
+                ValueBriefTile(
+                    label: "Immediate value",
+                    title: focus.title,
+                    detail: focus.reason,
+                    action: focus.action,
+                    symbol: focus.symbol,
+                    accent: focus.state.color
+                ) {
+                    applyFocusAction(focus)
+                }
+
+                ValueBriefTile(
+                    label: "Upside to test",
+                    title: idea?.title ?? "No idea test visible",
+                    detail: idea?.nextPrompt ?? "Capture or sync more material to surface an idea worth testing.",
+                    action: "Pressure Test",
+                    symbol: idea?.symbol ?? "lightbulb.fill",
+                    accent: idea?.state.color ?? .cyan
+                ) {
+                    if let idea {
+                        selectedIdeaID = idea.id
+                        selectedSection = "ideas"
+                    } else {
+                        selectedSection = "ideas"
+                    }
+                }
+
+                ValueBriefTile(
+                    label: "Risk to reduce",
+                    title: blindspot?.title ?? "No strong blindspot visible",
+                    detail: blindspot?.question ?? "Ask what is not represented in durable memory.",
+                    action: blindspot?.nextAction ?? "Ask Oracle",
+                    symbol: blindspot?.symbol ?? "eye.fill",
+                    accent: blindspot?.state.color ?? .orange
+                ) {
+                    if let blindspot {
+                        selectedBlindspotID = blindspot.id
+                    }
+                    selectedSection = "blindspots"
+                }
+
+                ValueBriefTile(
+                    label: "Artifact to create",
+                    title: project?.name ?? model.dailyCommands.first?.title ?? "Build a context pack",
+                    detail: project?.recommendedAction ?? model.dailyCommands.first?.detail ?? "Create one durable artifact from the current focus.",
+                    action: "Start Work",
+                    symbol: project?.symbol ?? "shippingbox.fill",
+                    accent: project?.accent ?? settings.theme.accent
+                ) {
+                    if let project {
+                        selectedProjectID = project.id
+                        selectedSection = "projects"
+                    } else {
+                        model.workQuery = focus.query.isEmpty ? focus.title : focus.query
+                        selectedSection = "start"
+                    }
+                }
+            }
+        }
+        .padding(16)
+        .darkPanel()
     }
 
     private var operatorBriefPanel: some View {
@@ -3674,6 +3779,67 @@ struct OperatorDeckCard: View {
             in: RoundedRectangle(cornerRadius: 16, style: .continuous)
         )
         .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(.white.opacity(0.12), lineWidth: 1))
+    }
+}
+
+struct ValueBriefTile: View {
+    let label: String
+    let title: String
+    let detail: String
+    let action: String
+    let symbol: String
+    let accent: Color
+    let onAction: () -> Void
+
+    var body: some View {
+        Button(action: onAction) {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(alignment: .top, spacing: 10) {
+                    Image(systemName: symbol)
+                        .font(.headline.weight(.semibold))
+                        .foregroundStyle(accent)
+                        .frame(width: 32, height: 32)
+                        .background(accent.opacity(0.15), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(label)
+                            .font(.caption2.weight(.bold))
+                            .foregroundStyle(accent)
+                            .textCase(.uppercase)
+                        Text(title)
+                            .font(.headline.weight(.semibold))
+                            .foregroundStyle(.white)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.82)
+                    }
+                    Spacer()
+                }
+
+                Text(detail)
+                    .font(.callout)
+                    .foregroundStyle(.white.opacity(0.60))
+                    .lineLimit(3)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Spacer(minLength: 0)
+
+                Label(action, systemImage: "arrow.right.circle.fill")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(accent)
+                    .lineLimit(1)
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity, minHeight: 176, alignment: .topLeading)
+            .background(
+                LinearGradient(
+                    colors: [.white.opacity(0.09), accent.opacity(0.07)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ),
+                in: RoundedRectangle(cornerRadius: 14, style: .continuous)
+            )
+            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(.white.opacity(0.10), lineWidth: 1))
+        }
+        .buttonStyle(.plain)
     }
 }
 
