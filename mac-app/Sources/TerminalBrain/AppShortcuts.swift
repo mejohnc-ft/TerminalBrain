@@ -35,6 +35,7 @@ enum ShortcutClient {
 
 enum ShortcutError: Error {
     case requestFailed
+    case emptyQuery
 }
 
 struct CopyOperatorDeckIntent: AppIntent {
@@ -73,6 +74,27 @@ struct RunTerminalBrainSyncIntent: AppIntent {
     }
 }
 
+struct BuildContextPackIntent: AppIntent {
+    static var title: LocalizedStringResource = "Build Context Pack"
+    static var description = IntentDescription("Build a Terminal Brain context pack for a project, task, repo, or question.")
+
+    @Parameter(title: "Work Query", description: "Project, task, repo, or question.")
+    var query: String
+
+    static var parameterSummary: some ParameterSummary {
+        Summary("Build context pack for \(\.$query)")
+    }
+
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            throw ShortcutError.emptyQuery
+        }
+        try await ShortcutClient.post(path: "/start-work", body: ["query": trimmed])
+        return .result(dialog: "Context pack built.")
+    }
+}
+
 struct TerminalBrainShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
@@ -101,6 +123,15 @@ struct TerminalBrainShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Run Sync",
             systemImageName: "arrow.triangle.2.circlepath"
+        )
+        AppShortcut(
+            intent: BuildContextPackIntent(),
+            phrases: [
+                "Start work with \(.applicationName)",
+                "Build context pack with \(.applicationName)"
+            ],
+            shortTitle: "Start Work",
+            systemImageName: "shippingbox"
         )
     }
 }
