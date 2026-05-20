@@ -73,6 +73,12 @@ final class LocalControlServer {
             return .text(200, await NowSnapshot.markdown())
         case ("GET", "/first-minute/markdown"):
             return .text(200, await FirstMinuteSnapshot.markdown())
+        case ("GET", "/demo/markdown"):
+            return .text(200, await ScriptMarkdownSnapshot.markdown(title: "Terminal Brain Demo", scriptName: "demo.zsh", makeTarget: "make demo"))
+        case ("GET", "/playbook/markdown"):
+            return .text(200, await ScriptMarkdownSnapshot.markdown(title: "Terminal Brain Playbook", scriptName: "playbook.zsh", makeTarget: "make playbook"))
+        case ("GET", "/value-audit/markdown"):
+            return .text(200, await ScriptMarkdownSnapshot.markdown(title: "Terminal Brain Value Audit", scriptName: "value-audit.zsh", makeTarget: "make value-audit"))
         case ("GET", "/cleanup-plan/markdown"):
             return .text(200, await CleanupPlanSnapshot.markdown())
         case ("GET", "/process-map/markdown"):
@@ -1946,6 +1952,59 @@ enum FirstMinuteSnapshot {
             "# Terminal Brain First Minute",
             "",
             "First-minute artifact failed before completing.",
+            "",
+            "## Status",
+            "",
+            "- Exit: \(result.status)",
+            "",
+            "## Output",
+            "",
+            output.ifEmpty("(no stdout)"),
+            "",
+            "## Error",
+            "",
+            result.stderr.trimmingCharacters(in: .whitespacesAndNewlines).ifEmpty("(no stderr)"),
+            "",
+            "## Guardrail",
+            "",
+            "- This API response did not launch, foreground, quit, kill, or control anything."
+        ].joined(separator: "\n")
+    }
+}
+
+enum ScriptMarkdownSnapshot {
+    static func markdown(title: String, scriptName: String, makeTarget: String) async -> String {
+        let script = "\(Paths.home)/Git/TerminalBrain/mac-app/scripts/\(scriptName)"
+        guard FileManager.default.fileExists(atPath: script) else {
+            return [
+                "# \(title)",
+                "",
+                "The script is not available at:",
+                "",
+                "```text",
+                script,
+                "```",
+                "",
+                "Open the TerminalBrain repo and run:",
+                "",
+                "```zsh",
+                makeTarget,
+                "```",
+                "",
+                "Guardrail: this API response did not launch, foreground, quit, kill, or control anything."
+            ].joined(separator: "\n")
+        }
+
+        let result = await CommandRunner.run("/bin/zsh", [script])
+        let output = result.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
+        if result.succeeded, !output.isEmpty {
+            return output
+        }
+
+        return [
+            "# \(title)",
+            "",
+            "\(title) failed before completing.",
             "",
             "## Status",
             "",

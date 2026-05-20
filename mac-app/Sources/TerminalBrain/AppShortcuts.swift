@@ -198,6 +198,45 @@ struct CopyFirstMinuteIntent: AppIntent {
     }
 }
 
+struct CopyDemoIntent: AppIntent {
+    static var title: LocalizedStringResource = "Copy Demo"
+    static var description = IntentDescription("Copy Terminal Brain's temporary seeded value-loop demo as Markdown.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let markdown = try await ShortcutClient.text(path: "/demo/markdown")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "Demo copied.")
+    }
+}
+
+struct CopyPlaybookIntent: AppIntent {
+    static var title: LocalizedStringResource = "Copy Playbook"
+    static var description = IntentDescription("Copy Terminal Brain's operator playbook as Markdown.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let markdown = try await ShortcutClient.text(path: "/playbook/markdown")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "Playbook copied.")
+    }
+}
+
+struct CopyValueAuditIntent: AppIntent {
+    static var title: LocalizedStringResource = "Copy Value Audit"
+    static var description = IntentDescription("Copy Terminal Brain's first-use value evidence audit as Markdown.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let markdown = try await ShortcutClient.text(path: "/value-audit/markdown")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "Value Audit copied.")
+    }
+}
+
 struct CopyCleanupPlanIntent: AppIntent {
     static var title: LocalizedStringResource = "Copy Cleanup Plan"
     static var description = IntentDescription("Copy Terminal Brain's read-only stale MCP and kernel cleanup plan as Markdown.")
@@ -603,6 +642,33 @@ struct TerminalBrainShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "First Minute",
             systemImageName: "1.circle"
+        )
+        AppShortcut(
+            intent: CopyDemoIntent(),
+            phrases: [
+                "Copy \(.applicationName) demo",
+                "Demo \(.applicationName) value"
+            ],
+            shortTitle: "Copy Demo",
+            systemImageName: "play.rectangle"
+        )
+        AppShortcut(
+            intent: CopyPlaybookIntent(),
+            phrases: [
+                "Copy \(.applicationName) playbook",
+                "Copy \(.applicationName) operator playbook"
+            ],
+            shortTitle: "Playbook",
+            systemImageName: "book.closed"
+        )
+        AppShortcut(
+            intent: CopyValueAuditIntent(),
+            phrases: [
+                "Copy \(.applicationName) value audit",
+                "Audit \(.applicationName) value"
+            ],
+            shortTitle: "Value Audit",
+            systemImageName: "checkmark.seal"
         )
         AppShortcut(
             intent: CopyCleanupPlanIntent(),

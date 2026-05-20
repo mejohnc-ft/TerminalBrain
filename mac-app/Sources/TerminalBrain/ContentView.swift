@@ -62,6 +62,9 @@ struct ContentView: View {
         var items: [BrainCommand] = [
             BrainCommand(title: "Open Work Block", subtitle: "Pull forward, triage, and close the loop", symbol: "target", category: "Navigate", action: .section("work-block")),
             BrainCommand(title: "Open First Minute", subtitle: "Shortest value path, next step, and working proof", symbol: "1.circle.fill", category: "Navigate", action: .section("first-minute")),
+            BrainCommand(title: "Open Demo", subtitle: "Temporary seeded walkthrough of the value loop", symbol: "play.rectangle.fill", category: "Navigate", action: .section("demo")),
+            BrainCommand(title: "Open Playbook", subtitle: "Which command to run for common situations", symbol: "book.closed.fill", category: "Navigate", action: .section("playbook")),
+            BrainCommand(title: "Open Value Audit", subtitle: "Evidence map for first-use value and remaining gaps", symbol: "checkmark.seal.fill", category: "Navigate", action: .section("value-audit")),
             BrainCommand(title: "Open Now", subtitle: "Bottom line, next action, process truth, and outcome loop", symbol: "sparkles", category: "Navigate", action: .section("now")),
             BrainCommand(title: "Open Value Now", subtitle: "Plain-language value read and fastest useful path", symbol: "bolt.fill", category: "Navigate", action: .section("value")),
             BrainCommand(title: "Open Start Here", subtitle: "One block, one artifact, one written outcome", symbol: "play.circle.fill", category: "Navigate", action: .section("start-here")),
@@ -82,6 +85,9 @@ struct ContentView: View {
             BrainCommand(title: "Run Sync", subtitle: "Refresh edge brain export with current permission policy", symbol: "arrow.triangle.2.circlepath", category: "Action", action: .runSync),
             BrainCommand(title: "Copy Operator Snapshot", subtitle: "Prompt-ready Focus, Radar, actions, and memory trail", symbol: "doc.on.clipboard", category: "Action", action: .copySnapshot),
             BrainCommand(title: "Copy First Minute", subtitle: "Shortest explanation, next step, and working proof", symbol: "1.circle.fill", category: "Action", action: .copyFirstMinute),
+            BrainCommand(title: "Copy Demo", subtitle: "Seeded temporary walkthrough", symbol: "play.rectangle.fill", category: "Action", action: .copyDemo),
+            BrainCommand(title: "Copy Playbook", subtitle: "Operator command map and daily cadence", symbol: "book.closed.fill", category: "Action", action: .copyPlaybook),
+            BrainCommand(title: "Copy Value Audit", subtitle: "Evidence checklist and gaps", symbol: "checkmark.seal.fill", category: "Action", action: .copyValueAudit),
             BrainCommand(title: "Copy Now", subtitle: "Bottom line, next action, process truth, and close loop", symbol: "sparkles", category: "Action", action: .copyNow),
             BrainCommand(title: "Copy Process Map", subtitle: "Terminal Brain, Codex, MCP, kernel, Drafts, launchctl, and API state", symbol: "point.3.connected.trianglepath.dotted", category: "Action", action: .copyProcessMap),
             BrainCommand(title: "Copy Cleanup Plan", subtitle: "Read-only stale MCP/kernel process cleanup guidance", symbol: "wrench.and.screwdriver.fill", category: "Action", action: .copyCleanupPlan),
@@ -190,6 +196,9 @@ struct ContentView: View {
         switch selectedSection {
         case "work-block": return "Work Block"
         case "first-minute": return "First Minute"
+        case "demo": return "Demo"
+        case "playbook": return "Playbook"
+        case "value-audit": return "Value Audit"
         case "now": return "Now"
         case "value": return "Value Now"
         case "start-here": return "Start Here"
@@ -214,6 +223,9 @@ struct ContentView: View {
         switch selectedSection {
         case "work-block": return "Pull forward the strongest signal, triage it, do the smallest useful work, and write back the outcome."
         case "first-minute": return "The shortest path to value: what this is, what to do, and proof the loop works."
+        case "demo": return "Seed a temporary workspace and watch ideas become review, Bubble Up, Work Block, and outcome commands."
+        case "playbook": return "A plain operator map for capture, Oracle reads, agent handoff, outcomes, and runtime checks."
+        case "value-audit": return "Evidence that first-use value is covered, plus the remaining gaps before native UI certification."
         case "now": return "Bottom line, next action, process truth, readiness, and close loop."
         case "value": return "What this is worth right now, what to do next, and what artifact to create."
         case "start-here": return "One block, one artifact, one written outcome."
@@ -346,6 +358,9 @@ struct ContentView: View {
                     .sidebarHeader()
                 NavRow(title: "Work Block", symbol: "target", badge: "\(model.oracleCommits.filter { $0.status == .new || $0.status == .delegated }.count)", selected: selectedSection == "work-block") { selectedSection = "work-block" }
                 NavRow(title: "First Minute", symbol: "1.circle.fill", badge: "", selected: selectedSection == "first-minute") { selectedSection = "first-minute" }
+                NavRow(title: "Demo", symbol: "play.rectangle.fill", badge: "", selected: selectedSection == "demo") { selectedSection = "demo" }
+                NavRow(title: "Playbook", symbol: "book.closed.fill", badge: "", selected: selectedSection == "playbook") { selectedSection = "playbook" }
+                NavRow(title: "Value Audit", symbol: "checkmark.seal.fill", badge: "", selected: selectedSection == "value-audit") { selectedSection = "value-audit" }
                 NavRow(title: "Now", symbol: "sparkles", badge: model.setupAttentionCount == 0 ? "" : "\(model.setupAttentionCount)", selected: selectedSection == "now") { selectedSection = "now" }
                 NavRow(title: "Value", symbol: "bolt.fill", badge: "\(model.focusItem.score)", selected: selectedSection == "value") { selectedSection = "value" }
                 NavRow(title: "Start Here", symbol: "play.circle.fill", badge: "", selected: selectedSection == "start-here") { selectedSection = "start-here" }
@@ -480,6 +495,9 @@ struct ContentView: View {
                     switch selectedSection {
                     case "work-block": workBlockView
                     case "first-minute": firstMinuteView
+                    case "demo": demoView
+                    case "playbook": playbookView
+                    case "value-audit": valueAuditView
                     case "now": nowView
                     case "value": valueNowView
                     case "start-here": startHereView
@@ -868,6 +886,165 @@ struct ContentView: View {
             valueBriefPanel
             startHereOutcomePanel(project: focus.project)
         }
+    }
+
+    private var demoView: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            valueSurfaceHero(
+                eyebrow: "Demo",
+                title: "See the loop with temporary data.",
+                detail: "Seed realistic ideas and outcomes, then review what bubbles up before touching your real workspace.",
+                symbol: "play.rectangle.fill",
+                primaryTitle: "Copy Demo",
+                primarySymbol: "play.rectangle.fill",
+                primaryAction: { Task { await model.copyDemo() } },
+                secondaryTitle: "Open Playbook",
+                secondarySymbol: "book.closed.fill",
+                secondaryAction: { selectedSection = "playbook" },
+                output: model.demoCopyOutput
+            )
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 240), spacing: 12)], spacing: 12) {
+                ValueBriefTile(label: "1. Seed", title: "Temporary workspace", detail: "Creates safe sample ideas, a delegated loop, and an accepted outcome.", action: "Copy Demo", symbol: "tray.and.arrow.down.fill", accent: settings.theme.accent) {
+                    Task { await model.copyDemo() }
+                }
+                ValueBriefTile(label: "2. Surface", title: "Bubble Up", detail: "Shows what deserves attention before it becomes background noise.", action: "Work Block", symbol: "arrow.up.forward.circle.fill", accent: .blue) {
+                    selectedSection = "work-block"
+                }
+                ValueBriefTile(label: "3. Apply", title: "Use real commands", detail: "The demo ends with the exact commands for your real workspace.", action: "Playbook", symbol: "book.closed.fill", accent: .green) {
+                    selectedSection = "playbook"
+                }
+            }
+        }
+    }
+
+    private var playbookView: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            valueSurfaceHero(
+                eyebrow: "Playbook",
+                title: "Pick the right command fast.",
+                detail: "A compact map for capture, Oracle reads, agent handoff, outcome writeback, and runtime checks.",
+                symbol: "book.closed.fill",
+                primaryTitle: "Copy Playbook",
+                primarySymbol: "book.closed.fill",
+                primaryAction: { Task { await model.copyPlaybook() } },
+                secondaryTitle: "Run Work Block",
+                secondarySymbol: "target",
+                secondaryAction: { selectedSection = "work-block" },
+                output: model.playbookCopyOutput
+            )
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 240), spacing: 12)], spacing: 12) {
+                ValueBriefTile(label: "Capture", title: "Save a thought", detail: "Use idea capture when something should not disappear.", action: "Capture", symbol: "lightbulb.fill", accent: .yellow) {
+                    model.quickIdea = "Capture this rough thought."
+                    selectedSection = "focus"
+                }
+                ValueBriefTile(label: "Decide", title: "Ask Oracle", detail: "Use the direct read when you need the missing signal or cheapest test.", action: "Oracle", symbol: "sparkle.magnifyingglass", accent: settings.theme.accent) {
+                    selectedSection = "oracle"
+                }
+                ValueBriefTile(label: "Close", title: "Commit Outcome", detail: "Use outcome writeback when work changes something worth remembering.", action: "Outcome", symbol: "square.and.arrow.down.fill", accent: .green) {
+                    selectedSection = "start-here"
+                }
+            }
+        }
+    }
+
+    private var valueAuditView: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            valueSurfaceHero(
+                eyebrow: "Value Audit",
+                title: "Evidence, not vibes.",
+                detail: "Checks whether the first-use value path is covered and names the remaining native UI gaps.",
+                symbol: "checkmark.seal.fill",
+                primaryTitle: "Copy Audit",
+                primarySymbol: "checkmark.seal.fill",
+                primaryAction: { Task { await model.copyValueAudit() } },
+                secondaryTitle: "Open Demo",
+                secondarySymbol: "play.rectangle.fill",
+                secondaryAction: { selectedSection = "demo" },
+                output: model.valueAuditCopyOutput
+            )
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 240), spacing: 12)], spacing: 12) {
+                ValueBriefTile(label: "Covered", title: "CLI and MCP value", detail: "First Minute, Demo, Playbook, Work Block, capture, review, Bubble Up, and outcome writeback.", action: "Playbook", symbol: "checkmark.circle.fill", accent: .green) {
+                    selectedSection = "playbook"
+                }
+                ValueBriefTile(label: "Gap", title: "Native UI certification", detail: "Visual polish still needs an explicit UI review because checks intentionally avoid opening the app.", action: "System", symbol: "exclamationmark.triangle.fill", accent: .orange) {
+                    selectedSection = "system"
+                }
+                ValueBriefTile(label: "Next", title: "Run real loop", detail: "Use Work Block on the actual workspace and write one outcome back.", action: "Work Block", symbol: "target", accent: settings.theme.accent) {
+                    selectedSection = "work-block"
+                }
+            }
+        }
+    }
+
+    private func valueSurfaceHero(
+        eyebrow: String,
+        title: String,
+        detail: String,
+        symbol: String,
+        primaryTitle: String,
+        primarySymbol: String,
+        primaryAction: @escaping () -> Void,
+        secondaryTitle: String,
+        secondarySymbol: String,
+        secondaryAction: @escaping () -> Void,
+        output: String
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .top, spacing: 14) {
+                Image(systemName: symbol)
+                    .font(.system(size: 36, weight: .semibold))
+                    .foregroundStyle(settings.theme.accent)
+                    .frame(width: 58, height: 58)
+                    .background(settings.theme.accent.opacity(0.16), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(eyebrow)
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(settings.theme.accent)
+                        .textCase(.uppercase)
+                    Text(title)
+                        .font(.system(size: 34, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.72)
+                    Text(detail)
+                        .font(.headline)
+                        .foregroundStyle(.white.opacity(0.62))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer()
+                StatusPill(text: "Non-launching", state: .good)
+            }
+
+            HStack(spacing: 8) {
+                Button(action: primaryAction) {
+                    Label(primaryTitle, systemImage: primarySymbol)
+                }
+                .buttonStyle(.borderedProminent)
+
+                Button(action: secondaryAction) {
+                    Label(secondaryTitle, systemImage: secondarySymbol)
+                }
+                .buttonStyle(.bordered)
+
+                Button { Task { await model.copyWorkBlock() } } label: {
+                    Label("Work Block", systemImage: "target")
+                }
+                .buttonStyle(.bordered)
+            }
+
+            if !output.isEmpty || !model.workBlockCopyOutput.isEmpty {
+                Text(output.isEmpty ? model.workBlockCopyOutput : output)
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.58))
+            }
+        }
+        .padding(20)
+        .darkPanel()
     }
 
     private var nowView: some View {
@@ -3536,6 +3713,12 @@ struct ContentView: View {
             Task { await model.copyOperatorSnapshot() }
         case .copyFirstMinute:
             Task { await model.copyFirstMinute() }
+        case .copyDemo:
+            Task { await model.copyDemo() }
+        case .copyPlaybook:
+            Task { await model.copyPlaybook() }
+        case .copyValueAudit:
+            Task { await model.copyValueAudit() }
         case .copyNow:
             Task { await model.copyNow() }
         case .copyProcessMap:
@@ -3836,6 +4019,9 @@ enum BrainCommandAction {
     case runSync
     case copySnapshot
     case copyFirstMinute
+    case copyDemo
+    case copyPlaybook
+    case copyValueAudit
     case copyNow
     case copyProcessMap
     case copyCleanupPlan

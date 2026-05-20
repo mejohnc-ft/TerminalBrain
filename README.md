@@ -78,9 +78,9 @@ Plain `make` prints help. `make verify`, `make first-minute`, `make demo`, `make
 
 - Local status, source, permission, briefing, and sync checks.
 - First Minute: `make first-minute`, `/first-minute/markdown`, `terminal_brain_first_minute_markdown`, the default in-app First Minute surface with quick thought capture, Copy First Minute in the app/menu bar, and the Copy First Minute App Shortcut provide the shortest explanation, next step, and working proof for a new operator or agent.
-- Demo: `make demo` and `terminal_brain_demo_markdown` create a temporary workspace with seeded ideas and outcomes, then show Review Queue, Bubble Up, Work Block, and real-use commands without touching your real workspace.
-- Playbook: `make playbook` and `terminal_brain_playbook_markdown` map common operator situations to exact commands, first five-minute loop, daily cadence, agent handoff cadence, and current readiness.
-- Value Audit: `make value-audit` and `terminal_brain_value_audit_markdown` restate the first-use value objective, map it to concrete surfaces, verify evidence, and call out remaining gaps.
+- Demo: native app section, Copy Demo menu/shortcut, `make demo`, `/demo/markdown`, and `terminal_brain_demo_markdown` create a temporary workspace with seeded ideas and outcomes, then show Review Queue, Bubble Up, Work Block, and real-use commands without touching your real workspace.
+- Playbook: native app section, Copy Playbook menu/shortcut, `make playbook`, `/playbook/markdown`, and `terminal_brain_playbook_markdown` map common operator situations to exact commands, first five-minute loop, daily cadence, agent handoff cadence, and current readiness.
+- Value Audit: native app section, Copy Value Audit menu/shortcut, `make value-audit`, `/value-audit/markdown`, and `terminal_brain_value_audit_markdown` restate the first-use value objective, map it to concrete surfaces, verify evidence, and call out remaining gaps.
 - Closed-app idea capture: `make idea IDEA="..."` and `terminal_brain_capture_idea` save thoughts to the Oracle Inbox through the app API when reachable or directly to the workspace when closed.
 - Closed-app review queue: `make review` and `terminal_brain_review_queue_markdown` list captured ideas, delegated reads, outcomes, and exact review-status commands without opening the app.
 - Closed-app review triage: `make review-status ID="..." STATUS=accepted` and `terminal_brain_oracle_review_status` update Oracle Inbox review state without opening the app.

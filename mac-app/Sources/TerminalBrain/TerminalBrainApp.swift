@@ -49,6 +49,18 @@ struct TerminalBrainApp: App {
                     Task { await model.copyFirstMinute() }
                 }
 
+                Button("Copy Demo") {
+                    Task { await model.copyDemo() }
+                }
+
+                Button("Copy Playbook") {
+                    Task { await model.copyPlaybook() }
+                }
+
+                Button("Copy Value Audit") {
+                    Task { await model.copyValueAudit() }
+                }
+
                 Button("Copy Process Map") {
                     Task { await model.copyProcessMap() }
                 }
@@ -134,6 +146,15 @@ struct TerminalBrainApp: App {
             }
             Button("Copy First Minute") {
                 Task { await model.copyFirstMinute() }
+            }
+            Button("Copy Demo") {
+                Task { await model.copyDemo() }
+            }
+            Button("Copy Playbook") {
+                Task { await model.copyPlaybook() }
+            }
+            Button("Copy Value Audit") {
+                Task { await model.copyValueAudit() }
             }
             Button("Copy Process Map") {
                 Task { await model.copyProcessMap() }
