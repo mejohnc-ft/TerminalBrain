@@ -2,28 +2,34 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-open_pattern='open -a'
-quit_pattern='tell application "Terminal Brain" to quit'
-
 violations=0
+watch_files=(
+  "$ROOT/Makefile"
+  "$ROOT/mcp-server/server.mjs"
+)
 
-while IFS= read -r -d '' file; do
+while IFS= read -r -d '' script; do
+  watch_files+=("$script")
+done < <(find "$ROOT/mac-app/scripts" -type f -name '*.zsh' -print0)
+
+for file in "${watch_files[@]}"; do
+  [[ -f "$file" ]] || continue
   if [[ "$file" == "$ROOT/mac-app/scripts/check-no-foreground.zsh" ]]; then
     continue
   fi
 
-  if grep -n "$open_pattern" "$file" >/dev/null; then
-    echo "Foreground launch command is not allowed in $file" >&2
-    grep -n "$open_pattern" "$file" >&2
+  if grep -nE '(^|[[:space:]])open[[:space:]]+-a[[:space:]]+("Terminal Brain"|Terminal\ Brain)' "$file" >/dev/null; then
+    echo "Foreground app launch command is not allowed in $file" >&2
+    grep -nE '(^|[[:space:]])open[[:space:]]+-a[[:space:]]+("Terminal Brain"|Terminal\ Brain)' "$file" >&2
     violations=1
   fi
 
-  if grep -n "$quit_pattern" "$file" >/dev/null; then
-    echo "Terminal Brain quit command is not allowed in $file" >&2
-    grep -n "$quit_pattern" "$file" >&2
+  if grep -nE 'osascript.*Terminal Brain|tell application "Terminal Brain"' "$file" >/dev/null; then
+    echo "Terminal Brain AppleScript control is not allowed in $file" >&2
+    grep -nE 'osascript.*Terminal Brain|tell application "Terminal Brain"' "$file" >&2
     violations=1
   fi
-done < <(find "$ROOT/mac-app/scripts" -type f -name '*.zsh' -print0)
+done
 
 if [[ "$violations" != "0" ]]; then
   exit 1
