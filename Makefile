@@ -1,4 +1,4 @@
-.PHONY: help build install verify live first-minute demo playbook value-audit now sources memory memory-promote status processes cleanup-plan support-bundle next value prove-value oracle-brief bubble-up work-block doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live first-minute demo playbook value-audit now sources memory memory-promote recent-work status processes cleanup-plan support-bundle next value prove-value oracle-brief bubble-up work-block doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
@@ -12,6 +12,7 @@ help:
 	@echo "  make sources       Non-launching source inventory for Obsidian, Codex, Claude, Drafts, and agent memory"
 	@echo "  make memory        Non-launching derived Codex/Claude memory brief and follow-up prompts"
 	@echo "  make memory-promote INDEX=1 Promote a derived memory lead into Oracle Inbox"
+	@echo "  make recent-work INDEX=1 Promote a recent git change into Oracle Inbox"
 	@echo "  make prove-value   Non-launching proof of Oracle Brief -> Agent Prompt -> Outcome"
 	@echo "  make value         Non-launching value read; prints live Value Brief if app is reachable"
 	@echo "  make oracle-brief  Non-launching direct read: next moves, missing signal, cheap test, handoff"
@@ -86,6 +87,9 @@ memory:
 memory-promote:
 	@if test -z "$$INDEX"; then echo "Set INDEX=1 to promote a memory lead" >&2; exit 64; fi
 	@if test -n "$$PROJECT"; then ./mac-app/scripts/memory-promote.zsh --index "$$INDEX" --project "$$PROJECT"; else ./mac-app/scripts/memory-promote.zsh --index "$$INDEX"; fi
+
+recent-work:
+	@if test -n "$$PROJECT"; then ./mac-app/scripts/recent-work.zsh --index "$${INDEX:-1}" --project "$$PROJECT"; else ./mac-app/scripts/recent-work.zsh --index "$${INDEX:-1}"; fi
 
 status:
 	./mac-app/scripts/status.zsh

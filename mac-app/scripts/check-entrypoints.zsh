@@ -234,6 +234,20 @@ review_accepted_output="$(TERMINAL_BRAIN_WORKSPACE="$review_workspace" "$ROOT/ma
 require_contains "$review_accepted_output" 'Status: accepted' "review queue accepted status"
 rm -rf "$review_workspace"
 
+recent_work_workspace="$(mktemp -d)"
+recent_work_dry_output="$(TERMINAL_BRAIN_WORKSPACE="$recent_work_workspace" "$ROOT/mac-app/scripts/recent-work.zsh" --index 1 --dry-run)"
+require_contains "$recent_work_dry_output" '"title":"Follow up:' "recent work dry-run title"
+require_contains "$recent_work_dry_output" 'recent-work promotion did not launch or foreground' "recent work guardrail"
+recent_work_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$recent_work_workspace" "$ROOT/mac-app/scripts/recent-work.zsh" --index 1)"
+require_contains "$recent_work_output" '"mode":"local-fallback"' "recent work local fallback"
+require_contains "$recent_work_output" '"reviewStatus":"new"' "recent work review status"
+test -f "$recent_work_workspace/Oracle Inbox/"*.md || {
+  echo "Entrypoint check failed: recent work promotion did not write note" >&2
+  echo "$recent_work_output" >&2
+  exit 1
+}
+rm -rf "$recent_work_workspace"
+
 proof_output="$(TERMINAL_BRAIN_PROOF_API="$CLOSED_API" "$ROOT/mac-app/scripts/prove-value.zsh")"
 require_contains "$proof_output" '# Terminal Brain Value Proof' "value proof title"
 require_contains "$proof_output" '# Terminal Brain Oracle Brief' "value proof Oracle Brief"

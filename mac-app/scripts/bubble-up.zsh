@@ -156,6 +156,8 @@ WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtim
       puts "#### Turn It Into Memory"
       puts
       puts "```zsh"
+      puts "make recent-work INDEX=#{index + 1}"
+      puts "# Equivalent manual capture:"
       puts "make idea TITLE=#{("Follow up: " + signal[:title]).shellescape} IDEA=#{("What should change because we shipped " + signal[:title] + "? Capture the outcome, remaining risk, and next action.").shellescape} PROJECT=#{signal[:project].shellescape}"
       puts "make work-block"
       puts "```"
