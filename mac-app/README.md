@@ -93,6 +93,7 @@ Print or copy the current operator snapshot from an already-running app:
 
 ```zsh
 ./mac-app/scripts/oracle.zsh "what should I work on next?"
+./mac-app/scripts/oracle.zsh --commit --project "Terminal Brain" "what changed?"
 ./mac-app/scripts/snapshot.zsh --markdown
 ./mac-app/scripts/snapshot.zsh --json
 ./mac-app/scripts/snapshot.zsh --brief-markdown
@@ -106,7 +107,7 @@ Print or copy the current operator snapshot from an already-running app:
 ./mac-app/scripts/handoff.zsh --output /tmp/terminal-brain-handoff.md
 ```
 
-The Oracle and snapshot helpers never launch or foreground Terminal Brain. Use `oracle.zsh` for a prompt-ready answer, `--brief-markdown` for the plain-language value read, `--today` for the ranked Decision Lane, `--projects` for Project Memory, `--deck` for app-aligned action-card JSON, `--deck-markdown` for paste-ready cards, `--latest-pack` for the newest context pack Markdown, and `--output` for handoff files.
+The Oracle and snapshot helpers never launch or foreground Terminal Brain. Use `oracle.zsh` for a prompt-ready answer, `oracle.zsh --commit` to save it to the Oracle Inbox, `--brief-markdown` for the plain-language value read, `--today` for the ranked Decision Lane, `--projects` for Project Memory, `--deck` for app-aligned action-card JSON, `--deck-markdown` for paste-ready cards, `--latest-pack` for the newest context pack Markdown, and `--output` for handoff files.
 The handoff helper also never launches or foregrounds Terminal Brain. It writes the Operator Brief, Decision Lane, Operator Deck, Project Memory, and latest context pack into one Markdown file.
 
 Install the app into `~/Applications`:
