@@ -10,11 +10,11 @@ Common commands:
 
 ```zsh
 make
-make verify
-make status
-make next
 make value
+make next
 make doctor
+make status
+make verify
 make live
 make ask QUERY="what should I work on next?"
 make ask-commit QUERY="what changed?" PROJECT="Terminal Brain"

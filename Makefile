@@ -2,11 +2,11 @@
 
 help:
 	@echo "Terminal Brain commands:"
-	@echo "  make verify        Non-launching static QA"
-	@echo "  make status        Non-launching repo, CI, process, launchctl, and API status"
-	@echo "  make next          Non-launching next move; prints Start Here if app is reachable"
 	@echo "  make value         Non-launching value read; prints live Value Brief if app is reachable"
+	@echo "  make next          Non-launching next move; prints Start Here if app is reachable"
 	@echo "  make doctor        Non-launching readiness audit with concrete setup warnings"
+	@echo "  make status        Non-launching repo, CI, process, launchctl, and API status"
+	@echo "  make verify        Non-launching static QA"
 	@echo "  make live          API/MCP QA against an already-running app"
 	@echo "  make ask QUERY=... Ask Terminal Brain Oracle from an already-running app"
 	@echo "  make ask-commit QUERY=... PROJECT=... Ask Oracle and commit the answer"
