@@ -141,6 +141,24 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_bubble_up_markdown",
+    description: "Read the non-launching Bubble Up brief: neglected ideas, delegated loops, repeated project pressure, and exact triage commands.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        limit: {
+          type: "number",
+          description: "Maximum surfaced items to show. Defaults to 7."
+        },
+        project: {
+          type: "string",
+          description: "Optional exact project filter."
+        }
+      },
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_audit_markdown",
     description: "Run the non-launching Terminal Brain capability audit and return evidence for value, MCP, safety, readiness, and first commands as Markdown.",
     inputSchema: {
@@ -1209,6 +1227,31 @@ function reviewQueueMarkdown(args = {}) {
   ].join("\n");
 }
 
+function bubbleUpMarkdown(args = {}) {
+  const commandArgs = [join(ROOT, "mac-app", "scripts", "bubble-up.zsh")];
+  if (Number.isFinite(args.limit)) {
+    commandArgs.push("--limit", String(Math.max(1, Math.floor(args.limit))));
+  }
+  if (typeof args.project === "string" && args.project.trim()) {
+    commandArgs.push("--project", args.project.trim());
+  }
+  const result = runCommand("zsh", commandArgs, { timeout: 15000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Bubble Up",
+    "",
+    "Bubble Up failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 function setReviewStatus(args = {}) {
   const id = typeof args.id === "string" ? args.id.trim() : "";
   const status = typeof args.status === "string" ? args.status.trim() : "";
@@ -1414,6 +1457,8 @@ async function callTool(name, args = {}) {
       return valueProofMarkdown();
     case "terminal_brain_review_queue_markdown":
       return reviewQueueMarkdown(args);
+    case "terminal_brain_bubble_up_markdown":
+      return bubbleUpMarkdown(args);
     case "terminal_brain_oracle_brief_markdown":
       return oracleBriefMarkdown();
     case "terminal_brain_audit_markdown":

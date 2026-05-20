@@ -89,6 +89,7 @@ require_evidence "$ROOT/mac-app/scripts/idea.zsh" 'local-fallback' "closed-app i
 require_evidence "$ROOT/mac-app/scripts/review.zsh" 'Terminal Brain Review Queue' "closed-app review queue"
 require_evidence "$ROOT/mac-app/scripts/review.zsh" 'make review-status' "review queue action commands"
 require_evidence "$ROOT/mac-app/scripts/review-status.zsh" 'reviewStatus' "closed-app review status"
+require_evidence "$ROOT/mac-app/scripts/bubble-up.zsh" 'What You May Not Be Considering' "closed-app Bubble Up"
 require_evidence "$ROOT/mac-app/scripts/outcome.zsh" 'local-fallback' "closed-app outcome writeback fallback"
 echo
 
@@ -113,6 +114,7 @@ require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_commit_outcome' "
 require_evidence "$ROOT/mcp-server/server.mjs" 'captureIdea' "MCP Idea Capture fallback"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_review_queue_markdown' "MCP Review Queue"
 require_evidence "$ROOT/mcp-server/server.mjs" 'setReviewStatus' "MCP Review Status fallback"
+require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_bubble_up_markdown' "MCP Bubble Up"
 echo
 
 echo "## Safety And Reliability"
@@ -127,6 +129,7 @@ require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_v
 require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_capture_idea' "closed idea fallback regression"
 require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_review_queue_markdown' "closed review queue regression"
 require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_oracle_review_status' "closed review status regression"
+require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_bubble_up_markdown' "closed Bubble Up regression"
 require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_first_minute_markdown' "MCP first minute regression"
 require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_value_proof_markdown' "MCP value proof regression"
 require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'reviewStatus":"accepted' "closed outcome fallback regression"
@@ -143,6 +146,7 @@ echo "- make prove-value"
 echo "- make idea"
 echo "- make review"
 echo "- make review-status"
+echo "- make bubble-up"
 echo "- make oracle-brief"
 echo "- make agent-prompt"
 echo "- make next"

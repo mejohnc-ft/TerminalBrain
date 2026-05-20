@@ -9,7 +9,7 @@ directly. It talks to the trusted local app API:
 http://127.0.0.1:8765
 ```
 
-Start Terminal Brain before using app-backed MCP tools. `terminal_brain_first_minute_markdown`, `terminal_brain_now_markdown`, `terminal_brain_value_now_markdown`, `terminal_brain_value_proof_markdown`, `terminal_brain_review_queue_markdown`,
+Start Terminal Brain before using app-backed MCP tools. `terminal_brain_first_minute_markdown`, `terminal_brain_now_markdown`, `terminal_brain_value_now_markdown`, `terminal_brain_value_proof_markdown`, `terminal_brain_review_queue_markdown`, `terminal_brain_bubble_up_markdown`,
 `terminal_brain_next_markdown`, `terminal_brain_doctor_markdown`,
 `terminal_brain_audit_markdown`, `terminal_brain_process_map_markdown`, and `terminal_brain_runtime_status` are
 server-side and can be used first to get the first-minute value path, next move, setup
@@ -18,7 +18,7 @@ without launching or foregrounding anything.
 
 Oracle commits accept an optional `project` argument. When provided, Terminal Brain writes that project into note frontmatter so Review filters and Project Memory pages can attach the read to the correct work surface.
 
-`terminal_brain_capture_idea` also works when the app is closed. It falls back to the local `mac-app/scripts/idea.zsh` writer and creates a reviewable Oracle Inbox note without launching the app. `terminal_brain_review_queue_markdown` reads that same queue without launching the app, and `terminal_brain_oracle_review_status` can update note review state without the app open.
+`terminal_brain_capture_idea` also works when the app is closed. It falls back to the local `mac-app/scripts/idea.zsh` writer and creates a reviewable Oracle Inbox note without launching the app. `terminal_brain_review_queue_markdown` reads that same queue without launching the app, `terminal_brain_bubble_up_markdown` surfaces neglected and repeated signals from it, and `terminal_brain_oracle_review_status` can update note review state without the app open.
 
 Codex/workspace config can register this server as:
 
@@ -49,6 +49,7 @@ Codex/workspace config can register this server as:
 - `terminal_brain_value_now_markdown`
 - `terminal_brain_value_proof_markdown`
 - `terminal_brain_review_queue_markdown`
+- `terminal_brain_bubble_up_markdown`
 - `terminal_brain_audit_markdown`
 - `terminal_brain_snapshot`
 - `terminal_brain_snapshot_markdown`

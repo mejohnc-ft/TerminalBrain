@@ -1,4 +1,4 @@
-.PHONY: help build install verify live first-minute now status processes cleanup-plan support-bundle next value prove-value oracle-brief doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live first-minute now status processes cleanup-plan support-bundle next value prove-value oracle-brief bubble-up doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
@@ -21,6 +21,7 @@ help:
 	@echo "  make idea IDEA=... PROJECT=... Capture idea with closed-app fallback"
 	@echo "  make review        Non-launching Oracle Inbox review queue"
 	@echo "  make review-status ID=... STATUS=accepted"
+	@echo "  make bubble-up     Non-launching signals that should be pulled forward"
 	@echo "  make outcome TITLE=... OUTCOME=... PROJECT=... Commit structured outcome"
 	@echo "  make build         Build the macOS app without launching it"
 	@echo "  make install       Copy the app to ~/Applications without launching it"
@@ -83,6 +84,9 @@ prove-value:
 
 oracle-brief:
 	./mac-app/scripts/oracle-brief.zsh
+
+bubble-up:
+	./mac-app/scripts/bubble-up.zsh
 
 doctor:
 	./mac-app/scripts/doctor.zsh
