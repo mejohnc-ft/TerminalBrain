@@ -1,6 +1,7 @@
 #!/usr/bin/env zsh
 set -euo pipefail
 
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 WORKSPACE="${TERMINAL_BRAIN_WORKSPACE:-$HOME/mejohnwc}"
 LIMIT="${LIMIT:-7}"
 PROJECT="${PROJECT:-}"
@@ -44,8 +45,9 @@ EOF
   shift
 done
 
-WORKSPACE="$WORKSPACE" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtime -e '
+WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtime -rshellwords -e '
   workspace = ENV.fetch("WORKSPACE")
+  root = ENV.fetch("ROOT")
   inbox = File.join(workspace, "Oracle Inbox")
   limit = Integer(ENV.fetch("LIMIT", "7")) rescue 7
   project_filter = ENV.fetch("PROJECT", "").strip.downcase
@@ -118,6 +120,50 @@ WORKSPACE="$WORKSPACE" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtime -e '
     "possible weak signal"
   end
 
+  def recent_work_signals(root, limit)
+    return [] unless Dir.exist?(File.join(root, ".git"))
+    output = IO.popen(["git", "-C", root, "log", "-#{[limit, 5].max}", "--pretty=format:%h%x09%cr%x09%s"], &:read).to_s
+    output.lines.map do |line|
+      sha, age, subject = line.chomp.split("\t", 3)
+      next if subject.to_s.strip.empty?
+      {
+        sha: sha.to_s,
+        age: age.to_s,
+        title: subject.to_s.strip,
+        project: "Terminal Brain"
+      }
+    end.compact
+  rescue
+    []
+  end
+
+  def print_recent_work_fallback(root, limit)
+    signals = recent_work_signals(root, limit)
+    return false if signals.empty?
+
+    puts "## Recent Work Signals"
+    puts
+    puts "The Oracle Inbox has no reviewable items, so Bubble Up is using recent repo history as the fallback signal."
+    puts
+    signals.first(limit).each_with_index do |signal, index|
+      puts "### #{index + 1}. #{signal[:title]}"
+      puts
+      puts "- Why now: recent implementation work without a matching reviewed Oracle outcome"
+      puts "- Project: #{signal[:project]}"
+      puts "- Age: #{signal[:age]}"
+      puts "- Commit: #{signal[:sha]}"
+      puts
+      puts "#### Turn It Into Memory"
+      puts
+      puts "```zsh"
+      puts "make idea TITLE=#{("Follow up: " + signal[:title]).shellescape} IDEA=#{("What should change because we shipped " + signal[:title] + "? Capture the outcome, remaining risk, and next action.").shellescape} PROJECT=#{signal[:project].shellescape}"
+      puts "make work-block"
+      puts "```"
+      puts
+    end
+    true
+  end
+
   puts "# Terminal Brain Bubble Up"
   puts
   puts "Workspace: #{workspace}"
@@ -128,7 +174,9 @@ WORKSPACE="$WORKSPACE" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtime -e '
     puts "## Direct Read"
     puts
     puts "- No Oracle Inbox exists yet."
-    puts "- Prime the brain with one real pressure point, then rerun Bubble Up."
+    puts "- Recent repo work can still be converted into reviewable memory."
+    puts
+    print_recent_work_fallback(root, limit)
     puts
     puts "## Prime The Brain"
     puts
@@ -220,6 +268,8 @@ WORKSPACE="$WORKSPACE" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtime -e '
   puts
   if ranked.empty?
     puts "No items matched."
+    puts
+    print_recent_work_fallback(root, limit)
     puts
     puts "## Prime The Brain"
     puts

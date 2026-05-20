@@ -139,7 +139,7 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 - `Status` shows repo, CI, process, launchctl, and API state without touching app focus.
 - `Processes` separates app/runtime focus stealers from Codex, MCP, kernel, brain-console, and Drafts background noise.
 - `Cleanup Plan` prints stale MCP/kernel candidates and manual review commands without terminating anything.
-- `Bubble Up` surfaces neglected ideas, delegated loops, and repeated project pressure.
+- `Bubble Up` surfaces neglected ideas, delegated loops, repeated project pressure, and recent repo work that still needs a reviewed outcome.
 - `Work Block` combines Bubble Up, Review Queue, and outcome writeback into one immediate work surface.
 - `Support Bundle` writes Now, Oracle Brief, Bubble Up, Doctor, Audit, Process Map, Cleanup Plan, and Git state into one Markdown file.
 - `Doctor` checks app install, MCP contract, agent config references, and runtime readiness.
