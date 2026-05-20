@@ -1,10 +1,11 @@
-.PHONY: help build install verify live first-minute now status processes cleanup-plan support-bundle next value prove-value oracle-brief bubble-up work-block doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live first-minute demo now status processes cleanup-plan support-bundle next value prove-value oracle-brief bubble-up work-block doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
 	@echo "  make work-block    Non-launching work block: pull forward, triage, close loop"
 	@echo "  make next          Non-launching next move; prints Start Here if app is reachable"
 	@echo "  make first-minute  Non-launching one-command value path and working proof"
+	@echo "  make demo          Non-launching temporary demo with seeded ideas, Bubble Up, Work Block"
 	@echo "  make now           Non-launching one-page orientation: value, next action, process truth, readiness"
 	@echo "  make prove-value   Non-launching proof of Oracle Brief -> Agent Prompt -> Outcome"
 	@echo "  make value         Non-launching value read; prints live Value Brief if app is reachable"
@@ -58,6 +59,9 @@ verify:
 
 first-minute:
 	./mac-app/scripts/first-minute.zsh
+
+demo:
+	./mac-app/scripts/demo.zsh
 
 now:
 	./mac-app/scripts/now.zsh

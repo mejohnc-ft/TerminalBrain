@@ -26,6 +26,14 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 
    `make prove-value` demonstrates the full closed-app loop without touching the real vault.
 
+   To see the loop with realistic seeded ideas, run:
+
+   ```zsh
+   make demo
+   ```
+
+   `make demo` creates a temporary workspace, seeds ideas and an outcome, then shows Review Queue, Bubble Up, Work Block, and the real commands to keep using the system.
+
    ```zsh
    make now
    ```
@@ -108,6 +116,7 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 - `Now` gives one page with bottom line, next action, process truth, readiness, and close loop.
 - `Value` says what Terminal Brain is useful for right now.
 - `Value Proof` demonstrates Oracle Brief -> Agent Prompt -> accepted Outcome without touching the real workspace.
+- `Demo` shows ideas becoming a review queue, bubbled-up signals, and one work block in a temporary workspace.
 - `Oracle Brief` gives the direct read, missing signal, cheap test, and agent handoff.
 - `Status` shows repo, CI, process, launchctl, and API state without touching app focus.
 - `Processes` separates app/runtime focus stealers from Codex, MCP, kernel, brain-console, and Drafts background noise.

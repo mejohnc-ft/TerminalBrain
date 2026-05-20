@@ -167,6 +167,15 @@ require_contains "$proof_output" '# Terminal Brain Agent Prompt' "value proof Ag
 require_contains "$proof_output" '"reviewStatus":"accepted"' "value proof accepted outcome"
 require_contains "$proof_output" 'Temporary Note Preview' "value proof note preview"
 
+demo_output="$(TERMINAL_BRAIN_DEMO_API="$CLOSED_API" "$ROOT/mac-app/scripts/demo.zsh")"
+require_contains "$demo_output" '# Terminal Brain Demo' "demo title"
+require_contains "$demo_output" 'Seeded Scenario' "demo seeded scenario"
+require_contains "$demo_output" '# Terminal Brain Review Queue' "demo review queue"
+require_contains "$demo_output" '# Terminal Brain Bubble Up' "demo Bubble Up"
+require_contains "$demo_output" '# Terminal Brain Work Block' "demo Work Block"
+require_contains "$demo_output" 'Use It For Real' "demo real commands"
+require_contains "$demo_output" 'did not launch, foreground, quit, kill, or control' "demo guardrail"
+
 mcp_next_output="$(call_mcp_tool terminal_brain_next_markdown)"
 require_contains "$mcp_next_output" '# Terminal Brain Next' "MCP next title"
 require_contains "$mcp_next_output" 'make oracle-brief' "MCP next Oracle Brief fallback"
@@ -223,6 +232,14 @@ require_contains "$mcp_proof_output" '# Terminal Brain Oracle Brief' "MCP value 
 require_contains "$mcp_proof_output" '# Terminal Brain Agent Prompt' "MCP value proof Agent Prompt"
 require_contains "$mcp_proof_output" 'reviewStatus.*accepted' "MCP value proof accepted outcome"
 require_contains "$mcp_proof_output" 'Temporary Note Preview' "MCP value proof note preview"
+
+mcp_demo_output="$(call_mcp_tool terminal_brain_demo_markdown)"
+require_contains "$mcp_demo_output" '# Terminal Brain Demo' "MCP demo title"
+require_contains "$mcp_demo_output" 'Seeded Scenario' "MCP demo seeded scenario"
+require_contains "$mcp_demo_output" '# Terminal Brain Review Queue' "MCP demo review queue"
+require_contains "$mcp_demo_output" '# Terminal Brain Bubble Up' "MCP demo Bubble Up"
+require_contains "$mcp_demo_output" '# Terminal Brain Work Block' "MCP demo Work Block"
+require_contains "$mcp_demo_output" 'Use It For Real' "MCP demo real commands"
 
 mcp_oracle_output="$(call_mcp_tool terminal_brain_oracle_brief_markdown)"
 require_contains "$mcp_oracle_output" '# Terminal Brain Oracle Brief' "MCP Oracle Brief title"
