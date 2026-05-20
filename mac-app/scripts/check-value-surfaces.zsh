@@ -46,6 +46,9 @@ require_in_file "$ROOT/mcp-server/expected-tools.json" 'terminal_brain_oracle_di
 
 require_in_file "$ROOT/AGENTS.md" 'Do not use Computer Use' "UI automation guardrail"
 require_in_file "$ROOT/AGENTS.md" 'terminal_brain_start_here_markdown' "agent Start Here instruction"
+require_in_file "$ROOT/README.md" 'START-HERE.md' "README Start Here link"
+require_in_file "$ROOT/START-HERE.md" 'make start-here' "repo Start Here command"
+require_in_file "$ROOT/START-HERE.md" 'make outcome' "repo outcome close loop"
 
 if [[ "$missing" != "0" ]]; then
   exit 1

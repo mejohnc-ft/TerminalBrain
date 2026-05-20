@@ -4,6 +4,8 @@ Terminal Brain is a native macOS control surface for a local-first personal brai
 
 Agent contributors should read `AGENTS.md` before running local commands. The default verification path is non-launching and should not foreground the app.
 
+For the shortest value path, start with [`START-HERE.md`](START-HERE.md).
+
 Common commands:
 
 ```zsh
