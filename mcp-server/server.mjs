@@ -34,13 +34,13 @@ const tools = [
   },
   {
     name: "terminal_brain_use_now_markdown",
-    description: "Get the one-command non-launching Terminal Brain path for a new or overwhelmed operator: read the pull-forward block, ask, capture, delegate, and close the loop.",
+    description: "Get the one-command non-launching Terminal Brain path for a new or overwhelmed operator: one executable move first, compact pull-forward context, ask, capture, delegate, and close the loop.",
     inputSchema: {
       type: "object",
       properties: {
         limit: {
           type: "number",
-          description: "Maximum surfaced items to show in the embedded work block. Defaults to 2."
+          description: "Maximum surfaced items to show in the embedded work block. Defaults to 1."
         },
         project: {
           type: "string",
