@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+missing_count=0
 
 case "${1:-}" in
   --help|-h)
@@ -35,6 +36,7 @@ require_evidence() {
   if grep -qE -- "$pattern" "$file"; then
     printf 'ok   %s\n' "$label"
   else
+    missing_count=$((missing_count + 1))
     printf 'miss %s\n' "$label"
   fi
 }
@@ -92,3 +94,9 @@ echo "- make status"
 echo "- make verify"
 echo
 echo "Guardrail: audit did not launch or foreground Terminal Brain."
+
+if (( missing_count > 0 )); then
+  echo
+  echo "Audit failed: $missing_count required evidence item(s) missing." >&2
+  exit 1
+fi

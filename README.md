@@ -141,7 +141,7 @@ For a non-launching capability audit:
 make audit
 ```
 
-This prints the evidence checklist for value-first surfaces, MCP tools, safety guardrails, readiness, and non-launching commands.
+This prints and enforces the evidence checklist for value-first surfaces, MCP tools, safety guardrails, readiness, and non-launching commands.
 
 For API/MCP checks against an already-running app:
 

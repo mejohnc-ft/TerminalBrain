@@ -42,6 +42,7 @@ require_in_file "$ROOT/mac-app/scripts/next.zsh" 'make start-here' "non-launchin
 require_in_file "$ROOT/mac-app/scripts/value.zsh" 'Terminal Brain Value Now' "non-launching value read"
 require_in_file "$ROOT/mac-app/scripts/doctor.zsh" 'MCP tool contract valid' "non-launching doctor MCP check"
 require_in_file "$ROOT/mac-app/scripts/audit.zsh" 'Terminal Brain Capability Audit' "non-launching capability audit"
+require_in_file "$ROOT/mac-app/scripts/audit.zsh" 'Audit failed:' "capability audit enforces missing evidence"
 require_in_file "$ROOT/mac-app/scripts/doctor.zsh" 'installed app executable matches current build' "doctor installed app freshness check"
 require_in_file "$ROOT/mac-app/scripts/doctor.zsh" 'latest GitHub CI succeeded' "doctor CI state check"
 require_in_file "$ROOT/mac-app/scripts/doctor.zsh" 'readiness: package ready' "doctor readiness verdict"
