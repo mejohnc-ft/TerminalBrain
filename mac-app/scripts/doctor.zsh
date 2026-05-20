@@ -5,6 +5,8 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 API="${TERMINAL_BRAIN_API:-http://127.0.0.1:8765}"
 BUILT_APP="$ROOT/mac-app/build/Terminal Brain.app"
 INSTALLED_APP="$HOME/Applications/Terminal Brain.app"
+BUILT_EXE="$BUILT_APP/Contents/MacOS/TerminalBrain"
+INSTALLED_EXE="$INSTALLED_APP/Contents/MacOS/TerminalBrain"
 MCP_SERVER="$ROOT/mcp-server/server.mjs"
 
 case "${1:-}" in
@@ -15,6 +17,7 @@ Usage: ./mac-app/scripts/doctor.zsh
 Runs a non-launching Terminal Brain readiness audit:
   - repo and CI state
   - built and installed app bundles
+  - installed app freshness against the current build
   - MCP server syntax and tool contract
   - likely Codex/agent MCP config references
   - prompt-prone Apple Notes/Drafts bridge checks
@@ -76,6 +79,16 @@ if [[ -d "$INSTALLED_APP" ]]; then
   ok "installed app exists at $INSTALLED_APP"
 else
   warn "installed app missing; run make install when you want to copy it to ~/Applications"
+fi
+
+if [[ -x "$BUILT_EXE" && -x "$INSTALLED_EXE" ]]; then
+  if cmp -s "$BUILT_EXE" "$INSTALLED_EXE"; then
+    ok "installed app executable matches current build"
+  else
+    warn "installed app executable differs from current build; run make install"
+  fi
+elif [[ -x "$BUILT_EXE" ]]; then
+  warn "built app executable exists but installed executable is missing; run make install"
 fi
 
 process_pids="$(pgrep -x TerminalBrain 2>/dev/null || true)"
