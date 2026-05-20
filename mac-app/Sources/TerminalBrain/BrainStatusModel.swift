@@ -56,6 +56,7 @@ final class BrainStatusModel: ObservableObject {
     @Published var projectMemoryCopyOutput = ""
     @Published var sourceInventoryCopyOutput = ""
     @Published var memoryBriefCopyOutput = ""
+    @Published var memoryPromoteOutput = ""
     @Published var deckCopyOutput = ""
     @Published var latestPackCopyOutput = ""
     @Published var handoffCopyOutput = ""
@@ -376,6 +377,42 @@ final class BrainStatusModel: ObservableObject {
     func copyMemoryBrief() async {
         await copyMarkdown(path: "/memory/markdown", label: "Memory Brief") { message in
             memoryBriefCopyOutput = message
+        }
+    }
+
+    func previewMemoryLead(index: Int) async {
+        await promoteMemoryLead(index: index, dryRun: true)
+    }
+
+    func promoteMemoryLead(index: Int, dryRun: Bool = false) async {
+        guard let url = URL(string: "http://127.0.0.1:8765/memory/promote") else { return }
+        do {
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONSerialization.data(withJSONObject: [
+                "index": max(1, index),
+                "dryRun": dryRun
+            ])
+            let (data, _) = try await URLSession.shared.data(for: request)
+            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                memoryPromoteOutput = dryRun ? "Memory preview failed." : "Memory promotion failed."
+                return
+            }
+            if dryRun {
+                let title = json["title"] as? String ?? "Selected memory lead"
+                let project = json["project"] as? String ?? "General Brain"
+                memoryPromoteOutput = "Preview: \(title) -> \(project)"
+            } else if json["ok"] as? Bool == true {
+                let path = json["path"] as? String ?? "Oracle Inbox"
+                memoryPromoteOutput = "Promoted memory lead to \(path)"
+                oracleCommits = loadOracleCommits()
+                projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
+            } else {
+                memoryPromoteOutput = json["error"] as? String ?? "Memory promotion failed."
+            }
+        } catch {
+            memoryPromoteOutput = "Memory promotion failed: \(error.localizedDescription)"
         }
     }
 

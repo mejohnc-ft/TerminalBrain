@@ -20,6 +20,7 @@
   "GET /sources",
   "GET /sources/markdown",
   "GET /memory/markdown",
+  "POST /memory/promote",
   "GET /setup",
   "GET /projects",
   "GET /projects/markdown",

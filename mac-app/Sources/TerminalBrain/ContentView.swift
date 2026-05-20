@@ -13,6 +13,7 @@ struct ContentView: View {
     @State private var reviewProjectFilter = "all"
     @State private var feedFilter: FeedKind = .all
     @State private var selectedSourceID = "obsidian"
+    @State private var memoryLeadIndex = 1
     @State private var showCommandPalette = false
     @State private var commandQuery = ""
 
@@ -3380,10 +3381,36 @@ struct ContentView: View {
                         .buttonStyle(.bordered)
                     }
 
+                    HStack(spacing: 10) {
+                        Stepper("Lead \(memoryLeadIndex)", value: $memoryLeadIndex, in: 1...25)
+                            .font(.callout.weight(.semibold))
+                            .foregroundStyle(.white.opacity(0.76))
+                            .frame(width: 128, alignment: .leading)
+
+                        Button {
+                            Task { await model.previewMemoryLead(index: memoryLeadIndex) }
+                        } label: {
+                            Label("Preview", systemImage: "eye")
+                        }
+                        .buttonStyle(.bordered)
+
+                        Button {
+                            Task { await model.promoteMemoryLead(index: memoryLeadIndex) }
+                        } label: {
+                            Label("Promote", systemImage: "tray.and.arrow.down.fill")
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+
                     if !model.memoryBriefCopyOutput.isEmpty || !model.sourceInventoryCopyOutput.isEmpty || !model.projectMemoryCopyOutput.isEmpty {
                         Text(!model.memoryBriefCopyOutput.isEmpty ? model.memoryBriefCopyOutput : (!model.sourceInventoryCopyOutput.isEmpty ? model.sourceInventoryCopyOutput : model.projectMemoryCopyOutput))
                             .font(.caption.weight(.medium))
                             .foregroundStyle(.white.opacity(0.50))
+                    }
+                    if !model.memoryPromoteOutput.isEmpty {
+                        Text(model.memoryPromoteOutput)
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.white.opacity(0.58))
                     }
                 }
                 .padding(16)
