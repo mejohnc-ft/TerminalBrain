@@ -32,6 +32,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_doctor_markdown",
+    description: "Run the non-launching Terminal Brain readiness doctor and return app install, MCP contract, agent config, process, launchctl, and API status as Markdown.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_status",
     description: "Read Terminal Brain app status, including MCP, sync, index, Mission Control, and prompt-safety state.",
     inputSchema: {
@@ -901,6 +910,24 @@ async function nextMarkdown() {
   ].join("\n");
 }
 
+function doctorMarkdown() {
+  const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "doctor.zsh")], { timeout: 10000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Doctor",
+    "",
+    "Doctor failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 async function api(path, { method = "GET", body, rawText = false } = {}) {
   const response = await fetch(`${API}${path}`, {
     method,
@@ -930,6 +957,8 @@ async function callTool(name, args = {}) {
       return runtimeStatus();
     case "terminal_brain_next_markdown":
       return nextMarkdown();
+    case "terminal_brain_doctor_markdown":
+      return doctorMarkdown();
     case "terminal_brain_status":
       return api("/status");
     case "terminal_brain_snapshot":
