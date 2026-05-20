@@ -1,10 +1,11 @@
-.PHONY: help build install verify live ask snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-today snapshot-projects snapshot-deck snapshot-deck-md latest-pack handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live ask ask-commit snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-today snapshot-projects snapshot-deck snapshot-deck-md latest-pack handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
 	@echo "  make verify        Non-launching static QA"
 	@echo "  make live          API/MCP QA against an already-running app"
 	@echo "  make ask QUERY=... Ask Terminal Brain Oracle from an already-running app"
+	@echo "  make ask-commit QUERY=... PROJECT=... Ask Oracle and commit the answer"
 	@echo "  make build         Build the macOS app without launching it"
 	@echo "  make install       Copy the app to ~/Applications without launching it"
 	@echo "  make snapshot      Print Markdown snapshot from an already-running app"
@@ -36,6 +37,10 @@ live:
 ask:
 	@if test -z "$$QUERY"; then echo "Set QUERY='question to ask'" >&2; exit 64; fi
 	./mac-app/scripts/oracle.zsh "$$QUERY"
+
+ask-commit:
+	@if test -z "$$QUERY"; then echo "Set QUERY='question to ask'" >&2; exit 64; fi
+	@if test -n "$$PROJECT"; then ./mac-app/scripts/oracle.zsh --commit --project "$$PROJECT" "$$QUERY"; else ./mac-app/scripts/oracle.zsh --commit "$$QUERY"; fi
 
 snapshot:
 	./mac-app/scripts/snapshot.zsh --markdown

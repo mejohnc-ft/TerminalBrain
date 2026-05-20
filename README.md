@@ -11,6 +11,7 @@ make
 make verify
 make live
 make ask QUERY="what should I work on next?"
+make ask-commit QUERY="what changed?" PROJECT="Terminal Brain"
 make build
 make install
 make snapshot
@@ -44,7 +45,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Review Queue for committed Oracle reads with triage states.
 - Project Memory pages derived from context packs and Oracle commits.
 - Project-aware actions for asking Oracle, building packs, committing updates, filtering Review, and delegating reads into Start Work.
-- Non-launching Oracle CLI for terminal and agent workflows: `make ask QUERY="what am I missing?"`.
+- Non-launching Oracle CLI for terminal and agent workflows: `make ask QUERY="what am I missing?"` or `make ask-commit QUERY="what changed?" PROJECT="Terminal Brain"`.
 - Proactive Radar for delegated reads, stale reviews, quiet project risks, open loops, and ideas worth testing, with scores, evidence, and persistent watch/acted/snooze/dismiss triage.
 - Focus Mode that opens to one recommended action, why it won, the fastest next move, and inline Oracle follow-up prompts.
 - Daily Command Center with ranked actions for reviews, delegations, projects, system attention, and fresh context.
