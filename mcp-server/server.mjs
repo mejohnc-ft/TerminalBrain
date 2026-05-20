@@ -101,6 +101,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_value_proof_markdown",
+    description: "Run the non-launching Terminal Brain value proof: Oracle Brief, Agent Prompt, temporary accepted outcome note, and note preview.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_audit_markdown",
     description: "Run the non-launching Terminal Brain capability audit and return evidence for value, MCP, safety, readiness, and first commands as Markdown.",
     inputSchema: {
@@ -1105,6 +1114,24 @@ function agentPromptMarkdown() {
   ].join("\n");
 }
 
+function valueProofMarkdown() {
+  const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "prove-value.zsh")], { timeout: 20000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Value Proof",
+    "",
+    "Value proof failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 function cleanupPlanMarkdown() {
   const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "cleanup-plan.zsh")], { timeout: 10000 });
   if (result.ok) return result.text;
@@ -1242,6 +1269,8 @@ async function callTool(name, args = {}) {
       return doctorMarkdown();
     case "terminal_brain_value_now_markdown":
       return valueNowMarkdown();
+    case "terminal_brain_value_proof_markdown":
+      return valueProofMarkdown();
     case "terminal_brain_oracle_brief_markdown":
       return oracleBriefMarkdown();
     case "terminal_brain_audit_markdown":

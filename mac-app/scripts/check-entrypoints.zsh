@@ -81,6 +81,13 @@ mcp_value_output="$(call_mcp_tool terminal_brain_value_now_markdown)"
 require_contains "$mcp_value_output" '# Terminal Brain Value Now' "MCP value title"
 require_contains "$mcp_value_output" 'What You Can Get From It' "MCP value explanation"
 
+mcp_proof_output="$(call_mcp_tool terminal_brain_value_proof_markdown)"
+require_contains "$mcp_proof_output" '# Terminal Brain Value Proof' "MCP value proof title"
+require_contains "$mcp_proof_output" '# Terminal Brain Oracle Brief' "MCP value proof Oracle Brief"
+require_contains "$mcp_proof_output" '# Terminal Brain Agent Prompt' "MCP value proof Agent Prompt"
+require_contains "$mcp_proof_output" 'reviewStatus.*accepted' "MCP value proof accepted outcome"
+require_contains "$mcp_proof_output" 'Temporary Note Preview' "MCP value proof note preview"
+
 mcp_oracle_output="$(call_mcp_tool terminal_brain_oracle_brief_markdown)"
 require_contains "$mcp_oracle_output" '# Terminal Brain Oracle Brief' "MCP Oracle Brief title"
 require_contains "$mcp_oracle_output" 'cheapest test' "MCP Oracle Brief closed fallback"
