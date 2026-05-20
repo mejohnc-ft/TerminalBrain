@@ -13,6 +13,7 @@ Runs non-launching local QA:
   - MCP server syntax
   - Swift typecheck
   - macOS app build
+  - misleading static UI copy guard
   - secret pattern scan
 
 This script never launches or foregrounds Terminal Brain.
@@ -39,6 +40,7 @@ for script in \
 done
 "$ROOT/mac-app/scripts/check-api-routes.zsh"
 "$ROOT/mac-app/scripts/check-no-foreground.zsh"
+"$ROOT/mac-app/scripts/check-ui-copy.zsh"
 node --check "$ROOT/mcp-server/server.mjs" >/dev/null
 node --check "$ROOT/mcp-server/check-tools.mjs" >/dev/null
 node "$ROOT/mcp-server/check-tools.mjs"
