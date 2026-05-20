@@ -357,16 +357,26 @@ struct ContentView: View {
                 Text("Home")
                     .sidebarHeader()
                 NavRow(title: "Work Block", symbol: "target", badge: "\(model.oracleCommits.filter { $0.status == .new || $0.status == .delegated }.count)", selected: selectedSection == "work-block") { selectedSection = "work-block" }
-                NavRow(title: "First Minute", symbol: "1.circle.fill", badge: "", selected: selectedSection == "first-minute") { selectedSection = "first-minute" }
-                NavRow(title: "Demo", symbol: "play.rectangle.fill", badge: "", selected: selectedSection == "demo") { selectedSection = "demo" }
-                NavRow(title: "Playbook", symbol: "book.closed.fill", badge: "", selected: selectedSection == "playbook") { selectedSection = "playbook" }
-                NavRow(title: "Value Audit", symbol: "checkmark.seal.fill", badge: "", selected: selectedSection == "value-audit") { selectedSection = "value-audit" }
                 NavRow(title: "Now", symbol: "sparkles", badge: model.setupAttentionCount == 0 ? "" : "\(model.setupAttentionCount)", selected: selectedSection == "now") { selectedSection = "now" }
                 NavRow(title: "Value", symbol: "bolt.fill", badge: "\(model.focusItem.score)", selected: selectedSection == "value") { selectedSection = "value" }
                 NavRow(title: "Start Here", symbol: "play.circle.fill", badge: "", selected: selectedSection == "start-here") { selectedSection = "start-here" }
                 NavRow(title: "Focus", symbol: "target", badge: "\(model.focusItem.score)", selected: selectedSection == "focus") { selectedSection = "focus" }
                 NavRow(title: "Cockpit", symbol: "house.fill", badge: model.summaryLine == "Brain status ready" ? "" : "!", selected: selectedSection == "cockpit") { selectedSection = "cockpit" }
                 NavRow(title: "Setup", symbol: "checklist.checked", badge: model.setupAttentionCount == 0 ? "" : "\(model.setupAttentionCount)", selected: selectedSection == "setup") { selectedSection = "setup" }
+            }
+
+            VStack(alignment: .leading, spacing: 7) {
+                Text("Learn")
+                    .sidebarHeader()
+                NavRow(title: "First Minute", symbol: "1.circle.fill", badge: "", selected: selectedSection == "first-minute") { selectedSection = "first-minute" }
+                NavRow(title: "Demo", symbol: "play.rectangle.fill", badge: "", selected: selectedSection == "demo") { selectedSection = "demo" }
+                NavRow(title: "Playbook", symbol: "book.closed.fill", badge: "", selected: selectedSection == "playbook") { selectedSection = "playbook" }
+                NavRow(title: "Value Audit", symbol: "checkmark.seal.fill", badge: "", selected: selectedSection == "value-audit") { selectedSection = "value-audit" }
+            }
+
+            VStack(alignment: .leading, spacing: 7) {
+                Text("Signals")
+                    .sidebarHeader()
                 NavRow(title: "Radar", symbol: "scope", badge: "\(model.radarItems.count)", selected: selectedSection == "radar") { selectedSection = "radar" }
                 NavRow(title: "Blindspots", symbol: "eye.fill", badge: "\(model.blindspotItems.count)", selected: selectedSection == "blindspots") { selectedSection = "blindspots" }
                 NavRow(title: "Ideas", symbol: "lightbulb.fill", badge: "\(model.ideaPulseItems.count)", selected: selectedSection == "ideas") { selectedSection = "ideas" }

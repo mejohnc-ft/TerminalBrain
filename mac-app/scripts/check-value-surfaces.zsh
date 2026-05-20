@@ -20,6 +20,8 @@ require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Start H
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Terminal Brain Now' "Now app surface"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Value Now' "Value Now app surface"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'selectedSection = "work-block"' "Work Block default app section"
+require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Text\("Learn"\)' "sidebar Learn group"
+require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Text\("Signals"\)' "sidebar Signals group"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'workBlockView' "Work Block app surface"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Top Review Action' "Work Block direct review actions"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'delegateOracleCommitToStartWork\(topReview\)' "Work Block delegate action"
