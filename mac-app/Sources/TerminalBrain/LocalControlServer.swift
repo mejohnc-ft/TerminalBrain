@@ -1800,8 +1800,8 @@ enum NowSnapshot {
         let query = (focus["query"] as? String ?? focus["title"] as? String ?? "").ifEmpty(focus["title"] as? String ?? "current focus")
         let processTruth = (payload["processTruth"] as? [String: Any]) ?? [:]
         let readiness = processTruth["setupReadiness"] as? String ?? "unknown"
+        let oracle = await OracleSnapshot.markdown()
         let value = await ValueBriefSnapshot.markdown()
-        let digest = await OracleDigestSnapshot.markdown()
 
         return [
             "# Terminal Brain Now",
@@ -1833,11 +1833,11 @@ enum NowSnapshot {
             "",
             "---",
             "",
-            demote(value),
+            demote(oracle),
             "",
             "---",
             "",
-            demote(digest)
+            demote(value),
         ].joined(separator: "\n")
     }
 
@@ -3212,7 +3212,7 @@ enum StartHereSnapshot {
             "Generated: \(generated)",
             "",
             "## One-Block Path",
-            "1. Read the Oracle Digest to understand what to notice, decide, test, create, and avoid.",
+            "1. Read the Oracle Brief for the direct read, missing signal, cheap test, and handoff.",
             "2. Copy the Agent Prompt when handing work to Codex or Claude.",
             "3. Build or use a context pack for the current project.",
             "4. Commit the outcome before switching context.",
@@ -3225,7 +3225,7 @@ enum StartHereSnapshot {
             ""
         ]
 
-        lines.append("## Oracle Digest")
+        lines.append("## Oracle Brief")
         for section in sections.prefix(5) {
             lines.append("- \(section["label"] as? String ?? "Signal"): \(section["title"] as? String ?? "Untitled") -> \(section["action"] as? String ?? "Act")")
             if let question = section["question"] as? String, !question.isEmpty {
@@ -3266,6 +3266,7 @@ enum BrainHandoffSnapshot {
     static func markdown() async -> String {
         let generated = ISO8601DateFormatter().string(from: Date())
         let startHere = await StartHereSnapshot.markdown()
+        let oracle = await OracleSnapshot.markdown()
         let digest = await OracleDigestSnapshot.markdown()
         let value = await ValueBriefSnapshot.markdown()
         let brief = await OperatorBriefSnapshot.markdown()
@@ -3282,7 +3283,8 @@ enum BrainHandoffSnapshot {
             "",
             "## How To Use This",
             "- Use Start Here when you need the shortest path from signal to action to outcome.",
-            "- Start with the Oracle Digest when you want the plain-language read: what to notice, decide, test, create, and avoid.",
+            "- Start with the Oracle Brief when you want the direct read: next moves, missing signal, cheap test, and agent handoff.",
+            "- Use the Oracle Digest when you want the lane breakdown: what to notice, decide, test, create, and avoid.",
             "- Start with the Operator Brief for plain-language value, then use the Operator Deck for concrete actions.",
             "- Treat the first action card as the default next move unless new evidence contradicts it.",
             "- Read the Blindspot Brief before broad planning; it lists the thing most likely to be ignored or left unresolved.",
@@ -3295,6 +3297,7 @@ enum BrainHandoffSnapshot {
             "",
             "## Contents",
             "- Start Here: one-block path from current signal to committed outcome.",
+            "- Oracle Brief: direct read, missing signal, cheap test, and agent handoff.",
             "- Oracle Digest: narrative read on what deserves attention and closure.",
             "- Value Brief: compact read on why the current move is worth attention.",
             "- Operator Brief: plain-language value read.",
@@ -3306,6 +3309,10 @@ enum BrainHandoffSnapshot {
             "- Latest Context Pack: freshest working-memory bundle.",
             "",
             startHere,
+            "",
+            "---",
+            "",
+            oracle,
             "",
             "---",
             "",
