@@ -22,6 +22,7 @@ final class BrainStatusModel: ObservableObject {
     @Published var quickIdea = ""
     @Published var quickIdeaOutput = ""
     @Published var snapshotCopyOutput = ""
+    @Published var deckCopyOutput = ""
     @Published var oracleCommits: [OracleCommit] = []
     @Published var projects: [ProjectMemory] = []
     @Published var findings: [String] = []
@@ -371,6 +372,22 @@ final class BrainStatusModel: ObservableObject {
             snapshotCopyOutput = "Snapshot copied."
         } catch {
             snapshotCopyOutput = "Snapshot copy failed: \(error.localizedDescription)"
+        }
+    }
+
+    func copyOperatorDeck() async {
+        guard let url = URL(string: "http://127.0.0.1:8765/operator-deck/markdown") else { return }
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            guard let markdown = String(data: data, encoding: .utf8), !markdown.isEmpty else {
+                deckCopyOutput = "Deck copy failed."
+                return
+            }
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(markdown, forType: .string)
+            deckCopyOutput = "Deck copied."
+        } catch {
+            deckCopyOutput = "Deck copy failed: \(error.localizedDescription)"
         }
     }
 

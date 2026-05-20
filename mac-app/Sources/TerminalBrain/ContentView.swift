@@ -64,6 +64,7 @@ struct ContentView: View {
             BrainCommand(title: "Open System", subtitle: "Native macOS surfaces and integration roadmap", symbol: "puzzlepiece.extension.fill", category: "Navigate", action: .section("system")),
             BrainCommand(title: "Run Sync", subtitle: "Refresh edge brain export with current permission policy", symbol: "arrow.triangle.2.circlepath", category: "Action", action: .runSync),
             BrainCommand(title: "Copy Operator Snapshot", subtitle: "Prompt-ready Focus, Radar, actions, and memory trail", symbol: "doc.on.clipboard", category: "Action", action: .copySnapshot),
+            BrainCommand(title: "Copy Operator Deck", subtitle: "Prompt-ready four-card deck for handoffs", symbol: "rectangle.stack.fill.badge.person.crop", category: "Action", action: .copyDeck),
             BrainCommand(title: "Open Mission Control", subtitle: Paths.missionURL.absoluteString, symbol: "display", category: "Action", action: .openMission),
             BrainCommand(title: "Open Logs", subtitle: Paths.syncLog, symbol: "doc.text", category: "Action", action: .openLogs),
             BrainCommand(title: "Open Workspace", subtitle: Paths.workspace, symbol: "folder", category: "Action", action: .openWorkspace)
@@ -610,6 +611,20 @@ struct ContentView: View {
             HStack {
                 SectionTitle("Operator Deck", symbol: "rectangle.stack.fill")
                 Spacer()
+                if !model.deckCopyOutput.isEmpty {
+                    Text(model.deckCopyOutput)
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.white.opacity(0.48))
+                        .lineLimit(1)
+                }
+                Button {
+                    Task { await model.copyOperatorDeck() }
+                } label: {
+                    Label("Copy", systemImage: "doc.on.clipboard")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .help("Copy Operator Deck Markdown")
                 Text("Read left to right")
                     .font(.caption.weight(.bold))
                     .foregroundStyle(.white.opacity(0.42))
@@ -2028,6 +2043,8 @@ struct ContentView: View {
             Task { await model.runSyncNow() }
         case .copySnapshot:
             Task { await model.copyOperatorSnapshot() }
+        case .copyDeck:
+            Task { await model.copyOperatorDeck() }
         case .askOracle(let question):
             model.oracleQuestion = question
             selectedSection = "oracle"
@@ -2250,6 +2267,7 @@ enum BrainCommandAction {
     case openPath(String)
     case runSync
     case copySnapshot
+    case copyDeck
     case askOracle(String)
     case askFocus
     case draftIdea(String)
