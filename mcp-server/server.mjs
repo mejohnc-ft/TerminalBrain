@@ -268,6 +268,24 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_value_brief",
+    description: "Get Terminal Brain's compact value brief: why the current move is worth attention and what artifact to create.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
+    name: "terminal_brain_value_brief_markdown",
+    description: "Get Terminal Brain's Value Brief as prompt-ready Markdown.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_operator_deck",
     description: "Get the same four-card Operator Deck shown in the app: do first, ask about, review or capture, and project/start-work card.",
     inputSchema: {
@@ -734,6 +752,10 @@ async function callTool(name, args = {}) {
       return api("/operator-brief");
     case "terminal_brain_operator_brief_markdown":
       return api("/operator-brief/markdown", { rawText: true });
+    case "terminal_brain_value_brief":
+      return api("/value-brief");
+    case "terminal_brain_value_brief_markdown":
+      return api("/value-brief/markdown", { rawText: true });
     case "terminal_brain_operator_deck":
       return api("/operator-deck");
     case "terminal_brain_operator_deck_markdown":

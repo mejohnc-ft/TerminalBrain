@@ -111,6 +111,10 @@ final class LocalControlServer {
             return .json(200, await OperatorBriefSnapshot.brief())
         case ("GET", "/operator-brief/markdown"):
             return .text(200, await OperatorBriefSnapshot.markdown())
+        case ("GET", "/value-brief"):
+            return .json(200, await ValueBriefSnapshot.brief())
+        case ("GET", "/value-brief/markdown"):
+            return .text(200, await ValueBriefSnapshot.markdown())
         case ("GET", "/operator-deck"):
             return .json(200, await OperatorDeckSnapshot.deck())
         case ("GET", "/operator-deck/markdown"):
@@ -1462,6 +1466,129 @@ enum OperatorBriefSnapshot {
     }
 }
 
+enum ValueBriefSnapshot {
+    static func brief() async -> [String: Any] {
+        let generatedAt = ISO8601DateFormatter().string(from: Date())
+        let focusPayload = await FocusSnapshot.focus()
+        let ideaPayload = await IdeaPulseSnapshot.ideas()
+        let blindspotPayload = await BlindspotSnapshot.blindspots()
+        let projectsPayload = ProjectSnapshot.projects()
+        let todayPayload = await TodaySnapshot.today()
+
+        let focus = (focusPayload["item"] as? [String: Any]) ?? [:]
+        let ideas = (ideaPayload["items"] as? [[String: Any]]) ?? []
+        let blindspots = (blindspotPayload["items"] as? [[String: Any]]) ?? []
+        let projects = (projectsPayload["items"] as? [[String: Any]]) ?? []
+        let commands = (todayPayload["commands"] as? [[String: Any]]) ?? []
+
+        let focusTitle = focus["title"] as? String ?? "Ask what changed"
+        let focusProject = focus["project"] as? String ?? "General Brain"
+        let focusAction = focus["action"] as? String ?? "Ask Oracle"
+        let focusReason = focus["reason"] as? String ?? focus["detail"] as? String ?? "No focus signal is available yet."
+        let idea = ideas.first
+        let blindspot = blindspots.first
+        let project = projects.first
+
+        let drivers = [
+            driver(
+                id: "focus",
+                label: "Immediate value",
+                title: focusTitle,
+                detail: focusReason,
+                action: focusAction,
+                project: focusProject,
+                symbol: focus["symbol"] as? String ?? "target",
+                score: focus["score"] as? Int ?? 0,
+                source: "Focus"
+            ),
+            driver(
+                id: "idea",
+                label: "Upside to test",
+                title: idea?["title"] as? String ?? "No idea test visible",
+                detail: idea?["nextPrompt"] as? String ?? "Capture or sync more material to surface an idea worth testing.",
+                action: "Pressure Test",
+                project: idea?["project"] as? String ?? "General Brain",
+                symbol: idea?["symbol"] as? String ?? "lightbulb.fill",
+                score: idea?["score"] as? Int ?? 0,
+                source: "Idea Pulse"
+            ),
+            driver(
+                id: "risk",
+                label: "Risk to reduce",
+                title: blindspot?["title"] as? String ?? "No strong blindspot visible",
+                detail: blindspot?["question"] as? String ?? "Ask what is not represented in durable memory.",
+                action: blindspot?["nextAction"] as? String ?? "Ask Oracle",
+                project: blindspot?["project"] as? String ?? "General Brain",
+                symbol: blindspot?["symbol"] as? String ?? "eye.fill",
+                score: blindspot?["score"] as? Int ?? 0,
+                source: "Blindspot Brief"
+            ),
+            driver(
+                id: "artifact",
+                label: "Artifact to create",
+                title: project?["name"] as? String ?? commands.first?["title"] as? String ?? "Build a context pack",
+                detail: project?["recommendedAction"] as? String ?? commands.first?["detail"] as? String ?? "Create one durable artifact from the current focus.",
+                action: "Start Work",
+                project: project?["name"] as? String ?? commands.first?["project"] as? String ?? "General Brain",
+                symbol: project?["symbol"] as? String ?? "shippingbox.fill",
+                score: project?["signalCount"] as? Int ?? 0,
+                source: "Project Memory"
+            )
+        ]
+
+        return [
+            "generatedAt": generatedAt,
+            "mode": "value-brief",
+            "headline": "Do \(focusTitle)",
+            "thesis": "The highest-value move is \(focusAction.lowercased()) for \(focusProject). It has an execution signal, an upside test, a risk check, and a next artifact path.",
+            "drivers": drivers
+        ]
+    }
+
+    static func markdown() async -> String {
+        let payload = await brief()
+        let drivers = (payload["drivers"] as? [[String: Any]]) ?? []
+        var lines: [String] = [
+            "# Terminal Brain Value Brief",
+            "",
+            "Generated: \(payload["generatedAt"] as? String ?? ISO8601DateFormatter().string(from: Date()))",
+            "",
+            "\(payload["headline"] as? String ?? "Start with the top visible signal.")",
+            "",
+            "\(payload["thesis"] as? String ?? "")",
+            ""
+        ]
+
+        for item in drivers {
+            lines.append("## \(item["label"] as? String ?? "Value"): \(item["title"] as? String ?? "Untitled")")
+            lines.append("- Action: \(item["action"] as? String ?? "Act")")
+            lines.append("- Project: \(item["project"] as? String ?? "General Brain")")
+            lines.append("- Source: \(item["source"] as? String ?? "")")
+            lines.append("- Score: \(item["score"] as? Int ?? 0)")
+            if let detail = item["detail"] as? String, !detail.isEmpty {
+                lines.append("- Detail: \(detail)")
+            }
+            lines.append("")
+        }
+
+        return lines.joined(separator: "\n")
+    }
+
+    private static func driver(id: String, label: String, title: String, detail: String, action: String, project: String, symbol: String, score: Int, source: String) -> [String: Any] {
+        [
+            "id": id,
+            "label": label,
+            "title": title,
+            "detail": detail,
+            "action": action,
+            "project": project,
+            "symbol": symbol,
+            "score": score,
+            "source": source
+        ]
+    }
+}
+
 enum OperatorDeckSnapshot {
     static func deck() async -> [String: Any] {
         let generatedAt = ISO8601DateFormatter().string(from: Date())
@@ -2376,6 +2503,7 @@ enum BrainSnapshot {
 enum BrainHandoffSnapshot {
     static func markdown() async -> String {
         let generated = ISO8601DateFormatter().string(from: Date())
+        let value = await ValueBriefSnapshot.markdown()
         let brief = await OperatorBriefSnapshot.markdown()
         let blindspots = await BlindspotSnapshot.markdown()
         let ideas = await IdeaPulseSnapshot.markdown()
@@ -2400,6 +2528,7 @@ enum BrainHandoffSnapshot {
             "- Do not relaunch or foreground Terminal Brain unless the operator explicitly asks.",
             "",
             "## Contents",
+            "- Value Brief: compact read on why the current move is worth attention.",
             "- Operator Brief: plain-language value read.",
             "- Blindspot Brief: counter-signal for ignored, stale, or under-tested work.",
             "- Idea Pulse: captured ideas and resurfaced opportunities ranked by cheap-test value.",
@@ -2407,6 +2536,10 @@ enum BrainHandoffSnapshot {
             "- Operator Deck: four action cards.",
             "- Project Memory: active work surfaces and source paths.",
             "- Latest Context Pack: freshest working-memory bundle.",
+            "",
+            value,
+            "",
+            "---",
             "",
             brief,
             "",

@@ -40,6 +40,10 @@ struct TerminalBrainApp: App {
                 }
                 .keyboardShortcut("c", modifiers: [.command, .shift])
 
+                Button("Copy Value Brief") {
+                    Task { await model.copyValueBrief() }
+                }
+
                 Button("Copy Operator Brief") {
                     Task { await model.copyOperatorBrief() }
                 }
@@ -101,6 +105,9 @@ struct TerminalBrainApp: App {
             }
             Button("Copy Operator Brief") {
                 Task { await model.copyOperatorBrief() }
+            }
+            Button("Copy Value Brief") {
+                Task { await model.copyValueBrief() }
             }
             Button("Copy Decision Lane") {
                 Task { await model.copyDecisionLane() }

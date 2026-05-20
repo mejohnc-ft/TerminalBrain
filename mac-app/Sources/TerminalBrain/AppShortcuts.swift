@@ -159,6 +159,19 @@ struct CopyOperatorBriefIntent: AppIntent {
     }
 }
 
+struct CopyValueBriefIntent: AppIntent {
+    static var title: LocalizedStringResource = "Copy Value Brief"
+    static var description = IntentDescription("Copy Terminal Brain's compact Value Brief as Markdown.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let markdown = try await ShortcutClient.text(path: "/value-brief/markdown")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "Value Brief copied.")
+    }
+}
+
 struct CopyDecisionLaneIntent: AppIntent {
     static var title: LocalizedStringResource = "Copy Decision Lane"
     static var description = IntentDescription("Copy Terminal Brain's ranked Decision Lane as Markdown.")
@@ -343,7 +356,7 @@ struct CopyLatestContextPackIntent: AppIntent {
 
 struct CopyAgentHandoffIntent: AppIntent {
     static var title: LocalizedStringResource = "Copy Agent Handoff"
-    static var description = IntentDescription("Copy the Terminal Brain Operator Brief, Decision Lane, Operator Deck, Project Memory, and latest context pack as one Markdown handoff.")
+    static var description = IntentDescription("Copy the Terminal Brain Value Brief, Operator Brief, Decision Lane, Operator Deck, Project Memory, and latest context pack as one Markdown handoff.")
 
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
@@ -382,6 +395,15 @@ struct TerminalBrainShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Copy Brief",
             systemImageName: "wand.and.stars"
+        )
+        AppShortcut(
+            intent: CopyValueBriefIntent(),
+            phrases: [
+                "Copy \(.applicationName) value brief",
+                "Copy \(.applicationName) value"
+            ],
+            shortTitle: "Copy Value",
+            systemImageName: "bolt.fill"
         )
         AppShortcut(
             intent: CopyDecisionLaneIntent(),

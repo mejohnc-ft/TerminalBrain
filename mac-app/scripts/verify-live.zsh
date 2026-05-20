@@ -75,6 +75,14 @@ curl -fsS "$API/operator-brief/markdown" | ruby -e '
   puts "operator brief markdown ok chars=#{text.length}"
 '
 
+curl -fsS "$API/value-brief/markdown" | ruby -e '
+  text = STDIN.read
+  abort("value brief missing title") unless text.include?("# Terminal Brain Value Brief")
+  abort("value brief missing immediate value") unless text.include?("## Immediate value:")
+  abort("value brief missing artifact") unless text.include?("## Artifact to create:")
+  puts "value brief ok chars=#{text.length}"
+'
+
 curl -fsS "$API/today/markdown" | ruby -e '
   text = STDIN.read
   abort("decision lane missing title") unless text.include?("# Terminal Brain Decision Lane")
@@ -121,6 +129,7 @@ curl -fsS "$API/handoff/markdown" | ruby -e '
   abort("handoff missing title") unless text.include?("# Terminal Brain Handoff")
   abort("handoff missing operating instructions") unless text.include?("## How To Use This")
   abort("handoff missing contents") unless text.include?("## Contents")
+  abort("handoff missing value brief") unless text.include?("# Terminal Brain Value Brief")
   abort("handoff missing operator brief") unless text.include?("# Terminal Brain Operator Brief")
   abort("handoff missing blindspot brief") unless text.include?("# Terminal Brain Blindspot Brief")
   abort("handoff missing idea pulse") unless text.include?("# Terminal Brain Idea Pulse")
@@ -165,6 +174,17 @@ printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal
       abort("mcp operator brief missing title") unless text.include?("# Terminal Brain Operator Brief")
       abort("mcp operator brief missing value section") unless text.include?("## What matters:")
       puts "mcp operator brief ok chars=#{text.length}"
+    '
+
+printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_value_brief_markdown","arguments":{}}}\n' \
+  | node "$ROOT/mcp-server/server.mjs" \
+  | ruby -rjson -e '
+      line = STDIN.each_line.find { |l| l.include?("\"result\"") } || "{}"
+      response = JSON.parse(line)
+      text = response.dig("result", "content", 0, "text").to_s
+      abort("mcp value brief missing title") unless text.include?("# Terminal Brain Value Brief")
+      abort("mcp value brief missing immediate value") unless text.include?("## Immediate value:")
+      puts "mcp value brief ok chars=#{text.length}"
     '
 
 printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_today_markdown","arguments":{}}}\n' \
@@ -231,6 +251,7 @@ printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal
       text = response.dig("result", "content", 0, "text").to_s
       abort("mcp handoff missing title") unless text.include?("# Terminal Brain Handoff")
       abort("mcp handoff missing contents") unless text.include?("## Contents")
+      abort("mcp handoff missing value brief") unless text.include?("# Terminal Brain Value Brief")
       abort("mcp handoff missing operator brief") unless text.include?("# Terminal Brain Operator Brief")
       abort("mcp handoff missing blindspot brief") unless text.include?("# Terminal Brain Blindspot Brief")
       abort("mcp handoff missing idea pulse") unless text.include?("# Terminal Brain Idea Pulse")

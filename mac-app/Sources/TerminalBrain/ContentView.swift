@@ -76,6 +76,7 @@ struct ContentView: View {
             BrainCommand(title: "Open System", subtitle: "Native macOS surfaces and integration roadmap", symbol: "puzzlepiece.extension.fill", category: "Navigate", action: .section("system")),
             BrainCommand(title: "Run Sync", subtitle: "Refresh edge brain export with current permission policy", symbol: "arrow.triangle.2.circlepath", category: "Action", action: .runSync),
             BrainCommand(title: "Copy Operator Snapshot", subtitle: "Prompt-ready Focus, Radar, actions, and memory trail", symbol: "doc.on.clipboard", category: "Action", action: .copySnapshot),
+            BrainCommand(title: "Copy Value Brief", subtitle: "Compact read on why the current move is worth attention", symbol: "bolt.fill", category: "Action", action: .copyValueBrief),
             BrainCommand(title: "Copy Operator Brief", subtitle: "Plain-language value read", symbol: "wand.and.stars", category: "Action", action: .copyBrief),
             BrainCommand(title: "Copy Decision Lane", subtitle: "Ranked Today action queue", symbol: "list.number", category: "Action", action: .copyDecisionLane),
             BrainCommand(title: "Copy Blindspot Brief", subtitle: "Counter-signal before broad planning", symbol: "eye.fill", category: "Action", action: .copyBlindspots),
@@ -658,12 +659,19 @@ struct ContentView: View {
             HStack(alignment: .firstTextBaseline) {
                 SectionTitle("Operator Brief", symbol: "wand.and.stars")
                 Spacer()
-                if !model.briefCopyOutput.isEmpty || !model.decisionLaneCopyOutput.isEmpty {
-                    Text(model.briefCopyOutput.isEmpty ? model.decisionLaneCopyOutput : model.briefCopyOutput)
+                if !model.valueBriefCopyOutput.isEmpty || !model.briefCopyOutput.isEmpty || !model.decisionLaneCopyOutput.isEmpty {
+                    Text(!model.valueBriefCopyOutput.isEmpty ? model.valueBriefCopyOutput : (model.briefCopyOutput.isEmpty ? model.decisionLaneCopyOutput : model.briefCopyOutput))
                         .font(.caption.weight(.medium))
                         .foregroundStyle(.white.opacity(0.48))
                         .lineLimit(1)
                 }
+                Button {
+                    Task { await model.copyValueBrief() }
+                } label: {
+                    Label("Value", systemImage: "bolt.fill")
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
                 Button {
                     Task { await model.copyOperatorBrief() }
                 } label: {
@@ -2496,7 +2504,7 @@ struct ContentView: View {
             SystemSurfaceCard(title: "Control API", value: "127.0.0.1:8765", detail: "Local-only gateway for agents and MCP.", symbol: "network")
             SystemSurfaceCard(title: "Widget", value: "Next", detail: "A desktop/Notification Center widget should show prompt-safety, sync age, and Mission points.", symbol: "rectangle.on.rectangle")
             SystemSurfaceCard(title: "Login Item", value: "Next", detail: "Launch at login after the gateway has a signed release bundle.", symbol: "power")
-            SystemSurfaceCard(title: "Shortcuts", value: "Native", detail: "App Shortcuts expose Copy Handoff, Copy Deck, Copy Snapshot, Copy Blindspots, Copy Ideas, Run Sync, Start Work, and Open/Copy Latest Context Pack to Spotlight, Siri, and automation.", symbol: "wand.and.stars")
+            SystemSurfaceCard(title: "Shortcuts", value: "Native", detail: "App Shortcuts expose Copy Handoff, Copy Value, Copy Deck, Copy Snapshot, Copy Blindspots, Copy Ideas, Run Sync, Start Work, and Open/Copy Latest Context Pack to Spotlight, Siri, and automation.", symbol: "wand.and.stars")
         }
     }
 
@@ -2592,6 +2600,8 @@ struct ContentView: View {
             Task { await model.runSyncNow() }
         case .copySnapshot:
             Task { await model.copyOperatorSnapshot() }
+        case .copyValueBrief:
+            Task { await model.copyValueBrief() }
         case .copyBrief:
             Task { await model.copyOperatorBrief() }
         case .copyDecisionLane:
@@ -2871,6 +2881,7 @@ enum BrainCommandAction {
     case openPath(String)
     case runSync
     case copySnapshot
+    case copyValueBrief
     case copyBrief
     case copyDecisionLane
     case copyBlindspots

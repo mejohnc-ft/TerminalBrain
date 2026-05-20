@@ -15,6 +15,7 @@ make ask-commit QUERY="what changed?" PROJECT="Terminal Brain"
 make build
 make install
 make snapshot
+make snapshot-value
 make snapshot-blindspots
 make snapshot-ideas
 make handoff
@@ -32,6 +33,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Local status, source, permission, briefing, and sync checks.
 - One-call operator snapshot for agents: Focus, Operator Brief, Operator Deck, Blindspot Brief, Radar, setup gaps, Today, memory trail, and suggested next actions.
 - Plain-language Operator Brief that says what matters, why it matters, what not to miss, and what artifact to create next.
+- Value Brief that collapses Focus, Idea Pulse, Blindspots, and Project Memory into one compact value read.
 - Operator Deck for app and agents: do first, ask about, review or capture, and project/start-work cards.
 - Prompt-ready Operator Deck Markdown for agent handoffs and quick paste workflows.
 - Operator Deck action tool for agents to mark directly actionable Radar and Oracle commit cards without opening the app.
@@ -44,7 +46,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Latest context pack API/MCP/CLI/Shortcut surface for opening, copying, or handing off the newest agent-ready artifact.
 - Prompt-ready Decision Lane Markdown for the ranked Today action queue and project signals.
 - Prompt-ready Project Memory Markdown for active work surfaces, recommended actions, context packs, and Oracle reads.
-- Single-file handoff API/MCP/CLI generator that combines the Operator Brief, Blindspot Brief, Idea Pulse, Decision Lane, Operator Deck, Project Memory, and latest context pack.
+- Single-file handoff API/MCP/CLI generator that combines the Value Brief, Operator Brief, Blindspot Brief, Idea Pulse, Decision Lane, Operator Deck, Project Memory, and latest context pack.
 - Setup readiness checklist for app, MCP config, workspace paths, sync, memory, Mission Control, prompt safety, and Oracle writeback.
 - Oracle ask flow with deterministic local fallback and a Focus-grounded ask flow for the current best action.
 - Mission-backed retrieval and synthesis when Mission Control is reachable.
@@ -57,7 +59,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Proactive Radar for delegated reads, stale reviews, quiet project risks, open loops, and ideas worth testing, with scores, evidence, and persistent watch/acted/snooze/dismiss triage.
 - Focus Mode that opens to one recommended action, why it won, the fastest next move, and inline Oracle follow-up prompts.
 - Daily Command Center with ranked actions for reviews, delegations, projects, system attention, and fresh context.
-- MCP tools for status, snapshot, snapshot Markdown, setup, focus, Blindspot Brief, Idea Pulse, Idea ask, Idea ask-and-commit, Blindspot ask, Blindspot ask-and-commit, Blindspot action, Operator Brief, focus ask, focus ask-and-commit, radar, sources, briefing, permissions, sync, Start Work, Oracle ask, ask-and-commit, idea capture, Oracle items, Oracle commits, and Oracle review status.
+- MCP tools for status, snapshot, snapshot Markdown, setup, focus, Value Brief, Blindspot Brief, Idea Pulse, Idea ask, Idea ask-and-commit, Blindspot ask, Blindspot ask-and-commit, Blindspot action, Operator Brief, focus ask, focus ask-and-commit, radar, sources, briefing, permissions, sync, Start Work, Oracle ask, ask-and-commit, idea capture, Oracle items, Oracle commits, and Oracle review status.
 
 ## Build
 
@@ -98,6 +100,7 @@ To print or copy the current operator snapshot from an already-running app:
 ./mac-app/scripts/oracle.zsh --commit --project "Terminal Brain" "what changed?"
 ./mac-app/scripts/snapshot.zsh --markdown
 ./mac-app/scripts/snapshot.zsh --json
+./mac-app/scripts/snapshot.zsh --value
 ./mac-app/scripts/snapshot.zsh --brief-markdown
 ./mac-app/scripts/snapshot.zsh --today
 ./mac-app/scripts/snapshot.zsh --blindspots
@@ -111,8 +114,8 @@ To print or copy the current operator snapshot from an already-running app:
 ./mac-app/scripts/handoff.zsh --output /tmp/terminal-brain-handoff.md
 ```
 
-The Oracle and snapshot helpers never launch or foreground Terminal Brain. `oracle.zsh` prints a prompt-ready Oracle answer and can commit it with `--commit`, `--brief-markdown` prints the plain-language Operator Brief, `--today` prints the ranked Decision Lane, `--blindspots` prints the counter-signal brief, `--ideas` prints Idea Pulse, `--projects` prints Project Memory, `--deck` returns the four Operator Deck cards as JSON, and `--deck-markdown` prints the same deck in prompt-ready Markdown. `--output` is useful for handoffs without touching the clipboard.
-The handoff helper also never launches or foregrounds Terminal Brain. It writes the Operator Brief, Blindspot Brief, Idea Pulse, Decision Lane, Operator Deck, Project Memory, and latest context pack into one Markdown file.
+The Oracle and snapshot helpers never launch or foreground Terminal Brain. `oracle.zsh` prints a prompt-ready Oracle answer and can commit it with `--commit`, `--value` prints the compact Value Brief, `--brief-markdown` prints the plain-language Operator Brief, `--today` prints the ranked Decision Lane, `--blindspots` prints the counter-signal brief, `--ideas` prints Idea Pulse, `--projects` prints Project Memory, `--deck` returns the four Operator Deck cards as JSON, and `--deck-markdown` prints the same deck in prompt-ready Markdown. `--output` is useful for handoffs without touching the clipboard.
+The handoff helper also never launches or foregrounds Terminal Brain. It writes the Value Brief, Operator Brief, Blindspot Brief, Idea Pulse, Decision Lane, Operator Deck, Project Memory, and latest context pack into one Markdown file.
 
 The built app is emitted to:
 
