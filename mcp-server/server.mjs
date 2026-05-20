@@ -1170,6 +1170,40 @@ function handoffMarkdown() {
   }
 }
 
+async function localSnapshot() {
+  return {
+    ok: true,
+    mode: "local-fallback",
+    checkedAt: new Date().toISOString(),
+    startHereMarkdown: startHereMarkdown(),
+    processMapMarkdown: processMapMarkdown({ details: false }),
+    runtimeStatus: await runtimeStatus(),
+    guardrail: "MCP snapshot fallback did not launch or foreground Terminal Brain"
+  };
+}
+
+function localSnapshotMarkdown() {
+  return [
+    "# Terminal Brain Snapshot",
+    "",
+    `Generated: ${new Date().toISOString()}`,
+    "",
+    "Terminal Brain is not reachable, so this is a local closed-app snapshot.",
+    "",
+    "## Start Here",
+    "",
+    startHereMarkdown().replace(/^# Terminal Brain Start Here\n+/, ""),
+    "",
+    "## Process Map",
+    "",
+    processMapMarkdown({ details: false }).replace(/^# Terminal Brain Process Map\n+/, ""),
+    "",
+    "## Guardrail",
+    "",
+    "- This snapshot did not launch or foreground Terminal Brain."
+  ].join("\n");
+}
+
 function firstMinuteMarkdown() {
   const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "first-minute.zsh")], { timeout: 25000 });
   if (result.ok) return result.text;
@@ -1664,9 +1698,17 @@ async function callTool(name, args = {}) {
     case "terminal_brain_status":
       return api("/status");
     case "terminal_brain_snapshot":
-      return api("/snapshot");
+      try {
+        return await api("/snapshot");
+      } catch {
+        return localSnapshot();
+      }
     case "terminal_brain_snapshot_markdown":
-      return api("/snapshot/markdown", { rawText: true });
+      try {
+        return await api("/snapshot/markdown", { rawText: true });
+      } catch {
+        return localSnapshotMarkdown();
+      }
     case "terminal_brain_handoff_markdown":
       return handoffMarkdown();
     case "terminal_brain_agent_prompt_markdown":

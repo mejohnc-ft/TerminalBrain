@@ -187,6 +187,15 @@ require_contains "$mcp_handoff_output" 'local closed-app handoff' "MCP handoff l
 require_contains "$mcp_handoff_output" 'Terminal Brain Start Here' "MCP handoff Start Here section"
 require_contains "$mcp_handoff_output" 'Terminal Brain Agent Prompt' "MCP handoff Agent Prompt section"
 
+mcp_snapshot_output="$(call_mcp_tool terminal_brain_snapshot_markdown)"
+require_contains "$mcp_snapshot_output" '# Terminal Brain Snapshot' "MCP snapshot markdown title"
+require_contains "$mcp_snapshot_output" 'local closed-app snapshot' "MCP snapshot markdown fallback"
+require_contains "$mcp_snapshot_output" 'Start Here' "MCP snapshot markdown Start Here"
+mcp_snapshot_json_output="$(call_mcp_tool terminal_brain_snapshot)"
+require_contains "$mcp_snapshot_json_output" 'local-fallback' "MCP snapshot local fallback"
+require_contains "$mcp_snapshot_json_output" 'startHereMarkdown' "MCP snapshot structured Start Here"
+require_contains "$mcp_snapshot_json_output" 'processMapMarkdown' "MCP snapshot structured Process Map"
+
 mcp_first_minute_output="$(call_mcp_tool terminal_brain_first_minute_markdown)"
 require_contains "$mcp_first_minute_output" '# Terminal Brain First Minute' "MCP first minute title"
 require_contains "$mcp_first_minute_output" 'What You Can Get Immediately' "MCP first minute value section"

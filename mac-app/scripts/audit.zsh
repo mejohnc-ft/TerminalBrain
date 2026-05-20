@@ -120,6 +120,8 @@ require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_process_map_markd
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_cleanup_plan_markdown' "MCP Cleanup Plan"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_support_bundle_markdown' "MCP Support Bundle"
 require_evidence "$ROOT/mcp-server/server.mjs" 'handoffMarkdown' "MCP Handoff fallback"
+require_evidence "$ROOT/mcp-server/server.mjs" 'localSnapshotMarkdown' "MCP Snapshot Markdown fallback"
+require_evidence "$ROOT/mcp-server/server.mjs" 'localSnapshot' "MCP Snapshot fallback"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_doctor_markdown' "MCP Doctor"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_audit_markdown' "MCP Audit"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_runtime_status' "MCP Runtime Status"
