@@ -1416,6 +1416,7 @@ struct ContentView: View {
                             Button {
                                 model.oracleQuestion = item.question
                                 selectedSection = "oracle"
+                                Task { await model.askOracle() }
                             } label: {
                                 Label("Ask Oracle", systemImage: "sparkle.magnifyingglass")
                             }
@@ -2464,6 +2465,7 @@ struct ContentView: View {
         case "Ask Oracle":
             model.oracleQuestion = item.question
             selectedSection = "oracle"
+            Task { await model.askOracle() }
         default:
             model.workQuery = [item.project, item.question].filter { !$0.isEmpty && $0 != "General Brain" }.joined(separator: " - ")
             selectedSection = "start"
