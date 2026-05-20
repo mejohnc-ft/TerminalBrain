@@ -65,7 +65,9 @@ require_evidence "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Open V
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Open Now' "command palette can open Now"
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '"/now/markdown"' "Now API artifact"
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '"/now"' "Now JSON API"
+require_evidence "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '"/cleanup-plan/markdown"' "Cleanup Plan API artifact"
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CopyNowIntent' "Copy Now shortcut"
+require_evidence "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CopyCleanupPlanIntent' "Copy Cleanup Plan shortcut"
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Commit Outcome' "native outcome close loop"
 echo
 

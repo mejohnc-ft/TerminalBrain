@@ -35,6 +35,7 @@ final class BrainStatusModel: ObservableObject {
     @Published var outcomeNextAction = ""
     @Published var outcomeOutput = ""
     @Published var nowCopyOutput = ""
+    @Published var cleanupPlanCopyOutput = ""
     @Published var snapshotCopyOutput = ""
     @Published var startHereCopyOutput = ""
     @Published var valueBriefCopyOutput = ""
@@ -244,6 +245,12 @@ final class BrainStatusModel: ObservableObject {
     func copyNow() async {
         await copyMarkdown(path: "/now/markdown", label: "Now") { message in
             nowCopyOutput = message
+        }
+    }
+
+    func copyCleanupPlan() async {
+        await copyMarkdown(path: "/cleanup-plan/markdown", label: "Cleanup Plan") { message in
+            cleanupPlanCopyOutput = message
         }
     }
 

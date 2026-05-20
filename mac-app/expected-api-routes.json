@@ -7,6 +7,7 @@
   "GET /agent-prompt/markdown",
   "GET /now",
   "GET /now/markdown",
+  "GET /cleanup-plan/markdown",
   "GET /start-here/markdown",
   "GET /sources",
   "GET /setup",

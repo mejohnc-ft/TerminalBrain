@@ -185,6 +185,19 @@ struct CopyNowIntent: AppIntent {
     }
 }
 
+struct CopyCleanupPlanIntent: AppIntent {
+    static var title: LocalizedStringResource = "Copy Cleanup Plan"
+    static var description = IntentDescription("Copy Terminal Brain's read-only stale MCP and kernel cleanup plan as Markdown.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let markdown = try await ShortcutClient.text(path: "/cleanup-plan/markdown")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "Cleanup Plan copied.")
+    }
+}
+
 struct CopyStartHereIntent: AppIntent {
     static var title: LocalizedStringResource = "Copy Start Here"
     static var description = IntentDescription("Copy Terminal Brain's one-block Start Here path as Markdown.")
@@ -503,6 +516,15 @@ struct TerminalBrainShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Copy Now",
             systemImageName: "sparkles"
+        )
+        AppShortcut(
+            intent: CopyCleanupPlanIntent(),
+            phrases: [
+                "Copy \(.applicationName) cleanup plan",
+                "Copy \(.applicationName) process cleanup"
+            ],
+            shortTitle: "Copy Cleanup",
+            systemImageName: "wrench.and.screwdriver"
         )
         AppShortcut(
             intent: CopyStartHereIntent(),
