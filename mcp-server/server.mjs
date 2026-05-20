@@ -119,6 +119,28 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_review_queue_markdown",
+    description: "Read the non-launching Oracle Inbox review queue as Markdown without opening Terminal Brain.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        limit: {
+          type: "number",
+          description: "Maximum review items to show. Defaults to 12."
+        },
+        status: {
+          type: "string",
+          description: "Optional status filter: new, accepted, linked, delegated, dismissed."
+        },
+        project: {
+          type: "string",
+          description: "Optional exact project filter."
+        }
+      },
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_audit_markdown",
     description: "Run the non-launching Terminal Brain capability audit and return evidence for value, MCP, safety, readiness, and first commands as Markdown.",
     inputSchema: {
@@ -1159,6 +1181,34 @@ function valueProofMarkdown() {
   ].join("\n");
 }
 
+function reviewQueueMarkdown(args = {}) {
+  const commandArgs = [join(ROOT, "mac-app", "scripts", "review.zsh")];
+  if (Number.isFinite(args.limit)) {
+    commandArgs.push("--limit", String(Math.max(1, Math.floor(args.limit))));
+  }
+  if (typeof args.status === "string" && args.status.trim()) {
+    commandArgs.push("--status", args.status.trim());
+  }
+  if (typeof args.project === "string" && args.project.trim()) {
+    commandArgs.push("--project", args.project.trim());
+  }
+  const result = runCommand("zsh", commandArgs, { timeout: 15000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Review Queue",
+    "",
+    "Review queue failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 function captureIdea(args = {}) {
   const content = typeof args.content === "string" ? args.content.trim() : "";
   if (!content) {
@@ -1335,6 +1385,8 @@ async function callTool(name, args = {}) {
       return valueNowMarkdown();
     case "terminal_brain_value_proof_markdown":
       return valueProofMarkdown();
+    case "terminal_brain_review_queue_markdown":
+      return reviewQueueMarkdown(args);
     case "terminal_brain_oracle_brief_markdown":
       return oracleBriefMarkdown();
     case "terminal_brain_audit_markdown":

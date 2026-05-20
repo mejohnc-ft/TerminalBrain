@@ -78,6 +78,15 @@ test -f "$idea_workspace/Oracle Inbox/"*.md || {
 }
 rm -rf "$idea_workspace"
 
+review_workspace="$(mktemp -d)"
+TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$review_workspace" "$ROOT/mac-app/scripts/idea.zsh" --title "Review Queue Idea" --project "Terminal Brain" "Review queue fallback item." >/dev/null
+review_output="$(TERMINAL_BRAIN_WORKSPACE="$review_workspace" "$ROOT/mac-app/scripts/review.zsh" --limit 3)"
+require_contains "$review_output" '# Terminal Brain Review Queue' "review queue title"
+require_contains "$review_output" 'Review Queue Idea' "review queue captured idea"
+require_contains "$review_output" 'Status: new' "review queue status"
+require_contains "$review_output" 'did not launch, foreground, quit, kill, or control' "review queue guardrail"
+rm -rf "$review_workspace"
+
 proof_output="$(TERMINAL_BRAIN_PROOF_API="$CLOSED_API" "$ROOT/mac-app/scripts/prove-value.zsh")"
 require_contains "$proof_output" '# Terminal Brain Value Proof' "value proof title"
 require_contains "$proof_output" '# Terminal Brain Oracle Brief' "value proof Oracle Brief"
@@ -126,6 +135,14 @@ test -f "$mcp_idea_workspace/Oracle Inbox/"*.md || {
   exit 1
 }
 rm -rf "$mcp_idea_workspace"
+
+mcp_review_workspace="$(mktemp -d)"
+TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$mcp_review_workspace" "$ROOT/mac-app/scripts/idea.zsh" --title "MCP Review Queue Idea" --project "Terminal Brain" "MCP review queue fallback item." >/dev/null
+mcp_review_output="$(TERMINAL_BRAIN_WORKSPACE="$mcp_review_workspace" printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_review_queue_markdown","arguments":{"limit":3}}}' | TERMINAL_BRAIN_WORKSPACE="$mcp_review_workspace" node "$ROOT/mcp-server/server.mjs")"
+require_contains "$mcp_review_output" '# Terminal Brain Review Queue' "MCP review queue title"
+require_contains "$mcp_review_output" 'MCP Review Queue Idea' "MCP review queue captured idea"
+require_contains "$mcp_review_output" 'Status: new' "MCP review queue status"
+rm -rf "$mcp_review_workspace"
 
 mcp_agent_prompt_output="$(call_mcp_tool terminal_brain_agent_prompt_markdown)"
 require_contains "$mcp_agent_prompt_output" '# Terminal Brain Agent Prompt' "MCP agent prompt title"
