@@ -10,6 +10,7 @@ Common commands:
 make
 make verify
 make live
+make ask QUERY="what should I work on next?"
 make build
 make install
 make snapshot
@@ -43,6 +44,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Review Queue for committed Oracle reads with triage states.
 - Project Memory pages derived from context packs and Oracle commits.
 - Project-aware actions for asking Oracle, building packs, committing updates, filtering Review, and delegating reads into Start Work.
+- Non-launching Oracle CLI for terminal and agent workflows: `make ask QUERY="what am I missing?"`.
 - Proactive Radar for delegated reads, stale reviews, quiet project risks, open loops, and ideas worth testing, with scores, evidence, and persistent watch/acted/snooze/dismiss triage.
 - Focus Mode that opens to one recommended action, why it won, the fastest next move, and inline Oracle follow-up prompts.
 - Daily Command Center with ranked actions for reviews, delegations, projects, system attention, and fresh context.
@@ -83,6 +85,7 @@ The live verifier builds the app and checks an already-running Terminal Brain in
 To print or copy the current operator snapshot from an already-running app:
 
 ```zsh
+./mac-app/scripts/oracle.zsh "what should I work on next?"
 ./mac-app/scripts/snapshot.zsh --markdown
 ./mac-app/scripts/snapshot.zsh --json
 ./mac-app/scripts/snapshot.zsh --brief-markdown
@@ -96,7 +99,7 @@ To print or copy the current operator snapshot from an already-running app:
 ./mac-app/scripts/handoff.zsh --output /tmp/terminal-brain-handoff.md
 ```
 
-The snapshot helper never launches or foregrounds Terminal Brain. `--brief-markdown` prints the plain-language Operator Brief, `--today` prints the ranked Decision Lane, `--projects` prints Project Memory, `--deck` returns the four Operator Deck cards as JSON, and `--deck-markdown` prints the same deck in prompt-ready Markdown. `--output` is useful for handoffs without touching the clipboard.
+The Oracle and snapshot helpers never launch or foreground Terminal Brain. `oracle.zsh` prints a prompt-ready Oracle answer, `--brief-markdown` prints the plain-language Operator Brief, `--today` prints the ranked Decision Lane, `--projects` prints Project Memory, `--deck` returns the four Operator Deck cards as JSON, and `--deck-markdown` prints the same deck in prompt-ready Markdown. `--output` is useful for handoffs without touching the clipboard.
 The handoff helper also never launches or foregrounds Terminal Brain. It writes the Operator Brief, Decision Lane, Operator Deck, Project Memory, and latest context pack into one Markdown file.
 
 The built app is emitted to:
