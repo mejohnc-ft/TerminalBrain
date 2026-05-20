@@ -313,6 +313,30 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_oracle_ask_commit",
+    description: "Ask Terminal Brain Oracle, then commit the answer into the Obsidian-backed Oracle Inbox in one call.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        question: {
+          type: "string",
+          description: "Question for the Oracle."
+        },
+        project: {
+          type: "string",
+          description: "Optional project name to attach to the committed read."
+        },
+        tags: {
+          type: "array",
+          items: { type: "string" },
+          description: "Optional additional tags."
+        }
+      },
+      required: ["question"],
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_capture_idea",
     description: "Capture an idea, open loop, or rough thought into Terminal Brain's Obsidian-backed Oracle Inbox.",
     inputSchema: {
@@ -501,6 +525,21 @@ async function callTool(name, args = {}) {
           tags: Array.isArray(args.tags) ? args.tags : []
         }
       });
+    case "terminal_brain_oracle_ask_commit": {
+      const asked = await api("/oracle/ask", { method: "POST", body: { question: args.question } });
+      const committed = await api("/oracle/commit", {
+        method: "POST",
+        body: {
+          title: `Oracle - ${args.question}`,
+          content: asked.answer || "",
+          question: args.question,
+          source: "Terminal Brain MCP",
+          project: args.project || "",
+          tags: ["terminal-brain", "oracle", "mcp", asked.mode || "oracle"].concat(Array.isArray(args.tags) ? args.tags : [])
+        }
+      });
+      return { ok: true, ask: asked, commit: committed };
+    }
     case "terminal_brain_capture_idea":
       return api("/ideas/capture", {
         method: "POST",
