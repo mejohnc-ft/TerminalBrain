@@ -18,7 +18,7 @@ without launching or foregrounding anything.
 
 Oracle commits accept an optional `project` argument. When provided, Terminal Brain writes that project into note frontmatter so Review filters and Project Memory pages can attach the read to the correct work surface.
 
-`terminal_brain_capture_idea` also works when the app is closed. It falls back to the local `mac-app/scripts/idea.zsh` writer and creates a reviewable Oracle Inbox note without launching the app. `terminal_brain_review_queue_markdown` reads that same queue without launching the app.
+`terminal_brain_capture_idea` also works when the app is closed. It falls back to the local `mac-app/scripts/idea.zsh` writer and creates a reviewable Oracle Inbox note without launching the app. `terminal_brain_review_queue_markdown` reads that same queue without launching the app, and `terminal_brain_oracle_review_status` can update note review state without the app open.
 
 Codex/workspace config can register this server as:
 

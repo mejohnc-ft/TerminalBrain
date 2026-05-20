@@ -790,7 +790,7 @@ const tools = [
   },
   {
     name: "terminal_brain_oracle_review_status",
-    description: "Set the review status for a committed Oracle read.",
+    description: "Set the review status for a committed Oracle read. Works without the app open by editing the local Oracle Inbox note safely.",
     inputSchema: {
       type: "object",
       properties: {
@@ -1209,6 +1209,33 @@ function reviewQueueMarkdown(args = {}) {
   ].join("\n");
 }
 
+function setReviewStatus(args = {}) {
+  const id = typeof args.id === "string" ? args.id.trim() : "";
+  const status = typeof args.status === "string" ? args.status.trim() : "";
+  if (!id || !status) {
+    throw new Error("id and status are required");
+  }
+  const result = runCommand("zsh", [
+    join(ROOT, "mac-app", "scripts", "review-status.zsh"),
+    "--id",
+    id,
+    "--status",
+    status
+  ], { timeout: 10000 });
+  if (!result.ok) {
+    return {
+      ok: false,
+      error: result.error || "Review status update failed.",
+      output: result.text || ""
+    };
+  }
+  try {
+    return JSON.parse(result.text);
+  } catch {
+    return { ok: true, output: result.text };
+  }
+}
+
 function captureIdea(args = {}) {
   const content = typeof args.content === "string" ? args.content.trim() : "";
   if (!content) {
@@ -1583,10 +1610,7 @@ async function callTool(name, args = {}) {
     case "terminal_brain_oracle_commits":
       return api("/oracle/commits");
     case "terminal_brain_oracle_review_status":
-      return api("/oracle/review-status", {
-        method: "POST",
-        body: { id: args.id, status: args.status }
-      });
+      return setReviewStatus(args);
     case "terminal_brain_permissions":
       return api("/permissions");
     case "terminal_brain_sync":

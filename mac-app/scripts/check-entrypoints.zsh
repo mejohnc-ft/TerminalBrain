@@ -85,6 +85,11 @@ require_contains "$review_output" '# Terminal Brain Review Queue' "review queue 
 require_contains "$review_output" 'Review Queue Idea' "review queue captured idea"
 require_contains "$review_output" 'Status: new' "review queue status"
 require_contains "$review_output" 'did not launch, foreground, quit, kill, or control' "review queue guardrail"
+review_note="$(find "$review_workspace/Oracle Inbox" -type f -name '*.md' | head -n 1)"
+review_status_output="$(TERMINAL_BRAIN_WORKSPACE="$review_workspace" "$ROOT/mac-app/scripts/review-status.zsh" --id "$review_note" --status accepted)"
+require_contains "$review_status_output" '"status":"accepted"' "review status accepted"
+review_accepted_output="$(TERMINAL_BRAIN_WORKSPACE="$review_workspace" "$ROOT/mac-app/scripts/review.zsh" --status accepted --limit 3)"
+require_contains "$review_accepted_output" 'Status: accepted' "review queue accepted status"
 rm -rf "$review_workspace"
 
 proof_output="$(TERMINAL_BRAIN_PROOF_API="$CLOSED_API" "$ROOT/mac-app/scripts/prove-value.zsh")"
@@ -142,6 +147,9 @@ mcp_review_output="$(TERMINAL_BRAIN_WORKSPACE="$mcp_review_workspace" printf '%s
 require_contains "$mcp_review_output" '# Terminal Brain Review Queue' "MCP review queue title"
 require_contains "$mcp_review_output" 'MCP Review Queue Idea' "MCP review queue captured idea"
 require_contains "$mcp_review_output" 'Status: new' "MCP review queue status"
+mcp_review_note="$(find "$mcp_review_workspace/Oracle Inbox" -type f -name '*.md' | head -n 1)"
+mcp_review_status_output="$(TERMINAL_BRAIN_WORKSPACE="$mcp_review_workspace" printf '%s\n' "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/call\",\"params\":{\"name\":\"terminal_brain_oracle_review_status\",\"arguments\":{\"id\":\"$mcp_review_note\",\"status\":\"dismissed\"}}}" | TERMINAL_BRAIN_WORKSPACE="$mcp_review_workspace" node "$ROOT/mcp-server/server.mjs")"
+require_contains "$mcp_review_status_output" 'dismissed' "MCP review status dismissed"
 rm -rf "$mcp_review_workspace"
 
 mcp_agent_prompt_output="$(call_mcp_tool terminal_brain_agent_prompt_markdown)"

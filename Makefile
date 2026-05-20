@@ -1,4 +1,4 @@
-.PHONY: help build install verify live first-minute now status processes cleanup-plan support-bundle next value prove-value oracle-brief doctor audit ask ask-commit idea review outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live first-minute now status processes cleanup-plan support-bundle next value prove-value oracle-brief doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
@@ -20,6 +20,7 @@ help:
 	@echo "  make ask-commit QUERY=... PROJECT=... Ask Oracle and commit the answer"
 	@echo "  make idea IDEA=... PROJECT=... Capture idea with closed-app fallback"
 	@echo "  make review        Non-launching Oracle Inbox review queue"
+	@echo "  make review-status ID=... STATUS=accepted"
 	@echo "  make outcome TITLE=... OUTCOME=... PROJECT=... Commit structured outcome"
 	@echo "  make build         Build the macOS app without launching it"
 	@echo "  make install       Copy the app to ~/Applications without launching it"
@@ -106,6 +107,11 @@ idea:
 
 review:
 	./mac-app/scripts/review.zsh
+
+review-status:
+	@if test -z "$$ID"; then echo "Set ID=/path/to/oracle-note.md" >&2; exit 64; fi
+	@if test -z "$$STATUS"; then echo "Set STATUS=new|accepted|linked|delegated|dismissed" >&2; exit 64; fi
+	./mac-app/scripts/review-status.zsh --id "$$ID" --status "$$STATUS"
 
 outcome:
 	@if test -z "$$OUTCOME"; then echo "Set OUTCOME='what changed and why it matters'" >&2; exit 64; fi
