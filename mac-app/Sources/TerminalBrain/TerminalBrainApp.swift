@@ -45,6 +45,11 @@ struct TerminalBrainApp: App {
                 }
                 .keyboardShortcut("d", modifiers: [.command, .shift])
 
+                Button("Open Latest Context Pack") {
+                    model.openLatestContextPack()
+                }
+                .keyboardShortcut("p", modifiers: [.command, .shift])
+
                 Button("Open Mission Control") {
                     model.openMissionControl()
                 }
@@ -60,6 +65,9 @@ struct TerminalBrainApp: App {
             Button("Build Focus Pack") {
                 model.workQuery = model.focusItem.query.isEmpty ? model.focusItem.title : model.focusItem.query
                 Task { await model.startWork() }
+            }
+            Button("Open Latest Context Pack") {
+                model.openLatestContextPack()
             }
             Divider()
             Button("Refresh Status") {
