@@ -338,9 +338,10 @@ WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtim
       puts "#### Actions"
       puts
       puts "```zsh"
-      puts "make review-status ID=#{item[:path].inspect} STATUS=accepted"
-      puts "make review-status ID=#{item[:path].inspect} STATUS=delegated"
-      puts "make review-status ID=#{item[:path].inspect} STATUS=dismissed"
+      puts "NOTE=#{item[:path].shellescape}"
+      puts "make review-status ID=\"$NOTE\" STATUS=accepted"
+      puts "make review-status ID=\"$NOTE\" STATUS=delegated"
+      puts "make review-status ID=\"$NOTE\" STATUS=dismissed"
       puts "```"
       puts
     end
