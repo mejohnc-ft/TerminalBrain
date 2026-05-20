@@ -16,6 +16,7 @@ make build
 make install
 make snapshot
 make snapshot-blindspots
+make snapshot-ideas
 make handoff
 ```
 
@@ -38,7 +39,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Native app section, command palette entries, copy action, and App Shortcut for the Blindspot Brief.
 - Blindspot Oracle ask and ask-and-commit tools for turning counter-signals into durable reads.
 - Blindspot action tool for resolving directly actionable Oracle commit and Radar sources.
-- Idea Pulse for captured thoughts and resurfaced opportunities ranked by cheap-test value, available in the app, handoff, API, and MCP.
+- Idea Pulse for captured thoughts and resurfaced opportunities ranked by cheap-test value, available in the app, handoff, menu bar, App Shortcuts, CLI, API, and MCP.
 - Latest context pack API/MCP/CLI/Shortcut surface for opening, copying, or handing off the newest agent-ready artifact.
 - Prompt-ready Decision Lane Markdown for the ranked Today action queue and project signals.
 - Prompt-ready Project Memory Markdown for active work surfaces, recommended actions, context packs, and Oracle reads.
@@ -99,6 +100,7 @@ To print or copy the current operator snapshot from an already-running app:
 ./mac-app/scripts/snapshot.zsh --brief-markdown
 ./mac-app/scripts/snapshot.zsh --today
 ./mac-app/scripts/snapshot.zsh --blindspots
+./mac-app/scripts/snapshot.zsh --ideas
 ./mac-app/scripts/snapshot.zsh --projects
 ./mac-app/scripts/snapshot.zsh --deck
 ./mac-app/scripts/snapshot.zsh --deck-markdown
@@ -108,7 +110,7 @@ To print or copy the current operator snapshot from an already-running app:
 ./mac-app/scripts/handoff.zsh --output /tmp/terminal-brain-handoff.md
 ```
 
-The Oracle and snapshot helpers never launch or foreground Terminal Brain. `oracle.zsh` prints a prompt-ready Oracle answer and can commit it with `--commit`, `--brief-markdown` prints the plain-language Operator Brief, `--today` prints the ranked Decision Lane, `--blindspots` prints the counter-signal brief, `--projects` prints Project Memory, `--deck` returns the four Operator Deck cards as JSON, and `--deck-markdown` prints the same deck in prompt-ready Markdown. `--output` is useful for handoffs without touching the clipboard.
+The Oracle and snapshot helpers never launch or foreground Terminal Brain. `oracle.zsh` prints a prompt-ready Oracle answer and can commit it with `--commit`, `--brief-markdown` prints the plain-language Operator Brief, `--today` prints the ranked Decision Lane, `--blindspots` prints the counter-signal brief, `--ideas` prints Idea Pulse, `--projects` prints Project Memory, `--deck` returns the four Operator Deck cards as JSON, and `--deck-markdown` prints the same deck in prompt-ready Markdown. `--output` is useful for handoffs without touching the clipboard.
 The handoff helper also never launches or foregrounds Terminal Brain. It writes the Operator Brief, Blindspot Brief, Idea Pulse, Decision Lane, Operator Deck, Project Memory, and latest context pack into one Markdown file.
 
 The built app is emitted to:

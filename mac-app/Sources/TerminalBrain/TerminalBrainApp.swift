@@ -48,6 +48,10 @@ struct TerminalBrainApp: App {
                     Task { await model.copyDecisionLane() }
                 }
 
+                Button("Copy Idea Pulse") {
+                    Task { await model.copyIdeaPulse() }
+                }
+
                 Button("Copy Project Memory") {
                     Task { await model.copyProjectMemory() }
                 }
@@ -100,6 +104,9 @@ struct TerminalBrainApp: App {
             }
             Button("Copy Decision Lane") {
                 Task { await model.copyDecisionLane() }
+            }
+            Button("Copy Idea Pulse") {
+                Task { await model.copyIdeaPulse() }
             }
             Button("Copy Project Memory") {
                 Task { await model.copyProjectMemory() }

@@ -79,6 +79,7 @@ struct ContentView: View {
             BrainCommand(title: "Copy Operator Brief", subtitle: "Plain-language value read", symbol: "wand.and.stars", category: "Action", action: .copyBrief),
             BrainCommand(title: "Copy Decision Lane", subtitle: "Ranked Today action queue", symbol: "list.number", category: "Action", action: .copyDecisionLane),
             BrainCommand(title: "Copy Blindspot Brief", subtitle: "Counter-signal before broad planning", symbol: "eye.fill", category: "Action", action: .copyBlindspots),
+            BrainCommand(title: "Copy Idea Pulse", subtitle: "Cheap-test queue for captured ideas", symbol: "lightbulb.fill", category: "Action", action: .copyIdeas),
             BrainCommand(title: "Copy Project Memory", subtitle: "Active work surfaces and recommended actions", symbol: "folder.fill.badge.gearshape", category: "Action", action: .copyProjectMemory),
             BrainCommand(title: "Copy Operator Deck", subtitle: "Prompt-ready four-card deck for handoffs", symbol: "rectangle.stack.fill.badge.person.crop", category: "Action", action: .copyDeck),
             BrainCommand(title: "Copy Latest Context Pack", subtitle: "Copy newest context pack Markdown", symbol: "doc.on.doc", category: "Action", action: .copyLatestPack),
@@ -1580,7 +1581,23 @@ struct ContentView: View {
     private var ideasView: some View {
         HStack(alignment: .top, spacing: 18) {
             VStack(alignment: .leading, spacing: 14) {
-                SectionTitle("Idea Pulse", symbol: "lightbulb.fill")
+                HStack {
+                    SectionTitle("Idea Pulse", symbol: "lightbulb.fill")
+                    Spacer()
+                    if !model.ideaPulseCopyOutput.isEmpty {
+                        Text(model.ideaPulseCopyOutput)
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.white.opacity(0.48))
+                            .lineLimit(1)
+                    }
+                    Button {
+                        Task { await model.copyIdeaPulse() }
+                    } label: {
+                        Label("Copy", systemImage: "doc.on.clipboard")
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                }
                 VStack(spacing: 0) {
                     ForEach(model.ideaPulseItems) { item in
                         Button {
@@ -2442,7 +2459,7 @@ struct ContentView: View {
             SystemSurfaceCard(title: "Control API", value: "127.0.0.1:8765", detail: "Local-only gateway for agents and MCP.", symbol: "network")
             SystemSurfaceCard(title: "Widget", value: "Next", detail: "A desktop/Notification Center widget should show prompt-safety, sync age, and Mission points.", symbol: "rectangle.on.rectangle")
             SystemSurfaceCard(title: "Login Item", value: "Next", detail: "Launch at login after the gateway has a signed release bundle.", symbol: "power")
-            SystemSurfaceCard(title: "Shortcuts", value: "Native", detail: "App Shortcuts expose Copy Handoff, Copy Deck, Copy Snapshot, Copy Blindspots, Run Sync, Start Work, and Open/Copy Latest Context Pack to Spotlight, Siri, and automation.", symbol: "wand.and.stars")
+            SystemSurfaceCard(title: "Shortcuts", value: "Native", detail: "App Shortcuts expose Copy Handoff, Copy Deck, Copy Snapshot, Copy Blindspots, Copy Ideas, Run Sync, Start Work, and Open/Copy Latest Context Pack to Spotlight, Siri, and automation.", symbol: "wand.and.stars")
         }
     }
 
@@ -2544,6 +2561,8 @@ struct ContentView: View {
             Task { await model.copyDecisionLane() }
         case .copyBlindspots:
             Task { await model.copyBlindspotBrief() }
+        case .copyIdeas:
+            Task { await model.copyIdeaPulse() }
         case .copyProjectMemory:
             Task { await model.copyProjectMemory() }
         case .copyDeck:
@@ -2818,6 +2837,7 @@ enum BrainCommandAction {
     case copyBrief
     case copyDecisionLane
     case copyBlindspots
+    case copyIdeas
     case copyProjectMemory
     case copyDeck
     case copyLatestPack
