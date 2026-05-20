@@ -136,6 +136,7 @@ Routes:
 - `GET /status`
 - `GET /snapshot`
 - `GET /snapshot/markdown`
+- `GET /handoff/markdown`
 - `GET /sources`
 - `GET /setup`
 - `GET /focus`

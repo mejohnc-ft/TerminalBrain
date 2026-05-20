@@ -36,6 +36,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_handoff_markdown",
+    description: "Get a prompt-ready Terminal Brain handoff combining the Operator Deck and latest context pack.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_sources",
     description: "List Terminal Brain source modes for Obsidian, agent histories, Drafts, Apple Notes, and Mission Control.",
     inputSchema: {
@@ -392,6 +401,8 @@ async function callTool(name, args = {}) {
       return api("/snapshot");
     case "terminal_brain_snapshot_markdown":
       return api("/snapshot/markdown", { rawText: true });
+    case "terminal_brain_handoff_markdown":
+      return api("/handoff/markdown", { rawText: true });
     case "terminal_brain_sources":
       return api("/sources");
     case "terminal_brain_setup":

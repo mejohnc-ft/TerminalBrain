@@ -53,18 +53,7 @@ if ! curl -fsS "$API/health" >/dev/null 2>&1; then
   exit 2
 fi
 
-DECK="$(curl -fsS "$API/operator-deck/markdown")"
-PACK="$(curl -fsS "$API/context-packs/latest/markdown")"
-GENERATED="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
-
-OUTPUT="$(
-  printf '# Terminal Brain Handoff\n\n'
-  printf 'Generated: %s\n\n' "$GENERATED"
-  printf '%s\n\n' "$DECK"
-  printf '%s\n' '---'
-  printf '\n# Latest Context Pack\n\n'
-  printf '%s\n' "$PACK"
-)"
+OUTPUT="$(curl -fsS "$API/handoff/markdown")"
 
 OUTPUT_DIR="$(dirname "$OUTPUT_PATH")"
 if [[ "$OUTPUT_DIR" != "." ]]; then

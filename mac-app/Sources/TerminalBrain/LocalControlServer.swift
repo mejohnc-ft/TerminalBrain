@@ -63,6 +63,8 @@ final class LocalControlServer {
             return .json(200, await BrainSnapshot.snapshot())
         case ("GET", "/snapshot/markdown"):
             return .text(200, await BrainSnapshot.markdown())
+        case ("GET", "/handoff/markdown"):
+            return .text(200, await BrainHandoffSnapshot.markdown())
         case ("GET", "/sources"):
             return .json(200, await ControlSnapshot.sources())
         case ("GET", "/setup"):
@@ -599,7 +601,7 @@ enum OracleSnapshot {
             "",
             "Current Terminal Brain implementation:",
             "- Native macOS app with local control API on http://127.0.0.1:8765.",
-            "- Current API routes: /health, /status, /setup, /focus, /operator-deck, /operator-deck/markdown, /operator-deck/action, /context-packs/latest, /context-packs/latest/markdown, /radar, /radar/disposition, /sources, /briefing, /permissions, /oracle/brief, /oracle/items, /oracle/ask, /oracle/commit, /sync, /start-work.",
+            "- Current API routes: /health, /status, /setup, /focus, /operator-deck, /operator-deck/markdown, /operator-deck/action, /handoff/markdown, /context-packs/latest, /context-packs/latest/markdown, /radar, /radar/disposition, /sources, /briefing, /permissions, /oracle/brief, /oracle/items, /oracle/ask, /oracle/commit, /sync, /start-work.",
             "- Oracle ask already combines local deterministic signals, Mission retrieval, Mission workbench synthesis, citations, supporting items, and fallback behavior.",
             "- Oracle commit can write synthesized decisions and outcomes into the Obsidian-backed Oracle Inbox.",
             "- MCP proxy can call Terminal Brain status, setup, focus, operator deck, operator deck action, radar, radar triage, sources, briefing, permissions, sync, start work, oracle brief, oracle items, oracle ask, and oracle commit.",
@@ -1470,6 +1472,27 @@ enum BrainSnapshot {
         if trail.isEmpty { lines.append("- No committed memory yet.") }
 
         return lines.joined(separator: "\n")
+    }
+}
+
+enum BrainHandoffSnapshot {
+    static func markdown() async -> String {
+        let generated = ISO8601DateFormatter().string(from: Date())
+        let deck = await OperatorDeckSnapshot.markdown()
+        let pack = ControlSnapshot.latestContextPackMarkdown()
+        return [
+            "# Terminal Brain Handoff",
+            "",
+            "Generated: \(generated)",
+            "",
+            deck,
+            "",
+            "---",
+            "",
+            "# Latest Context Pack",
+            "",
+            pack
+        ].joined(separator: "\n")
     }
 }
 
