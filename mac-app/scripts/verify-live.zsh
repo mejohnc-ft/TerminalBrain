@@ -70,6 +70,15 @@ curl -fsS "$API/snapshot/markdown" | ruby -e '
   puts "markdown ok chars=#{text.length}"
 '
 
+curl -fsS "$API/handoff/markdown" | ruby -e '
+  text = STDIN.read
+  abort("handoff missing title") unless text.include?("# Terminal Brain Handoff")
+  abort("handoff missing operating instructions") unless text.include?("## How To Use This")
+  abort("handoff missing operator deck") unless text.include?("# Terminal Brain Operator Deck")
+  abort("handoff missing latest context pack") unless text.include?("# Latest Context Pack")
+  puts "handoff ok chars=#{text.length}"
+'
+
 printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_snapshot","arguments":{}}}\n' \
   | node "$ROOT/mcp-server/server.mjs" \
   | ruby -rjson -e '
@@ -91,6 +100,17 @@ printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal
       abort("mcp markdown missing title") unless text.include?("# Terminal Brain Snapshot")
       abort("mcp markdown missing focus") unless text.include?("## Focus")
       puts "mcp markdown ok chars=#{text.length}"
+    '
+
+printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_handoff_markdown","arguments":{}}}\n' \
+  | node "$ROOT/mcp-server/server.mjs" \
+  | ruby -rjson -e '
+      line = STDIN.each_line.find { |l| l.include?("\"result\"") } || "{}"
+      response = JSON.parse(line)
+      text = response.dig("result", "content", 0, "text").to_s
+      abort("mcp handoff missing title") unless text.include?("# Terminal Brain Handoff")
+      abort("mcp handoff missing operator deck") unless text.include?("# Terminal Brain Operator Deck")
+      puts "mcp handoff ok chars=#{text.length}"
     '
 
 node --check "$ROOT/mcp-server/server.mjs" >/dev/null
