@@ -21,6 +21,8 @@ require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Termina
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Value Now' "Value Now app surface"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'selectedSection = "work-block"' "Work Block default app section"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'workBlockView' "Work Block app surface"
+require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Top Review Action' "Work Block direct review actions"
+require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'delegateOracleCommitToStartWork\(topReview\)' "Work Block delegate action"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'firstMinuteView' "First Minute app surface"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'focusIdeaCapturePanel\(focus\)' "First Minute capture thought panel"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Open First Minute' "command palette can open First Minute"

@@ -638,6 +638,57 @@ struct ContentView: View {
             .padding(20)
             .darkPanel()
 
+            if let topReview {
+                VStack(alignment: .leading, spacing: 12) {
+                    SectionTitle("Top Review Action", symbol: topReview.status.symbol)
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack(alignment: .top, spacing: 12) {
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text(topReview.title)
+                                    .font(.headline.weight(.semibold))
+                                    .foregroundStyle(.white)
+                                    .lineLimit(2)
+                                Text(topReview.preview)
+                                    .font(.callout)
+                                    .foregroundStyle(.white.opacity(0.62))
+                                    .lineLimit(3)
+                            }
+                            Spacer()
+                            StatusPill(text: topReview.status.label, state: topReview.status == .new || topReview.status == .delegated ? .warn : .good)
+                        }
+
+                        HStack(spacing: 8) {
+                            Button {
+                                model.setOracleCommitStatus(topReview, status: .accepted)
+                            } label: {
+                                Label("Accept", systemImage: "checkmark.seal")
+                            }
+                            Button {
+                                model.delegateOracleCommitToStartWork(topReview)
+                                selectedSection = "start"
+                            } label: {
+                                Label("Delegate", systemImage: "paperplane")
+                            }
+                            Button {
+                                model.setOracleCommitStatus(topReview, status: .dismissed)
+                            } label: {
+                                Label("Dismiss", systemImage: "xmark.circle")
+                            }
+                            Button {
+                                selectedCommitID = topReview.id
+                                reviewProjectFilter = topReview.project.isEmpty ? "all" : topReview.project
+                                selectedSection = "review"
+                            } label: {
+                                Label("Open", systemImage: "tray.and.arrow.down")
+                            }
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                    .padding(14)
+                    .darkPanel()
+                }
+            }
+
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 240), spacing: 12)], spacing: 12) {
                 ValueBriefTile(
                     label: "1. Pull Forward",
