@@ -3,7 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject private var model: BrainStatusModel
     @EnvironmentObject private var settings: AppSettings
-    @State private var selectedSection = "value"
+    @State private var selectedSection = "now"
     @State private var selectedFeedID = ""
     @State private var selectedCommitID = ""
     @State private var selectedRadarID = ""
@@ -60,6 +60,7 @@ struct ContentView: View {
 
     private var commandItems: [BrainCommand] {
         var items: [BrainCommand] = [
+            BrainCommand(title: "Open Now", subtitle: "Bottom line, next action, process truth, and outcome loop", symbol: "sparkles", category: "Navigate", action: .section("now")),
             BrainCommand(title: "Open Value Now", subtitle: "Plain-language value read and fastest useful path", symbol: "bolt.fill", category: "Navigate", action: .section("value")),
             BrainCommand(title: "Open Start Here", subtitle: "One block, one artifact, one written outcome", symbol: "play.circle.fill", category: "Navigate", action: .section("start-here")),
             BrainCommand(title: "Ask Current Focus", subtitle: model.focusItem.title, symbol: "sparkle.magnifyingglass", category: "Action", action: .askFocus),
@@ -178,6 +179,7 @@ struct ContentView: View {
 
     private var sectionTitle: String {
         switch selectedSection {
+        case "now": return "Now"
         case "value": return "Value Now"
         case "start-here": return "Start Here"
         case "focus": return "Focus"
@@ -199,6 +201,7 @@ struct ContentView: View {
 
     private var sectionSubtitle: String {
         switch selectedSection {
+        case "now": return "Bottom line, next action, process truth, readiness, and close loop."
         case "value": return "What this is worth right now, what to do next, and what artifact to create."
         case "start-here": return "One block, one artifact, one written outcome."
         case "focus": return "One recommended move, why it matters, and the fastest next action."
@@ -328,6 +331,7 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 7) {
                 Text("Home")
                     .sidebarHeader()
+                NavRow(title: "Now", symbol: "sparkles", badge: model.setupAttentionCount == 0 ? "" : "\(model.setupAttentionCount)", selected: selectedSection == "now") { selectedSection = "now" }
                 NavRow(title: "Value", symbol: "bolt.fill", badge: "\(model.focusItem.score)", selected: selectedSection == "value") { selectedSection = "value" }
                 NavRow(title: "Start Here", symbol: "play.circle.fill", badge: "", selected: selectedSection == "start-here") { selectedSection = "start-here" }
                 NavRow(title: "Focus", symbol: "target", badge: "\(model.focusItem.score)", selected: selectedSection == "focus") { selectedSection = "focus" }
@@ -459,6 +463,7 @@ struct ContentView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     switch selectedSection {
+                    case "now": nowView
                     case "value": valueNowView
                     case "start-here": startHereView
                     case "focus": focusView
@@ -539,6 +544,135 @@ struct ContentView: View {
                 .frame(width: 420)
             }
             syncOutput
+        }
+    }
+
+    private var nowView: some View {
+        let focus = model.focusItem
+        let review = model.oracleCommits.first { $0.status == .new || $0.status == .delegated }
+        let project = model.projects.first
+        let processState = model.summaryLine == "Brain status ready" ? "Ready" : model.summaryLine
+
+        return VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack(alignment: .top, spacing: 14) {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 34, weight: .semibold))
+                        .foregroundStyle(settings.theme.accent)
+                        .frame(width: 58, height: 58)
+                        .background(settings.theme.accent.opacity(0.16), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Terminal Brain Now")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(settings.theme.accent)
+                            .textCase(.uppercase)
+                        Text("Do \(focus.title)")
+                            .font(.system(size: 36, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.72)
+                        Text(focus.project)
+                            .font(.headline.weight(.semibold))
+                            .foregroundStyle(focus.state.color)
+                    }
+                    Spacer()
+                    StatusPill(text: processState, state: model.summaryLine == "Brain status ready" ? .good : .warn)
+                }
+
+                Text(focus.reason)
+                    .font(.body)
+                    .foregroundStyle(.white.opacity(0.64))
+                    .fixedSize(horizontal: false, vertical: true)
+
+                HStack(spacing: 8) {
+                    Button {
+                        applyFocusAction(focus)
+                    } label: {
+                        Label(focus.action, systemImage: focus.symbol)
+                    }
+                    .buttonStyle(.borderedProminent)
+
+                    Button { Task { await model.copyAgentPrompt() } } label: {
+                        Label("Agent Prompt", systemImage: "paperplane.fill")
+                    }
+                    .buttonStyle(.bordered)
+
+                    Button {
+                        model.workQuery = focus.query.isEmpty ? focus.title : focus.query
+                        selectedSection = "start"
+                    } label: {
+                        Label("Start Work", systemImage: "shippingbox.fill")
+                    }
+                    .buttonStyle(.bordered)
+
+                    Button { Task { await model.copyStartHere() } } label: {
+                        Label("Copy Start Here", systemImage: "play.circle.fill")
+                    }
+                    .buttonStyle(.bordered)
+                }
+            }
+            .padding(20)
+            .darkPanel()
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 230), spacing: 12)], spacing: 12) {
+                ValueBriefTile(
+                    label: "Bottom line",
+                    title: focus.title,
+                    detail: "This is the current highest-signal work block. Treat it as the default unless a fresher constraint appears.",
+                    action: focus.action,
+                    symbol: focus.symbol,
+                    accent: focus.state.color
+                ) {
+                    applyFocusAction(focus)
+                }
+
+                ValueBriefTile(
+                    label: "Process truth",
+                    title: processState,
+                    detail: "The app surface shows readiness without background agents launching, quitting, or stealing focus.",
+                    action: "Open Setup",
+                    symbol: "checklist.checked",
+                    accent: model.summaryLine == "Brain status ready" ? .green : .orange
+                ) {
+                    selectedSection = "setup"
+                }
+
+                ValueBriefTile(
+                    label: "Memory to attach",
+                    title: project?.name ?? "Build a context pack",
+                    detail: project?.recommendedAction ?? "Attach source-grounded memory before handing deeper work to an agent.",
+                    action: project == nil ? "Start Work" : "Open Project",
+                    symbol: project?.symbol ?? "shippingbox.fill",
+                    accent: project?.accent ?? settings.theme.accent
+                ) {
+                    if let project {
+                        selectedProjectID = project.id
+                        selectedSection = "projects"
+                    } else {
+                        model.workQuery = focus.query.isEmpty ? focus.title : focus.query
+                        selectedSection = "start"
+                    }
+                }
+
+                ValueBriefTile(
+                    label: "Close loop",
+                    title: review?.title ?? "Commit the outcome",
+                    detail: review?.preview ?? "Write what changed, why it matters, evidence, and the next action into durable memory.",
+                    action: review == nil ? "Commit Below" : "Open Review",
+                    symbol: review?.status.symbol ?? "square.and.arrow.down.fill",
+                    accent: review?.status.color ?? .green
+                ) {
+                    if let review {
+                        selectedCommitID = review.id
+                        reviewProjectFilter = review.project.isEmpty ? "all" : review.project
+                        selectedSection = "review"
+                    }
+                }
+            }
+
+            valueBriefPanel
+            oracleDigestPanel
+            startHereOutcomePanel(project: focus.project)
         }
     }
 
