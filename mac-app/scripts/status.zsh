@@ -68,7 +68,11 @@ fi
 echo
 
 echo "## Local Runtime"
-processes="$(ps ax -o pid=,comm=,args= | grep -Ei 'TerminalBrain|Terminal Brain' | grep -Ev 'grep -Ei|status\.zsh|/bin/zsh|/bin/sh' || true)"
+process_pids="$(pgrep -x TerminalBrain 2>/dev/null || true)"
+processes=""
+if [[ -n "$process_pids" ]]; then
+  processes="$(ps -p "${(j:,:)${(f)process_pids}}" -o pid=,comm=,args= 2>/dev/null || true)"
+fi
 if [[ -n "$processes" ]]; then
   echo "- App process: running"
   printf '%s\n' "$processes" | sed 's/^/  /'

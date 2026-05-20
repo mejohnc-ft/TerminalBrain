@@ -822,15 +822,15 @@ async function runtimeStatus() {
   const upstream = runCommand("git", ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"]);
   const head = runCommand("git", ["log", "-1", "--oneline"]);
   const dirty = runCommand("git", ["status", "--short"]);
-  const ps = runCommand("ps", ["ax", "-o", "pid=,comm=,args="]);
+  const appPids = runCommand("pgrep", ["-x", "TerminalBrain"]);
   const launchctl = runCommand("launchctl", ["list"]);
   const ci = runCommand("gh", ["run", "list", "--branch", branch.text || "main", "--limit", "1"], { timeout: 5000 });
-  const processes = ps.ok
-    ? ps.text
-      .split("\n")
-      .map((line) => line.trim())
-      .filter((line) => /TerminalBrain|Terminal Brain/i.test(line))
-      .filter((line) => !/server\.mjs|node .*mcp-server|ps ax -o/i.test(line))
+  const pidList = appPids.ok && appPids.text ? appPids.text.split("\n").filter(Boolean) : [];
+  const processDetails = pidList.length > 0
+    ? runCommand("ps", ["-p", pidList.join(","), "-o", "pid=,comm=,args="])
+    : { ok: true, text: "" };
+  const processes = processDetails.text
+    ? processDetails.text.split("\n").map((line) => line.trim()).filter(Boolean)
     : [];
   const launchItems = launchctl.ok
     ? launchctl.text
