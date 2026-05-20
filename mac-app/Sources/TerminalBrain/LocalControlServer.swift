@@ -77,6 +77,8 @@ final class LocalControlServer {
             return .text(200, await ProcessMapSnapshot.markdown())
         case ("GET", "/support-bundle/markdown"):
             return .text(200, await SupportBundleSnapshot.markdown())
+        case ("GET", "/value-proof/markdown"):
+            return .text(200, await ValueProofSnapshot.markdown())
         case ("GET", "/start-here/markdown"):
             return .text(200, await StartHereSnapshot.markdown())
         case ("GET", "/sources"):
@@ -790,7 +792,7 @@ enum OracleSnapshot {
             "",
             "Current Terminal Brain implementation:",
             "- Native macOS app with local control API on http://127.0.0.1:8765.",
-            "- Current API routes include /now/markdown, /start-here/markdown, /value-brief/markdown, /oracle-digest/markdown, /handoff/markdown, /agent-prompt/markdown, /outcomes/commit, /context-packs/latest/markdown, /radar, /sources, /permissions, /oracle/ask, /oracle/commit, /sync, and /start-work.",
+            "- Current API routes include /now/markdown, /start-here/markdown, /value-proof/markdown, /value-brief/markdown, /oracle-digest/markdown, /handoff/markdown, /agent-prompt/markdown, /outcomes/commit, /context-packs/latest/markdown, /radar, /sources, /permissions, /oracle/ask, /oracle/commit, /sync, and /start-work.",
             "- Oracle ask already combines local deterministic signals, Mission retrieval, Mission workbench synthesis, citations, supporting items, and fallback behavior.",
             "- Oracle commit can write synthesized decisions and outcomes into the Obsidian-backed Oracle Inbox.",
             "- MCP proxy can call Terminal Brain status, setup, focus, blindspots, blindspot ask/commit/action, operator deck, operator deck action, radar, radar triage, sources, briefing, permissions, sync, start work, oracle brief, oracle items, oracle ask, oracle commit, and oracle review status.",
@@ -2002,6 +2004,59 @@ enum SupportBundleSnapshot {
             "## Output",
             "",
             result.stdout.trimmingCharacters(in: .whitespacesAndNewlines).ifEmpty("(no stdout)"),
+            "",
+            "## Error",
+            "",
+            result.stderr.trimmingCharacters(in: .whitespacesAndNewlines).ifEmpty("(no stderr)"),
+            "",
+            "## Guardrail",
+            "",
+            "- This API response did not launch, foreground, quit, kill, or control anything."
+        ].joined(separator: "\n")
+    }
+}
+
+enum ValueProofSnapshot {
+    static func markdown() async -> String {
+        let script = "\(Paths.home)/Git/TerminalBrain/mac-app/scripts/prove-value.zsh"
+        guard FileManager.default.fileExists(atPath: script) else {
+            return [
+                "# Terminal Brain Value Proof",
+                "",
+                "The value proof script is not available at:",
+                "",
+                "```text",
+                script,
+                "```",
+                "",
+                "Open the TerminalBrain repo and run:",
+                "",
+                "```zsh",
+                "make prove-value",
+                "```",
+                "",
+                "Guardrail: this API response did not launch, foreground, quit, kill, or control anything."
+            ].joined(separator: "\n")
+        }
+
+        let result = await CommandRunner.run("/bin/zsh", [script])
+        let output = result.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
+        if result.succeeded, !output.isEmpty {
+            return output
+        }
+
+        return [
+            "# Terminal Brain Value Proof",
+            "",
+            "Value proof failed before completing.",
+            "",
+            "## Status",
+            "",
+            "- Exit: \(result.status)",
+            "",
+            "## Output",
+            "",
+            output.ifEmpty("(no stdout)"),
             "",
             "## Error",
             "",

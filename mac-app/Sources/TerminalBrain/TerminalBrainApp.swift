@@ -57,6 +57,10 @@ struct TerminalBrainApp: App {
                     Task { await model.copySupportBundle() }
                 }
 
+                Button("Copy Value Proof") {
+                    Task { await model.copyValueProof() }
+                }
+
                 Button("Copy Start Here") {
                     Task { await model.copyStartHere() }
                 }
@@ -128,6 +132,9 @@ struct TerminalBrainApp: App {
             }
             Button("Copy Support Bundle") {
                 Task { await model.copySupportBundle() }
+            }
+            Button("Copy Value Proof") {
+                Task { await model.copyValueProof() }
             }
             Button("Copy Start Here") {
                 Task { await model.copyStartHere() }

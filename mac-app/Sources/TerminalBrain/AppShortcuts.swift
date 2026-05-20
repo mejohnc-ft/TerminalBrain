@@ -224,6 +224,19 @@ struct CopySupportBundleIntent: AppIntent {
     }
 }
 
+struct CopyValueProofIntent: AppIntent {
+    static var title: LocalizedStringResource = "Copy Value Proof"
+    static var description = IntentDescription("Copy Terminal Brain's closed-app value proof as Markdown.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let markdown = try await ShortcutClient.text(path: "/value-proof/markdown")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "Value Proof copied.")
+    }
+}
+
 struct CopyStartHereIntent: AppIntent {
     static var title: LocalizedStringResource = "Copy Start Here"
     static var description = IntentDescription("Copy Terminal Brain's one-block Start Here path as Markdown.")
@@ -582,6 +595,15 @@ struct TerminalBrainShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Copy Bundle",
             systemImageName: "shippingbox"
+        )
+        AppShortcut(
+            intent: CopyValueProofIntent(),
+            phrases: [
+                "Copy \(.applicationName) value proof",
+                "Prove \(.applicationName) value"
+            ],
+            shortTitle: "Copy Proof",
+            systemImageName: "checkmark.seal"
         )
         AppShortcut(
             intent: CopyStartHereIntent(),

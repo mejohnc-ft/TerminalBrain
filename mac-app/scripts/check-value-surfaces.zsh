@@ -40,6 +40,7 @@ require_in_file "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CopyOr
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CopyProcessMapIntent' "Copy Process Map App Shortcut"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CopyCleanupPlanIntent' "Copy Cleanup Plan App Shortcut"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CopySupportBundleIntent' "Copy Support Bundle App Shortcut"
+require_in_file "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CopyValueProofIntent' "Copy Value Proof App Shortcut"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CommitBrainOutcomeIntent' "Commit Outcome App Shortcut"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CopyStartHereIntent' "Copy Start Here App Shortcut"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CopyOracleDigestIntent' "Copy Oracle Digest App Shortcut"
@@ -50,6 +51,7 @@ require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '"/cleanup-plan/markdown"' "Cleanup Plan API route"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '"/process-map/markdown"' "Process Map API route"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '"/support-bundle/markdown"' "Support Bundle API route"
+require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '"/value-proof/markdown"' "Value Proof API route"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '"/oracle/brief/markdown"' "Oracle Brief API route"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '"/oracle-digest/markdown"' "Oracle Digest API route"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '"/outcomes/commit"' "Outcome commit API route"
@@ -59,6 +61,7 @@ require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" 'enum CleanupPlanSnapshot' "Cleanup Plan Markdown artifact"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" 'enum ProcessMapSnapshot' "Process Map Markdown artifact"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" 'enum SupportBundleSnapshot' "Support Bundle Markdown artifact"
+require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" 'enum ValueProofSnapshot' "Value Proof Markdown artifact"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" 'static func markdown\(\) async -> String' "Oracle Brief Markdown artifact"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" 'enum OracleDigestSnapshot' "Oracle Digest artifact"
 
