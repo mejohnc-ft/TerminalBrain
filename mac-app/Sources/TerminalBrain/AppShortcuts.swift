@@ -67,6 +67,31 @@ enum ShortcutClient {
             throw ShortcutError.unreachable(error.localizedDescription)
         }
     }
+
+    static func postJSON(path: String, body: [String: Any]) async throws -> [String: Any] {
+        guard let url = URL(string: path, relativeTo: api)?.absoluteURL else {
+            throw ShortcutError.invalidURL
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+            guard status == 200 else {
+                throw ShortcutError.requestFailed(status: status)
+            }
+            guard let payload = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                throw ShortcutError.emptyResponse
+            }
+            return payload
+        } catch let error as ShortcutError {
+            throw error
+        } catch {
+            throw ShortcutError.unreachable(error.localizedDescription)
+        }
+    }
 }
 
 enum ShortcutError: LocalizedError {
@@ -154,6 +179,71 @@ struct RunTerminalBrainSyncIntent: AppIntent {
     func perform() async throws -> some IntentResult & ProvidesDialog {
         try await ShortcutClient.post(path: "/sync", body: ["includeAppleNotes": false])
         return .result(dialog: "Terminal Brain sync started.")
+    }
+}
+
+struct AskTerminalBrainOracleIntent: AppIntent {
+    static var title: LocalizedStringResource = "Ask Terminal Brain Oracle"
+    static var description = IntentDescription("Ask Terminal Brain Oracle and copy the answer to the clipboard.")
+
+    @Parameter(title: "Question", description: "Question for Terminal Brain Oracle.")
+    var question: String
+
+    static var parameterSummary: some ParameterSummary {
+        Summary("Ask Oracle \(\.$question)")
+    }
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let trimmed = question.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            throw ShortcutError.emptyQuery
+        }
+        let payload = try await ShortcutClient.postJSON(path: "/oracle/ask", body: ["question": trimmed])
+        let answer = payload["answer"] as? String ?? ""
+        guard !answer.isEmpty else {
+            throw ShortcutError.emptyResponse
+        }
+        let markdown = [
+            "# Terminal Brain Oracle",
+            "",
+            "Question: \(trimmed)",
+            "Mode: \(payload["mode"] as? String ?? "unknown")",
+            "",
+            answer
+        ].joined(separator: "\n")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "Oracle answer copied.")
+    }
+}
+
+struct CaptureBrainIdeaIntent: AppIntent {
+    static var title: LocalizedStringResource = "Capture Brain Idea"
+    static var description = IntentDescription("Capture an idea or open loop into Terminal Brain's Oracle Inbox.")
+
+    @Parameter(title: "Idea", description: "Idea, open loop, or rough thought.")
+    var idea: String
+
+    @Parameter(title: "Project", description: "Optional project name.")
+    var project: String?
+
+    static var parameterSummary: some ParameterSummary {
+        Summary("Capture \(\.$idea)")
+    }
+
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let trimmed = idea.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            throw ShortcutError.emptyQuery
+        }
+        _ = try await ShortcutClient.postJSON(path: "/ideas/capture", body: [
+            "title": "Captured Idea",
+            "content": trimmed,
+            "project": project?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "",
+            "tags": ["terminal-brain", "idea", "shortcut"]
+        ])
+        return .result(dialog: "Idea captured.")
     }
 }
 
@@ -271,6 +361,24 @@ struct TerminalBrainShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Run Sync",
             systemImageName: "arrow.triangle.2.circlepath"
+        )
+        AppShortcut(
+            intent: AskTerminalBrainOracleIntent(),
+            phrases: [
+                "Ask \(.applicationName) Oracle",
+                "Ask \(.applicationName)"
+            ],
+            shortTitle: "Ask Oracle",
+            systemImageName: "sparkle.magnifyingglass"
+        )
+        AppShortcut(
+            intent: CaptureBrainIdeaIntent(),
+            phrases: [
+                "Capture idea in \(.applicationName)",
+                "Save idea to \(.applicationName)"
+            ],
+            shortTitle: "Capture Idea",
+            systemImageName: "lightbulb"
         )
         AppShortcut(
             intent: BuildContextPackIntent(),
