@@ -13,6 +13,7 @@ make
 make value
 make next
 make doctor
+make audit
 make status
 make verify
 make live
@@ -31,7 +32,7 @@ make start-here
 make handoff
 ```
 
-Plain `make` prints help. `make verify`, `make status`, `make next`, `make value`, `make doctor`, `make live`, `make build`, and `make install` do not launch or foreground Terminal Brain. `make value` explains what value is available now and prints the live Value Brief when the app is reachable. `make next` prints Start Here when the app is reachable, or a safe status and manual next step when it is closed. `make doctor` audits repo, CI, app install freshness, MCP contract, agent config references, prompt-prone Apple Notes/Drafts bridges, process state, launchctl, API readiness, and an explicit readiness verdict. `make status` answers what is currently running across repo, CI, process, launchctl, and localhost API state. `make live` expects the app to already be running.
+Plain `make` prints help. `make verify`, `make status`, `make next`, `make value`, `make doctor`, `make audit`, `make live`, `make build`, and `make install` do not launch or foreground Terminal Brain. `make value` explains what value is available now and prints the live Value Brief when the app is reachable. `make next` prints Start Here when the app is reachable, or a safe status and manual next step when it is closed. `make doctor` audits repo, CI, app install freshness, MCP contract, agent config references, prompt-prone Apple Notes/Drafts bridges, process state, launchctl, API readiness, and an explicit readiness verdict. `make audit` prints a capability/evidence checklist across value, agent, safety, and readiness surfaces. `make status` answers what is currently running across repo, CI, process, launchctl, and localhost API state. `make live` expects the app to already be running.
 
 ## Components
 
@@ -133,6 +134,14 @@ make doctor
 ```
 
 This checks repo and CI state, app build/install state and freshness, MCP syntax and tool contract, common agent config references, prompt-prone Apple Notes/Drafts bridges, process state, launchctl, localhost API readiness, and a single readiness verdict.
+
+For a non-launching capability audit:
+
+```zsh
+make audit
+```
+
+This prints the evidence checklist for value-first surfaces, MCP tools, safety guardrails, readiness, and non-launching commands.
 
 For API/MCP checks against an already-running app:
 

@@ -1,10 +1,11 @@
-.PHONY: help build install verify live status next value doctor ask ask-commit outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live status next value doctor audit ask ask-commit outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
 	@echo "  make value         Non-launching value read; prints live Value Brief if app is reachable"
 	@echo "  make next          Non-launching next move; prints Start Here if app is reachable"
 	@echo "  make doctor        Non-launching readiness audit with concrete setup warnings"
+	@echo "  make audit         Non-launching capability audit and evidence checklist"
 	@echo "  make status        Non-launching repo, CI, process, launchctl, and API status"
 	@echo "  make verify        Non-launching static QA"
 	@echo "  make live          API/MCP QA against an already-running app"
@@ -53,6 +54,9 @@ value:
 
 doctor:
 	./mac-app/scripts/doctor.zsh
+
+audit:
+	./mac-app/scripts/audit.zsh
 
 live:
 	./mac-app/scripts/verify-live.zsh
