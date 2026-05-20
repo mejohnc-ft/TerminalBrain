@@ -1,4 +1,4 @@
-.PHONY: help build install verify live ask ask-commit snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-today snapshot-projects snapshot-deck snapshot-deck-md latest-pack handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live ask ask-commit snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-today snapshot-blindspots snapshot-projects snapshot-deck snapshot-deck-md latest-pack handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
@@ -13,6 +13,7 @@ help:
 	@echo "  make snapshot-brief Print Operator Brief JSON from an already-running app"
 	@echo "  make snapshot-brief-md Print Operator Brief Markdown from an already-running app"
 	@echo "  make snapshot-today Print Decision Lane Markdown from an already-running app"
+	@echo "  make snapshot-blindspots Print Blindspot Brief Markdown from an already-running app"
 	@echo "  make snapshot-projects Print Project Memory Markdown from an already-running app"
 	@echo "  make snapshot-deck Print Operator Deck JSON from an already-running app"
 	@echo "  make snapshot-deck-md Print Operator Deck Markdown from an already-running app"
@@ -56,6 +57,9 @@ snapshot-brief-md:
 
 snapshot-today:
 	./mac-app/scripts/snapshot.zsh --today
+
+snapshot-blindspots:
+	./mac-app/scripts/snapshot.zsh --blindspots
 
 snapshot-projects:
 	./mac-app/scripts/snapshot.zsh --projects

@@ -39,6 +39,8 @@ Codex/workspace config can register this server as:
 - `terminal_brain_today`
 - `terminal_brain_today_markdown`
 - `terminal_brain_focus`
+- `terminal_brain_blindspots`
+- `terminal_brain_blindspots_markdown`
 - `terminal_brain_operator_brief`
 - `terminal_brain_operator_brief_markdown`
 - `terminal_brain_operator_deck`

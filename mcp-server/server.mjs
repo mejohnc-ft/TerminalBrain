@@ -99,6 +99,24 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_blindspots",
+    description: "Get Terminal Brain's Blindspot Brief: ignored, stale, under-tested, or unresolved work to consider before planning.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
+    name: "terminal_brain_blindspots_markdown",
+    description: "Get Terminal Brain's Blindspot Brief as prompt-ready Markdown.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_operator_brief",
     description: "Get the plain-language Operator Brief: what matters, why it matters, what not to miss, and the next artifact.",
     inputSchema: {
@@ -518,6 +536,10 @@ async function callTool(name, args = {}) {
       return api("/today/markdown", { rawText: true });
     case "terminal_brain_focus":
       return api("/focus");
+    case "terminal_brain_blindspots":
+      return api("/blindspots");
+    case "terminal_brain_blindspots_markdown":
+      return api("/blindspots/markdown", { rawText: true });
     case "terminal_brain_operator_brief":
       return api("/operator-brief");
     case "terminal_brain_operator_brief_markdown":

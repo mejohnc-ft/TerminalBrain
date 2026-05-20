@@ -83,6 +83,10 @@ final class LocalControlServer {
             return .text(200, await TodaySnapshot.markdown())
         case ("GET", "/focus"):
             return .json(200, await FocusSnapshot.focus())
+        case ("GET", "/blindspots"):
+            return .json(200, await BlindspotSnapshot.blindspots())
+        case ("GET", "/blindspots/markdown"):
+            return .text(200, await BlindspotSnapshot.markdown())
         case ("GET", "/operator-brief"):
             return .json(200, await OperatorBriefSnapshot.brief())
         case ("GET", "/operator-brief/markdown"):
@@ -616,10 +620,10 @@ enum OracleSnapshot {
             "",
             "Current Terminal Brain implementation:",
             "- Native macOS app with local control API on http://127.0.0.1:8765.",
-            "- Current API routes: /health, /status, /setup, /focus, /operator-deck, /operator-deck/markdown, /operator-deck/action, /handoff/markdown, /context-packs/latest, /context-packs/latest/markdown, /radar, /radar/disposition, /sources, /briefing, /permissions, /oracle/brief, /oracle/items, /oracle/ask, /oracle/commit, /sync, /start-work.",
+            "- Current API routes: /health, /status, /setup, /focus, /blindspots, /blindspots/markdown, /operator-deck, /operator-deck/markdown, /operator-deck/action, /handoff/markdown, /context-packs/latest, /context-packs/latest/markdown, /radar, /radar/disposition, /sources, /briefing, /permissions, /oracle/brief, /oracle/items, /oracle/ask, /oracle/commit, /sync, /start-work.",
             "- Oracle ask already combines local deterministic signals, Mission retrieval, Mission workbench synthesis, citations, supporting items, and fallback behavior.",
             "- Oracle commit can write synthesized decisions and outcomes into the Obsidian-backed Oracle Inbox.",
-            "- MCP proxy can call Terminal Brain status, setup, focus, operator deck, operator deck action, radar, radar triage, sources, briefing, permissions, sync, start work, oracle brief, oracle items, oracle ask, and oracle commit.",
+            "- MCP proxy can call Terminal Brain status, setup, focus, blindspots, operator deck, operator deck action, radar, radar triage, sources, briefing, permissions, sync, start work, oracle brief, oracle items, oracle ask, oracle commit, and oracle review status.",
             "- Do not describe these implemented capabilities as missing. Recommend what should come after them.",
             "",
             "Local deterministic read:",
@@ -1637,6 +1641,232 @@ enum OperatorDeckSnapshot {
     }
 }
 
+enum BlindspotSnapshot {
+    static func blindspots() async -> [String: Any] {
+        let generatedAt = ISO8601DateFormatter().string(from: Date())
+        let focusPayload = await FocusSnapshot.focus()
+        let radarPayload = await RadarSnapshot.radar()
+        let oraclePayload = await OracleSnapshot.items()
+        let commitsPayload = OracleSnapshot.commits()
+        let projectsPayload = ProjectSnapshot.projects()
+        let setupPayload = await SetupSnapshot.setup()
+
+        let focus = (focusPayload["item"] as? [String: Any]) ?? [:]
+        let radar = (radarPayload["items"] as? [[String: Any]]) ?? []
+        let oracle = (oraclePayload["items"] as? [[String: Any]]) ?? []
+        let commits = (commitsPayload["items"] as? [[String: Any]]) ?? []
+        let projects = (projectsPayload["items"] as? [[String: Any]]) ?? []
+        let setup = (setupPayload["steps"] as? [[String: Any]]) ?? []
+
+        var items: [[String: Any]] = []
+
+        if let delegated = commits.first(where: { ($0["status"] as? String) == "delegated" }) {
+            let title = delegated["title"] as? String ?? "Delegated Oracle read"
+            items.append(card(
+                id: "delegated-\(delegated["id"] as? String ?? title)",
+                title: "Delegation without artifact",
+                why: "You already decided this read should leave the inbox. If it does not become a Start Work pack or agent handoff, the decision decays into another loose note.",
+                question: "What concrete artifact should this delegated read become?",
+                nextAction: "Start Work",
+                project: delegated["project"] as? String ?? "General Brain",
+                source: "Oracle commit",
+                sourceID: delegated["id"] as? String ?? "",
+                score: 96,
+                symbol: "paperplane.fill",
+                path: delegated["path"] as? String ?? ""
+            ))
+        }
+
+        if let review = commits.first(where: { ($0["status"] as? String) == "new" }) {
+            let title = review["title"] as? String ?? "Unreviewed Oracle read"
+            items.append(card(
+                id: "review-\(review["id"] as? String ?? title)",
+                title: "Decision debt in the Oracle Inbox",
+                why: "A committed read is only useful after you accept, link, delegate, or dismiss it. A new read is an unresolved decision sitting in a note.",
+                question: "Is this read accepted, linked to a project, delegated, or dismissed?",
+                nextAction: "Review",
+                project: review["project"] as? String ?? "General Brain",
+                source: "Oracle commit",
+                sourceID: review["id"] as? String ?? "",
+                score: 92,
+                symbol: "tray.and.arrow.down.fill",
+                path: review["path"] as? String ?? ""
+            ))
+        }
+
+        if let openLoop = oracle.first(where: { ($0["kind"] as? String) == "openLoop" }) {
+            let title = openLoop["title"] as? String ?? "Open loop"
+            items.append(card(
+                id: "loop-\(openLoop["id"] as? String ?? title)",
+                title: "Open loop resurfacing",
+                why: openLoop["detail"] as? String ?? "This keeps appearing in local memory and may be unresolved work.",
+                question: "What would make this loop closed enough to stop resurfacing?",
+                nextAction: "Start Work",
+                project: ProjectSnapshot.projectName(from: "\(title) \(openLoop["detail"] ?? "")"),
+                source: openLoop["source"] as? String ?? "Oracle",
+                sourceID: openLoop["id"] as? String ?? "",
+                score: 86,
+                symbol: openLoop["symbol"] as? String ?? "checklist",
+                path: openLoop["path"] as? String ?? ""
+            ))
+        }
+
+        if let idea = oracle.first(where: { ["idea", "opportunity", "bubbling"].contains($0["kind"] as? String ?? "") }) {
+            let title = idea["title"] as? String ?? "Idea worth testing"
+            items.append(card(
+                id: "idea-\(idea["id"] as? String ?? title)",
+                title: "Idea that needs pressure testing",
+                why: idea["detail"] as? String ?? "This looks potentially valuable, but it has not been converted into a small test.",
+                question: "What is the cheapest test that would prove whether this idea is worth keeping?",
+                nextAction: "Ask Oracle",
+                project: ProjectSnapshot.projectName(from: "\(title) \(idea["detail"] ?? "")"),
+                source: idea["source"] as? String ?? "Oracle",
+                sourceID: idea["id"] as? String ?? "",
+                score: 78,
+                symbol: idea["symbol"] as? String ?? "lightbulb.fill",
+                path: idea["path"] as? String ?? ""
+            ))
+        }
+
+        if let project = projects.first(where: { (($0["signalCount"] as? Int) ?? 0) >= 2 && (($0["delegatedCount"] as? Int) ?? 0) == 0 }) {
+            let name = project["name"] as? String ?? "Project"
+            items.append(card(
+                id: "project-\(project["id"] as? String ?? name)",
+                title: "Active project without an execution edge",
+                why: project["recommendedAction"] as? String ?? "This project has memory attached, but no delegated execution card.",
+                question: "What is the one artifact that would move \(name) forward today?",
+                nextAction: "Open Project",
+                project: name,
+                source: "Project Memory",
+                sourceID: project["id"] as? String ?? "",
+                score: 72,
+                symbol: project["symbol"] as? String ?? "folder.fill",
+                path: ((project["contextPacks"] as? [[String: Any]])?.first?["path"] as? String) ?? ""
+            ))
+        }
+
+        let focusID = focus["id"] as? String ?? ""
+        if let secondSignal = radar.first(where: { ($0["id"] as? String ?? "") != focusID }) {
+            let title = secondSignal["title"] as? String ?? "Second signal"
+            items.append(card(
+                id: "radar-\(secondSignal["id"] as? String ?? title)",
+                title: "Second-order signal",
+                why: "This did not win the focus slot, but its score is high enough that it may be the thing you are underweighting.",
+                question: "Why is this not the first thing you are doing?",
+                nextAction: secondSignal["action"] as? String ?? "Ask Oracle",
+                project: secondSignal["project"] as? String ?? "General Brain",
+                source: "Radar",
+                sourceID: secondSignal["id"] as? String ?? "",
+                score: max((secondSignal["score"] as? Int ?? 0) - 4, 50),
+                symbol: secondSignal["symbol"] as? String ?? "scope",
+                path: secondSignal["path"] as? String ?? ""
+            ))
+        }
+
+        if let gap = setup.first(where: { ($0["state"] as? String) == "Attention" }) {
+            let title = gap["title"] as? String ?? "Setup gap"
+            items.append(card(
+                id: "setup-\(gap["id"] as? String ?? title)",
+                title: "System assumption to verify",
+                why: gap["detail"] as? String ?? "A readiness gap can make every agent answer less trustworthy.",
+                question: "Does this gap change which agent work is safe to delegate?",
+                nextAction: gap["action"] as? String ?? "Open System",
+                project: "System",
+                source: "Setup",
+                sourceID: gap["id"] as? String ?? "",
+                score: 70,
+                symbol: gap["symbol"] as? String ?? "exclamationmark.triangle.fill",
+                path: ""
+            ))
+        }
+
+        if items.isEmpty {
+            items.append(card(
+                id: "fallback",
+                title: "No blindspot candidate is strong enough yet",
+                why: "The current local scan did not find stale review debt, delegated work, project drift, or resurfacing open loops.",
+                question: "What changed since the last sync that is not represented in durable memory?",
+                nextAction: "Capture Idea",
+                project: "General Brain",
+                source: "Fallback",
+                sourceID: "fallback",
+                score: 40,
+                symbol: "sparkle.magnifyingglass",
+                path: ""
+            ))
+        }
+
+        let ranked = dedupe(items).sorted { ($0["score"] as? Int ?? 0) > ($1["score"] as? Int ?? 0) }
+        return [
+            "generatedAt": generatedAt,
+            "mode": "blindspot-brief",
+            "headline": ranked.first?["title"] as? String ?? "Ask what is missing",
+            "items": Array(ranked.prefix(6))
+        ]
+    }
+
+    static func markdown() async -> String {
+        let payload = await blindspots()
+        let items = (payload["items"] as? [[String: Any]]) ?? []
+        var lines: [String] = [
+            "# Terminal Brain Blindspot Brief",
+            "",
+            "Generated: \(payload["generatedAt"] as? String ?? ISO8601DateFormatter().string(from: Date()))",
+            "",
+            "Use this as the counterweight to the normal focus lane: the things that may be ignored, stale, under-tested, or not yet turned into an artifact.",
+            ""
+        ]
+
+        for (index, item) in items.enumerated() {
+            lines.append("## \(index + 1). \(item["title"] as? String ?? "Blindspot")")
+            lines.append("- Score: \(item["score"] as? Int ?? 0)")
+            lines.append("- Project: \(item["project"] as? String ?? "General Brain")")
+            lines.append("- Next action: \(item["nextAction"] as? String ?? "Ask Oracle")")
+            lines.append("- Question: \(item["question"] as? String ?? "What am I not considering?")")
+            lines.append("- Why: \(item["why"] as? String ?? "")")
+            let source = item["source"] as? String ?? ""
+            let sourceID = item["sourceID"] as? String ?? ""
+            if !source.isEmpty || !sourceID.isEmpty {
+                lines.append("- Source: \(source) \(sourceID)")
+            }
+            if let path = item["path"] as? String, !path.isEmpty {
+                lines.append("- Path: \(path)")
+            }
+            lines.append("")
+        }
+
+        return lines.joined(separator: "\n")
+    }
+
+    private static func card(id: String, title: String, why: String, question: String, nextAction: String, project: String, source: String, sourceID: String, score: Int, symbol: String, path: String) -> [String: Any] {
+        [
+            "id": id,
+            "title": title,
+            "why": why,
+            "question": question,
+            "nextAction": nextAction,
+            "project": project,
+            "source": source,
+            "sourceID": sourceID,
+            "score": min(max(score, 0), 100),
+            "symbol": symbol,
+            "path": path
+        ]
+    }
+
+    private static func dedupe(_ items: [[String: Any]]) -> [[String: Any]] {
+        var seen = Set<String>()
+        var output: [[String: Any]] = []
+        for item in items {
+            let key = "\(item["title"] ?? "")-\(item["project"] ?? "")-\(item["sourceID"] ?? "")".lowercased()
+            guard !seen.contains(key) else { continue }
+            seen.insert(key)
+            output.append(item)
+        }
+        return output
+    }
+}
+
 enum BrainSnapshot {
     static func snapshot() async -> [String: Any] {
         let generatedAt = ISO8601DateFormatter().string(from: Date())
@@ -1644,6 +1874,7 @@ enum BrainSnapshot {
         let deckPayload = await OperatorDeckSnapshot.deck()
         let focus = await FocusSnapshot.focus()
         let radarPayload = await RadarSnapshot.radar()
+        let blindspotPayload = await BlindspotSnapshot.blindspots()
         let setupPayload = await SetupSnapshot.setup()
         let todayPayload = await TodaySnapshot.today()
         let commitsPayload = OracleSnapshot.commits()
@@ -1658,6 +1889,7 @@ enum BrainSnapshot {
             generatedAt: generatedAt,
             focus: focus,
             radarItems: Array(radarItems.prefix(5)),
+            blindspots: Array((blindspotPayload["items"] as? [[String: Any]] ?? []).prefix(5)),
             setupSteps: attentionSteps(from: setupSteps),
             todayCommands: Array(todayCommands.prefix(5)),
             operatorBrief: (briefPayload["items"] as? [[String: Any]]) ?? [],
@@ -1671,12 +1903,13 @@ enum BrainSnapshot {
         renderMarkdown(snapshot: await snapshot())
     }
 
-    private static func payload(generatedAt: String, focus: [String: Any], radarItems: [[String: Any]], setupSteps: [[String: Any]], todayCommands: [[String: Any]], operatorBrief: [[String: Any]], operatorDeck: [[String: Any]], memoryTrail: [[String: Any]], suggestedActions: [String]) -> [String: Any] {
+    private static func payload(generatedAt: String, focus: [String: Any], radarItems: [[String: Any]], blindspots: [[String: Any]], setupSteps: [[String: Any]], todayCommands: [[String: Any]], operatorBrief: [[String: Any]], operatorDeck: [[String: Any]], memoryTrail: [[String: Any]], suggestedActions: [String]) -> [String: Any] {
         var result: [String: Any] = [:]
         result["generatedAt"] = generatedAt
         result["mode"] = "operator-snapshot"
         result["focus"] = focus
         result["radar"] = radarItems
+        result["blindspots"] = blindspots
         result["setupAttention"] = setupSteps
         result["today"] = todayCommands
         result["operatorBrief"] = operatorBrief
@@ -1712,6 +1945,7 @@ enum BrainSnapshot {
         let operatorBrief = snapshot["operatorBrief"] as? [[String: Any]] ?? []
         let operatorDeck = snapshot["operatorDeck"] as? [[String: Any]] ?? []
         let radar = snapshot["radar"] as? [[String: Any]] ?? []
+        let blindspots = snapshot["blindspots"] as? [[String: Any]] ?? []
         let trail = snapshot["memoryTrail"] as? [[String: Any]] ?? []
         let actions = snapshot["suggestedActions"] as? [String] ?? []
 
@@ -1764,6 +1998,16 @@ enum BrainSnapshot {
         if radar.isEmpty { lines.append("- No radar signals.") }
         lines.append("")
 
+        lines.append("## Blindspot Brief")
+        lines.append(contentsOf: blindspots.prefix(5).map { item in
+            let score = item["score"] as? Int ?? 0
+            let title = item["title"] as? String ?? "Blindspot"
+            let question = item["question"] as? String ?? "What am I not considering?"
+            return "- [\(score)] \(title): \(question)"
+        })
+        if blindspots.isEmpty { lines.append("- No blindspot candidates.") }
+        lines.append("")
+
         lines.append("## Memory Trail")
         lines.append(contentsOf: trail.prefix(5).map { item in
             let title = item["title"] as? String ?? "Memory"
@@ -1781,6 +2025,7 @@ enum BrainHandoffSnapshot {
     static func markdown() async -> String {
         let generated = ISO8601DateFormatter().string(from: Date())
         let brief = await OperatorBriefSnapshot.markdown()
+        let blindspots = await BlindspotSnapshot.markdown()
         let decisions = await TodaySnapshot.markdown()
         let deck = await OperatorDeckSnapshot.markdown()
         let projects = ProjectSnapshot.markdown()
@@ -1793,6 +2038,7 @@ enum BrainHandoffSnapshot {
             "## How To Use This",
             "- Start with the Operator Brief for plain-language value, then use the Operator Deck for concrete actions.",
             "- Treat the first action card as the default next move unless new evidence contradicts it.",
+            "- Read the Blindspot Brief before broad planning; it lists the thing most likely to be ignored or left unresolved.",
             "- Use the Decision Lane as the ranked execution queue before asking broad follow-up questions.",
             "- Use Project Memory to keep agent work attached to durable work surfaces.",
             "- Use the latest context pack as the working memory bundle for implementation, review, or planning.",
@@ -1801,12 +2047,17 @@ enum BrainHandoffSnapshot {
             "",
             "## Contents",
             "- Operator Brief: plain-language value read.",
+            "- Blindspot Brief: counter-signal for ignored, stale, or under-tested work.",
             "- Decision Lane: ranked execution queue.",
             "- Operator Deck: four action cards.",
             "- Project Memory: active work surfaces and source paths.",
             "- Latest Context Pack: freshest working-memory bundle.",
             "",
             brief,
+            "",
+            "---",
+            "",
+            blindspots,
             "",
             "---",
             "",

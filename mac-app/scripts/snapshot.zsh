@@ -23,6 +23,9 @@ while [[ $# -gt 0 ]]; do
     --today|--decision-lane)
       FORMAT="today"
       ;;
+    --blindspots|--blindspot-brief)
+      FORMAT="blindspots"
+      ;;
     --projects)
       FORMAT="projects"
       ;;
@@ -55,7 +58,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     --help|-h)
       cat <<'EOF'
-Usage: ./mac-app/scripts/snapshot.zsh [--markdown|--json|--brief|--brief-markdown|--today|--projects|--deck|--deck-markdown|--latest-pack] [--copy] [--output FILE]
+Usage: ./mac-app/scripts/snapshot.zsh [--markdown|--json|--brief|--brief-markdown|--today|--blindspots|--projects|--deck|--deck-markdown|--latest-pack] [--copy] [--output FILE]
 
 Prints the current Terminal Brain operator snapshot from an already-running app.
 This script never launches or foregrounds Terminal Brain.
@@ -67,6 +70,8 @@ Options:
   --brief-markdown
               Print prompt-ready Operator Brief Markdown.
   --today     Print prompt-ready Decision Lane Markdown.
+  --blindspots
+              Print prompt-ready Blindspot Brief Markdown.
   --projects  Print prompt-ready Project Memory Markdown.
   --deck      Print raw Operator Deck JSON.
   --deck-markdown
@@ -108,6 +113,9 @@ case "$FORMAT" in
     ;;
   today)
     OUTPUT="$(curl -fsS "$API/today/markdown")"
+    ;;
+  blindspots)
+    OUTPUT="$(curl -fsS "$API/blindspots/markdown")"
     ;;
   projects)
     OUTPUT="$(curl -fsS "$API/projects/markdown")"

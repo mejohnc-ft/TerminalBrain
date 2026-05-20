@@ -13,6 +13,8 @@
   "GET /today",
   "GET /today/markdown",
   "GET /focus",
+  "GET /blindspots",
+  "GET /blindspots/markdown",
   "GET /operator-brief",
   "GET /operator-brief/markdown",
   "GET /operator-deck",
