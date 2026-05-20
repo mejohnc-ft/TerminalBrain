@@ -305,6 +305,7 @@ rm -rf "$recent_work_workspace"
 covered_recent_workspace="$(mktemp -d)"
 latest_subject="$(git -C "$ROOT" log -1 --pretty=%s)"
 latest_short="$(git -C "$ROOT" log -1 --pretty=%h)"
+commit_count="$(git -C "$ROOT" rev-list --count --max-count=2 HEAD)"
 LATEST_SUBJECT="$latest_subject" LATEST_SHORT="$latest_short" WORKSPACE="$covered_recent_workspace" ruby -rfileutils -rtime -e '
   workspace = ENV.fetch("WORKSPACE")
   inbox = File.join(workspace, "Oracle Inbox")
@@ -330,12 +331,25 @@ LATEST_SUBJECT="$latest_subject" LATEST_SHORT="$latest_short" WORKSPACE="$covere
     Commit #{ENV.fetch("LATEST_SHORT")} is already covered by accepted memory: #{ENV.fetch("LATEST_SUBJECT")}.
   MARKDOWN
 '
-covered_recent_output="$(TERMINAL_BRAIN_WORKSPACE="$covered_recent_workspace" "$ROOT/mac-app/scripts/recent-work.zsh" --index 1 --dry-run)"
-require_not_contains_literal "$covered_recent_output" "$latest_subject" "covered latest commit in recent-work dry run"
-covered_bubble_output="$(TERMINAL_BRAIN_WORKSPACE="$covered_recent_workspace" "$ROOT/mac-app/scripts/bubble-up.zsh" --limit 3)"
-covered_bubble_recent_section="$(printf '%s\n' "$covered_bubble_output" | ruby -e 'text = STDIN.read; puts text[/## Recent Work Signals.*?(?=\n## |\z)/m].to_s')"
-require_contains "$covered_bubble_recent_section" 'Recent Work Signals' "covered bubble recent work section"
-require_not_contains_literal "$covered_bubble_recent_section" "$latest_subject" "covered latest commit in Bubble Up recent work lane"
+if (( commit_count > 1 )); then
+  covered_recent_output="$(TERMINAL_BRAIN_WORKSPACE="$covered_recent_workspace" "$ROOT/mac-app/scripts/recent-work.zsh" --index 1 --dry-run)"
+  require_not_contains_literal "$covered_recent_output" "$latest_subject" "covered latest commit in recent-work dry run"
+  covered_bubble_output="$(TERMINAL_BRAIN_WORKSPACE="$covered_recent_workspace" "$ROOT/mac-app/scripts/bubble-up.zsh" --limit 3)"
+  covered_bubble_recent_section="$(printf '%s\n' "$covered_bubble_output" | ruby -e 'text = STDIN.read; puts text[/## Recent Work Signals.*?(?=\n## |\z)/m].to_s')"
+  require_contains "$covered_bubble_recent_section" 'Recent Work Signals' "covered bubble recent work section"
+  require_not_contains_literal "$covered_bubble_recent_section" "$latest_subject" "covered latest commit in Bubble Up recent work lane"
+else
+  set +e
+  covered_recent_output="$(TERMINAL_BRAIN_WORKSPACE="$covered_recent_workspace" "$ROOT/mac-app/scripts/recent-work.zsh" --index 1 --dry-run 2>&1)"
+  covered_recent_status=$?
+  set -e
+  if [[ "$covered_recent_status" != "66" ]]; then
+    echo "Entrypoint check failed: covered one-commit recent-work should exit 66" >&2
+    echo "$covered_recent_output" >&2
+    exit 1
+  fi
+  require_contains "$covered_recent_output" 'No uncaptured recent work signal' "covered one-commit recent-work empty state"
+fi
 rm -rf "$covered_recent_workspace"
 
 proof_output="$(TERMINAL_BRAIN_PROOF_API="$CLOSED_API" "$ROOT/mac-app/scripts/prove-value.zsh")"
