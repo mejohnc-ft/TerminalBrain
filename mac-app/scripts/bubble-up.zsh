@@ -128,12 +128,24 @@ WORKSPACE="$WORKSPACE" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtime -e '
     puts "## Direct Read"
     puts
     puts "- No Oracle Inbox exists yet."
-    puts "- Capture one thought, then rerun Bubble Up."
+    puts "- Prime the brain with one real pressure point, then rerun Bubble Up."
+    puts
+    puts "## Prime The Brain"
+    puts
+    puts "Pick the line that feels most true right now. The goal is not perfect capture; it is to create one reviewable signal the system can work with."
     puts
     puts "```zsh"
-    puts "make idea IDEA=\"...\" PROJECT=\"Terminal Brain\""
+    puts "make idea TITLE=\"Decision pressure\" IDEA=\"The decision I keep circling is ...\" PROJECT=\"Terminal Brain\""
+    puts "make idea TITLE=\"Neglected idea\" IDEA=\"The idea I do not want to lose is ...\" PROJECT=\"Terminal Brain\""
+    puts "make idea TITLE=\"Open loop\" IDEA=\"The loose end that will cost me later is ...\" PROJECT=\"Terminal Brain\""
     puts "make bubble-up"
     puts "```"
+    puts
+    puts "## Done Criteria"
+    puts
+    puts "- One idea is captured."
+    puts "- Bubble Up shows a highest-signal item."
+    puts "- The next work block has something concrete to accept, delegate, dismiss, or turn into an outcome."
     puts
     puts "## Guardrail"
     puts
@@ -175,7 +187,7 @@ WORKSPACE="$WORKSPACE" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtime -e '
   puts
   if reviewable.empty?
     puts "- Nothing reviewable is currently waiting."
-    puts "- Capture a current question or decision pressure, then rerun this."
+    puts "- Prime the brain with one current question, decision pressure, or loose end."
   else
     puts "- Reviewable items: #{reviewable.length}"
     puts "- New: #{counts["new"]}; delegated: #{counts["delegated"]}; linked: #{counts["linked"]}; accepted: #{counts["accepted"]}"
@@ -186,7 +198,8 @@ WORKSPACE="$WORKSPACE" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtime -e '
   puts "## What You May Not Be Considering"
   puts
   if reviewable.empty?
-    puts "- There is no local signal to challenge you yet."
+    puts "- There is no local signal to challenge you yet. That is a setup problem, not a thinking problem."
+    puts "- Capture the pressure point you would otherwise keep in your head."
   else
     if oldest_new
       puts "- Old unreviewed thought: #{oldest_new[:title]} has been sitting for #{age_label(oldest_new[:age_hours])}."
@@ -207,6 +220,17 @@ WORKSPACE="$WORKSPACE" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtime -e '
   puts
   if ranked.empty?
     puts "No items matched."
+    puts
+    puts "## Prime The Brain"
+    puts
+    puts "Use one of these starter captures to create the first useful signal:"
+    puts
+    puts "```zsh"
+    puts "make idea TITLE=\"Decision pressure\" IDEA=\"The decision I keep circling is ...\" PROJECT=\"Terminal Brain\""
+    puts "make idea TITLE=\"Neglected idea\" IDEA=\"The idea I do not want to lose is ...\" PROJECT=\"Terminal Brain\""
+    puts "make idea TITLE=\"Open loop\" IDEA=\"The loose end that will cost me later is ...\" PROJECT=\"Terminal Brain\""
+    puts "make work-block"
+    puts "```"
   else
     ranked.first(limit).each_with_index do |item, index|
       puts "### #{index + 1}. #{item[:title]}"

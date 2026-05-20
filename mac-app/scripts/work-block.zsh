@@ -54,6 +54,8 @@ echo "2. Accept, delegate, dismiss, or link it with the printed command."
 echo "3. Do the smallest useful work."
 echo "4. Commit the outcome back into memory."
 echo
+echo "If there are no signals yet, use the Prime The Brain prompts below to capture one real pressure point first."
+echo
 echo '```zsh'
 echo "make outcome TITLE=\"...\" OUTCOME=\"...\" PROJECT=\"${PROJECT:-Terminal Brain}\" NEXT=\"...\""
 echo '```'
