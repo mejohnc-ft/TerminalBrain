@@ -71,6 +71,7 @@ require_contains "$start_here_output" 'did not launch or foreground' "start here
 use_now_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/use-now.zsh" --project "Terminal Brain" --limit 1)"
 require_contains "$use_now_output" '# Terminal Brain Use Now' "use now title"
 require_contains "$use_now_output" 'What You Get In 60 Seconds' "use now value section"
+require_contains "$use_now_output" '## One Move' "use now one move section"
 require_contains "$use_now_output" 'Current Work Block' "use now work block section"
 require_contains "$use_now_output" 'Recent Work Signals' "use now preserves recent work signal section"
 require_contains "$use_now_output" 'make recent-work INDEX=1' "use now top recent-work action"

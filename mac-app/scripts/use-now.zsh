@@ -84,6 +84,26 @@ demote_work_block() {
   '
 }
 
+one_move_from_work_block() {
+  awk '
+    /^## Pull Forward$/ { pull_forward = 1; next }
+    pull_forward && /^```zsh$/ { in_code = 1; note = ""; next }
+    pull_forward && in_code && /^```$/ { in_code = 0; note = ""; next }
+    pull_forward && in_code && /^NOTE=/ { note = $0; next }
+    pull_forward && in_code && /^make review-status / {
+      if (note != "") { print note }
+      print
+      found = 1
+      exit
+    }
+    pull_forward && in_code && /^make recent-work INDEX=/ { print; found = 1; exit }
+    pull_forward && in_code && /^make idea / { print; found = 1; exit }
+    END {
+      if (!found) { print "make agent-prompt" }
+    }
+  '
+}
+
 echo "# Terminal Brain Use Now"
 echo
 echo "This is the one-command path when you do not want to think about which Terminal Brain surface to use."
@@ -125,9 +145,19 @@ if [[ -n "$IDEA_TEXT" ]]; then
   fi
   echo
 fi
+
+work_block_output="$("$ROOT/mac-app/scripts/work-block.zsh" --project "$PROJECT" --limit "$LIMIT")"
+one_move="$(printf '%s\n' "$work_block_output" | one_move_from_work_block)"
+
+echo "## One Move"
+echo
+echo '```zsh'
+printf '%s\n' "$one_move"
+echo '```'
+echo
 echo "## Current Work Block"
 echo
-"$ROOT/mac-app/scripts/work-block.zsh" --project "$PROJECT" --limit "$LIMIT" | demote_work_block
+printf '%s\n' "$work_block_output" | demote_work_block
 echo
 echo "## Ask, Capture, Delegate, Close"
 echo
