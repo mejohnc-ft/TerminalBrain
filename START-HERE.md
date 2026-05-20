@@ -64,6 +64,8 @@ Terminal Brain is useful when it turns scattered local context into one work blo
    make agent-prompt
    ```
 
+   If the app is closed, `make agent-prompt` returns a safe fallback prompt instead of launching Terminal Brain.
+
 3. If the task needs local memory, build or read the latest context pack:
 
    ```zsh

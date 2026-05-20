@@ -33,7 +33,7 @@ help:
 	@echo "  make snapshot-deck Print Operator Deck JSON from an already-running app"
 	@echo "  make snapshot-deck-md Print Operator Deck Markdown from an already-running app"
 	@echo "  make latest-pack   Print latest context pack Markdown from an already-running app"
-	@echo "  make agent-prompt  Print focused agent execution prompt from an already-running app"
+	@echo "  make agent-prompt  Non-launching focused agent prompt with closed-app fallback"
 	@echo "  make start-here    Print one-block Start Here path from an already-running app"
 	@echo "  make handoff OUTPUT=/tmp/terminal-brain-handoff.md"
 	@echo "  make snapshot-file OUTPUT=/tmp/terminal-brain-snapshot.md"
@@ -137,7 +137,7 @@ latest-pack:
 	./mac-app/scripts/snapshot.zsh --latest-pack
 
 agent-prompt:
-	./mac-app/scripts/snapshot.zsh --agent-prompt
+	./mac-app/scripts/agent-prompt.zsh
 
 start-here:
 	./mac-app/scripts/snapshot.zsh --start-here

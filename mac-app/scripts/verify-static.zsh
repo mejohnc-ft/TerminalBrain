@@ -43,6 +43,7 @@ for script in \
   "$ROOT/mac-app/scripts/next.zsh" \
   "$ROOT/mac-app/scripts/value.zsh" \
   "$ROOT/mac-app/scripts/oracle-brief.zsh" \
+  "$ROOT/mac-app/scripts/agent-prompt.zsh" \
   "$ROOT/mac-app/scripts/doctor.zsh" \
   "$ROOT/mac-app/scripts/audit.zsh" \
   "$ROOT/mac-app/scripts/handoff.zsh" \

@@ -1083,6 +1083,24 @@ function oracleBriefMarkdown() {
   ].join("\n");
 }
 
+function agentPromptMarkdown() {
+  const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "agent-prompt.zsh")], { timeout: 15000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Agent Prompt",
+    "",
+    "Agent Prompt failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 function cleanupPlanMarkdown() {
   const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "cleanup-plan.zsh")], { timeout: 10000 });
   if (result.ok) return result.text;
@@ -1233,7 +1251,7 @@ async function callTool(name, args = {}) {
     case "terminal_brain_handoff_markdown":
       return api("/handoff/markdown", { rawText: true });
     case "terminal_brain_agent_prompt_markdown":
-      return api("/agent-prompt/markdown", { rawText: true });
+      return agentPromptMarkdown();
     case "terminal_brain_start_here_markdown":
       return api("/start-here/markdown", { rawText: true });
     case "terminal_brain_sources":
