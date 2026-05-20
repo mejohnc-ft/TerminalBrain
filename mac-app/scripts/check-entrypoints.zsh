@@ -25,6 +25,7 @@ call_mcp_tool() {
 next_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/next.zsh")"
 require_contains "$next_output" '# Terminal Brain Next' "next title"
 require_contains "$next_output" 'make oracle-brief' "next closed-app Oracle Brief command"
+require_contains "$next_output" 'make bubble-up' "next closed-app Bubble Up command"
 require_contains "$next_output" 'make agent-prompt' "next closed-app Agent Prompt command"
 require_contains "$next_output" 'make outcome' "next closed-app outcome command"
 require_contains "$next_output" 'did not launch or foreground' "next guardrail"
@@ -43,6 +44,7 @@ require_contains "$value_output" 'make doctor' "value doctor command"
 
 now_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/now.zsh")"
 require_contains "$now_output" '# Terminal Brain Now' "now title"
+require_contains "$now_output" 'make bubble-up' "now Bubble Up command"
 require_contains "$now_output" 'make outcome' "now outcome command"
 require_contains "$now_output" 'did not launch, foreground, quit, kill, or control' "now guardrail"
 
@@ -54,6 +56,7 @@ require_contains "$doctor_output" 'doctor did not launch or foreground' "doctor 
 agent_prompt_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/agent-prompt.zsh")"
 require_contains "$agent_prompt_output" '# Terminal Brain Agent Prompt' "agent prompt title"
 require_contains "$agent_prompt_output" 'make oracle-brief' "agent prompt fallback command"
+require_contains "$agent_prompt_output" 'make bubble-up' "agent prompt Bubble Up command"
 require_contains "$agent_prompt_output" 'did not launch, foreground, quit, kill, or control' "agent prompt guardrail"
 
 outcome_workspace="$(mktemp -d)"
@@ -109,6 +112,7 @@ require_contains "$proof_output" 'Temporary Note Preview' "value proof note prev
 mcp_next_output="$(call_mcp_tool terminal_brain_next_markdown)"
 require_contains "$mcp_next_output" '# Terminal Brain Next' "MCP next title"
 require_contains "$mcp_next_output" 'make oracle-brief' "MCP next Oracle Brief fallback"
+require_contains "$mcp_next_output" 'make bubble-up' "MCP next Bubble Up fallback"
 require_contains "$mcp_next_output" 'make agent-prompt' "MCP next Agent Prompt fallback"
 require_contains "$mcp_next_output" 'make outcome' "MCP next outcome fallback"
 
@@ -120,6 +124,7 @@ require_contains "$mcp_first_minute_output" 'reviewStatus.*accepted' "MCP first 
 
 mcp_now_output="$(call_mcp_tool terminal_brain_now_markdown)"
 require_contains "$mcp_now_output" '# Terminal Brain Now' "MCP now title"
+require_contains "$mcp_now_output" 'make bubble-up' "MCP now Bubble Up command"
 require_contains "$mcp_now_output" 'make outcome' "MCP now outcome command"
 
 mcp_value_output="$(call_mcp_tool terminal_brain_value_now_markdown)"
@@ -168,6 +173,7 @@ rm -rf "$mcp_review_workspace"
 mcp_agent_prompt_output="$(call_mcp_tool terminal_brain_agent_prompt_markdown)"
 require_contains "$mcp_agent_prompt_output" '# Terminal Brain Agent Prompt' "MCP agent prompt title"
 require_contains "$mcp_agent_prompt_output" 'make oracle-brief' "MCP agent prompt closed fallback"
+require_contains "$mcp_agent_prompt_output" 'make bubble-up' "MCP agent prompt Bubble Up command"
 
 mcp_process_output="$(call_mcp_tool terminal_brain_process_map_markdown)"
 require_contains "$mcp_process_output" '# Terminal Brain Process Map' "MCP process map title"
@@ -181,6 +187,7 @@ mcp_support_output="$(call_mcp_tool terminal_brain_support_bundle_markdown)"
 require_contains "$mcp_support_output" '# Terminal Brain Support Bundle' "MCP support bundle title"
 require_contains "$mcp_support_output" '# Now' "MCP support bundle now section"
 require_contains "$mcp_support_output" '# Oracle Brief' "MCP support bundle Oracle Brief section"
+require_contains "$mcp_support_output" '# Bubble Up' "MCP support bundle Bubble Up section"
 require_contains "$mcp_support_output" '# Cleanup Plan' "MCP support bundle cleanup section"
 
 mcp_doctor_output="$(call_mcp_tool terminal_brain_doctor_markdown)"

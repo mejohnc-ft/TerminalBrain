@@ -12,6 +12,7 @@ Usage: OUTPUT=/tmp/terminal-brain-support-bundle.md ./mac-app/scripts/support-bu
 Writes a non-launching Markdown support bundle:
   - Now orientation
   - Oracle Brief
+  - Bubble Up
   - Doctor readiness
   - Capability audit
   - Process map
@@ -70,6 +71,7 @@ mkdir -p "$(dirname "$OUTPUT")"
 
   run_section "Now" "$ROOT/mac-app/scripts/now.zsh"
   run_section "Oracle Brief" "$ROOT/mac-app/scripts/oracle-brief.zsh"
+  run_section "Bubble Up" "$ROOT/mac-app/scripts/bubble-up.zsh"
   run_section "Doctor" "$ROOT/mac-app/scripts/doctor.zsh"
   run_section "Capability Audit" "$ROOT/mac-app/scripts/audit.zsh"
   run_section "Process Map" "$ROOT/mac-app/scripts/processes.zsh" --details

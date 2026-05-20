@@ -31,6 +31,12 @@ Terminal Brain is useful when it turns scattered local context into one work blo
    `make oracle-brief` gives the direct read: what to do next, what may be missing, the cheapest test, and the agent handoff.
 
    ```zsh
+   make bubble-up
+   ```
+
+   `make bubble-up` surfaces neglected ideas, delegated loops, and repeated project pressure from the Oracle Inbox.
+
+   ```zsh
    make next
    ```
 
@@ -96,7 +102,8 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 - `Status` shows repo, CI, process, launchctl, and API state without touching app focus.
 - `Processes` separates app/runtime focus stealers from Codex, MCP, kernel, brain-console, and Drafts background noise.
 - `Cleanup Plan` prints stale MCP/kernel candidates and manual review commands without terminating anything.
-- `Support Bundle` writes Now, Oracle Brief, Doctor, Audit, Process Map, Cleanup Plan, and Git state into one Markdown file.
+- `Bubble Up` surfaces neglected ideas, delegated loops, and repeated project pressure.
+- `Support Bundle` writes Now, Oracle Brief, Bubble Up, Doctor, Audit, Process Map, Cleanup Plan, and Git state into one Markdown file.
 - `Doctor` checks app install, MCP contract, agent config references, and runtime readiness.
 - `Oracle Digest` says what to notice, decide, test, create, and avoid.
 - `Agent Prompt` turns the current signal into a bounded Codex/Claude task.

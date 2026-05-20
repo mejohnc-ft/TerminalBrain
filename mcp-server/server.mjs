@@ -1016,38 +1016,20 @@ async function runtimeStatus() {
 }
 
 async function nextMarkdown() {
-  const health = await apiHealth();
-  if (health.reachable) {
-    const response = await fetch(`${API}/start-here/markdown`);
-    const text = await response.text();
-    if (response.ok) return text;
-  }
-
-  const status = await runtimeStatus();
+  const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "next.zsh")], { timeout: 15000 });
+  if (result.ok) return result.text;
   return [
     "# Terminal Brain Next",
     "",
-    `Terminal Brain is not currently reachable at ${API}.`,
+    "Next Move failed before completing.",
     "",
-    "## Next Move",
+    "## Error",
     "",
-    "Use the closed-app loop now:",
+    result.error || "Unknown error",
     "",
-    "```zsh",
-    "make oracle-brief",
-    "make agent-prompt",
-    "make outcome TITLE=\"...\" OUTCOME=\"...\" PROJECT=\"Terminal Brain\" NEXT=\"...\"",
-    "```",
+    "## Output",
     "",
-    "Open Terminal Brain manually only when you want the UI/API active. Then run:",
-    "",
-    "```zsh",
-    "make start-here",
-    "```",
-    "",
-    "## Runtime State",
-    "",
-    runtimeStatusMarkdown(status)
+    result.text || "(no output)"
   ].join("\n");
 }
 

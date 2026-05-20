@@ -13,6 +13,7 @@ make now
 make first-minute
 make prove-value
 make value
+make bubble-up
 make next
 make doctor
 make processes
@@ -84,7 +85,7 @@ Plain `make` prints help. `make verify`, `make first-minute`, `make now`, `make 
 - Now orientation: `make now`, `/now`, `/now/markdown`, `terminal_brain_now`, `terminal_brain_now_markdown`, Copy Now in the app/menu bar, and the Copy Now App Shortcut give structured and Markdown views of the bottom line, next action, process truth, readiness, and outcome close loop.
 - Process Map for "what is still going": `make processes`, `/process-map/markdown`, `terminal_brain_process_map_markdown`, Copy Process Map in the app/menu bar, and the Copy Process Map App Shortcut separate real focus stealers from agent runtime noise by listing Terminal Brain app state, launchctl, API reachability, Codex sessions, MCP children, brain-kernel children, brain-console helpers, and Drafts processes without launching or killing anything.
 - Cleanup Plan for stale runtime noise: `make cleanup-plan`, `/cleanup-plan/markdown`, `terminal_brain_cleanup_plan_markdown`, Copy Cleanup Plan in the app/menu bar, and the Copy Cleanup Plan App Shortcut print candidate MCP/kernel child processes, Codex parent context, and manual review/kill commands without terminating anything.
-- Support Bundle: `make support-bundle`, `/support-bundle/markdown`, `terminal_brain_support_bundle_markdown`, Copy Support Bundle in the app/menu bar, and the Copy Support Bundle App Shortcut write Now, Oracle Brief, Doctor, Audit, Process Map, Cleanup Plan, and Git state into one Markdown artifact for troubleshooting without launching or controlling anything.
+- Support Bundle: `make support-bundle`, `/support-bundle/markdown`, `terminal_brain_support_bundle_markdown`, Copy Support Bundle in the app/menu bar, and the Copy Support Bundle App Shortcut write Now, Oracle Brief, Bubble Up, Doctor, Audit, Process Map, Cleanup Plan, and Git state into one Markdown artifact for troubleshooting without launching or controlling anything.
 - Native First Minute landing surface so the app opens on the shortest value path, next action, agent handoff, and proof loop instead of a metrics-first dashboard.
 - Agent Prompt generator that turns the Oracle Digest and Value Brief into a concise Codex/Claude execution prompt with acceptance criteria and guardrails.
 - Structured Outcome commit endpoint/tool/CLI so agents can write back what changed, evidence, and next action without launching the app; if the app is closed, `make outcome` writes an accepted note directly into the workspace Oracle Inbox.
