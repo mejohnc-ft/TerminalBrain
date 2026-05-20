@@ -94,6 +94,11 @@ printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal
     '
 
 node --check "$ROOT/mcp-server/server.mjs" >/dev/null
-swiftc -typecheck "$ROOT"/mac-app/Sources/TerminalBrain/*.swift
+swiftc \
+  -framework SwiftUI \
+  -framework AppKit \
+  -framework Network \
+  -framework AppIntents \
+  -typecheck "$ROOT"/mac-app/Sources/TerminalBrain/*.swift
 
 echo "terminal brain live verification passed"

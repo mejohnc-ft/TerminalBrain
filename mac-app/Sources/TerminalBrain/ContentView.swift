@@ -1953,7 +1953,7 @@ struct ContentView: View {
             SystemSurfaceCard(title: "Control API", value: "127.0.0.1:8765", detail: "Local-only gateway for agents and MCP.", symbol: "network")
             SystemSurfaceCard(title: "Widget", value: "Next", detail: "A desktop/Notification Center widget should show prompt-safety, sync age, and Mission points.", symbol: "rectangle.on.rectangle")
             SystemSurfaceCard(title: "Login Item", value: "Next", detail: "Launch at login after the gateway has a signed release bundle.", symbol: "power")
-            SystemSurfaceCard(title: "Shortcuts", value: "Next", detail: "Expose Run Sync and Start Work as App Shortcuts for Spotlight/Siri/automation.", symbol: "wand.and.stars")
+            SystemSurfaceCard(title: "Shortcuts", value: "Native", detail: "App Shortcuts expose Copy Deck, Copy Snapshot, and Run Sync to Spotlight, Siri, and automation.", symbol: "wand.and.stars")
         }
     }
 

@@ -17,6 +17,7 @@ swiftc \
   -framework SwiftUI \
   -framework AppKit \
   -framework Network \
+  -framework AppIntents \
   "$ROOT"/Sources/TerminalBrain/*.swift \
   -o "$MACOS/TerminalBrain"
 

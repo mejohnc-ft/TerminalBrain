@@ -34,7 +34,12 @@ zsh -n "$ROOT"/mac-app/scripts/*.zsh
 node --check "$ROOT/mcp-server/server.mjs" >/dev/null
 node --check "$ROOT/mcp-server/check-tools.mjs" >/dev/null
 node "$ROOT/mcp-server/check-tools.mjs"
-swiftc -typecheck "$ROOT"/mac-app/Sources/TerminalBrain/*.swift
+swiftc \
+  -framework SwiftUI \
+  -framework AppKit \
+  -framework Network \
+  -framework AppIntents \
+  -typecheck "$ROOT"/mac-app/Sources/TerminalBrain/*.swift
 "$ROOT/mac-app/scripts/build-app.zsh" >/dev/null
 
 ! grep -RInE '(gho_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9]{20,}|BEGIN [A-Z ]*PRIVATE KEY|api[_-]?key[[:space:]]*[=:]|password[[:space:]]*[=:]|bearer[[:space:]]+[A-Za-z0-9._-]{20,})' \
