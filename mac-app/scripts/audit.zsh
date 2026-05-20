@@ -143,6 +143,7 @@ require_evidence "$ROOT/mac-app/scripts/recent-work.zsh" 'Terminal Brain Recent 
 require_evidence "$ROOT/mac-app/scripts/bubble-up.zsh" 'Decision pressure' "closed-app starter capture prompts"
 require_evidence "$ROOT/mac-app/scripts/work-block.zsh" 'Terminal Brain Work Block' "closed-app Work Block"
 require_evidence "$ROOT/mac-app/scripts/work-block.zsh" 'Prime The Brain' "closed-app Work Block empty-state guidance"
+require_evidence "$ROOT/mac-app/scripts/work-block.zsh" 'Next Clean Move' "closed-app Work Block no-open-item guidance"
 require_evidence "$ROOT/mac-app/scripts/oracle.zsh" 'local-fallback' "closed-app Oracle Ask fallback"
 require_evidence "$ROOT/mac-app/scripts/oracle.zsh" 'write_local_commit' "closed-app Oracle Ask commit fallback"
 require_evidence "$ROOT/mac-app/scripts/outcome.zsh" 'local-fallback' "closed-app outcome writeback fallback"

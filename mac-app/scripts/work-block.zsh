@@ -80,7 +80,25 @@ fi
 
 echo "## Pull Forward"
 echo
-"$ROOT/mac-app/scripts/bubble-up.zsh" "${bubble_args[@]}" | clean_section
+bubble_output="$("$ROOT/mac-app/scripts/bubble-up.zsh" "${bubble_args[@]}")"
+printf '%s\n' "$bubble_output" | clean_section
+echo
+if grep -q 'Open pull-forward items: 0' <<<"$bubble_output"; then
+  echo "## Next Clean Move"
+  echo
+  echo "No open review item is demanding triage. Start the next useful loop deliberately:"
+  echo
+  echo '```zsh'
+  echo "make recent-work INDEX=1"
+  echo "make idea TITLE=\"Decision pressure\" IDEA=\"The decision I keep circling is ...\" PROJECT=\"${PROJECT:-Terminal Brain}\""
+  echo "make agent-prompt"
+  echo '```'
+  echo
+  echo "- Use recent work when shipped code needs durable memory."
+  echo "- Use idea capture when the next signal is still in your head."
+  echo "- Use agent prompt when you already know the next bounded task."
+  echo
+fi
 echo
 echo "## Broader Queue"
 echo
