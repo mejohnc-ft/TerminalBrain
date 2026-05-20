@@ -42,7 +42,7 @@ Before committing code, run:
 ./mac-app/scripts/verify-static.zsh
 ```
 
-The static verifier includes a foreground guard that rejects script-level `open -a` calls.
+The static verifier includes a foreground guard that rejects script-level `open -a`, app-bundle `open`, AppleScript control, and Computer Use automation hooks in scripts and MCP tooling.
 
 Run live API/MCP verification only when Terminal Brain is already running and the user has not objected to localhost checks:
 
