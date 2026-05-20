@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 PROJECT="${PROJECT:-Terminal Brain}"
-LIMIT="${LIMIT:-2}"
+LIMIT="${LIMIT:-1}"
 IDEA_TEXT="${IDEA:-}"
 TITLE="${TITLE:-Use Now Capture}"
 SOURCE="${SOURCE:-Terminal Brain Use Now}"
@@ -75,6 +75,9 @@ demote_work_block() {
     skip_completed && /^## Next Clean Move$/ { skip_completed = 0; print "### Next Clean Move"; next }
     skip_completed && /^## Broader Queue$/ { skip_completed = 0; print "### Broader Queue"; next }
     skip_completed { next }
+    /^# Equivalent manual capture:$/ { skip_manual_capture = 1; next }
+    skip_manual_capture && /^make work-block$/ { skip_manual_capture = 0; next }
+    skip_manual_capture { next }
     /^## / { print "### " substr($0, 4); next }
     /^### / { print "#### " substr($0, 5); next }
     { print }
