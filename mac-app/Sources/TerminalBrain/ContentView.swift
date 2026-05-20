@@ -613,8 +613,8 @@ struct ContentView: View {
             HStack {
                 SectionTitle("Operator Deck", symbol: "rectangle.stack.fill")
                 Spacer()
-                if !model.deckCopyOutput.isEmpty {
-                    Text(model.deckCopyOutput)
+                if !model.handoffCopyOutput.isEmpty || !model.deckCopyOutput.isEmpty {
+                    Text(model.handoffCopyOutput.isEmpty ? model.deckCopyOutput : model.handoffCopyOutput)
                         .font(.caption.weight(.medium))
                         .foregroundStyle(.white.opacity(0.48))
                         .lineLimit(1)
@@ -627,6 +627,14 @@ struct ContentView: View {
                 .buttonStyle(.bordered)
                 .controlSize(.small)
                 .help("Copy Operator Deck Markdown")
+                Button {
+                    Task { await model.copyHandoff() }
+                } label: {
+                    Label("Handoff", systemImage: "doc.richtext")
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+                .help("Copy full agent handoff")
                 Text("Read left to right")
                     .font(.caption.weight(.bold))
                     .foregroundStyle(.white.opacity(0.42))
