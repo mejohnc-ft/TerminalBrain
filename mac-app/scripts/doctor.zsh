@@ -68,6 +68,24 @@ else
 fi
 echo
 
+echo "## CI"
+if command -v gh >/dev/null 2>&1; then
+  latest_run="$(gh run list --branch "${branch:-main}" --limit 1 2>/dev/null || true)"
+  if [[ -n "$latest_run" ]]; then
+    if grep -qE '^completed[[:space:]]+success' <<<"$latest_run"; then
+      ok "latest GitHub CI succeeded"
+    else
+      warn "latest GitHub CI is not green"
+    fi
+    printf '     %s\n' "$latest_run"
+  else
+    warn "no GitHub CI run found for branch ${branch:-main}"
+  fi
+else
+  warn "GitHub CLI unavailable; cannot read CI state"
+fi
+echo
+
 echo "## App"
 if [[ -d "$BUILT_APP" ]]; then
   ok "built app exists at $BUILT_APP"
