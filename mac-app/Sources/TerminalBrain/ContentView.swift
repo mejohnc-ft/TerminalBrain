@@ -77,6 +77,7 @@ struct ContentView: View {
             BrainCommand(title: "Open System", subtitle: "Native macOS surfaces and integration roadmap", symbol: "puzzlepiece.extension.fill", category: "Navigate", action: .section("system")),
             BrainCommand(title: "Run Sync", subtitle: "Refresh edge brain export with current permission policy", symbol: "arrow.triangle.2.circlepath", category: "Action", action: .runSync),
             BrainCommand(title: "Copy Operator Snapshot", subtitle: "Prompt-ready Focus, Radar, actions, and memory trail", symbol: "doc.on.clipboard", category: "Action", action: .copySnapshot),
+            BrainCommand(title: "Copy Start Here", subtitle: "One block, one artifact, one written outcome", symbol: "play.circle.fill", category: "Action", action: .copyStartHere),
             BrainCommand(title: "Copy Value Brief", subtitle: "Compact read on why the current move is worth attention", symbol: "bolt.fill", category: "Action", action: .copyValueBrief),
             BrainCommand(title: "Copy Oracle Digest", subtitle: "Notice, decide, test, create, and avoid lanes", symbol: "sparkle.magnifyingglass", category: "Action", action: .copyOracleDigest),
             BrainCommand(title: "Copy Operator Brief", subtitle: "Plain-language value read", symbol: "wand.and.stars", category: "Action", action: .copyBrief),
@@ -572,10 +573,14 @@ struct ContentView: View {
                     .fixedSize(horizontal: false, vertical: true)
 
                 HStack(spacing: 8) {
+                    Button { Task { await model.copyStartHere() } } label: {
+                        Label("Copy Start Here", systemImage: "play.circle.fill")
+                    }
+                    .buttonStyle(.borderedProminent)
                     Button { Task { await model.copyOracleDigest() } } label: {
                         Label("Copy Digest", systemImage: "sparkle.magnifyingglass")
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.bordered)
                     Button { Task { await model.copyAgentPrompt() } } label: {
                         Label("Agent Prompt", systemImage: "paperplane.fill")
                     }
@@ -588,8 +593,8 @@ struct ContentView: View {
                     }
                     .buttonStyle(.bordered)
                 }
-                if !model.oracleDigestCopyOutput.isEmpty || !model.agentPromptCopyOutput.isEmpty {
-                    Text(model.oracleDigestCopyOutput.isEmpty ? model.agentPromptCopyOutput : model.oracleDigestCopyOutput)
+                if !model.startHereCopyOutput.isEmpty || !model.oracleDigestCopyOutput.isEmpty || !model.agentPromptCopyOutput.isEmpty {
+                    Text(!model.startHereCopyOutput.isEmpty ? model.startHereCopyOutput : (model.oracleDigestCopyOutput.isEmpty ? model.agentPromptCopyOutput : model.oracleDigestCopyOutput))
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.58))
                 }
@@ -2917,7 +2922,7 @@ struct ContentView: View {
             SystemSurfaceCard(title: "Control API", value: "127.0.0.1:8765", detail: "Local-only gateway for agents and MCP.", symbol: "network")
             SystemSurfaceCard(title: "Widget", value: "Next", detail: "A desktop/Notification Center widget should show prompt-safety, sync age, and Mission points.", symbol: "rectangle.on.rectangle")
             SystemSurfaceCard(title: "Login Item", value: "Next", detail: "Launch at login after the gateway has a signed release bundle.", symbol: "power")
-            SystemSurfaceCard(title: "Shortcuts", value: "Native", detail: "App Shortcuts expose Copy Handoff, Copy Prompt, Copy Oracle Digest, Commit Outcome, Copy Value, Copy Deck, Copy Snapshot, Copy Blindspots, Copy Ideas, Run Sync, Start Work, and Open/Copy Latest Context Pack to Spotlight, Siri, and automation.", symbol: "wand.and.stars")
+            SystemSurfaceCard(title: "Shortcuts", value: "Native", detail: "App Shortcuts expose Copy Handoff, Copy Start Here, Copy Prompt, Copy Oracle Digest, Commit Outcome, Copy Value, Copy Deck, Copy Snapshot, Copy Blindspots, Copy Ideas, Run Sync, Start Work, and Open/Copy Latest Context Pack to Spotlight, Siri, and automation.", symbol: "wand.and.stars")
         }
     }
 
@@ -3013,6 +3018,8 @@ struct ContentView: View {
             Task { await model.runSyncNow() }
         case .copySnapshot:
             Task { await model.copyOperatorSnapshot() }
+        case .copyStartHere:
+            Task { await model.copyStartHere() }
         case .copyValueBrief:
             Task { await model.copyValueBrief() }
         case .copyOracleDigest:
@@ -3298,6 +3305,7 @@ enum BrainCommandAction {
     case openPath(String)
     case runSync
     case copySnapshot
+    case copyStartHere
     case copyValueBrief
     case copyOracleDigest
     case copyBrief

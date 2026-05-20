@@ -21,6 +21,7 @@ require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Commit 
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Oracle Digest' "Oracle Digest app surface"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/BrainStatusModel.swift" 'func commitOutcome' "in-app structured outcome writer"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CommitBrainOutcomeIntent' "Commit Outcome App Shortcut"
+require_in_file "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CopyStartHereIntent' "Copy Start Here App Shortcut"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CopyOracleDigestIntent' "Copy Oracle Digest App Shortcut"
 
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '"/start-here/markdown"' "Start Here API route"
