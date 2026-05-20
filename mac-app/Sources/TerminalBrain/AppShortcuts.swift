@@ -172,6 +172,19 @@ struct CopyDecisionLaneIntent: AppIntent {
     }
 }
 
+struct CopyProjectMemoryIntent: AppIntent {
+    static var title: LocalizedStringResource = "Copy Project Memory"
+    static var description = IntentDescription("Copy Terminal Brain's project memory map as Markdown.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let markdown = try await ShortcutClient.text(path: "/projects/markdown")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "Project Memory copied.")
+    }
+}
+
 struct RunTerminalBrainSyncIntent: AppIntent {
     static var title: LocalizedStringResource = "Run Terminal Brain Sync"
     static var description = IntentDescription("Run Terminal Brain sync with Apple Notes excluded by default.")
@@ -352,6 +365,15 @@ struct TerminalBrainShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Copy Decisions",
             systemImageName: "list.number"
+        )
+        AppShortcut(
+            intent: CopyProjectMemoryIntent(),
+            phrases: [
+                "Copy \(.applicationName) project memory",
+                "Copy \(.applicationName) projects"
+            ],
+            shortTitle: "Copy Projects",
+            systemImageName: "folder.fill.badge.gearshape"
         )
         AppShortcut(
             intent: RunTerminalBrainSyncIntent(),

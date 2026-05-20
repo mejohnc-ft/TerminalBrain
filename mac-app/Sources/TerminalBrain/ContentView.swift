@@ -66,6 +66,7 @@ struct ContentView: View {
             BrainCommand(title: "Copy Operator Snapshot", subtitle: "Prompt-ready Focus, Radar, actions, and memory trail", symbol: "doc.on.clipboard", category: "Action", action: .copySnapshot),
             BrainCommand(title: "Copy Operator Brief", subtitle: "Plain-language value read", symbol: "wand.and.stars", category: "Action", action: .copyBrief),
             BrainCommand(title: "Copy Decision Lane", subtitle: "Ranked Today action queue", symbol: "list.number", category: "Action", action: .copyDecisionLane),
+            BrainCommand(title: "Copy Project Memory", subtitle: "Active work surfaces and recommended actions", symbol: "folder.fill.badge.gearshape", category: "Action", action: .copyProjectMemory),
             BrainCommand(title: "Copy Operator Deck", subtitle: "Prompt-ready four-card deck for handoffs", symbol: "rectangle.stack.fill.badge.person.crop", category: "Action", action: .copyDeck),
             BrainCommand(title: "Copy Latest Context Pack", subtitle: "Copy newest context pack Markdown", symbol: "doc.on.doc", category: "Action", action: .copyLatestPack),
             BrainCommand(title: "Copy Agent Handoff", subtitle: "Copy Operator Deck plus latest context pack", symbol: "doc.richtext", category: "Action", action: .copyHandoff),
@@ -1579,7 +1580,23 @@ struct ContentView: View {
     private var projectsView: some View {
         HStack(alignment: .top, spacing: 18) {
             VStack(alignment: .leading, spacing: 14) {
-                SectionTitle("Project Memory", symbol: "folder.fill.badge.gearshape")
+                HStack {
+                    SectionTitle("Project Memory", symbol: "folder.fill.badge.gearshape")
+                    Spacer()
+                    if !model.projectMemoryCopyOutput.isEmpty {
+                        Text(model.projectMemoryCopyOutput)
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.white.opacity(0.48))
+                            .lineLimit(1)
+                    }
+                    Button {
+                        Task { await model.copyProjectMemory() }
+                    } label: {
+                        Label("Copy", systemImage: "doc.on.clipboard")
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                }
                 VStack(spacing: 0) {
                     ForEach(model.projects) { project in
                         Button {
@@ -2148,6 +2165,8 @@ struct ContentView: View {
             Task { await model.copyOperatorBrief() }
         case .copyDecisionLane:
             Task { await model.copyDecisionLane() }
+        case .copyProjectMemory:
+            Task { await model.copyProjectMemory() }
         case .copyDeck:
             Task { await model.copyOperatorDeck() }
         case .copyLatestPack:
@@ -2393,6 +2412,7 @@ enum BrainCommandAction {
     case copySnapshot
     case copyBrief
     case copyDecisionLane
+    case copyProjectMemory
     case copyDeck
     case copyLatestPack
     case copyHandoff

@@ -48,6 +48,10 @@ struct TerminalBrainApp: App {
                     Task { await model.copyDecisionLane() }
                 }
 
+                Button("Copy Project Memory") {
+                    Task { await model.copyProjectMemory() }
+                }
+
                 Button("Copy Operator Deck") {
                     Task { await model.copyOperatorDeck() }
                 }
@@ -96,6 +100,9 @@ struct TerminalBrainApp: App {
             }
             Button("Copy Decision Lane") {
                 Task { await model.copyDecisionLane() }
+            }
+            Button("Copy Project Memory") {
+                Task { await model.copyProjectMemory() }
             }
             Divider()
             Button("Refresh Status") {
