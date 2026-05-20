@@ -7,6 +7,12 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 1. Read the current value path:
 
    ```zsh
+   make prove-value
+   ```
+
+   `make prove-value` demonstrates the full closed-app loop in a temporary workspace without touching the real vault.
+
+   ```zsh
    make now
    ```
 
@@ -85,6 +91,7 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 - `Start Here` gives the shortest path from signal to action to outcome.
 - `Now` gives one page with bottom line, next action, process truth, readiness, and close loop.
 - `Value` says what Terminal Brain is useful for right now.
+- `Value Proof` demonstrates Oracle Brief -> Agent Prompt -> accepted Outcome without touching the real workspace.
 - `Oracle Brief` gives the direct read, missing signal, cheap test, and agent handoff.
 - `Status` shows repo, CI, process, launchctl, and API state without touching app focus.
 - `Processes` separates app/runtime focus stealers from Codex, MCP, kernel, brain-console, and Drafts background noise.

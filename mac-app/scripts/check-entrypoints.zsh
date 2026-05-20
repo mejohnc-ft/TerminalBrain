@@ -60,6 +60,13 @@ test -f "$outcome_workspace/Oracle Inbox/"*.md || {
 }
 rm -rf "$outcome_workspace"
 
+proof_output="$(TERMINAL_BRAIN_PROOF_API="$CLOSED_API" "$ROOT/mac-app/scripts/prove-value.zsh")"
+require_contains "$proof_output" '# Terminal Brain Value Proof' "value proof title"
+require_contains "$proof_output" '# Terminal Brain Oracle Brief' "value proof Oracle Brief"
+require_contains "$proof_output" '# Terminal Brain Agent Prompt' "value proof Agent Prompt"
+require_contains "$proof_output" '"reviewStatus":"accepted"' "value proof accepted outcome"
+require_contains "$proof_output" 'Temporary Note Preview' "value proof note preview"
+
 mcp_next_output="$(call_mcp_tool terminal_brain_next_markdown)"
 require_contains "$mcp_next_output" '# Terminal Brain Next' "MCP next title"
 require_contains "$mcp_next_output" 'make oracle-brief' "MCP next Oracle Brief fallback"

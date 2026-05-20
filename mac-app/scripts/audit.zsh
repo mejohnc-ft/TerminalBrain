@@ -57,6 +57,7 @@ echo
 echo "## Value-First Surfaces"
 echo
 require_evidence "$ROOT/Makefile" '^value:' "make value"
+require_evidence "$ROOT/Makefile" '^prove-value:' "make prove-value"
 require_evidence "$ROOT/Makefile" '^now:' "make now"
 require_evidence "$ROOT/Makefile" '^agent-prompt:' "make agent-prompt"
 require_evidence "$ROOT/Makefile" '^next:' "make next"
@@ -107,6 +108,7 @@ require_evidence "$ROOT/mac-app/scripts/doctor.zsh" 'Prompt Safety' "prompt safe
 require_evidence "$ROOT/mac-app/scripts/doctor.zsh" 'installed app executable matches current build' "installed app freshness"
 require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_value_now_markdown' "closed-API entrypoint regression"
 require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'reviewStatus":"accepted' "closed outcome fallback regression"
+require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'Terminal Brain Value Proof' "value proof regression"
 require_evidence "$ROOT/mac-app/scripts/verify-static.zsh" 'check-entrypoints.zsh' "entrypoint guard in static verifier"
 echo
 
@@ -114,6 +116,7 @@ echo "## Non-Launching Commands"
 echo
 echo "- make now"
 echo "- make value"
+echo "- make prove-value"
 echo "- make oracle-brief"
 echo "- make agent-prompt"
 echo "- make next"
