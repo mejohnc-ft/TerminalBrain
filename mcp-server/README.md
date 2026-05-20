@@ -9,7 +9,7 @@ directly. It talks to the trusted local app API:
 http://127.0.0.1:8765
 ```
 
-Start Terminal Brain before using app-backed MCP tools. `terminal_brain_value_now_markdown`,
+Start Terminal Brain before using app-backed MCP tools. `terminal_brain_now_markdown`, `terminal_brain_value_now_markdown`,
 `terminal_brain_next_markdown`, `terminal_brain_doctor_markdown`,
 `terminal_brain_audit_markdown`, `terminal_brain_process_map_markdown`, and `terminal_brain_runtime_status` are
 server-side and can be used first to get the value path, next move, setup
@@ -36,6 +36,7 @@ Codex/workspace config can register this server as:
 
 - `terminal_brain_status`
 - `terminal_brain_runtime_status`
+- `terminal_brain_now_markdown`
 - `terminal_brain_process_map_markdown`
 - `terminal_brain_next_markdown`
 - `terminal_brain_doctor_markdown`

@@ -35,6 +35,7 @@ for script in \
   "$ROOT/mac-app/scripts/oracle.zsh" \
   "$ROOT/mac-app/scripts/outcome.zsh" \
   "$ROOT/mac-app/scripts/snapshot.zsh" \
+  "$ROOT/mac-app/scripts/now.zsh" \
   "$ROOT/mac-app/scripts/status.zsh" \
   "$ROOT/mac-app/scripts/processes.zsh" \
   "$ROOT/mac-app/scripts/next.zsh" \

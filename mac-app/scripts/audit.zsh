@@ -57,6 +57,7 @@ echo
 echo "## Value-First Surfaces"
 echo
 require_evidence "$ROOT/Makefile" '^value:' "make value"
+require_evidence "$ROOT/Makefile" '^now:' "make now"
 require_evidence "$ROOT/Makefile" '^next:' "make next"
 require_evidence "$ROOT/Makefile" '^doctor:' "make doctor"
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'selectedSection = "value"' "native app opens on Value Now"
@@ -68,6 +69,7 @@ echo "## Agent Surfaces"
 echo
 echo "ok   MCP tool contract count: ${tool_count:-unknown}"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_value_now_markdown' "MCP Value Now"
+require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_now_markdown' "MCP Now"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_next_markdown' "MCP Next"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_process_map_markdown' "MCP Process Map"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_doctor_markdown' "MCP Doctor"
@@ -88,6 +90,7 @@ echo
 
 echo "## Non-Launching Commands"
 echo
+echo "- make now"
 echo "- make value"
 echo "- make next"
 echo "- make doctor"

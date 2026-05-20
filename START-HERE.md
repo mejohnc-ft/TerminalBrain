@@ -7,6 +7,12 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 1. Read the current value path:
 
    ```zsh
+   make now
+   ```
+
+   `make now` is the fastest orientation: bottom line, next action, process truth, readiness, and the outcome close loop.
+
+   ```zsh
    make value
    ```
 
@@ -55,6 +61,7 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 ## What To Look For
 
 - `Start Here` gives the shortest path from signal to action to outcome.
+- `Now` gives one page with bottom line, next action, process truth, readiness, and close loop.
 - `Value` says what Terminal Brain is useful for right now.
 - `Status` shows repo, CI, process, launchctl, and API state without touching app focus.
 - `Processes` separates app/runtime focus stealers from Codex, MCP, kernel, brain-console, and Drafts background noise.

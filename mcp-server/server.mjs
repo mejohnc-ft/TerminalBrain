@@ -23,6 +23,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_now_markdown",
+    description: "Get the fastest non-launching Terminal Brain orientation: bottom line, next action, process truth, readiness, and outcome close loop.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_process_map_markdown",
     description: "Get a non-launching process map for Terminal Brain, Codex sessions, MCP children, brain-kernel children, brain-console helpers, Drafts, launchctl, and API reachability.",
     inputSchema: {
@@ -1000,6 +1009,24 @@ function processMapMarkdown({ details = false } = {}) {
   ].join("\n");
 }
 
+function nowMarkdown() {
+  const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "now.zsh")], { timeout: 15000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Now",
+    "",
+    "Now orientation failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 async function valueNowMarkdown() {
   const health = await apiHealth();
   if (health.reachable) {
@@ -1067,6 +1094,8 @@ async function callTool(name, args = {}) {
   switch (name) {
     case "terminal_brain_runtime_status":
       return runtimeStatus();
+    case "terminal_brain_now_markdown":
+      return nowMarkdown();
     case "terminal_brain_process_map_markdown":
       return processMapMarkdown(args);
     case "terminal_brain_next_markdown":
