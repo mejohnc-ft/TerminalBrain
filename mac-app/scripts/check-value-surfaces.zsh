@@ -34,6 +34,7 @@ require_in_file "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CopyOr
 
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '"/start-here/markdown"' "Start Here API route"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '"/now/markdown"' "Now API route"
+require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '"/now"' "Now JSON API route"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '"/oracle-digest/markdown"' "Oracle Digest API route"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '"/outcomes/commit"' "Outcome commit API route"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" 'reviewStatus: "accepted"' "outcomes close as accepted"
@@ -71,6 +72,7 @@ require_in_file "$ROOT/Makefile" '^audit:' "Audit Make target"
 
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_runtime_status' "Runtime Status MCP tool"
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_now_markdown' "Now MCP tool"
+require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_now' "Now structured MCP tool"
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_process_map_markdown' "Process Map MCP tool"
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_next_markdown' "Next Move MCP tool"
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_doctor_markdown' "Doctor MCP tool"
@@ -81,6 +83,7 @@ require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_oracle_digest_mark
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_commit_outcome' "Outcome MCP tool"
 require_in_file "$ROOT/mcp-server/expected-tools.json" 'terminal_brain_runtime_status' "Runtime Status MCP contract"
 require_in_file "$ROOT/mcp-server/expected-tools.json" 'terminal_brain_now_markdown' "Now MCP contract"
+require_in_file "$ROOT/mcp-server/expected-tools.json" 'terminal_brain_now' "Now structured MCP contract"
 require_in_file "$ROOT/mcp-server/expected-tools.json" 'terminal_brain_process_map_markdown' "Process Map MCP contract"
 require_in_file "$ROOT/mcp-server/expected-tools.json" 'terminal_brain_next_markdown' "Next Move MCP contract"
 require_in_file "$ROOT/mcp-server/expected-tools.json" 'terminal_brain_doctor_markdown' "Doctor MCP contract"

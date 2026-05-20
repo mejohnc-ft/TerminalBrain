@@ -67,6 +67,8 @@ final class LocalControlServer {
             return .text(200, await BrainHandoffSnapshot.markdown())
         case ("GET", "/agent-prompt/markdown"):
             return .text(200, await AgentPromptSnapshot.markdown())
+        case ("GET", "/now"):
+            return .json(200, await NowSnapshot.now())
         case ("GET", "/now/markdown"):
             return .text(200, await NowSnapshot.markdown())
         case ("GET", "/start-here/markdown"):
@@ -1638,7 +1640,7 @@ enum ValueBriefSnapshot {
 }
 
 enum NowSnapshot {
-    static func markdown() async -> String {
+    static func now() async -> [String: Any] {
         let generatedAt = ISO8601DateFormatter().string(from: Date())
         let focusPayload = await FocusSnapshot.focus()
         let focus = (focusPayload["item"] as? [String: Any]) ?? [:]
@@ -1651,17 +1653,68 @@ enum NowSnapshot {
         let steps = (setup["steps"] as? [[String: Any]]) ?? []
         let warningCount = steps.filter { ($0["state"] as? String ?? "").lowercased() == "warn" }.count
         let readiness = warningCount == 0 ? "ready" : "\(warningCount) setup item\(warningCount == 1 ? "" : "s") need attention"
+        return [
+            "generatedAt": generatedAt,
+            "mode": "now",
+            "bottomLine": "Do \(title).",
+            "reason": reason,
+            "focus": focus,
+            "doThis": [
+                [
+                    "title": action,
+                    "detail": "Do \(action.lowercased()) for \(project).",
+                    "project": project,
+                    "query": query
+                ],
+                [
+                    "title": "Attach memory",
+                    "detail": "Build or attach a context pack before handing deeper work to an agent.",
+                    "project": project,
+                    "query": query
+                ],
+                [
+                    "title": "Commit outcome",
+                    "detail": "Write what changed, why it matters, evidence, and the next action into durable memory.",
+                    "project": project,
+                    "query": ""
+                ]
+            ],
+            "processTruth": [
+                "api": "reachable at 127.0.0.1:8765",
+                "appBackedTools": "ready while Terminal Brain remains open",
+                "setupReadiness": readiness,
+                "warningCount": warningCount,
+                "guardrail": "read-only; does not launch, foreground, quit, kill, or control other apps"
+            ],
+            "closeLoop": [
+                "api": "/outcomes/commit",
+                "mcp": "terminal_brain_commit_outcome",
+                "app": "Commit Outcome panel"
+            ]
+        ]
+    }
+
+    static func markdown() async -> String {
+        let payload = await now()
+        let focus = (payload["focus"] as? [String: Any]) ?? [:]
+        let title = (payload["bottomLine"] as? String ?? "Start with the top visible signal.").replacingOccurrences(of: ".", with: "")
+        let action = focus["action"] as? String ?? "Act"
+        let project = focus["project"] as? String ?? "General Brain"
+        let reason = payload["reason"] as? String ?? ""
+        let query = (focus["query"] as? String ?? focus["title"] as? String ?? "").ifEmpty(focus["title"] as? String ?? "current focus")
+        let processTruth = (payload["processTruth"] as? [String: Any]) ?? [:]
+        let readiness = processTruth["setupReadiness"] as? String ?? "unknown"
         let value = await ValueBriefSnapshot.markdown()
         let digest = await OracleDigestSnapshot.markdown()
 
         return [
             "# Terminal Brain Now",
             "",
-            "Generated: \(generatedAt)",
+            "Generated: \(payload["generatedAt"] as? String ?? ISO8601DateFormatter().string(from: Date()))",
             "",
             "## Bottom Line",
             "",
-            "Do \(title).",
+            "\(title).",
             "",
             reason,
             "",

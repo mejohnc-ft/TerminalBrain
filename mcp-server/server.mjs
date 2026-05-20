@@ -32,6 +32,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_now",
+    description: "Get the structured app-backed Terminal Brain Now payload with bottom line, focus, do-this steps, process truth, and close loop. Requires the app API to be reachable.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_process_map_markdown",
     description: "Get a non-launching process map for Terminal Brain, Codex sessions, MCP children, brain-kernel children, brain-console helpers, Drafts, launchctl, and API reachability.",
     inputSchema: {
@@ -1096,6 +1105,8 @@ async function callTool(name, args = {}) {
       return runtimeStatus();
     case "terminal_brain_now_markdown":
       return nowMarkdown();
+    case "terminal_brain_now":
+      return api("/now");
     case "terminal_brain_process_map_markdown":
       return processMapMarkdown(args);
     case "terminal_brain_next_markdown":

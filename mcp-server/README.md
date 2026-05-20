@@ -37,6 +37,7 @@ Codex/workspace config can register this server as:
 - `terminal_brain_status`
 - `terminal_brain_runtime_status`
 - `terminal_brain_now_markdown`
+- `terminal_brain_now`
 - `terminal_brain_process_map_markdown`
 - `terminal_brain_next_markdown`
 - `terminal_brain_doctor_markdown`

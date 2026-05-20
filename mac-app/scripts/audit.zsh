@@ -64,6 +64,7 @@ require_evidence "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'select
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Open Value Now' "command palette can open Value Now"
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Open Now' "command palette can open Now"
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '"/now/markdown"' "Now API artifact"
+require_evidence "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '"/now"' "Now JSON API"
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CopyNowIntent' "Copy Now shortcut"
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Commit Outcome' "native outcome close loop"
 echo
@@ -73,6 +74,7 @@ echo
 echo "ok   MCP tool contract count: ${tool_count:-unknown}"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_value_now_markdown' "MCP Value Now"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_now_markdown' "MCP Now"
+require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_now' "MCP Now Structured"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_next_markdown' "MCP Next"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_process_map_markdown' "MCP Process Map"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_doctor_markdown' "MCP Doctor"
