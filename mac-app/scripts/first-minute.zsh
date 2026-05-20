@@ -66,7 +66,7 @@ echo "## Working Proof"
 echo
 echo "This command proves the closed-app loop in a temporary workspace. It does not write to the real workspace."
 echo
-TERMINAL_BRAIN_PROOF_API="$CLOSED_API" "$ROOT/mac-app/scripts/prove-value.zsh" | sed -n '1,90p'
+TERMINAL_BRAIN_PROOF_API="$CLOSED_API" "$ROOT/mac-app/scripts/prove-value.zsh" | sed -n '1,260p'
 echo
 
 echo "## Guardrail"

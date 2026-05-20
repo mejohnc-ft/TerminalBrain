@@ -288,6 +288,8 @@ rm -rf "$recent_work_workspace"
 
 proof_output="$(TERMINAL_BRAIN_PROOF_API="$CLOSED_API" "$ROOT/mac-app/scripts/prove-value.zsh")"
 require_contains "$proof_output" '# Terminal Brain Value Proof' "value proof title"
+require_contains "$proof_output" 'Use Now Capture' "value proof Use Now capture"
+require_contains "$proof_output" 'Review status: new' "value proof capture review status"
 require_contains "$proof_output" '# Terminal Brain Oracle Brief' "value proof Oracle Brief"
 require_contains "$proof_output" '# Terminal Brain Agent Prompt' "value proof Agent Prompt"
 require_contains "$proof_output" '"reviewStatus":"accepted"' "value proof accepted outcome"
@@ -396,6 +398,8 @@ require_contains "$mcp_value_output" 'What You Can Get From It' "MCP value expla
 
 mcp_proof_output="$(call_mcp_tool terminal_brain_value_proof_markdown)"
 require_contains "$mcp_proof_output" '# Terminal Brain Value Proof' "MCP value proof title"
+require_contains "$mcp_proof_output" 'Use Now Capture' "MCP value proof Use Now capture"
+require_contains "$mcp_proof_output" 'Review status: new' "MCP value proof capture review status"
 require_contains "$mcp_proof_output" '# Terminal Brain Oracle Brief' "MCP value proof Oracle Brief"
 require_contains "$mcp_proof_output" '# Terminal Brain Agent Prompt' "MCP value proof Agent Prompt"
 require_contains "$mcp_proof_output" 'reviewStatus.*accepted' "MCP value proof accepted outcome"

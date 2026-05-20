@@ -201,6 +201,8 @@ require_in_file "$ROOT/mac-app/scripts/next.zsh" 'make agent-prompt' "non-launch
 require_in_file "$ROOT/mac-app/scripts/next.zsh" 'make outcome' "non-launching next move Outcome"
 require_in_file "$ROOT/mac-app/scripts/value.zsh" 'Terminal Brain Value Now' "non-launching value read"
 require_in_file "$ROOT/mac-app/scripts/prove-value.zsh" 'Terminal Brain Value Proof' "non-launching value proof"
+require_in_file "$ROOT/mac-app/scripts/prove-value.zsh" 'use-now.zsh' "value proof includes Use Now capture"
+require_in_file "$ROOT/mac-app/scripts/prove-value.zsh" 'Value Proof Use Now Capture' "value proof captured signal"
 require_in_file "$ROOT/mac-app/scripts/demo.zsh" 'Terminal Brain Demo' "non-launching demo"
 require_in_file "$ROOT/mac-app/scripts/demo.zsh" 'Seeded Scenario' "demo seeded workspace"
 require_in_file "$ROOT/mac-app/scripts/demo.zsh" 'Use It For Real' "demo real-use commands"
