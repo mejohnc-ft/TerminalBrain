@@ -1,10 +1,11 @@
-.PHONY: help build install verify live now status processes cleanup-plan support-bundle next value doctor audit ask ask-commit outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live now status processes cleanup-plan support-bundle next value oracle-brief doctor audit ask ask-commit outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
 	@echo "  make now           Non-launching one-page orientation: value, next action, process truth, readiness"
 	@echo "  make value         Non-launching value read; prints live Value Brief if app is reachable"
 	@echo "  make next          Non-launching next move; prints Start Here if app is reachable"
+	@echo "  make oracle-brief  Non-launching direct read: next moves, missing signal, cheap test, handoff"
 	@echo "  make doctor        Non-launching readiness audit with concrete setup warnings"
 	@echo "  make audit         Non-launching capability audit and evidence checklist"
 	@echo "  make status        Non-launching repo, CI, process, launchctl, and API status"
@@ -24,6 +25,7 @@ help:
 	@echo "  make snapshot-brief-md Print Operator Brief Markdown from an already-running app"
 	@echo "  make snapshot-value Print Value Brief Markdown from an already-running app"
 	@echo "  make snapshot-digest Print Oracle Digest Markdown from an already-running app"
+	@echo "  make snapshot-oracle Print Oracle Brief Markdown from an already-running app"
 	@echo "  make snapshot-today Print Decision Lane Markdown from an already-running app"
 	@echo "  make snapshot-blindspots Print Blindspot Brief Markdown from an already-running app"
 	@echo "  make snapshot-ideas Print Idea Pulse Markdown from an already-running app"
@@ -68,6 +70,9 @@ next:
 value:
 	./mac-app/scripts/value.zsh
 
+oracle-brief:
+	./mac-app/scripts/oracle-brief.zsh
+
 doctor:
 	./mac-app/scripts/doctor.zsh
 
@@ -106,6 +111,9 @@ snapshot-value:
 
 snapshot-digest:
 	./mac-app/scripts/snapshot.zsh --digest
+
+snapshot-oracle:
+	./mac-app/scripts/snapshot.zsh --oracle-brief
 
 snapshot-today:
 	./mac-app/scripts/snapshot.zsh --today

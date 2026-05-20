@@ -66,6 +66,10 @@ struct TerminalBrainApp: App {
                     Task { await model.copyValueBrief() }
                 }
 
+                Button("Copy Oracle Brief") {
+                    Task { await model.copyOracleBrief() }
+                }
+
                 Button("Copy Operator Brief") {
                     Task { await model.copyOperatorBrief() }
                 }
@@ -127,6 +131,9 @@ struct TerminalBrainApp: App {
             }
             Button("Copy Start Here") {
                 Task { await model.copyStartHere() }
+            }
+            Button("Copy Oracle Brief") {
+                Task { await model.copyOracleBrief() }
             }
             Button("Ask Current Focus") {
                 Task { await model.askFocusOracle(model.focusItem) }

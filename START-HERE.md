@@ -19,6 +19,12 @@ Terminal Brain is useful when it turns scattered local context into one work blo
    If the app is already reachable, `make value` prints the live Value Brief. If it is closed, it explains what the system is useful for without starting anything. To read the next concrete move, run:
 
    ```zsh
+   make oracle-brief
+   ```
+
+   `make oracle-brief` gives the direct read: what to do next, what may be missing, the cheapest test, and the agent handoff.
+
+   ```zsh
    make next
    ```
 
@@ -75,10 +81,11 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 - `Start Here` gives the shortest path from signal to action to outcome.
 - `Now` gives one page with bottom line, next action, process truth, readiness, and close loop.
 - `Value` says what Terminal Brain is useful for right now.
+- `Oracle Brief` gives the direct read, missing signal, cheap test, and agent handoff.
 - `Status` shows repo, CI, process, launchctl, and API state without touching app focus.
 - `Processes` separates app/runtime focus stealers from Codex, MCP, kernel, brain-console, and Drafts background noise.
 - `Cleanup Plan` prints stale MCP/kernel candidates and manual review commands without terminating anything.
-- `Support Bundle` writes Now, Doctor, Audit, Process Map, Cleanup Plan, and Git state into one Markdown file.
+- `Support Bundle` writes Now, Oracle Brief, Doctor, Audit, Process Map, Cleanup Plan, and Git state into one Markdown file.
 - `Doctor` checks app install, MCP contract, agent config references, and runtime readiness.
 - `Oracle Digest` says what to notice, decide, test, create, and avoid.
 - `Agent Prompt` turns the current signal into a bounded Codex/Claude task.

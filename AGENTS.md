@@ -6,6 +6,7 @@ This repository builds a local macOS app used during active work. Do not steal t
 
 - Use `make next` as the safest first command when you need to know the next move without launching the app.
 - Use `make value` when the operator needs a plain-language read on why Terminal Brain is useful right now.
+- Use `make oracle-brief` or MCP `terminal_brain_oracle_brief_markdown` when the operator needs a direct read: what to do next, what may be missing, the cheapest test, and the agent handoff.
 - Use `make now` or MCP `terminal_brain_now_markdown` as the fastest single orientation when the operator needs value, next action, process truth, readiness, and close-loop guidance.
 - Use `make doctor` when setup readiness is unclear; it audits repo, CI, app install freshness, MCP contract, agent config, prompt-prone Apple Notes/Drafts bridges, process state, launchctl, API reachability, and a readiness verdict without launching the app.
 - Use `make audit` when you need a non-launching evidence checklist for value, MCP, safety, and readiness surfaces.
@@ -19,7 +20,7 @@ This repository builds a local macOS app used during active work. Do not steal t
 
 ## Fast Context Path
 
-When Terminal Brain may not be running, use `make now`, `make value`, `make next`, `make status`, `make processes`, `make cleanup-plan`, `make support-bundle`, `make doctor`, `make audit`, MCP `terminal_brain_now_markdown`, MCP `terminal_brain_value_now_markdown`, MCP `terminal_brain_next_markdown`, MCP `terminal_brain_process_map_markdown`, MCP `terminal_brain_cleanup_plan_markdown`, MCP `terminal_brain_support_bundle_markdown`, MCP `terminal_brain_doctor_markdown`, MCP `terminal_brain_audit_markdown`, or MCP `terminal_brain_runtime_status` first. These checks do not launch or foreground the app.
+When Terminal Brain may not be running, use `make now`, `make value`, `make oracle-brief`, `make next`, `make status`, `make processes`, `make cleanup-plan`, `make support-bundle`, `make doctor`, `make audit`, MCP `terminal_brain_now_markdown`, MCP `terminal_brain_value_now_markdown`, MCP `terminal_brain_oracle_brief_markdown`, MCP `terminal_brain_next_markdown`, MCP `terminal_brain_process_map_markdown`, MCP `terminal_brain_cleanup_plan_markdown`, MCP `terminal_brain_support_bundle_markdown`, MCP `terminal_brain_doctor_markdown`, MCP `terminal_brain_audit_markdown`, or MCP `terminal_brain_runtime_status` first. These checks do not launch or foreground the app.
 
 When Terminal Brain is already running and the user asks for useful work, start from the handoff instead of re-discovering the system:
 
@@ -27,7 +28,7 @@ When Terminal Brain is already running and the user asks for useful work, start 
 ./mac-app/scripts/handoff.zsh --output /tmp/terminal-brain-handoff.md
 ```
 
-The handoff combines Start Here, the Oracle Digest, Value Brief, Operator Brief, Blindspot Brief, Idea Pulse, Decision Lane, Operator Deck, Project Memory, and latest context pack. It never launches or foregrounds Terminal Brain. If using MCP, prefer `terminal_brain_start_here_markdown` when you need the shortest value path, `terminal_brain_agent_prompt_markdown` when you need one focused execution prompt, or `terminal_brain_handoff_markdown` when you need the broader state. Then use `terminal_brain_oracle_digest_markdown`, `terminal_brain_value_brief_markdown`, Idea Pulse ask/commit, Blindspot ask/commit, Decision Lane, Project Memory, Operator Deck, and Start Work tools for follow-up actions. When work produces a durable result, close the loop with `terminal_brain_commit_outcome` or `make outcome TITLE="..." OUTCOME="..." PROJECT="..." NEXT="..."`.
+The handoff combines Start Here, the Oracle Digest, Value Brief, Operator Brief, Blindspot Brief, Idea Pulse, Decision Lane, Operator Deck, Project Memory, and latest context pack. It never launches or foregrounds Terminal Brain. If using MCP, prefer `terminal_brain_start_here_markdown` when you need the shortest value path, `terminal_brain_oracle_brief_markdown` when you need the clearest direct read, `terminal_brain_agent_prompt_markdown` when you need one focused execution prompt, or `terminal_brain_handoff_markdown` when you need the broader state. Then use `terminal_brain_oracle_digest_markdown`, `terminal_brain_value_brief_markdown`, Idea Pulse ask/commit, Blindspot ask/commit, Decision Lane, Project Memory, Operator Deck, and Start Work tools for follow-up actions. When work produces a durable result, close the loop with `terminal_brain_commit_outcome` or `make outcome TITLE="..." OUTCOME="..." PROJECT="..." NEXT="..."`.
 
 ## Foregrounding Policy
 

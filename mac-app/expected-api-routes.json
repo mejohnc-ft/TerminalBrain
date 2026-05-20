@@ -42,6 +42,7 @@
   "GET /briefing",
   "GET /permissions",
   "GET /oracle/brief",
+  "GET /oracle/brief/markdown",
   "GET /oracle/items",
   "GET /oracle/commits",
   "POST /oracle/review-status",

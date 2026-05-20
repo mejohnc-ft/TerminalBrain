@@ -164,6 +164,8 @@ final class LocalControlServer {
             return .json(200, ControlSnapshot.permissions())
         case ("GET", "/oracle/brief"):
             return .json(200, await OracleSnapshot.brief())
+        case ("GET", "/oracle/brief/markdown"):
+            return .text(200, await OracleSnapshot.markdown())
         case ("GET", "/oracle/items"):
             return .json(200, await OracleSnapshot.items())
         case ("GET", "/oracle/commits"):
@@ -296,6 +298,94 @@ enum OracleSnapshot {
             "mode": "deterministic-local",
             "items": oracleItems()
         ]
+    }
+
+    static func markdown() async -> String {
+        let briefPayload = await brief()
+        let digestPayload = await OracleDigestSnapshot.digest()
+        let valuePayload = await ValueBriefSnapshot.brief()
+        let focusPayload = await FocusSnapshot.focus()
+        let focus = (focusPayload["item"] as? [String: Any]) ?? [:]
+        let brief = (briefPayload["brief"] as? [String]) ?? []
+        let digestSections = (digestPayload["sections"] as? [[String: Any]]) ?? []
+        let actions = (digestPayload["actions"] as? [String]) ?? []
+        let questions = (digestPayload["questions"] as? [String]) ?? []
+        let drivers = (valuePayload["drivers"] as? [[String: Any]]) ?? []
+        let decide = digestSections.first { ($0["id"] as? String) == "decide" }
+        let avoid = digestSections.first { ($0["id"] as? String) == "avoid" }
+        let test = digestSections.first { ($0["id"] as? String) == "test" }
+        let create = digestSections.first { ($0["id"] as? String) == "create" }
+        let focusTitle = focus["title"] as? String ?? digestPayload["headline"] as? String ?? "Start with the strongest current signal"
+        let project = focus["project"] as? String ?? create?["project"] as? String ?? "General Brain"
+        let agentTask = create?["detail"] as? String ?? drivers.first { ($0["id"] as? String) == "artifact" }?["detail"] as? String ?? "Create one durable artifact from the current focus."
+
+        var lines: [String] = [
+            "# Terminal Brain Oracle Brief",
+            "",
+            "Generated: \(briefPayload["generatedAt"] as? String ?? ISO8601DateFormatter().string(from: Date()))",
+            "",
+            "## Direct Read",
+            "",
+            "\(digestPayload["headline"] as? String ?? "Notice \(focusTitle)")",
+            "",
+            "\(digestPayload["thesis"] as? String ?? "Use the next block to produce one concrete artifact and commit the outcome.")",
+            "",
+            "## Do This Next",
+            ""
+        ]
+
+        for (index, action) in actions.prefix(3).enumerated() {
+            lines.append("\(index + 1). \(action)")
+        }
+        if actions.isEmpty {
+            lines.append("1. Start Work for \(project).")
+            lines.append("2. Build or attach a context pack before handing work to an agent.")
+            lines.append("3. Commit the outcome when the artifact exists.")
+        }
+
+        lines.append("")
+        lines.append("## What You May Be Missing")
+        lines.append("")
+        lines.append("- Decision: \(decide?["title"] as? String ?? "No unresolved decision visible")")
+        lines.append("- Avoid: \(avoid?["title"] as? String ?? "Avoid collecting signals without closure")")
+        lines.append("- Question: \(avoid?["question"] as? String ?? decide?["question"] as? String ?? "What am I avoiding because it is ambiguous or annoying?")")
+        lines.append("")
+        lines.append("## Cheap Test")
+        lines.append("")
+        lines.append("- \(test?["title"] as? String ?? "No idea test visible")")
+        lines.append("- \(test?["question"] as? String ?? "What cheap test would prove this is worth more attention?")")
+        lines.append("")
+        lines.append("## Agent Handoff")
+        lines.append("")
+        lines.append("- Project: \(project)")
+        lines.append("- Task: \(agentTask)")
+        lines.append("- Prompt: Copy Agent Prompt or Start Here, attach the latest context pack, and require one concrete artifact.")
+        lines.append("- Done means: artifact exists, evidence is named, and `/outcomes/commit` or `terminal_brain_commit_outcome` records the result.")
+
+        if !questions.isEmpty {
+            lines.append("")
+            lines.append("## Questions To Ask")
+            lines.append("")
+            for question in questions.prefix(5) {
+                lines.append("- \(question)")
+            }
+        }
+
+        if !brief.isEmpty {
+            lines.append("")
+            lines.append("## Supporting Signals")
+            lines.append("")
+            for line in brief {
+                lines.append("- \(line)")
+            }
+        }
+
+        lines.append("")
+        lines.append("## Guardrail")
+        lines.append("")
+        lines.append("- This artifact is read-only and does not launch, foreground, quit, kill, or control other apps.")
+
+        return lines.joined(separator: "\n")
     }
 
     static func ask(question: String) async -> [String: Any] {

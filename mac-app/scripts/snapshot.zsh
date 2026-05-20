@@ -23,6 +23,9 @@ while [[ $# -gt 0 ]]; do
     --digest|--oracle-digest)
       FORMAT="digest"
       ;;
+    --oracle-brief|--oracle)
+      FORMAT="oracle-brief"
+      ;;
     --brief-markdown|--brief-md)
       FORMAT="brief-markdown"
       ;;
@@ -73,7 +76,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     --help|-h)
       cat <<'EOF'
-Usage: ./mac-app/scripts/snapshot.zsh [--markdown|--json|--brief|--brief-markdown|--value|--digest|--today|--blindspots|--ideas|--projects|--deck|--deck-markdown|--latest-pack|--agent-prompt|--start-here] [--copy] [--output FILE]
+Usage: ./mac-app/scripts/snapshot.zsh [--markdown|--json|--brief|--brief-markdown|--value|--digest|--oracle-brief|--today|--blindspots|--ideas|--projects|--deck|--deck-markdown|--latest-pack|--agent-prompt|--start-here] [--copy] [--output FILE]
 
 Prints the current Terminal Brain operator snapshot from an already-running app.
 This script never launches or foregrounds Terminal Brain.
@@ -86,6 +89,8 @@ Options:
               Print prompt-ready Operator Brief Markdown.
   --value     Print prompt-ready Value Brief Markdown.
   --digest    Print prompt-ready Oracle Digest Markdown.
+  --oracle-brief
+              Print prompt-ready direct Oracle Brief Markdown.
   --today     Print prompt-ready Decision Lane Markdown.
   --blindspots
               Print prompt-ready Blindspot Brief Markdown.
@@ -138,6 +143,9 @@ case "$FORMAT" in
     ;;
   digest)
     OUTPUT="$(curl -fsS "$API/oracle-digest/markdown")"
+    ;;
+  oracle-brief)
+    OUTPUT="$(curl -fsS "$API/oracle/brief/markdown")"
     ;;
   today)
     OUTPUT="$(curl -fsS "$API/today/markdown")"

@@ -85,6 +85,7 @@ struct ContentView: View {
             BrainCommand(title: "Copy Support Bundle", subtitle: "Now, Doctor, Audit, Process Map, Cleanup Plan, and Git state", symbol: "shippingbox.and.arrow.backward.fill", category: "Action", action: .copySupportBundle),
             BrainCommand(title: "Copy Start Here", subtitle: "One block, one artifact, one written outcome", symbol: "play.circle.fill", category: "Action", action: .copyStartHere),
             BrainCommand(title: "Copy Value Brief", subtitle: "Compact read on why the current move is worth attention", symbol: "bolt.fill", category: "Action", action: .copyValueBrief),
+            BrainCommand(title: "Copy Oracle Brief", subtitle: "Direct read, next moves, missing signal, cheap test, and agent handoff", symbol: "wand.and.stars", category: "Action", action: .copyOracleBrief),
             BrainCommand(title: "Copy Oracle Digest", subtitle: "Notice, decide, test, create, and avoid lanes", symbol: "sparkle.magnifyingglass", category: "Action", action: .copyOracleDigest),
             BrainCommand(title: "Copy Operator Brief", subtitle: "Plain-language value read", symbol: "wand.and.stars", category: "Action", action: .copyBrief),
             BrainCommand(title: "Copy Decision Lane", subtitle: "Ranked Today action queue", symbol: "list.number", category: "Action", action: .copyDecisionLane),
@@ -1158,16 +1159,23 @@ struct ContentView: View {
             HStack(alignment: .firstTextBaseline) {
                 SectionTitle("Oracle Digest", symbol: "sparkle.magnifyingglass")
                 Spacer()
-                if !model.oracleDigestCopyOutput.isEmpty {
-                    Text(model.oracleDigestCopyOutput)
+                if !model.oracleBriefCopyOutput.isEmpty || !model.oracleDigestCopyOutput.isEmpty {
+                    Text(model.oracleBriefCopyOutput.isEmpty ? model.oracleDigestCopyOutput : model.oracleBriefCopyOutput)
                         .font(.caption.weight(.medium))
                         .foregroundStyle(.white.opacity(0.48))
                         .lineLimit(1)
                 }
                 Button {
+                    Task { await model.copyOracleBrief() }
+                } label: {
+                    Label("Copy Brief", systemImage: "wand.and.stars")
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+                Button {
                     Task { await model.copyOracleDigest() }
                 } label: {
-                    Label("Copy", systemImage: "doc.on.clipboard")
+                    Label("Copy Digest", systemImage: "doc.on.clipboard")
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
@@ -3220,6 +3228,8 @@ struct ContentView: View {
             Task { await model.copyStartHere() }
         case .copyValueBrief:
             Task { await model.copyValueBrief() }
+        case .copyOracleBrief:
+            Task { await model.copyOracleBrief() }
         case .copyOracleDigest:
             Task { await model.copyOracleDigest() }
         case .copyBrief:
@@ -3509,6 +3519,7 @@ enum BrainCommandAction {
     case copySupportBundle
     case copyStartHere
     case copyValueBrief
+    case copyOracleBrief
     case copyOracleDigest
     case copyBrief
     case copyDecisionLane

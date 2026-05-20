@@ -131,6 +131,15 @@ curl -fsS "$API/oracle-digest/markdown" | ruby -e '
   puts "oracle digest ok chars=#{text.length}"
 '
 
+curl -fsS "$API/oracle/brief/markdown" | ruby -e '
+  text = STDIN.read
+  abort("oracle brief missing title") unless text.include?("# Terminal Brain Oracle Brief")
+  abort("oracle brief missing direct read") unless text.include?("## Direct Read")
+  abort("oracle brief missing agent handoff") unless text.include?("## Agent Handoff")
+  abort("oracle brief missing guardrail") unless text.include?("does not launch, foreground, quit, kill, or control")
+  puts "oracle brief ok chars=#{text.length}"
+'
+
 curl -fsS "$API/today/markdown" | ruby -e '
   text = STDIN.read
   abort("decision lane missing title") unless text.include?("# Terminal Brain Decision Lane")
@@ -309,6 +318,17 @@ printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal
       abort("mcp oracle digest missing title") unless text.include?("# Terminal Brain Oracle Digest")
       abort("mcp oracle digest missing notice") unless text.include?("## Notice:")
       puts "mcp oracle digest ok chars=#{text.length}"
+    '
+
+printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_oracle_brief_markdown","arguments":{}}}\n' \
+  | node "$ROOT/mcp-server/server.mjs" \
+  | ruby -rjson -e '
+      line = STDIN.each_line.find { |l| l.include?("\"result\"") } || "{}"
+      response = JSON.parse(line)
+      text = response.dig("result", "content", 0, "text").to_s
+      abort("mcp oracle brief missing title") unless text.include?("# Terminal Brain Oracle Brief")
+      abort("mcp oracle brief missing handoff") unless text.include?("## Agent Handoff")
+      puts "mcp oracle brief ok chars=#{text.length}"
     '
 
 printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_today_markdown","arguments":{}}}\n' \

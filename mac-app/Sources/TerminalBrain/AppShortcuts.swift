@@ -250,6 +250,19 @@ struct CopyOracleDigestIntent: AppIntent {
     }
 }
 
+struct CopyOracleBriefIntent: AppIntent {
+    static var title: LocalizedStringResource = "Copy Oracle Brief"
+    static var description = IntentDescription("Copy Terminal Brain's direct read, next moves, blindspot, cheap test, and agent handoff as Markdown.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let markdown = try await ShortcutClient.text(path: "/oracle/brief/markdown")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "Oracle Brief copied.")
+    }
+}
+
 struct CopyDecisionLaneIntent: AppIntent {
     static var title: LocalizedStringResource = "Copy Decision Lane"
     static var description = IntentDescription("Copy Terminal Brain's ranked Decision Lane as Markdown.")
@@ -587,6 +600,15 @@ struct TerminalBrainShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Copy Digest",
             systemImageName: "sparkle.magnifyingglass"
+        )
+        AppShortcut(
+            intent: CopyOracleBriefIntent(),
+            phrases: [
+                "Copy \(.applicationName) Oracle Brief",
+                "Copy \(.applicationName) oracle"
+            ],
+            shortTitle: "Copy Oracle",
+            systemImageName: "wand.and.stars"
         )
         AppShortcut(
             intent: CopyDecisionLaneIntent(),

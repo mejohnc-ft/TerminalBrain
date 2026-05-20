@@ -54,6 +54,10 @@ mcp_value_output="$(call_mcp_tool terminal_brain_value_now_markdown)"
 require_contains "$mcp_value_output" '# Terminal Brain Value Now' "MCP value title"
 require_contains "$mcp_value_output" 'What You Can Get From It' "MCP value explanation"
 
+mcp_oracle_output="$(call_mcp_tool terminal_brain_oracle_brief_markdown)"
+require_contains "$mcp_oracle_output" '# Terminal Brain Oracle Brief' "MCP Oracle Brief title"
+require_contains "$mcp_oracle_output" 'cheapest test' "MCP Oracle Brief closed fallback"
+
 mcp_process_output="$(call_mcp_tool terminal_brain_process_map_markdown)"
 require_contains "$mcp_process_output" '# Terminal Brain Process Map' "MCP process map title"
 require_contains "$mcp_process_output" 'did not launch, foreground, quit, kill, or control anything' "MCP process map guardrail"
@@ -65,6 +69,7 @@ require_contains "$mcp_cleanup_output" 'did not launch, foreground, quit, kill, 
 mcp_support_output="$(call_mcp_tool terminal_brain_support_bundle_markdown)"
 require_contains "$mcp_support_output" '# Terminal Brain Support Bundle' "MCP support bundle title"
 require_contains "$mcp_support_output" '# Now' "MCP support bundle now section"
+require_contains "$mcp_support_output" '# Oracle Brief' "MCP support bundle Oracle Brief section"
 require_contains "$mcp_support_output" '# Cleanup Plan' "MCP support bundle cleanup section"
 
 mcp_doctor_output="$(call_mcp_tool terminal_brain_doctor_markdown)"

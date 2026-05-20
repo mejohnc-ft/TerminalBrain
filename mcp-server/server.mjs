@@ -582,6 +582,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_oracle_brief_markdown",
+    description: "Get Terminal Brain Oracle Brief as prompt-ready Markdown with direct read, next moves, missing signal, cheap test, and agent handoff.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_oracle_items",
     description: "List Oracle surfaced items, including bubbling ideas, open loops, decisions, and opportunities.",
     inputSchema: {
@@ -1056,6 +1065,24 @@ function nowMarkdown() {
   ].join("\n");
 }
 
+function oracleBriefMarkdown() {
+  const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "oracle-brief.zsh")], { timeout: 15000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Oracle Brief",
+    "",
+    "Oracle Brief failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 function cleanupPlanMarkdown() {
   const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "cleanup-plan.zsh")], { timeout: 10000 });
   if (result.ok) return result.text;
@@ -1193,6 +1220,8 @@ async function callTool(name, args = {}) {
       return doctorMarkdown();
     case "terminal_brain_value_now_markdown":
       return valueNowMarkdown();
+    case "terminal_brain_oracle_brief_markdown":
+      return oracleBriefMarkdown();
     case "terminal_brain_audit_markdown":
       return auditMarkdown();
     case "terminal_brain_status":
