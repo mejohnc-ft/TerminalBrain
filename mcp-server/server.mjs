@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 
+import { execFileSync } from "node:child_process";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 const API = process.env.TERMINAL_BRAIN_API || "http://127.0.0.1:8765";
+const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 
 const serverInfo = {
   name: "terminal-brain",
@@ -8,6 +13,15 @@ const serverInfo = {
 };
 
 const tools = [
+  {
+    name: "terminal_brain_runtime_status",
+    description: "Read non-launching runtime status for agents: repo, latest CI, local process, launchctl, and API reachability without requiring the app to be running.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
   {
     name: "terminal_brain_status",
     description: "Read Terminal Brain app status, including MCP, sync, index, Mission Control, and prompt-safety state.",
@@ -715,6 +729,98 @@ function toolText(value, isError = false) {
   return { content: [{ type: "text", text }], isError };
 }
 
+function runCommand(command, args, { cwd = ROOT, timeout = 3000 } = {}) {
+  try {
+    return {
+      ok: true,
+      text: execFileSync(command, args, {
+        cwd,
+        timeout,
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "pipe"]
+      }).trim()
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      text: typeof error?.stdout === "string" ? error.stdout.trim() : "",
+      error: typeof error?.stderr === "string" ? error.stderr.trim() : String(error)
+    };
+  }
+}
+
+async function apiHealth() {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 500);
+  try {
+    const response = await fetch(`${API}/health`, { signal: controller.signal });
+    const text = await response.text();
+    let body = text;
+    try {
+      body = JSON.parse(text);
+    } catch {
+      // Keep raw body.
+    }
+    return { reachable: response.ok, status: response.status, body };
+  } catch (error) {
+    return { reachable: false, error: error instanceof Error ? error.message : String(error) };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function runtimeStatus() {
+  const branch = runCommand("git", ["branch", "--show-current"]);
+  const upstream = runCommand("git", ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"]);
+  const head = runCommand("git", ["log", "-1", "--oneline"]);
+  const dirty = runCommand("git", ["status", "--short"]);
+  const ps = runCommand("ps", ["ax", "-o", "pid=,comm=,args="]);
+  const launchctl = runCommand("launchctl", ["list"]);
+  const ci = runCommand("gh", ["run", "list", "--branch", branch.text || "main", "--limit", "1"], { timeout: 5000 });
+  const processes = ps.ok
+    ? ps.text
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => /TerminalBrain|Terminal Brain/i.test(line))
+      .filter((line) => !/server\.mjs|node .*mcp-server|ps ax -o/i.test(line))
+    : [];
+  const launchItems = launchctl.ok
+    ? launchctl.text
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => /terminalbrain|terminal brain/i.test(line))
+    : [];
+  const health = await apiHealth();
+  return {
+    checkedAt: new Date().toISOString(),
+    api: API,
+    repo: {
+      branch: branch.text || "unknown",
+      upstream: upstream.text || "none",
+      head: head.text || "unknown",
+      clean: dirty.ok && dirty.text.length === 0,
+      changes: dirty.text ? dirty.text.split("\n") : []
+    },
+    ci: {
+      available: ci.ok,
+      latest: ci.text || "",
+      error: ci.ok ? "" : ci.error || ""
+    },
+    runtime: {
+      appProcessRunning: processes.length > 0,
+      processes,
+      launchctlRegistered: launchItems.length > 0,
+      launchItems,
+      apiReachable: health.reachable,
+      health
+    },
+    guardrails: [
+      "This MCP tool does not launch, foreground, quit, or control Terminal Brain.",
+      "Use app-backed tools only when apiReachable is true or the operator has opened the app."
+    ]
+  };
+}
+
 async function api(path, { method = "GET", body, rawText = false } = {}) {
   const response = await fetch(`${API}${path}`, {
     method,
@@ -740,6 +846,8 @@ async function api(path, { method = "GET", body, rawText = false } = {}) {
 
 async function callTool(name, args = {}) {
   switch (name) {
+    case "terminal_brain_runtime_status":
+      return runtimeStatus();
     case "terminal_brain_status":
       return api("/status");
     case "terminal_brain_snapshot":

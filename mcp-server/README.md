@@ -9,7 +9,9 @@ directly. It talks to the trusted local app API:
 http://127.0.0.1:8765
 ```
 
-Start Terminal Brain before using this MCP.
+Start Terminal Brain before using app-backed MCP tools. `terminal_brain_runtime_status`
+is server-side and can be used first to check whether the app, API, repo, CI, and
+launch service are active without launching or foregrounding anything.
 
 Oracle commits accept an optional `project` argument. When provided, Terminal Brain writes that project into note frontmatter so Review filters and Project Memory pages can attach the read to the correct work surface.
 
@@ -30,6 +32,7 @@ Codex/workspace config can register this server as:
 ## Tools
 
 - `terminal_brain_status`
+- `terminal_brain_runtime_status`
 - `terminal_brain_snapshot`
 - `terminal_brain_snapshot_markdown`
 - `terminal_brain_handoff_markdown`

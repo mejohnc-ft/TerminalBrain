@@ -11,6 +11,8 @@ This repository builds a local macOS app used during active work. Do not steal t
 
 ## Fast Context Path
 
+When Terminal Brain may not be running, use `make status` or MCP `terminal_brain_runtime_status` first. These checks do not launch or foreground the app.
+
 When Terminal Brain is already running and the user asks for useful work, start from the handoff instead of re-discovering the system:
 
 ```zsh
