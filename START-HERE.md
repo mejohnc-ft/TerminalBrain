@@ -4,13 +4,19 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 
 ## One-Block Loop
 
-1. Start with the current work block:
+1. Start with the one-command path:
+
+   ```zsh
+   make use-now
+   ```
+
+   `make use-now` gives one page with the current pull-forward block, an Oracle ask command, an idea capture command, an agent handoff command, and an outcome writeback command.
+
+   If you already know you only want the pull-forward block, run:
 
    ```zsh
    make work-block
    ```
-
-   `make work-block` gives one immediate pull-forward, triage, and close-loop surface.
 
    ```zsh
    make next

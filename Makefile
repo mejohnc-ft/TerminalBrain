@@ -1,7 +1,8 @@
-.PHONY: help build install verify live first-minute demo playbook value-audit design-audit now sources memory memory-promote recent-work status processes cleanup-plan support-bundle next value prove-value oracle-brief bubble-up work-block doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live use-now first-minute demo playbook value-audit design-audit now sources memory memory-promote recent-work status processes cleanup-plan support-bundle next value prove-value oracle-brief bubble-up work-block doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
+	@echo "  make use-now       One-command non-launching path: read, ask, capture, delegate, close"
 	@echo "  make work-block    Non-launching work block: pull forward, triage, close loop"
 	@echo "  make next          Non-launching next move; prints Start Here if app is reachable"
 	@echo "  make first-minute  Non-launching one-command value path and working proof"
@@ -63,6 +64,9 @@ install:
 
 verify:
 	./mac-app/scripts/verify-static.zsh
+
+use-now:
+	@if test -n "$$PROJECT"; then ./mac-app/scripts/use-now.zsh --project "$$PROJECT"; else ./mac-app/scripts/use-now.zsh; fi
 
 first-minute:
 	./mac-app/scripts/first-minute.zsh

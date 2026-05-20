@@ -33,6 +33,24 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_use_now_markdown",
+    description: "Get the one-command non-launching Terminal Brain path for a new or overwhelmed operator: read the pull-forward block, ask, capture, delegate, and close the loop.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        limit: {
+          type: "number",
+          description: "Maximum surfaced items to show in the embedded work block. Defaults to 2."
+        },
+        project: {
+          type: "string",
+          description: "Optional project label for capture and outcome commands. Defaults to Terminal Brain."
+        }
+      },
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_first_minute_markdown",
     description: "Get one non-launching first-minute artifact: what Terminal Brain is, what value is available, what to do first, and a working closed-app proof.",
     inputSchema: {
@@ -1226,6 +1244,31 @@ function nowMarkdown() {
   ].join("\n");
 }
 
+function useNowMarkdown(args = {}) {
+  const commandArgs = [join(ROOT, "mac-app", "scripts", "use-now.zsh")];
+  if (Number.isFinite(args.limit)) {
+    commandArgs.push("--limit", String(Math.max(1, Math.floor(args.limit))));
+  }
+  if (typeof args.project === "string" && args.project.trim()) {
+    commandArgs.push("--project", args.project.trim());
+  }
+  const result = runCommand("zsh", commandArgs, { timeout: 25000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Use Now",
+    "",
+    "Use Now failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 function startHereMarkdown() {
   const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "snapshot.zsh"), "--start-here"], { timeout: 15000 });
   if (result.ok) return result.text;
@@ -1931,6 +1974,8 @@ async function callTool(name, args = {}) {
       return runtimeStatus();
     case "terminal_brain_now_markdown":
       return nowMarkdown();
+    case "terminal_brain_use_now_markdown":
+      return useNowMarkdown(args);
     case "terminal_brain_first_minute_markdown":
       return firstMinuteMarkdown();
     case "terminal_brain_now":

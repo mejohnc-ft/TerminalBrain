@@ -10,6 +10,7 @@ Usage: ./mac-app/scripts/verify-static.zsh
 
 Runs non-launching local QA:
   - shell script syntax
+  - help output for first-use commands
   - MCP server syntax
   - Swift typecheck
   - macOS app build
@@ -33,6 +34,7 @@ esac
 
 zsh -n "$ROOT"/mac-app/scripts/*.zsh
 for script in \
+  "$ROOT/mac-app/scripts/use-now.zsh" \
   "$ROOT/mac-app/scripts/oracle.zsh" \
   "$ROOT/mac-app/scripts/outcome.zsh" \
   "$ROOT/mac-app/scripts/snapshot.zsh" \
