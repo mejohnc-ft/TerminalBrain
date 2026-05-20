@@ -64,7 +64,10 @@ selection_json="$(
     end
     def meaningful_words(value)
       stop = %w[the and for with from this that into after before because should what when where were was are has have had queue clean fresh work recent follow outcome action terminal brain]
-      value.to_s.downcase.scan(/[a-z0-9]+/).reject { |word| word.length < 3 || stop.include?(word) }.uniq
+      value.to_s.downcase.scan(/[a-z0-9]+/)
+        .map { |word| word.length > 3 ? word.sub(/s\z/, "") : word }
+        .reject { |word| word.length < 3 || stop.include?(word) }
+        .uniq
     end
 
     def parse_memory_notes(workspace)
