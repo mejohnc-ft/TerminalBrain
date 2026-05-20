@@ -10,7 +10,7 @@ Terminal Brain is useful when it turns scattered local context into one work blo
    make use-now
    ```
 
-   `make use-now` gives one page with the current pull-forward block, an Oracle ask command, an idea capture command, an agent handoff command, and an outcome writeback command.
+   `make use-now` starts with one executable move, then shows the pull-forward context, Oracle ask command, idea capture command, agent handoff command, and outcome writeback command.
 
    If you already know you only want the pull-forward block, run:
 

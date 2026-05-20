@@ -37,7 +37,7 @@ echo
 echo "| Situation | Run | What You Get |"
 echo "| --- | --- | --- |"
 echo "| I need proof this is useful | \`make demo\` | Temporary seeded ideas, Bubble Up, Work Block, and real-use commands |"
-echo "| I need one real thing to do | \`make use-now\` | Pull-forward signal plus ask, capture, delegate, and outcome commands |"
+echo "| I need one real thing to do | \`make use-now\` | One move first, then compact pull-forward context plus ask, capture, delegate, and outcome commands |"
 echo "| I need the direct read | \`make oracle-brief\` | Next moves, missing signal, cheapest test, agent handoff |"
 echo "| I need to save a thought | \`make idea IDEA=\"...\" PROJECT=\"...\"\` | Durable Oracle Inbox note with review status |"
 echo "| I need to ask the system | \`make ask QUERY=\"...\"\` | Oracle answer with closed-app fallback |"
