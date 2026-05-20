@@ -34,6 +34,14 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 
    `make demo` creates a temporary workspace, seeds ideas and an outcome, then shows Review Queue, Bubble Up, Work Block, and the real commands to keep using the system.
 
+   To choose the right command for a real situation, run:
+
+   ```zsh
+   make playbook
+   ```
+
+   `make playbook` maps common work situations to exact commands, the first five-minute loop, daily cadence, agent cadence, and current readiness.
+
    ```zsh
    make now
    ```
@@ -117,6 +125,7 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 - `Value` says what Terminal Brain is useful for right now.
 - `Value Proof` demonstrates Oracle Brief -> Agent Prompt -> accepted Outcome without touching the real workspace.
 - `Demo` shows ideas becoming a review queue, bubbled-up signals, and one work block in a temporary workspace.
+- `Playbook` tells you which command to use for capture, Oracle reads, agent handoff, outcomes, and runtime checks.
 - `Oracle Brief` gives the direct read, missing signal, cheap test, and agent handoff.
 - `Status` shows repo, CI, process, launchctl, and API state without touching app focus.
 - `Processes` separates app/runtime focus stealers from Codex, MCP, kernel, brain-console, and Drafts background noise.

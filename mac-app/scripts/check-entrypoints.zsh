@@ -176,6 +176,15 @@ require_contains "$demo_output" '# Terminal Brain Work Block' "demo Work Block"
 require_contains "$demo_output" 'Use It For Real' "demo real commands"
 require_contains "$demo_output" 'did not launch, foreground, quit, kill, or control' "demo guardrail"
 
+playbook_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/playbook.zsh")"
+require_contains "$playbook_output" '# Terminal Brain Playbook' "playbook title"
+require_contains "$playbook_output" 'Pick The Situation' "playbook situations"
+require_contains "$playbook_output" 'First Five Minutes' "playbook first five minutes"
+require_contains "$playbook_output" 'Daily Cadence' "playbook daily cadence"
+require_contains "$playbook_output" 'Agent Cadence' "playbook agent cadence"
+require_contains "$playbook_output" 'readiness:' "playbook readiness"
+require_contains "$playbook_output" 'did not launch, foreground, quit, kill, or control' "playbook guardrail"
+
 mcp_next_output="$(call_mcp_tool terminal_brain_next_markdown)"
 require_contains "$mcp_next_output" '# Terminal Brain Next' "MCP next title"
 require_contains "$mcp_next_output" 'make oracle-brief' "MCP next Oracle Brief fallback"
@@ -240,6 +249,12 @@ require_contains "$mcp_demo_output" '# Terminal Brain Review Queue' "MCP demo re
 require_contains "$mcp_demo_output" '# Terminal Brain Bubble Up' "MCP demo Bubble Up"
 require_contains "$mcp_demo_output" '# Terminal Brain Work Block' "MCP demo Work Block"
 require_contains "$mcp_demo_output" 'Use It For Real' "MCP demo real commands"
+
+mcp_playbook_output="$(call_mcp_tool terminal_brain_playbook_markdown)"
+require_contains "$mcp_playbook_output" '# Terminal Brain Playbook' "MCP playbook title"
+require_contains "$mcp_playbook_output" 'Pick The Situation' "MCP playbook situations"
+require_contains "$mcp_playbook_output" 'First Five Minutes' "MCP playbook first five minutes"
+require_contains "$mcp_playbook_output" 'Agent Cadence' "MCP playbook agent cadence"
 
 mcp_oracle_output="$(call_mcp_tool terminal_brain_oracle_brief_markdown)"
 require_contains "$mcp_oracle_output" '# Terminal Brain Oracle Brief' "MCP Oracle Brief title"

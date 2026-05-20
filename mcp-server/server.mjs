@@ -128,6 +128,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_playbook_markdown",
+    description: "Get the non-launching operator playbook: what command to run for common situations, first five-minute loop, daily cadence, agent cadence, and readiness.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_review_queue_markdown",
     description: "Read the non-launching Oracle Inbox review queue as Markdown without opening Terminal Brain.",
     inputSchema: {
@@ -1303,6 +1312,24 @@ function demoMarkdown() {
   ].join("\n");
 }
 
+function playbookMarkdown() {
+  const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "playbook.zsh")], { timeout: 15000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Playbook",
+    "",
+    "Playbook failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 function reviewQueueMarkdown(args = {}) {
   const commandArgs = [join(ROOT, "mac-app", "scripts", "review.zsh")];
   if (Number.isFinite(args.limit)) {
@@ -1714,6 +1741,8 @@ async function callTool(name, args = {}) {
       return valueProofMarkdown();
     case "terminal_brain_demo_markdown":
       return demoMarkdown();
+    case "terminal_brain_playbook_markdown":
+      return playbookMarkdown();
     case "terminal_brain_review_queue_markdown":
       return reviewQueueMarkdown(args);
     case "terminal_brain_bubble_up_markdown":
