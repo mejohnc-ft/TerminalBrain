@@ -32,6 +32,7 @@ final class BrainStatusModel: ObservableObject {
     @Published var quickIdeaOutput = ""
     @Published var snapshotCopyOutput = ""
     @Published var valueBriefCopyOutput = ""
+    @Published var oracleDigestCopyOutput = ""
     @Published var briefCopyOutput = ""
     @Published var decisionLaneCopyOutput = ""
     @Published var blindspotCopyOutput = ""
@@ -243,6 +244,12 @@ final class BrainStatusModel: ObservableObject {
     func copyValueBrief() async {
         await copyMarkdown(path: "/value-brief/markdown", label: "Value Brief") { message in
             valueBriefCopyOutput = message
+        }
+    }
+
+    func copyOracleDigest() async {
+        await copyMarkdown(path: "/oracle-digest/markdown", label: "Oracle Digest") { message in
+            oracleDigestCopyOutput = message
         }
     }
 

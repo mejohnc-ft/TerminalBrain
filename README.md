@@ -37,7 +37,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - One-call operator snapshot for agents: Focus, Operator Brief, Operator Deck, Blindspot Brief, Radar, setup gaps, Today, memory trail, and suggested next actions.
 - Plain-language Operator Brief that says what matters, why it matters, what not to miss, and what artifact to create next.
 - Value Brief that collapses Focus, Idea Pulse, Blindspots, and Project Memory into one compact value read.
-- Oracle Digest that turns current signals into a Notice / Decide / Test / Create / Avoid read for the next work block.
+- Oracle Digest that turns current signals into a Notice / Decide / Test / Create / Avoid read for the next work block, available in the app, command palette, App Shortcuts, CLI, API, and MCP.
 - Agent Prompt generator that turns the current Value Brief into a concise Codex/Claude execution prompt with acceptance criteria and guardrails.
 - Structured Outcome commit endpoint/tool/CLI so agents can write back what changed, evidence, and next action without launching the app.
 - Operator Deck for app and agents: do first, ask about, review or capture, and project/start-work cards.

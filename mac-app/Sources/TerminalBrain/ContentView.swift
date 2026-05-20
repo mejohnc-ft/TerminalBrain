@@ -77,6 +77,7 @@ struct ContentView: View {
             BrainCommand(title: "Run Sync", subtitle: "Refresh edge brain export with current permission policy", symbol: "arrow.triangle.2.circlepath", category: "Action", action: .runSync),
             BrainCommand(title: "Copy Operator Snapshot", subtitle: "Prompt-ready Focus, Radar, actions, and memory trail", symbol: "doc.on.clipboard", category: "Action", action: .copySnapshot),
             BrainCommand(title: "Copy Value Brief", subtitle: "Compact read on why the current move is worth attention", symbol: "bolt.fill", category: "Action", action: .copyValueBrief),
+            BrainCommand(title: "Copy Oracle Digest", subtitle: "Notice, decide, test, create, and avoid lanes", symbol: "sparkle.magnifyingglass", category: "Action", action: .copyOracleDigest),
             BrainCommand(title: "Copy Operator Brief", subtitle: "Plain-language value read", symbol: "wand.and.stars", category: "Action", action: .copyBrief),
             BrainCommand(title: "Copy Decision Lane", subtitle: "Ranked Today action queue", symbol: "list.number", category: "Action", action: .copyDecisionLane),
             BrainCommand(title: "Copy Blindspot Brief", subtitle: "Counter-signal before broad planning", symbol: "eye.fill", category: "Action", action: .copyBlindspots),
@@ -779,6 +780,19 @@ struct ContentView: View {
             HStack(alignment: .firstTextBaseline) {
                 SectionTitle("Oracle Digest", symbol: "sparkle.magnifyingglass")
                 Spacer()
+                if !model.oracleDigestCopyOutput.isEmpty {
+                    Text(model.oracleDigestCopyOutput)
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.white.opacity(0.48))
+                        .lineLimit(1)
+                }
+                Button {
+                    Task { await model.copyOracleDigest() }
+                } label: {
+                    Label("Copy", systemImage: "doc.on.clipboard")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
                 Text("Notice, decide, test, create, avoid")
                     .font(.caption.weight(.bold))
                     .foregroundStyle(.white.opacity(0.42))
@@ -2720,7 +2734,7 @@ struct ContentView: View {
             SystemSurfaceCard(title: "Control API", value: "127.0.0.1:8765", detail: "Local-only gateway for agents and MCP.", symbol: "network")
             SystemSurfaceCard(title: "Widget", value: "Next", detail: "A desktop/Notification Center widget should show prompt-safety, sync age, and Mission points.", symbol: "rectangle.on.rectangle")
             SystemSurfaceCard(title: "Login Item", value: "Next", detail: "Launch at login after the gateway has a signed release bundle.", symbol: "power")
-            SystemSurfaceCard(title: "Shortcuts", value: "Native", detail: "App Shortcuts expose Copy Handoff, Copy Prompt, Copy Value, Copy Deck, Copy Snapshot, Copy Blindspots, Copy Ideas, Run Sync, Start Work, and Open/Copy Latest Context Pack to Spotlight, Siri, and automation.", symbol: "wand.and.stars")
+            SystemSurfaceCard(title: "Shortcuts", value: "Native", detail: "App Shortcuts expose Copy Handoff, Copy Prompt, Copy Oracle Digest, Copy Value, Copy Deck, Copy Snapshot, Copy Blindspots, Copy Ideas, Run Sync, Start Work, and Open/Copy Latest Context Pack to Spotlight, Siri, and automation.", symbol: "wand.and.stars")
         }
     }
 
@@ -2818,6 +2832,8 @@ struct ContentView: View {
             Task { await model.copyOperatorSnapshot() }
         case .copyValueBrief:
             Task { await model.copyValueBrief() }
+        case .copyOracleDigest:
+            Task { await model.copyOracleDigest() }
         case .copyBrief:
             Task { await model.copyOperatorBrief() }
         case .copyDecisionLane:
@@ -3100,6 +3116,7 @@ enum BrainCommandAction {
     case runSync
     case copySnapshot
     case copyValueBrief
+    case copyOracleDigest
     case copyBrief
     case copyDecisionLane
     case copyBlindspots
