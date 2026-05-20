@@ -37,10 +37,12 @@ require_in_file "$ROOT/mac-app/scripts/snapshot.zsh" '--digest' "Oracle Digest C
 require_in_file "$ROOT/mac-app/scripts/outcome.zsh" '/outcomes/commit' "Outcome CLI writeback"
 require_in_file "$ROOT/mac-app/scripts/status.zsh" 'App process' "non-launching status process check"
 require_in_file "$ROOT/mac-app/scripts/next.zsh" 'make start-here' "non-launching next move handoff"
+require_in_file "$ROOT/mac-app/scripts/doctor.zsh" 'MCP tool contract valid' "non-launching doctor MCP check"
 require_in_file "$ROOT/Makefile" '^start-here:' "Start Here Make target"
 require_in_file "$ROOT/Makefile" '^outcome:' "Outcome Make target"
 require_in_file "$ROOT/Makefile" '^status:' "Status Make target"
 require_in_file "$ROOT/Makefile" '^next:' "Next Make target"
+require_in_file "$ROOT/Makefile" '^doctor:' "Doctor Make target"
 
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_runtime_status' "Runtime Status MCP tool"
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_next_markdown' "Next Move MCP tool"

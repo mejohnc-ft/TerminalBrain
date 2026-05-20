@@ -16,6 +16,12 @@ Terminal Brain is useful when it turns scattered local context into one work blo
    make status
    ```
 
+   To audit setup wiring without launching the app, run:
+
+   ```zsh
+   make doctor
+   ```
+
 2. If an agent needs the task, copy the focused execution prompt:
 
    ```zsh
@@ -38,6 +44,7 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 
 - `Start Here` gives the shortest path from signal to action to outcome.
 - `Status` shows repo, CI, process, launchctl, and API state without touching app focus.
+- `Doctor` checks app install, MCP contract, agent config references, and runtime readiness.
 - `Oracle Digest` says what to notice, decide, test, create, and avoid.
 - `Agent Prompt` turns the current signal into a bounded Codex/Claude task.
 - `Outcome` writeback saves what changed as accepted durable memory.

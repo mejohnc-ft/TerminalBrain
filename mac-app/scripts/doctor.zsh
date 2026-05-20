@@ -1,0 +1,147 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+API="${TERMINAL_BRAIN_API:-http://127.0.0.1:8765}"
+BUILT_APP="$ROOT/mac-app/build/Terminal Brain.app"
+INSTALLED_APP="$HOME/Applications/Terminal Brain.app"
+MCP_SERVER="$ROOT/mcp-server/server.mjs"
+
+case "${1:-}" in
+  --help|-h)
+    cat <<'EOF'
+Usage: ./mac-app/scripts/doctor.zsh
+
+Runs a non-launching Terminal Brain readiness audit:
+  - repo and CI state
+  - built and installed app bundles
+  - MCP server syntax and tool contract
+  - likely Codex/agent MCP config references
+  - app process, launchctl, and API reachability
+
+This script never launches, foregrounds, quits, or controls Terminal Brain.
+EOF
+    exit 0
+    ;;
+  "")
+    ;;
+  *)
+    echo "Unknown option: $1" >&2
+    echo "Run ./mac-app/scripts/doctor.zsh --help" >&2
+    exit 64
+    ;;
+esac
+
+ok_count=0
+warn_count=0
+
+ok() {
+  ok_count=$((ok_count + 1))
+  printf 'ok   %s\n' "$1"
+}
+
+warn() {
+  warn_count=$((warn_count + 1))
+  printf 'warn %s\n' "$1"
+}
+
+echo "# Terminal Brain Doctor"
+echo
+echo "Checked: $(date '+%Y-%m-%d %H:%M:%S %Z')"
+echo
+
+echo "## Repo"
+branch="$(git -C "$ROOT" branch --show-current 2>/dev/null || true)"
+head="$(git -C "$ROOT" log -1 --oneline 2>/dev/null || true)"
+dirty="$(git -C "$ROOT" status --short 2>/dev/null || true)"
+ok "branch ${branch:-unknown}"
+ok "head ${head:-unknown}"
+if [[ -z "$dirty" ]]; then
+  ok "working tree clean"
+else
+  warn "working tree has uncommitted changes"
+  printf '%s\n' "$dirty" | sed 's/^/     /'
+fi
+echo
+
+echo "## App"
+if [[ -d "$BUILT_APP" ]]; then
+  ok "built app exists at $BUILT_APP"
+else
+  warn "built app missing; run make build"
+fi
+
+if [[ -d "$INSTALLED_APP" ]]; then
+  ok "installed app exists at $INSTALLED_APP"
+else
+  warn "installed app missing; run make install when you want to copy it to ~/Applications"
+fi
+
+process_pids="$(pgrep -x TerminalBrain 2>/dev/null || true)"
+if [[ -n "$process_pids" ]]; then
+  ok "TerminalBrain process is running"
+else
+  warn "TerminalBrain process is not running; open it manually when you want the UI/API active"
+fi
+
+launch_items="$(launchctl list 2>/dev/null | grep -Ei 'terminalbrain|terminal brain' || true)"
+if [[ -n "$launch_items" ]]; then
+  ok "launchctl has a matching Terminal Brain item"
+else
+  ok "no Terminal Brain launch agent is loaded"
+fi
+
+if curl -fsS --max-time 0.5 "$API/health" >/dev/null 2>&1; then
+  ok "API reachable at $API"
+else
+  warn "API not reachable at $API; app-backed tools need the app open"
+fi
+echo
+
+echo "## MCP"
+if [[ -f "$MCP_SERVER" ]]; then
+  ok "MCP server exists"
+else
+  warn "MCP server missing at $MCP_SERVER"
+fi
+
+if node --check "$MCP_SERVER" >/dev/null 2>&1; then
+  ok "MCP server syntax valid"
+else
+  warn "MCP server syntax check failed; run node --check mcp-server/server.mjs"
+fi
+
+if node "$ROOT/mcp-server/check-tools.mjs" >/dev/null 2>&1; then
+  ok "MCP tool contract valid"
+else
+  warn "MCP tool contract failed; run make mcp-test"
+fi
+
+config_hits=()
+config_files=(
+  "$HOME/.codex/config.toml"
+  "$HOME/.codex/config.json"
+  "$HOME/.config/codex/config.toml"
+  "$HOME/.config/claude/claude_desktop_config.json"
+  "$HOME/Library/Application Support/Claude/claude_desktop_config.json"
+)
+for file in "${config_files[@]}"; do
+  [[ -f "$file" ]] || continue
+  if grep -qE 'terminal-brain|TerminalBrain|mcp-server/server\.mjs' "$file"; then
+    config_hits+=("$file")
+  fi
+done
+
+if (( ${#config_hits[@]} > 0 )); then
+  ok "agent config references Terminal Brain MCP"
+  printf '     %s\n' "${config_hits[@]}"
+else
+  warn "no common Codex/Claude config reference found for Terminal Brain MCP"
+fi
+echo
+
+echo "## Summary"
+echo "- ok: $ok_count"
+echo "- warnings: $warn_count"
+echo "- next: run make next for the safest current workflow"
+echo "- guardrail: doctor did not launch or foreground Terminal Brain"

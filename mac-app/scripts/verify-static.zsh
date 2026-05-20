@@ -37,6 +37,7 @@ for script in \
   "$ROOT/mac-app/scripts/snapshot.zsh" \
   "$ROOT/mac-app/scripts/status.zsh" \
   "$ROOT/mac-app/scripts/next.zsh" \
+  "$ROOT/mac-app/scripts/doctor.zsh" \
   "$ROOT/mac-app/scripts/handoff.zsh" \
   "$ROOT/mac-app/scripts/install-app.zsh" \
   "$ROOT/mac-app/scripts/verify-live.zsh"; do
