@@ -365,7 +365,7 @@ struct ContentView: View {
     private var profileMenu: some View {
         Menu {
             Section("Profile") {
-                Label("Jonathan Christensen", systemImage: "person.crop.circle")
+                Label("John Christensen", systemImage: "person.crop.circle")
                 Label("Local Operator", systemImage: "shield.lefthalf.filled")
             }
             Divider()
@@ -407,7 +407,7 @@ struct ContentView: View {
     private var toolbarProfileMenu: some View {
         Menu {
             Section("Profile") {
-                Label("Jonathan Christensen", systemImage: "person.crop.circle")
+                Label("John Christensen", systemImage: "person.crop.circle")
                 Label("Local Operator", systemImage: "shield.lefthalf.filled")
             }
             Divider()
