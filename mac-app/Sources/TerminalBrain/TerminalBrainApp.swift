@@ -40,6 +40,11 @@ struct TerminalBrainApp: App {
                 }
                 .keyboardShortcut("c", modifiers: [.command, .shift])
 
+                Button("Copy Operator Deck") {
+                    Task { await model.copyOperatorDeck() }
+                }
+                .keyboardShortcut("d", modifiers: [.command, .shift])
+
                 Button("Open Mission Control") {
                     model.openMissionControl()
                 }
@@ -56,6 +61,9 @@ struct TerminalBrainApp: App {
             }
             Button("Copy Operator Snapshot") {
                 Task { await model.copyOperatorSnapshot() }
+            }
+            Button("Copy Operator Deck") {
+                Task { await model.copyOperatorDeck() }
             }
             Divider()
             Button("Open Mission Control") {
