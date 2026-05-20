@@ -80,6 +80,7 @@ struct ContentView: View {
             BrainCommand(title: "Run Sync", subtitle: "Refresh edge brain export with current permission policy", symbol: "arrow.triangle.2.circlepath", category: "Action", action: .runSync),
             BrainCommand(title: "Copy Operator Snapshot", subtitle: "Prompt-ready Focus, Radar, actions, and memory trail", symbol: "doc.on.clipboard", category: "Action", action: .copySnapshot),
             BrainCommand(title: "Copy Now", subtitle: "Bottom line, next action, process truth, and close loop", symbol: "sparkles", category: "Action", action: .copyNow),
+            BrainCommand(title: "Copy Process Map", subtitle: "Terminal Brain, Codex, MCP, kernel, Drafts, launchctl, and API state", symbol: "point.3.connected.trianglepath.dotted", category: "Action", action: .copyProcessMap),
             BrainCommand(title: "Copy Cleanup Plan", subtitle: "Read-only stale MCP/kernel process cleanup guidance", symbol: "wrench.and.screwdriver.fill", category: "Action", action: .copyCleanupPlan),
             BrainCommand(title: "Copy Support Bundle", subtitle: "Now, Doctor, Audit, Process Map, Cleanup Plan, and Git state", symbol: "shippingbox.and.arrow.backward.fill", category: "Action", action: .copySupportBundle),
             BrainCommand(title: "Copy Start Here", subtitle: "One block, one artifact, one written outcome", symbol: "play.circle.fill", category: "Action", action: .copyStartHere),
@@ -3111,7 +3112,7 @@ struct ContentView: View {
             SystemSurfaceCard(title: "Control API", value: "127.0.0.1:8765", detail: "Local-only gateway for agents and MCP.", symbol: "network")
             SystemSurfaceCard(title: "Widget", value: "Next", detail: "A desktop/Notification Center widget should show prompt-safety, sync age, and Mission points.", symbol: "rectangle.on.rectangle")
             SystemSurfaceCard(title: "Login Item", value: "Next", detail: "Launch at login after the gateway has a signed release bundle.", symbol: "power")
-            SystemSurfaceCard(title: "Shortcuts", value: "Native", detail: "App Shortcuts expose Copy Now, Copy Cleanup Plan, Copy Support Bundle, Copy Handoff, Copy Start Here, Copy Prompt, Copy Oracle Digest, Commit Outcome, Copy Value, Copy Deck, Copy Snapshot, Copy Blindspots, Copy Ideas, Run Sync, Start Work, and Open/Copy Latest Context Pack to Spotlight, Siri, and automation.", symbol: "wand.and.stars")
+            SystemSurfaceCard(title: "Shortcuts", value: "Native", detail: "App Shortcuts expose Copy Now, Copy Process Map, Copy Cleanup Plan, Copy Support Bundle, Copy Handoff, Copy Start Here, Copy Prompt, Copy Oracle Digest, Commit Outcome, Copy Value, Copy Deck, Copy Snapshot, Copy Blindspots, Copy Ideas, Run Sync, Start Work, and Open/Copy Latest Context Pack to Spotlight, Siri, and automation.", symbol: "wand.and.stars")
         }
     }
 
@@ -3209,6 +3210,8 @@ struct ContentView: View {
             Task { await model.copyOperatorSnapshot() }
         case .copyNow:
             Task { await model.copyNow() }
+        case .copyProcessMap:
+            Task { await model.copyProcessMap() }
         case .copyCleanupPlan:
             Task { await model.copyCleanupPlan() }
         case .copySupportBundle:
@@ -3501,6 +3504,7 @@ enum BrainCommandAction {
     case runSync
     case copySnapshot
     case copyNow
+    case copyProcessMap
     case copyCleanupPlan
     case copySupportBundle
     case copyStartHere

@@ -73,6 +73,8 @@ final class LocalControlServer {
             return .text(200, await NowSnapshot.markdown())
         case ("GET", "/cleanup-plan/markdown"):
             return .text(200, await CleanupPlanSnapshot.markdown())
+        case ("GET", "/process-map/markdown"):
+            return .text(200, await ProcessMapSnapshot.markdown())
         case ("GET", "/support-bundle/markdown"):
             return .text(200, await SupportBundleSnapshot.markdown())
         case ("GET", "/start-here/markdown"):
@@ -1795,6 +1797,59 @@ enum CleanupPlanSnapshot {
             "# Terminal Brain Cleanup Plan",
             "",
             "Cleanup plan failed before completing.",
+            "",
+            "## Status",
+            "",
+            "- Exit: \(result.status)",
+            "",
+            "## Output",
+            "",
+            output.ifEmpty("(no stdout)"),
+            "",
+            "## Error",
+            "",
+            result.stderr.trimmingCharacters(in: .whitespacesAndNewlines).ifEmpty("(no stderr)"),
+            "",
+            "## Guardrail",
+            "",
+            "- This API response did not launch, foreground, quit, kill, or control anything."
+        ].joined(separator: "\n")
+    }
+}
+
+enum ProcessMapSnapshot {
+    static func markdown() async -> String {
+        let script = "\(Paths.home)/Git/TerminalBrain/mac-app/scripts/processes.zsh"
+        guard FileManager.default.fileExists(atPath: script) else {
+            return [
+                "# Terminal Brain Process Map",
+                "",
+                "The process-map script is not available at:",
+                "",
+                "```text",
+                script,
+                "```",
+                "",
+                "Open the TerminalBrain repo and run:",
+                "",
+                "```zsh",
+                "make processes",
+                "```",
+                "",
+                "Guardrail: this API response did not launch, foreground, quit, kill, or control anything."
+            ].joined(separator: "\n")
+        }
+
+        let result = await CommandRunner.run("/bin/zsh", [script, "--details"])
+        let output = result.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
+        if result.succeeded, !output.isEmpty {
+            return output
+        }
+
+        return [
+            "# Terminal Brain Process Map",
+            "",
+            "Process map failed before completing.",
             "",
             "## Status",
             "",

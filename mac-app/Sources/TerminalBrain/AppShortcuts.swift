@@ -198,6 +198,19 @@ struct CopyCleanupPlanIntent: AppIntent {
     }
 }
 
+struct CopyProcessMapIntent: AppIntent {
+    static var title: LocalizedStringResource = "Copy Process Map"
+    static var description = IntentDescription("Copy Terminal Brain's current app, Codex, MCP, kernel, Drafts, launchctl, and API process map as Markdown.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let markdown = try await ShortcutClient.text(path: "/process-map/markdown")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "Process Map copied.")
+    }
+}
+
 struct CopySupportBundleIntent: AppIntent {
     static var title: LocalizedStringResource = "Copy Support Bundle"
     static var description = IntentDescription("Copy Terminal Brain's Now, Doctor, Audit, Process Map, Cleanup Plan, and Git state as one Markdown bundle.")
@@ -538,6 +551,15 @@ struct TerminalBrainShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Copy Cleanup",
             systemImageName: "wrench.and.screwdriver"
+        )
+        AppShortcut(
+            intent: CopyProcessMapIntent(),
+            phrases: [
+                "Copy \(.applicationName) process map",
+                "Copy \(.applicationName) runtime map"
+            ],
+            shortTitle: "Copy Processes",
+            systemImageName: "point.3.connected.trianglepath.dotted"
         )
         AppShortcut(
             intent: CopySupportBundleIntent(),

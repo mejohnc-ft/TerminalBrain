@@ -85,6 +85,13 @@ curl -fsS "$API/cleanup-plan/markdown" | ruby -e '
   puts "cleanup plan ok chars=#{text.length}"
 '
 
+curl -fsS "$API/process-map/markdown" | ruby -e '
+  text = STDIN.read
+  abort("process map missing title") unless text.include?("# Terminal Brain Process Map")
+  abort("process map missing guardrail") unless text.include?("did not launch, foreground, quit, kill, or control")
+  puts "process map ok chars=#{text.length}"
+'
+
 curl -fsS "$API/support-bundle/markdown" | ruby -e '
   text = STDIN.read
   abort("support bundle missing title") unless text.include?("# Terminal Brain Support Bundle")
@@ -245,6 +252,17 @@ printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal
       abort("mcp cleanup plan missing title") unless text.include?("# Terminal Brain Cleanup Plan")
       abort("mcp cleanup plan missing guardrail") unless text.include?("did not launch, foreground, quit, kill, or control")
       puts "mcp cleanup plan ok chars=#{text.length}"
+    '
+
+printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_process_map_markdown","arguments":{}}}\n' \
+  | node "$ROOT/mcp-server/server.mjs" \
+  | ruby -rjson -e '
+      line = STDIN.each_line.find { |l| l.include?("\"result\"") } || "{}"
+      response = JSON.parse(line)
+      text = response.dig("result", "content", 0, "text").to_s
+      abort("mcp process map missing title") unless text.include?("# Terminal Brain Process Map")
+      abort("mcp process map missing guardrail") unless text.include?("did not launch, foreground, quit, kill, or control")
+      puts "mcp process map ok chars=#{text.length}"
     '
 
 printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_snapshot_markdown","arguments":{}}}\n' \
