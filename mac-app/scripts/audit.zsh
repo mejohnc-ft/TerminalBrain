@@ -98,6 +98,8 @@ require_evidence "$ROOT/mac-app/scripts/review.zsh" 'make review-status' "review
 require_evidence "$ROOT/mac-app/scripts/review-status.zsh" 'reviewStatus' "closed-app review status"
 require_evidence "$ROOT/mac-app/scripts/bubble-up.zsh" 'What You May Not Be Considering' "closed-app Bubble Up"
 require_evidence "$ROOT/mac-app/scripts/work-block.zsh" 'Terminal Brain Work Block' "closed-app Work Block"
+require_evidence "$ROOT/mac-app/scripts/oracle.zsh" 'local-fallback' "closed-app Oracle Ask fallback"
+require_evidence "$ROOT/mac-app/scripts/oracle.zsh" 'write_local_commit' "closed-app Oracle Ask commit fallback"
 require_evidence "$ROOT/mac-app/scripts/outcome.zsh" 'local-fallback' "closed-app outcome writeback fallback"
 echo
 
@@ -119,6 +121,7 @@ require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_doctor_markdown' 
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_audit_markdown' "MCP Audit"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_runtime_status' "MCP Runtime Status"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_commit_outcome' "MCP Outcome Commit"
+require_evidence "$ROOT/mcp-server/server.mjs" 'oracleAskMarkdown' "MCP Oracle Ask fallback"
 require_evidence "$ROOT/mcp-server/server.mjs" 'captureIdea' "MCP Idea Capture fallback"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_review_queue_markdown' "MCP Review Queue"
 require_evidence "$ROOT/mcp-server/server.mjs" 'setReviewStatus' "MCP Review Status fallback"

@@ -1,7 +1,9 @@
 #!/usr/bin/env zsh
 set -euo pipefail
 
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 API="${TERMINAL_BRAIN_API:-http://127.0.0.1:8765}"
+WORKSPACE="${TERMINAL_BRAIN_WORKSPACE:-$HOME/mejohnwc}"
 COPY="0"
 COMMIT="0"
 PROJECT=""
@@ -34,8 +36,10 @@ while [[ $# -gt 0 ]]; do
       cat <<'EOF'
 Usage: ./mac-app/scripts/oracle.zsh [--copy] [--commit] [--project NAME] QUESTION
 
-Asks Terminal Brain Oracle through an already-running app and prints Markdown.
+Asks Terminal Brain Oracle and prints Markdown.
 This script never launches or foregrounds Terminal Brain.
+
+If the app API is closed, this uses the local Oracle Brief fallback.
 
 Options:
   --copy          Copy the Markdown answer to the clipboard as well as printing it.
@@ -64,9 +68,126 @@ if [[ -z "$QUESTION" ]]; then
   exit 64
 fi
 
+local_oracle_read() {
+  TERMINAL_BRAIN_API="$API" "$ROOT/mac-app/scripts/oracle-brief.zsh" | awk '
+    /^# Terminal Brain Oracle Brief$/ { next }
+    /^Terminal Brain is not currently reachable at / { next }
+    /^## Cheapest Test$/ { skip_section = 1; next }
+    skip_section && /^## / { skip_section = 0 }
+    skip_section { next }
+    /^## Runtime Truth$/ { skip = 1; next }
+    skip { next }
+    { print }
+  '
+}
+
+write_local_commit() {
+  local answer_file="$1"
+  QUESTION="$QUESTION" \
+  ANSWER_FILE="$answer_file" \
+  PROJECT="$PROJECT" \
+  WORKSPACE="$WORKSPACE" \
+  ruby -rjson -rfileutils -rtime -e '
+    def slug(value)
+      value.to_s.downcase.gsub(/[^a-z0-9]+/, "-").gsub(/^-|-$/, "")[0, 80]
+    end
+
+    question = ENV.fetch("QUESTION", "").strip
+    answer = File.read(ENV.fetch("ANSWER_FILE")).strip
+    project = ENV.fetch("PROJECT", "").strip
+    project = "General Brain" if project.empty?
+    workspace = ENV.fetch("WORKSPACE")
+    inbox = File.join(workspace, "Oracle Inbox")
+    FileUtils.mkdir_p(inbox)
+    created = Time.now.utc.iso8601
+    title = "Oracle - #{question.empty? ? "Local Read" : question}"
+    safe_title = slug(title)
+    path = File.join(inbox, "#{created.tr(":", "-")}-#{safe_title.empty? ? "oracle-read" : safe_title}.md")
+    tags = ["local-fallback", "oracle", "terminal-brain"].sort
+    tag_lines = tags.map { |tag| "  - #{tag}" }.join("\n")
+    note = <<~MARKDOWN
+      ---
+      type: oracle_commit
+      source: Terminal Brain Oracle CLI
+      project: #{project}
+      created: #{created}
+      reviewStatus: new
+      tags:
+      #{tag_lines}
+      ---
+
+      # #{title}
+
+      ## Question
+
+      #{question}
+
+      ## Read
+
+      #{answer}
+
+      ## Follow Up
+
+      - [ ] Review and link this note to the relevant project or daily note.
+      - [ ] Run Terminal Brain sync after edits are final.
+    MARKDOWN
+    File.write(path, note)
+    puts JSON.generate({
+      ok: true,
+      mode: "local-fallback",
+      path: path,
+      title: title,
+      project: project,
+      reviewStatus: "new",
+      tags: tags,
+      created: created,
+      guardrail: "oracle fallback did not launch or foreground Terminal Brain"
+    })
+  '
+}
+
 if ! curl -fsS "$API/health" >/dev/null 2>&1; then
-  echo "Terminal Brain is not reachable at $API. Start it yourself, then rerun this command." >&2
-  exit 2
+  answer_file="$(mktemp)"
+  {
+    echo "Terminal Brain is not reachable at $API, so this answer uses the local closed-app Oracle Brief."
+    echo
+    echo "The question was:"
+    echo
+    echo "> $QUESTION"
+    echo
+    echo "## Local Read"
+    echo
+    local_oracle_read
+    echo
+    echo "## Suggested Actions"
+    echo
+    echo "- Run make work-block and act on the pulled-forward item."
+    echo "- If there is no local signal yet, capture the current question with make idea IDEA=\"...\" PROJECT=\"${PROJECT:-Terminal Brain}\"."
+    echo "- Close the loop with make outcome TITLE=\"...\" OUTCOME=\"...\" PROJECT=\"${PROJECT:-Terminal Brain}\" NEXT=\"...\"."
+  } > "$answer_file"
+
+  OUTPUT="$(
+    echo "# Terminal Brain Oracle"
+    echo
+    echo "Question: $QUESTION"
+    echo "Mode: local-fallback"
+    echo
+    cat "$answer_file"
+    if [[ "$COMMIT" == "1" ]]; then
+      echo
+      echo "## Commit"
+      write_local_commit "$answer_file"
+    fi
+  )"
+
+  rm -f "$answer_file"
+
+  if [[ "$COPY" == "1" ]]; then
+    printf "%s\n" "$OUTPUT" | pbcopy
+  fi
+
+  printf "%s\n" "$OUTPUT"
+  exit 0
 fi
 
 OUTPUT="$(

@@ -71,6 +71,22 @@ require_contains "$oracle_output" 'make ask-commit' "oracle brief closed-app ask
 require_contains "$oracle_output" 'make outcome' "oracle brief outcome close loop"
 require_contains "$oracle_output" 'did not launch or foreground' "oracle brief status guardrail"
 
+ask_workspace="$(mktemp -d)"
+ask_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$ask_workspace" "$ROOT/mac-app/scripts/oracle.zsh" "what should I do next?")"
+require_contains "$ask_output" '# Terminal Brain Oracle' "ask fallback title"
+require_contains "$ask_output" 'Mode: local-fallback' "ask fallback mode"
+require_contains "$ask_output" 'Local Read' "ask fallback local read"
+require_contains "$ask_output" 'Suggested Actions' "ask fallback suggested actions"
+ask_commit_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$ask_workspace" "$ROOT/mac-app/scripts/oracle.zsh" --commit --project "Terminal Brain" "what should I do next?")"
+require_contains "$ask_commit_output" '"mode":"local-fallback"' "ask commit fallback mode"
+require_contains "$ask_commit_output" '"reviewStatus":"new"' "ask commit review status"
+test -f "$ask_workspace/Oracle Inbox/"*.md || {
+  echo "Entrypoint check failed: ask commit fallback did not write note" >&2
+  echo "$ask_commit_output" >&2
+  exit 1
+}
+rm -rf "$ask_workspace"
+
 outcome_workspace="$(mktemp -d)"
 outcome_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$outcome_workspace" "$ROOT/mac-app/scripts/outcome.zsh" --title "Entrypoint Test" --project "Terminal Brain" --next "Remove temp workspace" "Verified local fallback.")"
 require_contains "$outcome_output" '"mode":"local-fallback"' "outcome local fallback mode"
@@ -162,6 +178,20 @@ require_contains "$mcp_proof_output" 'Temporary Note Preview' "MCP value proof n
 mcp_oracle_output="$(call_mcp_tool terminal_brain_oracle_brief_markdown)"
 require_contains "$mcp_oracle_output" '# Terminal Brain Oracle Brief' "MCP Oracle Brief title"
 require_contains "$mcp_oracle_output" 'cheapest test' "MCP Oracle Brief closed fallback"
+
+mcp_ask_workspace="$(mktemp -d)"
+mcp_ask_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$mcp_ask_workspace" printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_oracle_ask","arguments":{"question":"what should I do next?"}}}' | TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$mcp_ask_workspace" node "$ROOT/mcp-server/server.mjs")"
+require_contains "$mcp_ask_output" 'Mode: local-fallback' "MCP ask local fallback"
+require_contains "$mcp_ask_output" 'Suggested Actions' "MCP ask suggested actions"
+mcp_ask_commit_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$mcp_ask_workspace" printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_oracle_ask_commit","arguments":{"question":"what should I do next?","project":"Terminal Brain"}}}' | TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$mcp_ask_workspace" node "$ROOT/mcp-server/server.mjs")"
+require_contains "$mcp_ask_commit_output" 'local-fallback' "MCP ask commit local fallback"
+require_contains "$mcp_ask_commit_output" 'reviewStatus' "MCP ask commit review status"
+test -f "$mcp_ask_workspace/Oracle Inbox/"*.md || {
+  echo "Entrypoint check failed: MCP ask commit fallback did not write note" >&2
+  echo "$mcp_ask_commit_output" >&2
+  exit 1
+}
+rm -rf "$mcp_ask_workspace"
 
 mcp_idea_workspace="$(mktemp -d)"
 mcp_idea_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$mcp_idea_workspace" printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_capture_idea","arguments":{"title":"MCP Entrypoint Idea","content":"Captured through MCP fallback.","project":"Terminal Brain"}}}' | TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$mcp_idea_workspace" node "$ROOT/mcp-server/server.mjs")"

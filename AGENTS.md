@@ -14,6 +14,7 @@ This repository builds a local macOS app used during active work. Do not steal t
 - Use `make bubble-up` or MCP `terminal_brain_bubble_up_markdown` when the operator needs neglected ideas, delegated loops, or repeated project pressure surfaced without opening the app.
 - Use `make value` when the operator needs a plain-language read on why Terminal Brain is useful right now.
 - Use `make oracle-brief` or MCP `terminal_brain_oracle_brief_markdown` when the operator needs a direct read: what to do next, what may be missing, the cheapest test, and the agent handoff.
+- Use `make ask QUERY="..."`, `make ask-commit QUERY="..." PROJECT="..."`, MCP `terminal_brain_oracle_ask`, or MCP `terminal_brain_oracle_ask_commit` when the operator wants to interact with the Oracle; these use local Oracle Brief fallbacks when the app is closed.
 - Use `make agent-prompt` or MCP `terminal_brain_agent_prompt_markdown` when you need a bounded execution prompt; both have closed-app fallbacks and do not launch Terminal Brain.
 - Use `make now` or MCP `terminal_brain_now_markdown` as the fastest single orientation when the operator needs value, next action, process truth, readiness, and close-loop guidance.
 - Use `make doctor` when setup readiness is unclear; it audits repo, CI, app install freshness, MCP contract, agent config, prompt-prone Apple Notes/Drafts bridges, process state, launchctl, API reachability, and a readiness verdict without launching the app.

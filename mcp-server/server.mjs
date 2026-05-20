@@ -1357,6 +1357,37 @@ function cleanupPlanMarkdown() {
   ].join("\n");
 }
 
+function oracleAskMarkdown(args = {}, { commit = false } = {}) {
+  const question = typeof args.question === "string" ? args.question.trim() : "";
+  if (!question) {
+    return {
+      ok: false,
+      error: "question is required"
+    };
+  }
+  const commandArgs = [join(ROOT, "mac-app", "scripts", "oracle.zsh")];
+  if (commit) commandArgs.push("--commit");
+  if (typeof args.project === "string" && args.project.trim()) {
+    commandArgs.push("--project", args.project.trim());
+  }
+  commandArgs.push(question);
+  const result = runCommand("zsh", commandArgs, { timeout: 15000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Oracle",
+    "",
+    "Oracle ask failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 function supportBundleMarkdown() {
   const output = "/tmp/terminal-brain-mcp-support-bundle.md";
   const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "support-bundle.zsh")], {
@@ -1637,7 +1668,11 @@ async function callTool(name, args = {}) {
     case "terminal_brain_oracle_items":
       return api("/oracle/items");
     case "terminal_brain_oracle_ask":
-      return api("/oracle/ask", { method: "POST", body: { question: args.question } });
+      try {
+        return await api("/oracle/ask", { method: "POST", body: { question: args.question } });
+      } catch {
+        return oracleAskMarkdown(args);
+      }
     case "terminal_brain_oracle_commit":
       return api("/oracle/commit", {
         method: "POST",
@@ -1663,19 +1698,23 @@ async function callTool(name, args = {}) {
         }
       });
     case "terminal_brain_oracle_ask_commit": {
-      const asked = await api("/oracle/ask", { method: "POST", body: { question: args.question } });
-      const committed = await api("/oracle/commit", {
-        method: "POST",
-        body: {
-          title: `Oracle - ${args.question}`,
-          content: asked.answer || "",
-          question: args.question,
-          source: "Terminal Brain MCP",
-          project: args.project || "",
-          tags: ["terminal-brain", "oracle", "mcp", asked.mode || "oracle"].concat(Array.isArray(args.tags) ? args.tags : [])
-        }
-      });
-      return { ok: true, ask: asked, commit: committed };
+      try {
+        const asked = await api("/oracle/ask", { method: "POST", body: { question: args.question } });
+        const committed = await api("/oracle/commit", {
+          method: "POST",
+          body: {
+            title: `Oracle - ${args.question}`,
+            content: asked.answer || "",
+            question: args.question,
+            source: "Terminal Brain MCP",
+            project: args.project || "",
+            tags: ["terminal-brain", "oracle", "mcp", asked.mode || "oracle"].concat(Array.isArray(args.tags) ? args.tags : [])
+          }
+        });
+        return { ok: true, ask: asked, commit: committed };
+      } catch {
+        return oracleAskMarkdown(args, { commit: true });
+      }
     }
     case "terminal_brain_capture_idea":
       return captureIdea(args);
