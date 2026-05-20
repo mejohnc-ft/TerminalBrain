@@ -3,7 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject private var model: BrainStatusModel
     @EnvironmentObject private var settings: AppSettings
-    @State private var selectedSection = "now"
+    @State private var selectedSection = "first-minute"
     @State private var selectedFeedID = ""
     @State private var selectedCommitID = ""
     @State private var selectedRadarID = ""
@@ -60,6 +60,7 @@ struct ContentView: View {
 
     private var commandItems: [BrainCommand] {
         var items: [BrainCommand] = [
+            BrainCommand(title: "Open First Minute", subtitle: "Shortest value path, next step, and working proof", symbol: "1.circle.fill", category: "Navigate", action: .section("first-minute")),
             BrainCommand(title: "Open Now", subtitle: "Bottom line, next action, process truth, and outcome loop", symbol: "sparkles", category: "Navigate", action: .section("now")),
             BrainCommand(title: "Open Value Now", subtitle: "Plain-language value read and fastest useful path", symbol: "bolt.fill", category: "Navigate", action: .section("value")),
             BrainCommand(title: "Open Start Here", subtitle: "One block, one artifact, one written outcome", symbol: "play.circle.fill", category: "Navigate", action: .section("start-here")),
@@ -79,6 +80,7 @@ struct ContentView: View {
             BrainCommand(title: "Open System", subtitle: "Native macOS surfaces and integration roadmap", symbol: "puzzlepiece.extension.fill", category: "Navigate", action: .section("system")),
             BrainCommand(title: "Run Sync", subtitle: "Refresh edge brain export with current permission policy", symbol: "arrow.triangle.2.circlepath", category: "Action", action: .runSync),
             BrainCommand(title: "Copy Operator Snapshot", subtitle: "Prompt-ready Focus, Radar, actions, and memory trail", symbol: "doc.on.clipboard", category: "Action", action: .copySnapshot),
+            BrainCommand(title: "Copy First Minute", subtitle: "Shortest explanation, next step, and working proof", symbol: "1.circle.fill", category: "Action", action: .copyFirstMinute),
             BrainCommand(title: "Copy Now", subtitle: "Bottom line, next action, process truth, and close loop", symbol: "sparkles", category: "Action", action: .copyNow),
             BrainCommand(title: "Copy Process Map", subtitle: "Terminal Brain, Codex, MCP, kernel, Drafts, launchctl, and API state", symbol: "point.3.connected.trianglepath.dotted", category: "Action", action: .copyProcessMap),
             BrainCommand(title: "Copy Cleanup Plan", subtitle: "Read-only stale MCP/kernel process cleanup guidance", symbol: "wrench.and.screwdriver.fill", category: "Action", action: .copyCleanupPlan),
@@ -184,6 +186,7 @@ struct ContentView: View {
 
     private var sectionTitle: String {
         switch selectedSection {
+        case "first-minute": return "First Minute"
         case "now": return "Now"
         case "value": return "Value Now"
         case "start-here": return "Start Here"
@@ -206,6 +209,7 @@ struct ContentView: View {
 
     private var sectionSubtitle: String {
         switch selectedSection {
+        case "first-minute": return "The shortest path to value: what this is, what to do, and proof the loop works."
         case "now": return "Bottom line, next action, process truth, readiness, and close loop."
         case "value": return "What this is worth right now, what to do next, and what artifact to create."
         case "start-here": return "One block, one artifact, one written outcome."
@@ -336,6 +340,7 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 7) {
                 Text("Home")
                     .sidebarHeader()
+                NavRow(title: "First Minute", symbol: "1.circle.fill", badge: "", selected: selectedSection == "first-minute") { selectedSection = "first-minute" }
                 NavRow(title: "Now", symbol: "sparkles", badge: model.setupAttentionCount == 0 ? "" : "\(model.setupAttentionCount)", selected: selectedSection == "now") { selectedSection = "now" }
                 NavRow(title: "Value", symbol: "bolt.fill", badge: "\(model.focusItem.score)", selected: selectedSection == "value") { selectedSection = "value" }
                 NavRow(title: "Start Here", symbol: "play.circle.fill", badge: "", selected: selectedSection == "start-here") { selectedSection = "start-here" }
@@ -468,6 +473,7 @@ struct ContentView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     switch selectedSection {
+                    case "first-minute": firstMinuteView
                     case "now": nowView
                     case "value": valueNowView
                     case "start-here": startHereView
@@ -549,6 +555,122 @@ struct ContentView: View {
                 .frame(width: 420)
             }
             syncOutput
+        }
+    }
+
+    private var firstMinuteView: some View {
+        let focus = model.focusItem
+        return VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack(alignment: .top, spacing: 14) {
+                    Image(systemName: "1.circle.fill")
+                        .font(.system(size: 36, weight: .semibold))
+                        .foregroundStyle(settings.theme.accent)
+                        .frame(width: 58, height: 58)
+                        .background(settings.theme.accent.opacity(0.16), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("First Minute")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(settings.theme.accent)
+                            .textCase(.uppercase)
+                        Text("Get value without hunting through the app.")
+                            .font(.system(size: 34, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.72)
+                        Text("Read the next move, hand it to an agent, then write back the outcome.")
+                            .font(.headline)
+                            .foregroundStyle(.white.opacity(0.62))
+                    }
+
+                    Spacer()
+                    StatusPill(text: model.summaryLine, state: model.summaryLine == "Brain status ready" ? .good : .warn)
+                }
+
+                HStack(spacing: 8) {
+                    Button { Task { await model.copyFirstMinute() } } label: {
+                        Label("Copy First Minute", systemImage: "1.circle.fill")
+                    }
+                    .buttonStyle(.borderedProminent)
+
+                    Button { Task { await model.copyAgentPrompt() } } label: {
+                        Label("Agent Prompt", systemImage: "paperplane.fill")
+                    }
+                    .buttonStyle(.bordered)
+
+                    Button {
+                        model.workQuery = focus.query.isEmpty ? focus.title : focus.query
+                        selectedSection = "start"
+                    } label: {
+                        Label("Start Work", systemImage: "shippingbox.fill")
+                    }
+                    .buttonStyle(.bordered)
+
+                    Button { Task { await model.copyValueProof() } } label: {
+                        Label("Prove Value", systemImage: "checkmark.seal")
+                    }
+                    .buttonStyle(.bordered)
+                }
+
+                if !model.firstMinuteCopyOutput.isEmpty || !model.agentPromptCopyOutput.isEmpty || !model.valueProofCopyOutput.isEmpty {
+                    Text(!model.firstMinuteCopyOutput.isEmpty ? model.firstMinuteCopyOutput : (!model.agentPromptCopyOutput.isEmpty ? model.agentPromptCopyOutput : model.valueProofCopyOutput))
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.58))
+                }
+            }
+            .padding(20)
+            .darkPanel()
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 240), spacing: 12)], spacing: 12) {
+                ValueBriefTile(
+                    label: "1. Notice",
+                    title: focus.title,
+                    detail: focus.reason,
+                    action: focus.action,
+                    symbol: focus.symbol,
+                    accent: focus.state.color
+                ) {
+                    applyFocusAction(focus)
+                }
+
+                ValueBriefTile(
+                    label: "2. Hand off",
+                    title: "Agent Prompt",
+                    detail: "Copy a bounded execution prompt grounded in the current focus and guardrails.",
+                    action: "Copy Prompt",
+                    symbol: "paperplane.fill",
+                    accent: settings.theme.accent
+                ) {
+                    Task { await model.copyAgentPrompt() }
+                }
+
+                ValueBriefTile(
+                    label: "3. Create",
+                    title: "Context Pack",
+                    detail: "Build a local context pack before handing deeper work to Codex or Claude.",
+                    action: "Start Work",
+                    symbol: "shippingbox.fill",
+                    accent: .blue
+                ) {
+                    model.workQuery = focus.query.isEmpty ? focus.title : focus.query
+                    selectedSection = "start"
+                }
+
+                ValueBriefTile(
+                    label: "4. Remember",
+                    title: "Outcome Writeback",
+                    detail: "Commit what changed, why it matters, evidence, and the next action to durable memory.",
+                    action: "Copy Proof",
+                    symbol: "square.and.arrow.down.fill",
+                    accent: .green
+                ) {
+                    Task { await model.copyValueProof() }
+                }
+            }
+
+            valueBriefPanel
+            startHereOutcomePanel(project: focus.project)
         }
     }
 
@@ -3216,6 +3338,8 @@ struct ContentView: View {
             Task { await model.runSyncNow() }
         case .copySnapshot:
             Task { await model.copyOperatorSnapshot() }
+        case .copyFirstMinute:
+            Task { await model.copyFirstMinute() }
         case .copyNow:
             Task { await model.copyNow() }
         case .copyProcessMap:
@@ -3513,6 +3637,7 @@ enum BrainCommandAction {
     case openPath(String)
     case runSync
     case copySnapshot
+    case copyFirstMinute
     case copyNow
     case copyProcessMap
     case copyCleanupPlan

@@ -63,7 +63,7 @@ Plain `make` prints help. `make verify`, `make first-minute`, `make now`, `make 
 ## Current Capabilities
 
 - Local status, source, permission, briefing, and sync checks.
-- First Minute: `make first-minute`, `/first-minute/markdown`, `terminal_brain_first_minute_markdown`, Copy First Minute in the app/menu bar, and the Copy First Minute App Shortcut provide the shortest explanation, next step, and working proof for a new operator or agent.
+- First Minute: `make first-minute`, `/first-minute/markdown`, `terminal_brain_first_minute_markdown`, the default in-app First Minute surface, Copy First Minute in the app/menu bar, and the Copy First Minute App Shortcut provide the shortest explanation, next step, and working proof for a new operator or agent.
 - One-call operator snapshot for agents: Focus, Operator Brief, Operator Deck, Blindspot Brief, Radar, setup gaps, Today, memory trail, and suggested next actions.
 - Plain-language Operator Brief that says what matters, why it matters, what not to miss, and what artifact to create next.
 - Value Brief that collapses Focus, Idea Pulse, Blindspots, and Project Memory into one compact value read.
@@ -77,7 +77,7 @@ Plain `make` prints help. `make verify`, `make first-minute`, `make now`, `make 
 - Process Map for "what is still going": `make processes`, `/process-map/markdown`, `terminal_brain_process_map_markdown`, Copy Process Map in the app/menu bar, and the Copy Process Map App Shortcut separate real focus stealers from agent runtime noise by listing Terminal Brain app state, launchctl, API reachability, Codex sessions, MCP children, brain-kernel children, brain-console helpers, and Drafts processes without launching or killing anything.
 - Cleanup Plan for stale runtime noise: `make cleanup-plan`, `/cleanup-plan/markdown`, `terminal_brain_cleanup_plan_markdown`, Copy Cleanup Plan in the app/menu bar, and the Copy Cleanup Plan App Shortcut print candidate MCP/kernel child processes, Codex parent context, and manual review/kill commands without terminating anything.
 - Support Bundle: `make support-bundle`, `/support-bundle/markdown`, `terminal_brain_support_bundle_markdown`, Copy Support Bundle in the app/menu bar, and the Copy Support Bundle App Shortcut write Now, Oracle Brief, Doctor, Audit, Process Map, Cleanup Plan, and Git state into one Markdown artifact for troubleshooting without launching or controlling anything.
-- Native Now landing surface so the app opens on the bottom line, next action, process truth, readiness, and outcome close loop instead of a metrics-first dashboard.
+- Native First Minute landing surface so the app opens on the shortest value path, next action, agent handoff, and proof loop instead of a metrics-first dashboard.
 - Agent Prompt generator that turns the Oracle Digest and Value Brief into a concise Codex/Claude execution prompt with acceptance criteria and guardrails.
 - Structured Outcome commit endpoint/tool/CLI so agents can write back what changed, evidence, and next action without launching the app; if the app is closed, `make outcome` writes an accepted note directly into the workspace Oracle Inbox.
 - Operator Deck for app and agents: do first, ask about, review or capture, and project/start-work cards.
