@@ -111,6 +111,8 @@ require_in_file "$ROOT/mac-app/scripts/processes.zsh" 'Terminal Brain Process Ma
 require_in_file "$ROOT/mac-app/scripts/processes.zsh" 'did not launch, foreground, quit, kill, or control anything' "process map guardrail"
 require_in_file "$ROOT/mac-app/scripts/cleanup-plan.zsh" 'Terminal Brain Cleanup Plan' "non-destructive cleanup plan"
 require_in_file "$ROOT/mac-app/scripts/cleanup-plan.zsh" 'did not launch, foreground, quit, kill, or control anything' "cleanup plan guardrail"
+require_in_file "$ROOT/mac-app/scripts/cleanup-plan.zsh" 'No Aggregate Kill Command' "cleanup plan suppresses broad kills"
+require_in_file "$ROOT/mac-app/scripts/cleanup-plan.zsh" 'codex_count.*-le 1' "cleanup plan only prints kill command in low-risk state"
 require_in_file "$ROOT/mac-app/scripts/support-bundle.zsh" 'Terminal Brain Support Bundle' "non-launching support bundle"
 require_in_file "$ROOT/mac-app/scripts/support-bundle.zsh" 'Oracle Brief' "support bundle includes Oracle Brief"
 require_in_file "$ROOT/mac-app/scripts/support-bundle.zsh" 'Bubble Up' "support bundle includes Bubble Up"

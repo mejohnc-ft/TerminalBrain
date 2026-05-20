@@ -10,7 +10,7 @@ Prints a non-destructive cleanup plan for stale agent runtime noise:
   - Terminal Brain process and launchctl state
   - duplicate terminal-brain-mcp and brain-kernel children
   - Codex parent sessions that own those children
-  - copyable review/kill commands for an operator to run manually
+  - copyable review commands and, only in low-risk cases, manual kill commands
 
 This script never launches, foregrounds, quits, kills, or controls Terminal Brain,
 Codex, MCP, kernel, Drafts, or any other process.
@@ -103,15 +103,16 @@ echo "- Codex sessions: $codex_count"
 echo "- terminal-brain-mcp children: $mcp_count"
 echo "- brain-kernel children: $kernel_count"
 echo "- brain-console helpers: $console_count"
-echo "- Cleanup candidates: $candidate_count MCP/kernel child process(es)"
+echo "- Review candidates: $candidate_count MCP/kernel child process(es)"
 echo
 
 echo "## Recommendation"
 if (( candidate_count == 0 )); then
   echo "- No Terminal Brain MCP/kernel cleanup candidate is visible."
 elif (( codex_count > 1 )); then
-  echo "- Multiple Codex sessions are open. Prefer closing stale Codex chats/windows first, then rerun make processes."
-  echo "- If you are sure a listed MCP/kernel child is stale, terminate only those child PIDs, not the active Codex parent."
+  echo "- Multiple Codex sessions are open. Close stale Codex chats/windows first, then rerun make processes."
+  echo "- No aggregate kill command is printed in this state because it could sever active chats."
+  echo "- If you need manual cleanup, inspect candidates by parent and terminate only child PIDs you recognize as stale."
 else
   echo "- Runtime noise is limited. Leave it alone unless you know the child process is stale."
 fi
@@ -127,7 +128,7 @@ fi
 echo '```'
 echo
 
-if [[ -n "$candidate_joined" ]]; then
+if [[ -n "$candidate_joined" && "$codex_count" -le 1 ]]; then
   echo "## Manual Cleanup Commands"
   echo
   echo "Review the table below before running either command. These are suggestions only; this script did not kill anything."
@@ -137,9 +138,18 @@ if [[ -n "$candidate_joined" ]]; then
   echo "# If a reviewed stale child refuses to exit:"
   echo "# kill -TERM $candidate_spaced"
   echo '```'
+elif [[ -n "$candidate_joined" ]]; then
+  echo "## No Aggregate Kill Command"
+  echo
+  echo "Multiple Codex sessions are active, so this plan intentionally avoids a broad kill command."
+  echo "Use the review commands above, close stale chats first, then rerun:"
+  echo
+  echo '```zsh'
+  echo "make cleanup-plan"
+  echo '```'
 fi
 
-print_table "Cleanup Candidates" "$candidate_pids"
+print_table "Review Candidates" "$candidate_pids"
 print_table "Codex Parents" "$codex_pids"
 print_table "Brain Console Helpers" "$brain_console_pids"
 
