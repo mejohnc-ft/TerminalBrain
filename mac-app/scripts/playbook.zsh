@@ -37,7 +37,7 @@ echo
 echo "| Situation | Run | What You Get |"
 echo "| --- | --- | --- |"
 echo "| I need proof this is useful | \`make demo\` | Temporary seeded ideas, Bubble Up, Work Block, and real-use commands |"
-echo "| I need one real thing to do | \`make work-block\` | Pull-forward signal, review queue, and outcome command |"
+echo "| I need one real thing to do | \`make use-now\` | Pull-forward signal plus ask, capture, delegate, and outcome commands |"
 echo "| I need the direct read | \`make oracle-brief\` | Next moves, missing signal, cheapest test, agent handoff |"
 echo "| I need to save a thought | \`make idea IDEA=\"...\" PROJECT=\"...\"\` | Durable Oracle Inbox note with review status |"
 echo "| I need to ask the system | \`make ask QUERY=\"...\"\` | Oracle answer with closed-app fallback |"
@@ -49,24 +49,24 @@ echo "## First Five Minutes"
 echo
 echo "\`\`\`zsh"
 echo "make demo"
-echo "make work-block"
+echo "make use-now"
 echo "make idea IDEA=\"one rough thought worth not losing\" PROJECT=\"Terminal Brain\""
 echo "make bubble-up"
-echo "make outcome TITLE=\"First useful loop\" OUTCOME=\"Captured, reviewed, and chose one next action.\" PROJECT=\"Terminal Brain\" NEXT=\"Run make work-block tomorrow.\""
+echo "make outcome TITLE=\"First useful loop\" OUTCOME=\"Captured, reviewed, and chose one next action.\" PROJECT=\"Terminal Brain\" NEXT=\"Run make use-now tomorrow.\""
 echo "\`\`\`"
 echo
 echo "Done means: one idea captured, one signal pulled forward, and one outcome written back."
 echo
 echo "## Daily Cadence"
 echo
-echo "1. Run \`make work-block\` before planning."
+echo "1. Run \`make use-now\` before planning."
 echo "2. Turn one item into action, delegation, or dismissal."
 echo "3. Run \`make outcome ...\` when the work changes something."
 echo "4. Run \`make review\` at the end of the day and clear stale notes."
 echo
 echo "## Agent Cadence"
 echo
-echo "1. Start with MCP \`terminal_brain_work_block_markdown\` or \`terminal_brain_oracle_brief_markdown\`."
+echo "1. Start with MCP \`terminal_brain_use_now_markdown\`, \`terminal_brain_work_block_markdown\`, or \`terminal_brain_oracle_brief_markdown\`."
 echo "2. Ask for one bounded patch or research artifact, not broad exploration."
 echo "3. Close with MCP \`terminal_brain_commit_outcome\` or \`make outcome ...\`."
 echo
