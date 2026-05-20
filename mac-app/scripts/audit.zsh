@@ -85,6 +85,7 @@ require_evidence "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CopyP
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CopySupportBundleIntent' "Copy Support Bundle shortcut"
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CopyValueProofIntent' "Copy Value Proof shortcut"
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Commit Outcome' "native outcome close loop"
+require_evidence "$ROOT/mac-app/scripts/idea.zsh" 'local-fallback' "closed-app idea capture fallback"
 require_evidence "$ROOT/mac-app/scripts/outcome.zsh" 'local-fallback' "closed-app outcome writeback fallback"
 echo
 
@@ -106,6 +107,7 @@ require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_doctor_markdown' 
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_audit_markdown' "MCP Audit"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_runtime_status' "MCP Runtime Status"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_commit_outcome' "MCP Outcome Commit"
+require_evidence "$ROOT/mcp-server/server.mjs" 'captureIdea' "MCP Idea Capture fallback"
 echo
 
 echo "## Safety And Reliability"
@@ -117,6 +119,7 @@ require_evidence "$ROOT/mac-app/scripts/support-bundle.zsh" 'did not launch, for
 require_evidence "$ROOT/mac-app/scripts/doctor.zsh" 'Prompt Safety' "prompt safety doctor section"
 require_evidence "$ROOT/mac-app/scripts/doctor.zsh" 'installed app executable matches current build' "installed app freshness"
 require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_value_now_markdown' "closed-API entrypoint regression"
+require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_capture_idea' "closed idea fallback regression"
 require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_first_minute_markdown' "MCP first minute regression"
 require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_value_proof_markdown' "MCP value proof regression"
 require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'reviewStatus":"accepted' "closed outcome fallback regression"
@@ -130,6 +133,7 @@ echo "- make now"
 echo "- make first-minute"
 echo "- make value"
 echo "- make prove-value"
+echo "- make idea"
 echo "- make oracle-brief"
 echo "- make agent-prompt"
 echo "- make next"

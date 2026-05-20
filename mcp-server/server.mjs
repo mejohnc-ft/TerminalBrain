@@ -731,7 +731,7 @@ const tools = [
   },
   {
     name: "terminal_brain_capture_idea",
-    description: "Capture an idea, open loop, or rough thought into Terminal Brain's Obsidian-backed Oracle Inbox.",
+    description: "Capture an idea, open loop, or rough thought into Terminal Brain's Obsidian-backed Oracle Inbox. Uses the app API when reachable and a local fallback when closed.",
     inputSchema: {
       type: "object",
       properties: {
@@ -1159,6 +1159,41 @@ function valueProofMarkdown() {
   ].join("\n");
 }
 
+function captureIdea(args = {}) {
+  const content = typeof args.content === "string" ? args.content.trim() : "";
+  if (!content) {
+    throw new Error("content is required");
+  }
+  const commandArgs = [join(ROOT, "mac-app", "scripts", "idea.zsh")];
+  if (typeof args.title === "string" && args.title.trim()) {
+    commandArgs.push("--title", args.title.trim());
+  }
+  if (typeof args.project === "string" && args.project.trim()) {
+    commandArgs.push("--project", args.project.trim());
+  }
+  if (Array.isArray(args.tags)) {
+    for (const tag of args.tags) {
+      if (typeof tag === "string" && tag.trim()) {
+        commandArgs.push("--tag", tag.trim());
+      }
+    }
+  }
+  commandArgs.push(content);
+  const result = runCommand("zsh", commandArgs, { timeout: 15000 });
+  if (!result.ok) {
+    return {
+      ok: false,
+      error: result.error || "Idea capture failed.",
+      output: result.text || ""
+    };
+  }
+  try {
+    return JSON.parse(result.text);
+  } catch {
+    return { ok: true, output: result.text };
+  }
+}
+
 function cleanupPlanMarkdown() {
   const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "cleanup-plan.zsh")], { timeout: 10000 });
   if (result.ok) return result.text;
@@ -1492,15 +1527,7 @@ async function callTool(name, args = {}) {
       return { ok: true, ask: asked, commit: committed };
     }
     case "terminal_brain_capture_idea":
-      return api("/ideas/capture", {
-        method: "POST",
-        body: {
-          title: args.title || "Captured Idea",
-          content: args.content,
-          project: args.project || "",
-          tags: Array.isArray(args.tags) ? args.tags : []
-        }
-      });
+      return captureIdea(args);
     case "terminal_brain_oracle_commits":
       return api("/oracle/commits");
     case "terminal_brain_oracle_review_status":

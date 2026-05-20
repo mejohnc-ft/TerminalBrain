@@ -1,4 +1,4 @@
-.PHONY: help build install verify live first-minute now status processes cleanup-plan support-bundle next value prove-value oracle-brief doctor audit ask ask-commit outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live first-minute now status processes cleanup-plan support-bundle next value prove-value oracle-brief doctor audit ask ask-commit idea outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
@@ -18,6 +18,7 @@ help:
 	@echo "  make live          API/MCP QA against an already-running app"
 	@echo "  make ask QUERY=... Ask Terminal Brain Oracle from an already-running app"
 	@echo "  make ask-commit QUERY=... PROJECT=... Ask Oracle and commit the answer"
+	@echo "  make idea IDEA=... PROJECT=... Capture idea with closed-app fallback"
 	@echo "  make outcome TITLE=... OUTCOME=... PROJECT=... Commit structured outcome"
 	@echo "  make build         Build the macOS app without launching it"
 	@echo "  make install       Copy the app to ~/Applications without launching it"
@@ -97,6 +98,10 @@ ask:
 ask-commit:
 	@if test -z "$$QUERY"; then echo "Set QUERY='question to ask'" >&2; exit 64; fi
 	@if test -n "$$PROJECT"; then ./mac-app/scripts/oracle.zsh --commit --project "$$PROJECT" "$$QUERY"; else ./mac-app/scripts/oracle.zsh --commit "$$QUERY"; fi
+
+idea:
+	@if test -z "$$IDEA"; then echo "Set IDEA='thought to capture'" >&2; exit 64; fi
+	@TITLE="$$TITLE" PROJECT="$$PROJECT" SOURCE="$$SOURCE" ./mac-app/scripts/idea.zsh "$$IDEA"
 
 outcome:
 	@if test -z "$$OUTCOME"; then echo "Set OUTCOME='what changed and why it matters'" >&2; exit 64; fi
