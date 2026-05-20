@@ -138,6 +138,7 @@ require_evidence "$ROOT/mac-app/scripts/memory-promote.zsh" 'derived summaries o
 require_evidence "$ROOT/mac-app/scripts/bubble-up.zsh" 'What You May Not Be Considering' "closed-app Bubble Up"
 require_evidence "$ROOT/mac-app/scripts/bubble-up.zsh" 'Prime The Brain' "closed-app actionable empty state"
 require_evidence "$ROOT/mac-app/scripts/bubble-up.zsh" 'Recent Work Signals' "closed-app recent work fallback"
+require_evidence "$ROOT/mac-app/scripts/bubble-up.zsh" 'Completed Evidence' "closed-app completed evidence lane"
 require_evidence "$ROOT/mac-app/scripts/recent-work.zsh" 'Terminal Brain Recent Work' "closed-app recent work promotion"
 require_evidence "$ROOT/mac-app/scripts/bubble-up.zsh" 'Decision pressure' "closed-app starter capture prompts"
 require_evidence "$ROOT/mac-app/scripts/work-block.zsh" 'Terminal Brain Work Block' "closed-app Work Block"

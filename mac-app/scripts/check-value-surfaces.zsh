@@ -133,6 +133,7 @@ require_in_file "$ROOT/mac-app/scripts/bubble-up.zsh" 'Terminal Brain Bubble Up'
 require_in_file "$ROOT/mac-app/scripts/bubble-up.zsh" 'What You May Not Be Considering' "Bubble Up under-considered signals"
 require_in_file "$ROOT/mac-app/scripts/bubble-up.zsh" 'Prime The Brain' "Bubble Up actionable empty state"
 require_in_file "$ROOT/mac-app/scripts/bubble-up.zsh" 'Recent Work Signals' "Bubble Up recent work fallback"
+require_in_file "$ROOT/mac-app/scripts/bubble-up.zsh" 'Completed Evidence' "Bubble Up completed evidence lane"
 require_in_file "$ROOT/mac-app/scripts/bubble-up.zsh" 'make recent-work' "Bubble Up recent work promotion command"
 require_in_file "$ROOT/mac-app/scripts/bubble-up.zsh" 'Decision pressure' "Bubble Up starter capture"
 require_in_file "$ROOT/mac-app/scripts/bubble-up.zsh" 'make review-status' "Bubble Up action commands"

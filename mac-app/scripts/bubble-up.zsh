@@ -225,7 +225,8 @@ WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtim
 
   reviewable = items.reject { |item| item[:status] == "dismissed" }
   unclosed = reviewable.select { |item| ["new", "delegated", "linked"].include?(item[:status]) }
-  ranked = reviewable.map { |item| item.merge(score: score_item(item)) }.sort_by { |item| [-item[:score], item[:created_time]] }
+  completed = reviewable.select { |item| ["accepted"].include?(item[:status]) }.sort_by { |item| item[:created_time] }.reverse
+  ranked = unclosed.map { |item| item.merge(score: score_item(item)) }.sort_by { |item| [-item[:score], item[:created_time]] }
   counts = items.each_with_object(Hash.new(0)) { |item, memo| memo[item[:status]] += 1 }
   projects = unclosed.each_with_object(Hash.new(0)) { |item, memo| memo[item[:project].empty? ? "General Brain" : item[:project]] += 1 }
   repeated_project = projects.sort_by { |_, count| -count }.first
@@ -247,7 +248,12 @@ WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtim
   else
     puts "- Reviewable items: #{reviewable.length}"
     puts "- New: #{counts["new"]}; delegated: #{counts["delegated"]}; linked: #{counts["linked"]}; accepted: #{counts["accepted"]}"
-    puts "- Highest signal: #{top[:title]} (#{top[:status]}, #{top[:project]}, score #{top[:score].round})" if top
+    if top
+      puts "- Highest open signal: #{top[:title]} (#{top[:status]}, #{top[:project]}, score #{top[:score].round})"
+    elsif completed.any?
+      puts "- Open pull-forward items: 0"
+      puts "- Completed evidence: #{completed.length} accepted item#{completed.length == 1 ? "" : "s"}"
+    end
   end
   puts
 
@@ -269,8 +275,9 @@ WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtim
     if repeated_project && repeated_project[1] > 1
       puts "- Repeated pressure: #{repeated_project[0]} has #{repeated_project[1]} open signals. Treat it as a project theme, not isolated notes."
     end
-    if unclosed.empty?
-      puts "- Most items are already accepted or dismissed. The next useful move is to turn an accepted item into an outcome, artifact, or project link."
+    if unclosed.empty? && completed.any?
+      puts "- There is no open review pressure right now. That is good: the next useful move is to start from completed evidence or capture a new pressure point."
+      puts "- Do not keep reworking accepted notes unless they reveal a new decision, artifact, or risk."
     end
   end
   puts
@@ -278,23 +285,42 @@ WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtim
   puts "## Items To Pull Forward"
   puts
   if ranked.empty?
-    if fallback_signals.empty?
+    if completed.any?
+      puts "No open items matched."
+      puts
+      puts "## Completed Evidence"
+      puts
+      completed.first(limit).each_with_index do |item, index|
+        puts "### #{index + 1}. #{item[:title]}"
+        puts
+        puts "- Status: #{item[:status]}"
+        puts "- Project: #{item[:project].empty? ? "General Brain" : item[:project]}"
+        puts "- Age: #{age_label(item[:age_hours])}"
+        puts "- Source: #{item[:source]}"
+        puts "- Path: #{item[:path]}"
+        puts
+        puts item[:preview].empty? ? "(no preview)" : item[:preview]
+        puts
+      end
+    elsif fallback_signals.empty?
       puts "No items matched."
       puts
     else
       print_recent_work_fallback(root, limit)
       puts
     end
-    puts "## Prime The Brain"
-    puts
-    puts "Use one of these starter captures to create the first useful signal:"
-    puts
-    puts "```zsh"
-    puts "make idea TITLE=\"Decision pressure\" IDEA=\"The decision I keep circling is ...\" PROJECT=\"Terminal Brain\""
-    puts "make idea TITLE=\"Neglected idea\" IDEA=\"The idea I do not want to lose is ...\" PROJECT=\"Terminal Brain\""
-    puts "make idea TITLE=\"Open loop\" IDEA=\"The loose end that will cost me later is ...\" PROJECT=\"Terminal Brain\""
-    puts "make work-block"
-    puts "```"
+    if completed.empty?
+      puts "## Prime The Brain"
+      puts
+      puts "Use one of these starter captures to create the first useful signal:"
+      puts
+      puts "```zsh"
+      puts "make idea TITLE=\"Decision pressure\" IDEA=\"The decision I keep circling is ...\" PROJECT=\"Terminal Brain\""
+      puts "make idea TITLE=\"Neglected idea\" IDEA=\"The idea I do not want to lose is ...\" PROJECT=\"Terminal Brain\""
+      puts "make idea TITLE=\"Open loop\" IDEA=\"The loose end that will cost me later is ...\" PROJECT=\"Terminal Brain\""
+      puts "make work-block"
+      puts "```"
+    end
   else
     ranked.first(limit).each_with_index do |item, index|
       puts "### #{index + 1}. #{item[:title]}"
