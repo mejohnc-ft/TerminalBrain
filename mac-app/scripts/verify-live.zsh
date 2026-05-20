@@ -3,25 +3,23 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 API="${TERMINAL_BRAIN_API:-http://127.0.0.1:8765}"
-APP="$ROOT/mac-app/build/Terminal Brain.app"
-ALLOW_LAUNCH="${TERMINAL_BRAIN_VERIFY_LAUNCH:-0}"
 
 case "${1:-}" in
   --help|-h)
     cat <<'EOF'
-Usage: ./mac-app/scripts/verify-live.zsh [--launch]
+Usage: ./mac-app/scripts/verify-live.zsh
 
 Builds Terminal Brain, then checks API and MCP behavior against a running app.
-Default behavior does not launch, relaunch, quit, or foreground Terminal Brain.
+This script never launches, relaunches, quits, or foregrounds Terminal Brain.
 
 Options:
-  --launch  Launch Terminal Brain if it is not already reachable.
-  --help    Show this help.
+  --help  Show this help.
 EOF
     exit 0
     ;;
   --launch)
-    ALLOW_LAUNCH="1"
+    echo "--launch is disabled. Start Terminal Brain manually when you want it in focus." >&2
+    exit 64
     ;;
   "")
     ;;
@@ -35,19 +33,9 @@ esac
 "$ROOT/mac-app/scripts/build-app.zsh" >/dev/null
 
 if ! curl -fsS "$API/health" >/dev/null 2>&1; then
-  if [[ "$ALLOW_LAUNCH" != "1" ]]; then
-    echo "Terminal Brain is not reachable at $API." >&2
-    echo "Start the app yourself, or rerun with --launch to allow this script to foreground it." >&2
-    exit 2
-  fi
-
-  open -a "$APP"
-  for _ in {1..30}; do
-    if curl -fsS "$API/health" >/dev/null 2>&1; then
-      break
-    fi
-    sleep 0.5
-  done
+  echo "Terminal Brain is not reachable at $API." >&2
+  echo "Start the app yourself only when you want it in focus, then rerun this command." >&2
+  exit 2
 fi
 
 curl -fsS "$API/health" | ruby -rjson -e 'j=JSON.parse(STDIN.read); abort("health failed") unless j["ok"]; puts "health ok"'

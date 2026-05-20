@@ -87,7 +87,7 @@ Run the live verifier only when Terminal Brain is already running and API/MCP be
 ./mac-app/scripts/verify-live.zsh
 ```
 
-The verifier checks an already-running app. It does not launch or foreground Terminal Brain unless you pass `--launch`.
+The verifier checks an already-running app. It never launches or foregrounds Terminal Brain.
 
 Print or copy the current operator snapshot from an already-running app:
 
@@ -111,7 +111,7 @@ Install the app into `~/Applications`:
 ./mac-app/scripts/install-app.zsh
 ```
 
-The installer does not launch or foreground Terminal Brain unless you pass `--launch`.
+The installer never launches or foregrounds Terminal Brain.
 
 Integration paths are editable in the native Settings window. Environment variables can override saved settings for automation:
 

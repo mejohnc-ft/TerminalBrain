@@ -2,10 +2,6 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-allowed_open=(
-  "$ROOT/mac-app/scripts/install-app.zsh"
-  "$ROOT/mac-app/scripts/verify-live.zsh"
-)
 open_pattern='open -a'
 quit_pattern='tell application "Terminal Brain" to quit'
 
@@ -17,18 +13,9 @@ while IFS= read -r -d '' file; do
   fi
 
   if grep -n "$open_pattern" "$file" >/dev/null; then
-    allowed=0
-    for allowed_file in "${allowed_open[@]}"; do
-      if [[ "$file" == "$allowed_file" ]]; then
-        allowed=1
-        break
-      fi
-    done
-    if [[ "$allowed" != "1" ]]; then
-      echo "Foreground launch command is not allowed in $file" >&2
-      grep -n "$open_pattern" "$file" >&2
-      violations=1
-    fi
+    echo "Foreground launch command is not allowed in $file" >&2
+    grep -n "$open_pattern" "$file" >&2
+    violations=1
   fi
 
   if grep -n "$quit_pattern" "$file" >/dev/null; then

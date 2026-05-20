@@ -57,11 +57,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 ./mac-app/scripts/install-app.zsh
 ```
 
-The installer builds the app and copies it to `~/Applications/Terminal Brain.app`. It does not launch or foreground the app unless explicitly requested:
-
-```zsh
-./mac-app/scripts/install-app.zsh --launch
-```
+The installer builds the app and copies it to `~/Applications/Terminal Brain.app`. It never launches or foregrounds the app.
 
 ## Live Verification
 
@@ -79,11 +75,7 @@ For API/MCP checks against an already-running app:
 ./mac-app/scripts/verify-live.zsh
 ```
 
-The live verifier builds the app and checks an already-running Terminal Brain instance: `/health`, `/snapshot`, `/snapshot/markdown`, `/handoff/markdown`, MCP snapshot/handoff tools, MCP syntax, and Swift type-checking. It does not launch or foreground the app unless explicitly requested:
-
-```zsh
-./mac-app/scripts/verify-live.zsh --launch
-```
+The live verifier builds the app and checks an already-running Terminal Brain instance: `/health`, `/snapshot`, `/snapshot/markdown`, `/handoff/markdown`, MCP snapshot/handoff tools, MCP syntax, and Swift type-checking. It never launches or foregrounds the app.
 
 To print or copy the current operator snapshot from an already-running app:
 

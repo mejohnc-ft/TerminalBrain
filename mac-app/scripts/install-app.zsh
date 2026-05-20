@@ -6,24 +6,23 @@ INSTALL_DIR="${TERMINAL_BRAIN_INSTALL_DIR:-$HOME/Applications}"
 APP_NAME="Terminal Brain.app"
 BUILD_APP="$ROOT/mac-app/build/$APP_NAME"
 DEST_APP="$INSTALL_DIR/$APP_NAME"
-LAUNCH_AFTER_INSTALL="${TERMINAL_BRAIN_LAUNCH_AFTER_INSTALL:-0}"
 
 case "${1:-}" in
   --help|-h)
     cat <<'EOF'
-Usage: ./mac-app/scripts/install-app.zsh [--launch]
+Usage: ./mac-app/scripts/install-app.zsh
 
 Builds and copies Terminal Brain to ~/Applications.
-Default behavior does not launch or foreground the app.
+This script never launches or foregrounds the app.
 
 Options:
-  --launch  Launch Terminal Brain after install.
-  --help    Show this help.
+  --help  Show this help.
 EOF
     exit 0
     ;;
   --launch)
-    LAUNCH_AFTER_INSTALL="1"
+    echo "--launch is disabled. Start Terminal Brain manually when you want it in focus." >&2
+    exit 64
     ;;
   "")
     ;;
@@ -39,9 +38,5 @@ esac
 mkdir -p "$INSTALL_DIR"
 rm -rf "$DEST_APP"
 /usr/bin/ditto "$BUILD_APP" "$DEST_APP"
-
-if [[ "$LAUNCH_AFTER_INSTALL" == "1" ]]; then
-  open -a "$DEST_APP"
-fi
 
 echo "$DEST_APP"

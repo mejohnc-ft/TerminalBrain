@@ -27,12 +27,10 @@ Do not run these without explicit user approval:
 
 ```zsh
 open -a ...
-./mac-app/scripts/install-app.zsh --launch
-./mac-app/scripts/verify-live.zsh --launch
 osascript -e 'tell application "Terminal Brain" to quit'
 ```
 
-`install-app.zsh` and `verify-live.zsh` are safe by default, but their `--launch` mode is not.
+`install-app.zsh` and `verify-live.zsh` never launch or foreground the app. Their old `--launch` mode is intentionally disabled.
 
 ## Verification
 
@@ -42,7 +40,7 @@ Before committing code, run:
 ./mac-app/scripts/verify-static.zsh
 ```
 
-The static verifier includes a foreground guard that rejects new script-level `open -a` calls outside explicitly guarded launch modes.
+The static verifier includes a foreground guard that rejects script-level `open -a` calls.
 
 Run live API/MCP verification only when Terminal Brain is already running and the user has not objected to localhost checks:
 
@@ -50,4 +48,4 @@ Run live API/MCP verification only when Terminal Brain is already running and th
 ./mac-app/scripts/verify-live.zsh
 ```
 
-If the live verifier says the app is not reachable, stop. Do not rerun with `--launch` unless the user explicitly asks.
+If the live verifier says the app is not reachable, stop. Do not try to start the app.
