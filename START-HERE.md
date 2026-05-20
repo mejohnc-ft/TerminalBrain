@@ -37,6 +37,12 @@ Terminal Brain is useful when it turns scattered local context into one work blo
    `make bubble-up` surfaces neglected ideas, delegated loops, and repeated project pressure from the Oracle Inbox.
 
    ```zsh
+   make work-block
+   ```
+
+   `make work-block` gives one immediate pull-forward, triage, and close-loop surface.
+
+   ```zsh
    make next
    ```
 
@@ -103,6 +109,7 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 - `Processes` separates app/runtime focus stealers from Codex, MCP, kernel, brain-console, and Drafts background noise.
 - `Cleanup Plan` prints stale MCP/kernel candidates and manual review commands without terminating anything.
 - `Bubble Up` surfaces neglected ideas, delegated loops, and repeated project pressure.
+- `Work Block` combines Bubble Up, Review Queue, and outcome writeback into one immediate work surface.
 - `Support Bundle` writes Now, Oracle Brief, Bubble Up, Doctor, Audit, Process Map, Cleanup Plan, and Git state into one Markdown file.
 - `Doctor` checks app install, MCP contract, agent config references, and runtime readiness.
 - `Oracle Digest` says what to notice, decide, test, create, and avoid.

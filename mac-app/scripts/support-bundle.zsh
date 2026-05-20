@@ -13,6 +13,7 @@ Writes a non-launching Markdown support bundle:
   - Now orientation
   - Oracle Brief
   - Bubble Up
+  - Work Block
   - Doctor readiness
   - Capability audit
   - Process map
@@ -71,6 +72,7 @@ mkdir -p "$(dirname "$OUTPUT")"
 
   run_section "Now" "$ROOT/mac-app/scripts/now.zsh"
   run_section "Oracle Brief" "$ROOT/mac-app/scripts/oracle-brief.zsh"
+  run_section "Work Block" "$ROOT/mac-app/scripts/work-block.zsh"
   run_section "Bubble Up" "$ROOT/mac-app/scripts/bubble-up.zsh"
   run_section "Doctor" "$ROOT/mac-app/scripts/doctor.zsh"
   run_section "Capability Audit" "$ROOT/mac-app/scripts/audit.zsh"

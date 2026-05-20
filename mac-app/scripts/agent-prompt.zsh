@@ -50,6 +50,7 @@ Use the safe local reads first:
 
 \`\`\`zsh
 make oracle-brief
+make work-block
 make bubble-up
 make status
 make processes

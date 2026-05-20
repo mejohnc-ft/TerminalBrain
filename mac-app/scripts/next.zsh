@@ -46,6 +46,7 @@ Use the closed-app loop now:
 
 \`\`\`zsh
 make oracle-brief
+make work-block
 make bubble-up
 make agent-prompt
 make outcome TITLE="..." OUTCOME="..." PROJECT="Terminal Brain" NEXT="..."

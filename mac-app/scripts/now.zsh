@@ -57,6 +57,7 @@ echo "1. Stay terminal-only when you want zero focus changes:"
 echo
 echo "   \`\`\`zsh"
 echo "   make value"
+echo "   make work-block"
 echo "   make bubble-up"
 echo "   make processes"
 echo "   make doctor"
