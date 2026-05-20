@@ -99,9 +99,11 @@ Print or copy the current operator snapshot from an already-running app:
 ./mac-app/scripts/snapshot.zsh --latest-pack
 ./mac-app/scripts/snapshot.zsh --markdown --copy
 ./mac-app/scripts/snapshot.zsh --markdown --output /tmp/terminal-brain-snapshot.md
+./mac-app/scripts/handoff.zsh --output /tmp/terminal-brain-handoff.md
 ```
 
 The snapshot helper never launches or foregrounds Terminal Brain. Use `--deck` for app-aligned action-card JSON, `--deck-markdown` for paste-ready cards, `--latest-pack` for the newest context pack Markdown, and `--output` for handoff files.
+The handoff helper also never launches or foregrounds Terminal Brain. It writes the Operator Deck plus latest context pack into one Markdown file.
 
 Install the app into `~/Applications`:
 

@@ -1,4 +1,4 @@
-.PHONY: help build install verify live snapshot snapshot-json snapshot-deck snapshot-deck-md latest-pack snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live snapshot snapshot-json snapshot-deck snapshot-deck-md latest-pack handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
@@ -11,6 +11,7 @@ help:
 	@echo "  make snapshot-deck Print Operator Deck JSON from an already-running app"
 	@echo "  make snapshot-deck-md Print Operator Deck Markdown from an already-running app"
 	@echo "  make latest-pack   Print latest context pack Markdown from an already-running app"
+	@echo "  make handoff       Write deck + latest pack handoff Markdown"
 	@echo "  make snapshot-file OUTPUT=/tmp/terminal-brain-snapshot.md"
 	@echo "  make mcp-check     Check MCP server syntax"
 	@echo "  make mcp-test      Check MCP tool contract"
@@ -41,6 +42,9 @@ snapshot-deck-md:
 
 latest-pack:
 	./mac-app/scripts/snapshot.zsh --latest-pack
+
+handoff:
+	./mac-app/scripts/handoff.zsh
 
 snapshot-file:
 	@if test -z "$$OUTPUT"; then echo "Set OUTPUT=/path/to/snapshot.md" >&2; exit 64; fi

@@ -13,6 +13,7 @@ make live
 make build
 make install
 make snapshot
+make handoff
 ```
 
 Plain `make` prints help. `make verify`, `make live`, `make build`, and `make install` do not launch or foreground Terminal Brain. `make live` expects the app to already be running.
@@ -30,6 +31,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Prompt-ready Operator Deck Markdown for agent handoffs and quick paste workflows.
 - Operator Deck action tool for agents to mark directly actionable Radar and Oracle commit cards without opening the app.
 - Latest context pack API/MCP/CLI/Shortcut surface for opening, copying, or handing off the newest agent-ready artifact.
+- Single-file handoff generator that combines the Operator Deck and latest context pack.
 - Setup readiness checklist for app, MCP config, workspace paths, sync, memory, Mission Control, prompt safety, and Oracle writeback.
 - Oracle ask flow with deterministic local fallback and a Focus-grounded ask flow for the current best action.
 - Mission-backed retrieval and synthesis when Mission Control is reachable.
@@ -93,9 +95,11 @@ To print or copy the current operator snapshot from an already-running app:
 ./mac-app/scripts/snapshot.zsh --latest-pack
 ./mac-app/scripts/snapshot.zsh --markdown --copy
 ./mac-app/scripts/snapshot.zsh --markdown --output /tmp/terminal-brain-snapshot.md
+./mac-app/scripts/handoff.zsh --output /tmp/terminal-brain-handoff.md
 ```
 
 The snapshot helper never launches or foregrounds Terminal Brain. `--deck` returns the four Operator Deck cards as JSON, and `--deck-markdown` prints the same deck in prompt-ready Markdown. `--output` is useful for handoffs without touching the clipboard.
+The handoff helper also never launches or foregrounds Terminal Brain. It writes the Operator Deck plus latest context pack into one Markdown file.
 
 The built app is emitted to:
 
