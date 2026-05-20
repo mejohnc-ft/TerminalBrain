@@ -10,6 +10,7 @@ Start here:
 
 ```zsh
 make now
+make first-minute
 make prove-value
 make value
 make next
@@ -23,6 +24,7 @@ Common commands:
 
 ```zsh
 make
+make first-minute
 make now
 make prove-value
 make value
@@ -51,7 +53,7 @@ make start-here
 make handoff
 ```
 
-Plain `make` prints help. `make verify`, `make now`, `make prove-value`, `make status`, `make processes`, `make cleanup-plan`, `make support-bundle`, `make next`, `make value`, `make oracle-brief`, `make agent-prompt`, `make doctor`, `make audit`, `make live`, `make build`, and `make install` do not launch or foreground Terminal Brain. `make prove-value` demonstrates the closed-app loop in a temporary workspace: Oracle Brief, Agent Prompt, accepted Outcome note. `make now` prints the fastest orientation: bottom line, next action, process truth, and readiness. `make value` explains what value is available now and prints the live Value Brief when the app is reachable. `make oracle-brief` gives the direct read: next moves, what may be missing, the cheapest test, and the agent handoff. `make agent-prompt` prints a bounded Codex/Claude execution prompt and falls back to safe local reads if the app is closed. `make next` prints Start Here when the app is reachable, or the closed-app useful loop: Oracle Brief, Agent Prompt, and Outcome writeback. `make doctor` audits repo, CI, app install freshness, MCP contract, agent config references, prompt-prone Apple Notes/Drafts bridges, process state, launchctl, API readiness, and an explicit readiness verdict. `make audit` prints a capability/evidence checklist across value, agent, safety, and readiness surfaces. `make status` answers what is currently running across repo, CI, process, launchctl, and localhost API state. `make processes` maps Terminal Brain, Codex, MCP, kernel, Drafts, and brain-console process noise without killing anything. `make cleanup-plan` prints a non-destructive cleanup plan for stale MCP/kernel process noise. `make support-bundle` writes a one-file Markdown diagnostic bundle. `make live` expects the app to already be running.
+Plain `make` prints help. `make verify`, `make first-minute`, `make now`, `make prove-value`, `make status`, `make processes`, `make cleanup-plan`, `make support-bundle`, `make next`, `make value`, `make oracle-brief`, `make agent-prompt`, `make doctor`, `make audit`, `make live`, `make build`, and `make install` do not launch or foreground Terminal Brain. `make first-minute` gives one immediate explanation, next command, and working closed-app proof. `make prove-value` demonstrates the closed-app loop in a temporary workspace: Oracle Brief, Agent Prompt, accepted Outcome note. `make now` prints the fastest orientation: bottom line, next action, process truth, and readiness. `make value` explains what value is available now and prints the live Value Brief when the app is reachable. `make oracle-brief` gives the direct read: next moves, what may be missing, the cheapest test, and the agent handoff. `make agent-prompt` prints a bounded Codex/Claude execution prompt and falls back to safe local reads if the app is closed. `make next` prints Start Here when the app is reachable, or the closed-app useful loop: Oracle Brief, Agent Prompt, and Outcome writeback. `make doctor` audits repo, CI, app install freshness, MCP contract, agent config references, prompt-prone Apple Notes/Drafts bridges, process state, launchctl, API readiness, and an explicit readiness verdict. `make audit` prints a capability/evidence checklist across value, agent, safety, and readiness surfaces. `make status` answers what is currently running across repo, CI, process, launchctl, and localhost API state. `make processes` maps Terminal Brain, Codex, MCP, kernel, Drafts, and brain-console process noise without killing anything. `make cleanup-plan` prints a non-destructive cleanup plan for stale MCP/kernel process noise. `make support-bundle` writes a one-file Markdown diagnostic bundle. `make live` expects the app to already be running.
 
 ## Components
 
@@ -61,6 +63,7 @@ Plain `make` prints help. `make verify`, `make now`, `make prove-value`, `make s
 ## Current Capabilities
 
 - Local status, source, permission, briefing, and sync checks.
+- First Minute: `make first-minute` and `terminal_brain_first_minute_markdown` provide the shortest explanation, next step, and working proof for a new operator or agent.
 - One-call operator snapshot for agents: Focus, Operator Brief, Operator Deck, Blindspot Brief, Radar, setup gaps, Today, memory trail, and suggested next actions.
 - Plain-language Operator Brief that says what matters, why it matters, what not to miss, and what artifact to create next.
 - Value Brief that collapses Focus, Idea Pulse, Blindspots, and Project Memory into one compact value read.

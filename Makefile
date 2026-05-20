@@ -1,7 +1,8 @@
-.PHONY: help build install verify live now status processes cleanup-plan support-bundle next value prove-value oracle-brief doctor audit ask ask-commit outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live first-minute now status processes cleanup-plan support-bundle next value prove-value oracle-brief doctor audit ask ask-commit outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
+	@echo "  make first-minute  Non-launching one-command value path and working proof"
 	@echo "  make now           Non-launching one-page orientation: value, next action, process truth, readiness"
 	@echo "  make prove-value   Non-launching proof of Oracle Brief -> Agent Prompt -> Outcome"
 	@echo "  make value         Non-launching value read; prints live Value Brief if app is reachable"
@@ -49,6 +50,9 @@ install:
 
 verify:
 	./mac-app/scripts/verify-static.zsh
+
+first-minute:
+	./mac-app/scripts/first-minute.zsh
 
 now:
 	./mac-app/scripts/now.zsh

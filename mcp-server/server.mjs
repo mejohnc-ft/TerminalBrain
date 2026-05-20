@@ -33,6 +33,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_first_minute_markdown",
+    description: "Get one non-launching first-minute artifact: what Terminal Brain is, what value is available, what to do first, and a working closed-app proof.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_now",
     description: "Get the structured app-backed Terminal Brain Now payload with bottom line, focus, do-this steps, process truth, and close loop. Requires the app API to be reachable.",
     inputSchema: {
@@ -1078,6 +1087,24 @@ function nowMarkdown() {
   ].join("\n");
 }
 
+function firstMinuteMarkdown() {
+  const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "first-minute.zsh")], { timeout: 25000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain First Minute",
+    "",
+    "First-minute artifact failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 function oracleBriefMarkdown() {
   const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "oracle-brief.zsh")], { timeout: 15000 });
   if (result.ok) return result.text;
@@ -1255,6 +1282,8 @@ async function callTool(name, args = {}) {
       return runtimeStatus();
     case "terminal_brain_now_markdown":
       return nowMarkdown();
+    case "terminal_brain_first_minute_markdown":
+      return firstMinuteMarkdown();
     case "terminal_brain_now":
       return api("/now");
     case "terminal_brain_process_map_markdown":

@@ -29,6 +29,13 @@ require_contains "$next_output" 'make agent-prompt' "next closed-app Agent Promp
 require_contains "$next_output" 'make outcome' "next closed-app outcome command"
 require_contains "$next_output" 'did not launch or foreground' "next guardrail"
 
+first_minute_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_FIRST_MINUTE_PROOF_API="$CLOSED_API" "$ROOT/mac-app/scripts/first-minute.zsh")"
+require_contains "$first_minute_output" '# Terminal Brain First Minute' "first minute title"
+require_contains "$first_minute_output" 'What You Can Get Immediately' "first minute value section"
+require_contains "$first_minute_output" '# Terminal Brain Value Proof' "first minute proof"
+require_contains "$first_minute_output" 'reviewStatus.*accepted' "first minute accepted proof"
+require_contains "$first_minute_output" 'did not launch, foreground, quit, kill, or control' "first minute guardrail"
+
 value_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/value.zsh")"
 require_contains "$value_output" '# Terminal Brain Value Now' "value title"
 require_contains "$value_output" 'What You Can Get From It' "value explanation"
@@ -72,6 +79,12 @@ require_contains "$mcp_next_output" '# Terminal Brain Next' "MCP next title"
 require_contains "$mcp_next_output" 'make oracle-brief' "MCP next Oracle Brief fallback"
 require_contains "$mcp_next_output" 'make agent-prompt' "MCP next Agent Prompt fallback"
 require_contains "$mcp_next_output" 'make outcome' "MCP next outcome fallback"
+
+mcp_first_minute_output="$(call_mcp_tool terminal_brain_first_minute_markdown)"
+require_contains "$mcp_first_minute_output" '# Terminal Brain First Minute' "MCP first minute title"
+require_contains "$mcp_first_minute_output" 'What You Can Get Immediately' "MCP first minute value section"
+require_contains "$mcp_first_minute_output" '# Terminal Brain Value Proof' "MCP first minute proof"
+require_contains "$mcp_first_minute_output" 'reviewStatus.*accepted' "MCP first minute accepted proof"
 
 mcp_now_output="$(call_mcp_tool terminal_brain_now_markdown)"
 require_contains "$mcp_now_output" '# Terminal Brain Now' "MCP now title"
