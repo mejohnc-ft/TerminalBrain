@@ -73,6 +73,8 @@ final class LocalControlServer {
             return .text(200, await NowSnapshot.markdown())
         case ("GET", "/cleanup-plan/markdown"):
             return .text(200, await CleanupPlanSnapshot.markdown())
+        case ("GET", "/support-bundle/markdown"):
+            return .text(200, await SupportBundleSnapshot.markdown())
         case ("GET", "/start-here/markdown"):
             return .text(200, await StartHereSnapshot.markdown())
         case ("GET", "/sources"):
@@ -1801,6 +1803,60 @@ enum CleanupPlanSnapshot {
             "## Output",
             "",
             output.ifEmpty("(no stdout)"),
+            "",
+            "## Error",
+            "",
+            result.stderr.trimmingCharacters(in: .whitespacesAndNewlines).ifEmpty("(no stderr)"),
+            "",
+            "## Guardrail",
+            "",
+            "- This API response did not launch, foreground, quit, kill, or control anything."
+        ].joined(separator: "\n")
+    }
+}
+
+enum SupportBundleSnapshot {
+    static func markdown() async -> String {
+        let script = "\(Paths.home)/Git/TerminalBrain/mac-app/scripts/support-bundle.zsh"
+        let output = "/tmp/terminal-brain-app-support-bundle.md"
+        guard FileManager.default.fileExists(atPath: script) else {
+            return [
+                "# Terminal Brain Support Bundle",
+                "",
+                "The support-bundle script is not available at:",
+                "",
+                "```text",
+                script,
+                "```",
+                "",
+                "Open the TerminalBrain repo and run:",
+                "",
+                "```zsh",
+                "make support-bundle",
+                "```",
+                "",
+                "Guardrail: this API response did not launch, foreground, quit, kill, or control anything."
+            ].joined(separator: "\n")
+        }
+
+        let result = await CommandRunner.run("/bin/zsh", [script], environment: ["OUTPUT": output])
+        let bundle = CommandRunner.readText(output).trimmingCharacters(in: .whitespacesAndNewlines)
+        if result.succeeded, !bundle.isEmpty {
+            return bundle
+        }
+
+        return [
+            "# Terminal Brain Support Bundle",
+            "",
+            "Support bundle failed before completing.",
+            "",
+            "## Status",
+            "",
+            "- Exit: \(result.status)",
+            "",
+            "## Output",
+            "",
+            result.stdout.trimmingCharacters(in: .whitespacesAndNewlines).ifEmpty("(no stdout)"),
             "",
             "## Error",
             "",

@@ -85,6 +85,14 @@ curl -fsS "$API/cleanup-plan/markdown" | ruby -e '
   puts "cleanup plan ok chars=#{text.length}"
 '
 
+curl -fsS "$API/support-bundle/markdown" | ruby -e '
+  text = STDIN.read
+  abort("support bundle missing title") unless text.include?("# Terminal Brain Support Bundle")
+  abort("support bundle missing now") unless text.include?("# Now")
+  abort("support bundle missing cleanup") unless text.include?("# Cleanup Plan")
+  puts "support bundle ok chars=#{text.length}"
+'
+
 curl -fsS "$API/operator-brief" | ruby -rjson -e '
   j=JSON.parse(STDIN.read)
   items = j["items"] || []

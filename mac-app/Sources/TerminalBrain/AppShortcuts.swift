@@ -198,6 +198,19 @@ struct CopyCleanupPlanIntent: AppIntent {
     }
 }
 
+struct CopySupportBundleIntent: AppIntent {
+    static var title: LocalizedStringResource = "Copy Support Bundle"
+    static var description = IntentDescription("Copy Terminal Brain's Now, Doctor, Audit, Process Map, Cleanup Plan, and Git state as one Markdown bundle.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let markdown = try await ShortcutClient.text(path: "/support-bundle/markdown")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "Support Bundle copied.")
+    }
+}
+
 struct CopyStartHereIntent: AppIntent {
     static var title: LocalizedStringResource = "Copy Start Here"
     static var description = IntentDescription("Copy Terminal Brain's one-block Start Here path as Markdown.")
@@ -525,6 +538,15 @@ struct TerminalBrainShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Copy Cleanup",
             systemImageName: "wrench.and.screwdriver"
+        )
+        AppShortcut(
+            intent: CopySupportBundleIntent(),
+            phrases: [
+                "Copy \(.applicationName) support bundle",
+                "Copy \(.applicationName) diagnostics"
+            ],
+            shortTitle: "Copy Bundle",
+            systemImageName: "shippingbox"
         )
         AppShortcut(
             intent: CopyStartHereIntent(),

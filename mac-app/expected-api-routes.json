@@ -8,6 +8,7 @@
   "GET /now",
   "GET /now/markdown",
   "GET /cleanup-plan/markdown",
+  "GET /support-bundle/markdown",
   "GET /start-here/markdown",
   "GET /sources",
   "GET /setup",

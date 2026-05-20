@@ -49,6 +49,10 @@ struct TerminalBrainApp: App {
                     Task { await model.copyCleanupPlan() }
                 }
 
+                Button("Copy Support Bundle") {
+                    Task { await model.copySupportBundle() }
+                }
+
                 Button("Copy Start Here") {
                     Task { await model.copyStartHere() }
                 }
@@ -110,6 +114,9 @@ struct TerminalBrainApp: App {
             }
             Button("Copy Cleanup Plan") {
                 Task { await model.copyCleanupPlan() }
+            }
+            Button("Copy Support Bundle") {
+                Task { await model.copySupportBundle() }
             }
             Button("Copy Start Here") {
                 Task { await model.copyStartHere() }
