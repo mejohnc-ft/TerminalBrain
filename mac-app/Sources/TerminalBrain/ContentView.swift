@@ -560,8 +560,8 @@ struct ContentView: View {
         return VStack(alignment: .leading, spacing: 18) {
             valueSurfaceHero(
                 eyebrow: "Use Now",
-                title: "Get value without choosing a dashboard.",
-                detail: "Read the current signal, ask what is missing, capture the thought, delegate the bounded work, and write back the outcome.",
+                title: "Start with one move.",
+                detail: "Use this when you want the next action, not another dashboard: act on the signal, ask if needed, then write back the outcome.",
                 symbol: "bolt.circle.fill",
                 primaryTitle: "Copy Use Now",
                 primarySymbol: "bolt.circle.fill",
@@ -577,9 +577,9 @@ struct ContentView: View {
 
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 240), spacing: 12)], spacing: 12) {
                 ValueBriefTile(
-                    label: "1. Read",
+                    label: "One Move",
                     title: topReview?.title ?? focus.title,
-                    detail: topReview?.preview ?? focus.reason,
+                    detail: topReview?.preview ?? "Do this first: \(focus.reason)",
                     action: topReview == nil ? focus.action : "Open Review",
                     symbol: topReview?.status.symbol ?? focus.symbol,
                     accent: topReview?.status.color ?? focus.state.color
@@ -594,7 +594,7 @@ struct ContentView: View {
                 }
 
                 ValueBriefTile(
-                    label: "2. Ask",
+                    label: "Ask",
                     title: "What am I missing?",
                     detail: "Turn ambiguity into one direct Oracle read instead of scanning more surfaces.",
                     action: "Ask Oracle",
@@ -606,7 +606,7 @@ struct ContentView: View {
                 }
 
                 ValueBriefTile(
-                    label: "3. Capture",
+                    label: "Capture",
                     title: "Pressure point",
                     detail: "If the next signal is still in your head, save it before it disappears.",
                     action: "Capture",
@@ -618,7 +618,7 @@ struct ContentView: View {
                 }
 
                 ValueBriefTile(
-                    label: "4. Delegate",
+                    label: "Delegate",
                     title: "Agent Prompt",
                     detail: "Copy a bounded Codex or Claude prompt with guardrails and close-loop instructions.",
                     action: "Copy Prompt",
@@ -629,7 +629,7 @@ struct ContentView: View {
                 }
 
                 ValueBriefTile(
-                    label: "5. Close",
+                    label: "Close",
                     title: "Outcome writeback",
                     detail: "Write what changed, why it mattered, evidence, and next action into durable memory.",
                     action: "Commit Outcome",
