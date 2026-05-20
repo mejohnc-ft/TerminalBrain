@@ -3,7 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject private var model: BrainStatusModel
     @EnvironmentObject private var settings: AppSettings
-    @State private var selectedSection = "focus"
+    @State private var selectedSection = "start-here"
     @State private var selectedFeedID = ""
     @State private var selectedCommitID = ""
     @State private var selectedRadarID = ""
@@ -60,6 +60,7 @@ struct ContentView: View {
 
     private var commandItems: [BrainCommand] {
         var items: [BrainCommand] = [
+            BrainCommand(title: "Open Start Here", subtitle: "One block, one artifact, one written outcome", symbol: "play.circle.fill", category: "Navigate", action: .section("start-here")),
             BrainCommand(title: "Ask Current Focus", subtitle: model.focusItem.title, symbol: "sparkle.magnifyingglass", category: "Action", action: .askFocus),
             BrainCommand(title: "Open Focus", subtitle: "One recommended action from Radar and Today", symbol: "target", category: "Navigate", action: .section("focus")),
             BrainCommand(title: "Open Cockpit", subtitle: "Local gateway, source health, and Mission reachability", symbol: "house.fill", category: "Navigate", action: .section("cockpit")),
@@ -175,6 +176,7 @@ struct ContentView: View {
 
     private var sectionTitle: String {
         switch selectedSection {
+        case "start-here": return "Start Here"
         case "focus": return "Focus"
         case "setup": return "Setup"
         case "radar": return "Radar"
@@ -194,6 +196,7 @@ struct ContentView: View {
 
     private var sectionSubtitle: String {
         switch selectedSection {
+        case "start-here": return "One block, one artifact, one written outcome."
         case "focus": return "One recommended move, why it matters, and the fastest next action."
         case "setup": return "Readiness checklist for the app, MCP gateway, memory, sync, and permission posture."
         case "radar": return "Proactive signals, stale reads, quiet risks, and opportunities worth a decision."
@@ -321,6 +324,7 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 7) {
                 Text("Home")
                     .sidebarHeader()
+                NavRow(title: "Start Here", symbol: "play.circle.fill", badge: "", selected: selectedSection == "start-here") { selectedSection = "start-here" }
                 NavRow(title: "Focus", symbol: "target", badge: "\(model.focusItem.score)", selected: selectedSection == "focus") { selectedSection = "focus" }
                 NavRow(title: "Cockpit", symbol: "house.fill", badge: model.summaryLine == "Brain status ready" ? "" : "!", selected: selectedSection == "cockpit") { selectedSection = "cockpit" }
                 NavRow(title: "Setup", symbol: "checklist.checked", badge: model.setupAttentionCount == 0 ? "" : "\(model.setupAttentionCount)", selected: selectedSection == "setup") { selectedSection = "setup" }
@@ -450,6 +454,7 @@ struct ContentView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     switch selectedSection {
+                    case "start-here": startHereView
                     case "focus": focusView
                     case "setup": setupView
                     case "radar": radarView
@@ -529,6 +534,184 @@ struct ContentView: View {
             }
             syncOutput
         }
+    }
+
+    private var startHereView: some View {
+        let focus = model.focusItem
+        let review = model.oracleCommits.first { $0.status == .new || $0.status == .delegated } ?? model.oracleCommits.first
+        let project = model.projects.first
+
+        return VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(alignment: .top, spacing: 14) {
+                    Image(systemName: "play.circle.fill")
+                        .font(.system(size: 34, weight: .semibold))
+                        .foregroundStyle(settings.theme.accent)
+                        .frame(width: 58, height: 58)
+                        .background(settings.theme.accent.opacity(0.16), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Start Here")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(settings.theme.accent)
+                            .textCase(.uppercase)
+                        Text("One block. One artifact. One written outcome.")
+                            .font(.system(size: 34, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.74)
+                        Text(focus.project)
+                            .font(.headline.weight(.semibold))
+                            .foregroundStyle(focus.state.color)
+                    }
+                    Spacer()
+                }
+
+                Text(focus.reason)
+                    .font(.body)
+                    .foregroundStyle(.white.opacity(0.64))
+                    .fixedSize(horizontal: false, vertical: true)
+
+                HStack(spacing: 8) {
+                    Button { Task { await model.copyOracleDigest() } } label: {
+                        Label("Copy Digest", systemImage: "sparkle.magnifyingglass")
+                    }
+                    .buttonStyle(.borderedProminent)
+                    Button { Task { await model.copyAgentPrompt() } } label: {
+                        Label("Agent Prompt", systemImage: "paperplane.fill")
+                    }
+                    .buttonStyle(.bordered)
+                    Button {
+                        model.workQuery = focus.query.isEmpty ? focus.title : focus.query
+                        selectedSection = "start"
+                    } label: {
+                        Label("Start Work", systemImage: "shippingbox.fill")
+                    }
+                    .buttonStyle(.bordered)
+                }
+                if !model.oracleDigestCopyOutput.isEmpty || !model.agentPromptCopyOutput.isEmpty {
+                    Text(model.oracleDigestCopyOutput.isEmpty ? model.agentPromptCopyOutput : model.oracleDigestCopyOutput)
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.58))
+                }
+            }
+            .padding(20)
+            .darkPanel()
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 230), spacing: 12)], spacing: 12) {
+                ValueBriefTile(
+                    label: "1. Read",
+                    title: "Oracle Digest",
+                    detail: "Notice, decide, test, create, and avoid before handing work to an agent.",
+                    action: "Copy Digest",
+                    symbol: "sparkle.magnifyingglass",
+                    accent: settings.theme.accent
+                ) {
+                    Task { await model.copyOracleDigest() }
+                }
+
+                ValueBriefTile(
+                    label: "2. Act",
+                    title: focus.title,
+                    detail: focus.detail,
+                    action: focus.action,
+                    symbol: focus.symbol,
+                    accent: focus.state.color
+                ) {
+                    applyFocusAction(focus)
+                }
+
+                ValueBriefTile(
+                    label: "3. Attach",
+                    title: project?.name ?? "Build a context pack",
+                    detail: project?.recommendedAction ?? "Create source-grounded working memory before deeper implementation.",
+                    action: project == nil ? "Start Work" : "Open Project",
+                    symbol: project?.symbol ?? "shippingbox.fill",
+                    accent: project?.accent ?? settings.theme.accent
+                ) {
+                    if let project {
+                        selectedProjectID = project.id
+                        selectedSection = "projects"
+                    } else {
+                        model.workQuery = focus.query.isEmpty ? focus.title : focus.query
+                        selectedSection = "start"
+                    }
+                }
+
+                ValueBriefTile(
+                    label: "4. Close",
+                    title: review?.title ?? "Commit the outcome",
+                    detail: review?.preview ?? "Write what changed, why it matters, and the next action into durable memory.",
+                    action: review == nil ? "Commit Below" : "Review",
+                    symbol: review?.status.symbol ?? "square.and.arrow.down.fill",
+                    accent: review?.status.color ?? .green
+                ) {
+                    if let review {
+                        selectedCommitID = review.id
+                        reviewProjectFilter = review.project.isEmpty ? "all" : review.project
+                        selectedSection = "review"
+                    }
+                }
+            }
+
+            startHereOutcomePanel(project: focus.project)
+        }
+    }
+
+    private func startHereOutcomePanel(project: String) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .firstTextBaseline) {
+                SectionTitle("Commit Outcome", symbol: "square.and.arrow.down.fill")
+                Spacer()
+                Text("Close the loop")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.white.opacity(0.42))
+                    .textCase(.uppercase)
+            }
+
+            TextField("Outcome title", text: $model.outcomeTitle)
+                .textFieldStyle(.roundedBorder)
+
+            TextEditor(text: $model.outcomeText)
+                .font(.callout)
+                .foregroundStyle(.white.opacity(0.82))
+                .scrollContentBackground(.hidden)
+                .frame(minHeight: 92)
+                .padding(8)
+                .background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(.white.opacity(0.10), lineWidth: 1))
+
+            TextField("Next action", text: $model.outcomeNextAction)
+                .textFieldStyle(.roundedBorder)
+
+            HStack(spacing: 8) {
+                Button {
+                    Task { await model.commitOutcome(project: project) }
+                } label: {
+                    Label("Commit Outcome", systemImage: "square.and.arrow.down")
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(model.outcomeText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
+                Button {
+                    model.outcomeTitle = "Outcome - \(model.focusItem.title)"
+                    model.outcomeText = "Changed:\n\nWhy it matters:\n\nEvidence:"
+                    model.outcomeNextAction = model.focusItem.action
+                } label: {
+                    Label("Template", systemImage: "doc.badge.plus")
+                }
+                .buttonStyle(.bordered)
+            }
+
+            if !model.outcomeOutput.isEmpty {
+                Text(model.outcomeOutput)
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.58))
+                    .lineLimit(2)
+                    .textSelection(.enabled)
+            }
+        }
+        .padding(16)
+        .darkPanel()
     }
 
     private var focusView: some View {

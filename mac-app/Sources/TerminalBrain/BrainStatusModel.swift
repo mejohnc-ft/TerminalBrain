@@ -30,6 +30,10 @@ final class BrainStatusModel: ObservableObject {
     @Published var isAskingIdea = false
     @Published var quickIdea = ""
     @Published var quickIdeaOutput = ""
+    @Published var outcomeTitle = ""
+    @Published var outcomeText = ""
+    @Published var outcomeNextAction = ""
+    @Published var outcomeOutput = ""
     @Published var snapshotCopyOutput = ""
     @Published var valueBriefCopyOutput = ""
     @Published var oracleDigestCopyOutput = ""
@@ -654,6 +658,51 @@ final class BrainStatusModel: ObservableObject {
             rebuildOperatorBrief()
         } catch {
             quickIdeaOutput = "Idea capture failed: \(error.localizedDescription)"
+        }
+    }
+
+    func commitOutcome(project: String? = nil) async {
+        let outcome = outcomeText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !outcome.isEmpty else { return }
+        guard let url = URL(string: "http://127.0.0.1:8765/outcomes/commit") else { return }
+        let title = outcomeTitle.trimmingCharacters(in: .whitespacesAndNewlines).ifEmpty("Work Block Outcome")
+        let nextAction = outcomeNextAction.trimmingCharacters(in: .whitespacesAndNewlines)
+        let resolvedProject = project?.trimmingCharacters(in: .whitespacesAndNewlines).ifEmpty(focusItem.project) ?? focusItem.project
+
+        do {
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONSerialization.data(withJSONObject: [
+                "title": title,
+                "outcome": outcome,
+                "nextAction": nextAction,
+                "project": resolvedProject,
+                "source": "Terminal Brain.app",
+                "tags": ["terminal-brain", "outcome", "start-here"],
+                "evidence": [
+                    "Focus: \(focusItem.title)",
+                    "Project: \(resolvedProject)"
+                ]
+            ])
+            let (data, _) = try await URLSession.shared.data(for: request)
+            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  json["ok"] as? Bool == true,
+                  let path = json["path"] as? String else {
+                outcomeOutput = "Outcome commit failed."
+                return
+            }
+            outcomeTitle = ""
+            outcomeText = ""
+            outcomeNextAction = ""
+            outcomeOutput = "Committed to \(path)"
+            oracleCommits = loadOracleCommits()
+            projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
+            radarItems = buildRadarItems(cards: cards, setupSteps: setupSteps, projects: projects, oracleItems: oracleItems, oracleCommits: oracleCommits, feedItems: feedItems)
+            dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems, radarItems: radarItems)
+            rebuildOperatorBrief()
+        } catch {
+            outcomeOutput = "Outcome commit failed: \(error.localizedDescription)"
         }
     }
 
