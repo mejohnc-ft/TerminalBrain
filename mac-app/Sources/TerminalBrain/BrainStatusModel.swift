@@ -422,6 +422,35 @@ final class BrainStatusModel: ObservableObject {
         }
     }
 
+    func resolveBlindspot(_ item: BlindspotItem) async {
+        guard let url = URL(string: "http://127.0.0.1:8765/blindspots/action") else { return }
+        blindspotOutput = "Resolving source..."
+        do {
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONSerialization.data(withJSONObject: [
+                "id": item.id,
+                "status": "accepted",
+                "disposition": "acted"
+            ])
+            let (data, _) = try await URLSession.shared.data(for: request)
+            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  json["ok"] as? Bool == true else {
+                blindspotOutput = "Source is not directly resolvable."
+                return
+            }
+            blindspotOutput = "Source resolved."
+            oracleCommits = loadOracleCommits()
+            projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
+            radarItems = buildRadarItems(cards: cards, setupSteps: setupSteps, projects: projects, oracleItems: oracleItems, oracleCommits: oracleCommits, feedItems: feedItems)
+            dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems, radarItems: radarItems)
+            rebuildOperatorBrief()
+        } catch {
+            blindspotOutput = "Resolve failed: \(error.localizedDescription)"
+        }
+    }
+
     func focusOracleQuestion(for item: FocusItem, intent: String) -> String {
         [
             intent,

@@ -162,6 +162,31 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_blindspot_action",
+    description: "Resolve a directly actionable Blindspot Brief source, such as accepting an Oracle commit or marking a Radar signal acted.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: {
+          type: "string",
+          description: "Blindspot id, sourceID, or title."
+        },
+        status: {
+          type: "string",
+          enum: ["new", "accepted", "linked", "delegated", "dismissed"],
+          description: "Oracle commit review status. Defaults to accepted for Oracle commit blindspots."
+        },
+        disposition: {
+          type: "string",
+          enum: ["fresh", "watching", "acted", "snoozed", "dismissed"],
+          description: "Radar disposition. Defaults to acted for Radar blindspots."
+        }
+      },
+      required: ["id"],
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_operator_brief",
     description: "Get the plain-language Operator Brief: what matters, why it matters, what not to miss, and the next artifact.",
     inputSchema: {
@@ -607,6 +632,15 @@ async function callTool(name, args = {}) {
       });
       return { ok: true, ask: asked, commit: committed };
     }
+    case "terminal_brain_blindspot_action":
+      return api("/blindspots/action", {
+        method: "POST",
+        body: {
+          id: args.id,
+          status: args.status || "",
+          disposition: args.disposition || ""
+        }
+      });
     case "terminal_brain_operator_brief":
       return api("/operator-brief");
     case "terminal_brain_operator_brief_markdown":

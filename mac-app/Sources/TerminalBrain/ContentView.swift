@@ -1427,6 +1427,15 @@ struct ContentView: View {
                             }
                             .buttonStyle(.bordered)
                             .disabled(model.isAskingBlindspot)
+                            if item.source == "Oracle commit" || item.source == "Radar" {
+                                Button {
+                                    Task { await model.resolveBlindspot(item) }
+                                } label: {
+                                    Label("Resolve Source", systemImage: "checkmark.seal")
+                                }
+                                .buttonStyle(.bordered)
+                                .disabled(model.isAskingBlindspot)
+                            }
                             if item.source == "Oracle commit" {
                                 Button {
                                     selectedCommitID = item.sourceID

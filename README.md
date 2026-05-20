@@ -37,6 +37,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Blindspot Brief that highlights ignored, stale, under-tested, or unresolved work before broad planning.
 - Native app section, command palette entries, copy action, and App Shortcut for the Blindspot Brief.
 - Blindspot Oracle ask and ask-and-commit tools for turning counter-signals into durable reads.
+- Blindspot action tool for resolving directly actionable Oracle commit and Radar sources.
 - Latest context pack API/MCP/CLI/Shortcut surface for opening, copying, or handing off the newest agent-ready artifact.
 - Prompt-ready Decision Lane Markdown for the ranked Today action queue and project signals.
 - Prompt-ready Project Memory Markdown for active work surfaces, recommended actions, context packs, and Oracle reads.
@@ -53,7 +54,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Proactive Radar for delegated reads, stale reviews, quiet project risks, open loops, and ideas worth testing, with scores, evidence, and persistent watch/acted/snooze/dismiss triage.
 - Focus Mode that opens to one recommended action, why it won, the fastest next move, and inline Oracle follow-up prompts.
 - Daily Command Center with ranked actions for reviews, delegations, projects, system attention, and fresh context.
-- MCP tools for status, snapshot, snapshot Markdown, setup, focus, Blindspot Brief, Blindspot ask, Blindspot ask-and-commit, Operator Brief, focus ask, focus ask-and-commit, radar, sources, briefing, permissions, sync, Start Work, Oracle ask, ask-and-commit, idea capture, Oracle items, Oracle commits, and Oracle review status.
+- MCP tools for status, snapshot, snapshot Markdown, setup, focus, Blindspot Brief, Blindspot ask, Blindspot ask-and-commit, Blindspot action, Operator Brief, focus ask, focus ask-and-commit, radar, sources, briefing, permissions, sync, Start Work, Oracle ask, ask-and-commit, idea capture, Oracle items, Oracle commits, and Oracle review status.
 
 ## Build
 

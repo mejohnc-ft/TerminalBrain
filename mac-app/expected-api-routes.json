@@ -16,6 +16,7 @@
   "GET /blindspots",
   "GET /blindspots/markdown",
   "POST /blindspots/ask",
+  "POST /blindspots/action",
   "GET /operator-brief",
   "GET /operator-brief/markdown",
   "GET /operator-deck",

@@ -91,6 +91,14 @@ final class LocalControlServer {
             let id = (request.jsonBody?["id"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
             let question = (request.jsonBody?["question"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
             return .json(200, await BlindspotSnapshot.ask(id: id, question: question))
+        case ("POST", "/blindspots/action"):
+            let id = (request.jsonBody?["id"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            let status = (request.jsonBody?["status"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            let disposition = (request.jsonBody?["disposition"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !id.isEmpty else {
+                return .json(400, ["ok": false, "error": "id is required"])
+            }
+            return .json(200, await BlindspotSnapshot.applyAction(id: id, status: status, disposition: disposition))
         case ("GET", "/operator-brief"):
             return .json(200, await OperatorBriefSnapshot.brief())
         case ("GET", "/operator-brief/markdown"):
@@ -624,10 +632,10 @@ enum OracleSnapshot {
             "",
             "Current Terminal Brain implementation:",
             "- Native macOS app with local control API on http://127.0.0.1:8765.",
-            "- Current API routes: /health, /status, /setup, /focus, /blindspots, /blindspots/markdown, /blindspots/ask, /operator-deck, /operator-deck/markdown, /operator-deck/action, /handoff/markdown, /context-packs/latest, /context-packs/latest/markdown, /radar, /radar/disposition, /sources, /briefing, /permissions, /oracle/brief, /oracle/items, /oracle/ask, /oracle/commit, /sync, /start-work.",
+            "- Current API routes: /health, /status, /setup, /focus, /blindspots, /blindspots/markdown, /blindspots/ask, /blindspots/action, /operator-deck, /operator-deck/markdown, /operator-deck/action, /handoff/markdown, /context-packs/latest, /context-packs/latest/markdown, /radar, /radar/disposition, /sources, /briefing, /permissions, /oracle/brief, /oracle/items, /oracle/ask, /oracle/commit, /sync, /start-work.",
             "- Oracle ask already combines local deterministic signals, Mission retrieval, Mission workbench synthesis, citations, supporting items, and fallback behavior.",
             "- Oracle commit can write synthesized decisions and outcomes into the Obsidian-backed Oracle Inbox.",
-            "- MCP proxy can call Terminal Brain status, setup, focus, blindspots, operator deck, operator deck action, radar, radar triage, sources, briefing, permissions, sync, start work, oracle brief, oracle items, oracle ask, oracle commit, and oracle review status.",
+            "- MCP proxy can call Terminal Brain status, setup, focus, blindspots, blindspot ask/commit/action, operator deck, operator deck action, radar, radar triage, sources, briefing, permissions, sync, start work, oracle brief, oracle items, oracle ask, oracle commit, and oracle review status.",
             "- Do not describe these implemented capabilities as missing. Recommend what should come after them.",
             "",
             "Local deterministic read:",
@@ -1879,6 +1887,42 @@ enum BlindspotSnapshot {
             "tags": ["terminal-brain", "blindspot", "oracle"]
         ]
         return result
+    }
+
+    static func applyAction(id: String, status: String, disposition: String) async -> [String: Any] {
+        let payload = await blindspots()
+        let items = (payload["items"] as? [[String: Any]]) ?? []
+        guard let item = selectedItem(id: id, items: items) else {
+            return [
+                "ok": false,
+                "error": "Blindspot item not found",
+                "id": id
+            ]
+        }
+
+        let source = item["source"] as? String ?? ""
+        let sourceID = item["sourceID"] as? String ?? ""
+        switch source {
+        case "Oracle commit":
+            let resolvedStatus = status.isEmpty ? "accepted" : status
+            var result = OracleSnapshot.setReviewStatus(id: sourceID, status: resolvedStatus)
+            result["blindspotID"] = item["id"] as? String ?? id
+            result["source"] = source
+            return result
+        case "Radar":
+            let resolvedDisposition = disposition.isEmpty ? "acted" : disposition
+            var result = await RadarSnapshot.setDisposition(id: sourceID, disposition: resolvedDisposition)
+            result["blindspotID"] = item["id"] as? String ?? id
+            result["source"] = source
+            return result
+        default:
+            return [
+                "ok": false,
+                "error": "Blindspot source is not directly resolvable",
+                "source": source,
+                "supportedSources": ["Oracle commit", "Radar"]
+            ]
+        }
     }
 
     private static func card(id: String, title: String, why: String, question: String, nextAction: String, project: String, source: String, sourceID: String, score: Int, symbol: String, path: String) -> [String: Any] {
