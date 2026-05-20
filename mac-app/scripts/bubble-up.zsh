@@ -230,11 +230,17 @@ WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtim
   oldest_new = unclosed.select { |item| item[:status] == "new" }.sort_by { |item| item[:created_time] }.first
   delegated = unclosed.select { |item| item[:status] == "delegated" }.sort_by { |item| item[:created_time] }.first
   top = ranked.first
+  fallback_signals = recent_work_signals(root, limit)
+  fallback_top = fallback_signals.first
 
   puts "## Direct Read"
   puts
-  if reviewable.empty?
-    puts "- Nothing reviewable is currently waiting."
+  if reviewable.empty? && fallback_top
+    puts "- No Oracle Inbox items are reviewable yet."
+    puts "- Pull forward recent work instead: #{fallback_top[:title]} (#{fallback_top[:age]}, #{fallback_top[:sha]})."
+    puts "- Convert one shipped change into reviewed memory so the system knows why it mattered."
+  elsif reviewable.empty?
+    puts "- No Oracle Inbox items or repo fallback signals are currently available."
     puts "- Prime the brain with one current question, decision pressure, or loose end."
   else
     puts "- Reviewable items: #{reviewable.length}"
@@ -245,7 +251,10 @@ WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtim
 
   puts "## What You May Not Be Considering"
   puts
-  if reviewable.empty?
+  if reviewable.empty? && fallback_top
+    puts "- Recent implementation work is not the same as durable memory."
+    puts "- If you do not capture outcome, remaining risk, and next action, future agents will see commits but miss judgment."
+  elsif reviewable.empty?
     puts "- There is no local signal to challenge you yet. That is a setup problem, not a thinking problem."
     puts "- Capture the pressure point you would otherwise keep in your head."
   else
@@ -267,10 +276,13 @@ WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtim
   puts "## Items To Pull Forward"
   puts
   if ranked.empty?
-    puts "No items matched."
-    puts
-    print_recent_work_fallback(root, limit)
-    puts
+    if fallback_signals.empty?
+      puts "No items matched."
+      puts
+    else
+      print_recent_work_fallback(root, limit)
+      puts
+    end
     puts "## Prime The Brain"
     puts
     puts "Use one of these starter captures to create the first useful signal:"
