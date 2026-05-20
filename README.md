@@ -21,6 +21,7 @@ make snapshot-digest
 make snapshot-blindspots
 make snapshot-ideas
 make agent-prompt
+make start-here
 make handoff
 ```
 
@@ -38,7 +39,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Plain-language Operator Brief that says what matters, why it matters, what not to miss, and what artifact to create next.
 - Value Brief that collapses Focus, Idea Pulse, Blindspots, and Project Memory into one compact value read.
 - Oracle Digest that turns current signals into a Notice / Decide / Test / Create / Avoid read for the next work block, available in the app, command palette, App Shortcuts, CLI, API, and MCP.
-- Start Here surface and App Shortcut that give a one-block path from digest to agent prompt to context pack to structured outcome writeback.
+- Start Here app/API/MCP/CLI/App Shortcut surface that gives a one-block path from digest to agent prompt to context pack to structured outcome writeback.
 - Agent Prompt generator that turns the Oracle Digest and Value Brief into a concise Codex/Claude execution prompt with acceptance criteria and guardrails.
 - Structured Outcome commit endpoint/tool/CLI so agents can write back what changed, evidence, and next action without launching the app.
 - Operator Deck for app and agents: do first, ask about, review or capture, and project/start-work cards.
@@ -53,7 +54,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Latest context pack API/MCP/CLI/Shortcut surface for opening, copying, or handing off the newest agent-ready artifact.
 - Prompt-ready Decision Lane Markdown for the ranked Today action queue and project signals.
 - Prompt-ready Project Memory Markdown for active work surfaces, recommended actions, context packs, and Oracle reads.
-- Single-file handoff API/MCP/CLI generator that combines the Oracle Digest, Value Brief, Operator Brief, Blindspot Brief, Idea Pulse, Decision Lane, Operator Deck, Project Memory, and latest context pack.
+- Single-file handoff API/MCP/CLI generator that combines Start Here, the Oracle Digest, Value Brief, Operator Brief, Blindspot Brief, Idea Pulse, Decision Lane, Operator Deck, Project Memory, and latest context pack.
 - Focused agent prompt API/MCP/CLI generator for handing one concrete next task to Codex or Claude.
 - Setup readiness checklist for app, MCP config, workspace paths, sync, memory, Mission Control, prompt safety, and Oracle writeback.
 - Oracle ask flow with deterministic local fallback and a Focus-grounded ask flow for the current best action.
@@ -67,7 +68,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Proactive Radar for delegated reads, stale reviews, quiet project risks, open loops, and ideas worth testing, with scores, evidence, and persistent watch/acted/snooze/dismiss triage.
 - Focus Mode that opens to one recommended action, why it won, the fastest next move, and inline Oracle follow-up prompts.
 - Daily Command Center with ranked actions for reviews, delegations, projects, system attention, and fresh context.
-- MCP tools for status, snapshot, snapshot Markdown, setup, focus, Value Brief, Oracle Digest, Agent Prompt, Blindspot Brief, Idea Pulse, Idea ask, Idea ask-and-commit, Blindspot ask, Blindspot ask-and-commit, Blindspot action, Operator Brief, focus ask, focus ask-and-commit, radar, sources, briefing, permissions, sync, Start Work, Oracle ask, ask-and-commit, outcome commit, idea capture, Oracle items, Oracle commits, and Oracle review status.
+- MCP tools for status, snapshot, snapshot Markdown, setup, focus, Start Here, Value Brief, Oracle Digest, Agent Prompt, Blindspot Brief, Idea Pulse, Idea ask, Idea ask-and-commit, Blindspot ask, Blindspot ask-and-commit, Blindspot action, Operator Brief, focus ask, focus ask-and-commit, radar, sources, briefing, permissions, sync, Start Work, Oracle ask, ask-and-commit, outcome commit, idea capture, Oracle items, Oracle commits, and Oracle review status.
 
 ## Build
 
@@ -120,13 +121,14 @@ To print or copy the current operator snapshot from an already-running app:
 ./mac-app/scripts/snapshot.zsh --deck-markdown
 ./mac-app/scripts/snapshot.zsh --latest-pack
 ./mac-app/scripts/snapshot.zsh --agent-prompt
+./mac-app/scripts/snapshot.zsh --start-here
 ./mac-app/scripts/snapshot.zsh --markdown --copy
 ./mac-app/scripts/snapshot.zsh --markdown --output /tmp/terminal-brain-snapshot.md
 ./mac-app/scripts/handoff.zsh --output /tmp/terminal-brain-handoff.md
 ```
 
-The Oracle, outcome, and snapshot helpers never launch or foreground Terminal Brain. `oracle.zsh` prints a prompt-ready Oracle answer and can commit it with `--commit`; `outcome.zsh` writes a structured result with title, outcome, evidence, next action, project, and source through an already-running app; `--value` prints the compact Value Brief, `--digest` prints the Notice / Decide / Test / Create / Avoid Oracle Digest, `--agent-prompt` prints a focused Codex/Claude execution prompt, `--brief-markdown` prints the plain-language Operator Brief, `--today` prints the ranked Decision Lane, `--blindspots` prints the counter-signal brief, `--ideas` prints Idea Pulse, `--projects` prints Project Memory, `--deck` returns the four Operator Deck cards as JSON, and `--deck-markdown` prints the same deck in prompt-ready Markdown. `--output` is useful for handoffs without touching the clipboard.
-The handoff helper also never launches or foregrounds Terminal Brain. It writes the Oracle Digest, Value Brief, Operator Brief, Blindspot Brief, Idea Pulse, Decision Lane, Operator Deck, Project Memory, and latest context pack into one Markdown file.
+The Oracle, outcome, and snapshot helpers never launch or foreground Terminal Brain. `oracle.zsh` prints a prompt-ready Oracle answer and can commit it with `--commit`; `outcome.zsh` writes a structured result with title, outcome, evidence, next action, project, and source through an already-running app; `--value` prints the compact Value Brief, `--digest` prints the Notice / Decide / Test / Create / Avoid Oracle Digest, `--start-here` prints the one-block value path, `--agent-prompt` prints a focused Codex/Claude execution prompt, `--brief-markdown` prints the plain-language Operator Brief, `--today` prints the ranked Decision Lane, `--blindspots` prints the counter-signal brief, `--ideas` prints Idea Pulse, `--projects` prints Project Memory, `--deck` returns the four Operator Deck cards as JSON, and `--deck-markdown` prints the same deck in prompt-ready Markdown. `--output` is useful for handoffs without touching the clipboard.
+The handoff helper also never launches or foregrounds Terminal Brain. It writes Start Here, the Oracle Digest, Value Brief, Operator Brief, Blindspot Brief, Idea Pulse, Decision Lane, Operator Deck, Project Memory, and latest context pack into one Markdown file.
 
 The built app is emitted to:
 

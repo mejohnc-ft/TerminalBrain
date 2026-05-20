@@ -47,6 +47,9 @@ while [[ $# -gt 0 ]]; do
     --agent-prompt|--prompt)
       FORMAT="agent-prompt"
       ;;
+    --start-here)
+      FORMAT="start-here"
+      ;;
     --markdown)
       FORMAT="markdown"
       ;;
@@ -70,7 +73,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     --help|-h)
       cat <<'EOF'
-Usage: ./mac-app/scripts/snapshot.zsh [--markdown|--json|--brief|--brief-markdown|--value|--digest|--today|--blindspots|--ideas|--projects|--deck|--deck-markdown|--latest-pack|--agent-prompt] [--copy] [--output FILE]
+Usage: ./mac-app/scripts/snapshot.zsh [--markdown|--json|--brief|--brief-markdown|--value|--digest|--today|--blindspots|--ideas|--projects|--deck|--deck-markdown|--latest-pack|--agent-prompt|--start-here] [--copy] [--output FILE]
 
 Prints the current Terminal Brain operator snapshot from an already-running app.
 This script never launches or foregrounds Terminal Brain.
@@ -95,6 +98,8 @@ Options:
               Print the latest context pack Markdown.
   --agent-prompt
               Print a focused execution prompt for Codex or Claude.
+  --start-here
+              Print the one-block Start Here path.
   --copy      Copy output to the clipboard as well as printing it.
   --output    Write output to a file as well as printing it.
   --help      Show this help.
@@ -154,6 +159,9 @@ case "$FORMAT" in
     ;;
   agent-prompt)
     OUTPUT="$(curl -fsS "$API/agent-prompt/markdown")"
+    ;;
+  start-here)
+    OUTPUT="$(curl -fsS "$API/start-here/markdown")"
     ;;
   markdown)
     OUTPUT="$(curl -fsS "$API/snapshot/markdown")"

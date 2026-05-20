@@ -54,6 +54,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_start_here_markdown",
+    description: "Get the one-block Terminal Brain Start Here path: digest, current move, context, non-launching commands, and done criteria.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_sources",
     description: "List Terminal Brain source modes for Obsidian, agent histories, Drafts, Apple Notes, and Mission Control.",
     inputSchema: {
@@ -741,6 +750,8 @@ async function callTool(name, args = {}) {
       return api("/handoff/markdown", { rawText: true });
     case "terminal_brain_agent_prompt_markdown":
       return api("/agent-prompt/markdown", { rawText: true });
+    case "terminal_brain_start_here_markdown":
+      return api("/start-here/markdown", { rawText: true });
     case "terminal_brain_sources":
       return api("/sources");
     case "terminal_brain_setup":

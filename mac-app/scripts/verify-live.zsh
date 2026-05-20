@@ -137,6 +137,8 @@ curl -fsS "$API/handoff/markdown" | ruby -e '
   abort("handoff missing title") unless text.include?("# Terminal Brain Handoff")
   abort("handoff missing operating instructions") unless text.include?("## How To Use This")
   abort("handoff missing contents") unless text.include?("## Contents")
+  abort("handoff missing start here") unless text.include?("# Terminal Brain Start Here")
+  abort("handoff missing oracle digest") unless text.include?("# Terminal Brain Oracle Digest")
   abort("handoff missing value brief") unless text.include?("# Terminal Brain Value Brief")
   abort("handoff missing operator brief") unless text.include?("# Terminal Brain Operator Brief")
   abort("handoff missing blindspot brief") unless text.include?("# Terminal Brain Blindspot Brief")
@@ -156,6 +158,14 @@ curl -fsS "$API/agent-prompt/markdown" | ruby -e '
   abort("agent prompt missing acceptance criteria") unless text.include?("## Acceptance Criteria")
   abort("agent prompt missing guardrails") unless text.include?("## Guardrails")
   puts "agent prompt ok chars=#{text.length}"
+'
+
+curl -fsS "$API/start-here/markdown" | ruby -e '
+  text = STDIN.read
+  abort("start here missing title") unless text.include?("# Terminal Brain Start Here")
+  abort("start here missing one-block path") unless text.include?("## One-Block Path")
+  abort("start here missing done means") unless text.include?("## Done Means")
+  puts "start here ok chars=#{text.length}"
 '
 
 printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_snapshot","arguments":{}}}\n' \
@@ -280,6 +290,8 @@ printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal
       text = response.dig("result", "content", 0, "text").to_s
       abort("mcp handoff missing title") unless text.include?("# Terminal Brain Handoff")
       abort("mcp handoff missing contents") unless text.include?("## Contents")
+      abort("mcp handoff missing start here") unless text.include?("# Terminal Brain Start Here")
+      abort("mcp handoff missing oracle digest") unless text.include?("# Terminal Brain Oracle Digest")
       abort("mcp handoff missing value brief") unless text.include?("# Terminal Brain Value Brief")
       abort("mcp handoff missing operator brief") unless text.include?("# Terminal Brain Operator Brief")
       abort("mcp handoff missing blindspot brief") unless text.include?("# Terminal Brain Blindspot Brief")
@@ -301,6 +313,17 @@ printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal
       abort("mcp agent prompt missing acceptance criteria") unless text.include?("## Acceptance Criteria")
       abort("mcp agent prompt missing guardrails") unless text.include?("## Guardrails")
       puts "mcp agent prompt ok chars=#{text.length}"
+    '
+
+printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_start_here_markdown","arguments":{}}}\n' \
+  | node "$ROOT/mcp-server/server.mjs" \
+  | ruby -rjson -e '
+      line = STDIN.each_line.find { |l| l.include?("\"result\"") } || "{}"
+      response = JSON.parse(line)
+      text = response.dig("result", "content", 0, "text").to_s
+      abort("mcp start here missing title") unless text.include?("# Terminal Brain Start Here")
+      abort("mcp start here missing done means") unless text.include?("## Done Means")
+      puts "mcp start here ok chars=#{text.length}"
     '
 
 node --check "$ROOT/mcp-server/server.mjs" >/dev/null

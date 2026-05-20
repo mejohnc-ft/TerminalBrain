@@ -67,6 +67,8 @@ final class LocalControlServer {
             return .text(200, await BrainHandoffSnapshot.markdown())
         case ("GET", "/agent-prompt/markdown"):
             return .text(200, await AgentPromptSnapshot.markdown())
+        case ("GET", "/start-here/markdown"):
+            return .text(200, await StartHereSnapshot.markdown())
         case ("GET", "/sources"):
             return .json(200, await ControlSnapshot.sources())
         case ("GET", "/setup"):
@@ -2806,9 +2808,81 @@ enum AgentPromptSnapshot {
     }
 }
 
+enum StartHereSnapshot {
+    static func markdown() async -> String {
+        let generated = ISO8601DateFormatter().string(from: Date())
+        let focusPayload = await FocusSnapshot.focus()
+        let digestPayload = await OracleDigestSnapshot.digest()
+        let pack = ControlSnapshot.latestContextPack()
+        let focus = (focusPayload["item"] as? [String: Any]) ?? [:]
+        let sections = (digestPayload["sections"] as? [[String: Any]]) ?? []
+
+        let title = focus["title"] as? String ?? "Move the current Terminal Brain focus forward"
+        let project = focus["project"] as? String ?? "General Brain"
+        let action = focus["action"] as? String ?? "Act"
+        let query = (focus["query"] as? String ?? title).ifEmpty(title)
+        let packPath = pack["path"] as? String ?? ""
+
+        var lines: [String] = [
+            "# Terminal Brain Start Here",
+            "",
+            "Generated: \(generated)",
+            "",
+            "## One-Block Path",
+            "1. Read the Oracle Digest to understand what to notice, decide, test, create, and avoid.",
+            "2. Copy the Agent Prompt when handing work to Codex or Claude.",
+            "3. Build or use a context pack for the current project.",
+            "4. Commit the outcome before switching context.",
+            "",
+            "## Current Move",
+            "- Project: \(project)",
+            "- Focus: \(title)",
+            "- Action: \(action)",
+            "- Working query: \(query)",
+            ""
+        ]
+
+        lines.append("## Oracle Digest")
+        for section in sections.prefix(5) {
+            lines.append("- \(section["label"] as? String ?? "Signal"): \(section["title"] as? String ?? "Untitled") -> \(section["action"] as? String ?? "Act")")
+            if let question = section["question"] as? String, !question.isEmpty {
+                lines.append("  Question: \(question.prefixString(maxLength: 220))")
+            }
+        }
+        if sections.isEmpty {
+            lines.append("- No digest lanes are available. Start with Focus and commit a useful outcome.")
+        }
+        lines.append("")
+
+        lines.append("## Context")
+        if pack["ok"] as? Bool == true, !packPath.isEmpty {
+            lines.append("- Latest context pack: \(packPath)")
+        } else {
+            lines.append("- No latest context pack is available. Build one with the working query before deep implementation.")
+        }
+        lines.append("")
+
+        lines.append("## Non-Launching Commands")
+        lines.append("- `make snapshot-digest`")
+        lines.append("- `make agent-prompt`")
+        lines.append("- `make latest-pack`")
+        lines.append("- `make outcome TITLE=\"...\" OUTCOME=\"...\" PROJECT=\"\(project)\" NEXT=\"...\"`")
+        lines.append("")
+
+        lines.append("## Done Means")
+        lines.append("- One artifact, patch, decision, or written recommendation exists.")
+        lines.append("- The result says what changed, why it matters, and the next action.")
+        lines.append("- Useful findings are committed with `terminal_brain_commit_outcome`, `make outcome`, the app Start Here box, or the Commit Outcome shortcut.")
+        lines.append("- Terminal Brain was not launched, relaunched, quit, or foregrounded unless John explicitly asked.")
+
+        return lines.joined(separator: "\n")
+    }
+}
+
 enum BrainHandoffSnapshot {
     static func markdown() async -> String {
         let generated = ISO8601DateFormatter().string(from: Date())
+        let startHere = await StartHereSnapshot.markdown()
         let digest = await OracleDigestSnapshot.markdown()
         let value = await ValueBriefSnapshot.markdown()
         let brief = await OperatorBriefSnapshot.markdown()
@@ -2824,6 +2898,7 @@ enum BrainHandoffSnapshot {
             "Generated: \(generated)",
             "",
             "## How To Use This",
+            "- Use Start Here when you need the shortest path from signal to action to outcome.",
             "- Start with the Oracle Digest when you want the plain-language read: what to notice, decide, test, create, and avoid.",
             "- Start with the Operator Brief for plain-language value, then use the Operator Deck for concrete actions.",
             "- Treat the first action card as the default next move unless new evidence contradicts it.",
@@ -2836,6 +2911,7 @@ enum BrainHandoffSnapshot {
             "- Do not relaunch or foreground Terminal Brain unless the operator explicitly asks.",
             "",
             "## Contents",
+            "- Start Here: one-block path from current signal to committed outcome.",
             "- Oracle Digest: narrative read on what deserves attention and closure.",
             "- Value Brief: compact read on why the current move is worth attention.",
             "- Operator Brief: plain-language value read.",
@@ -2845,6 +2921,10 @@ enum BrainHandoffSnapshot {
             "- Operator Deck: four action cards.",
             "- Project Memory: active work surfaces and source paths.",
             "- Latest Context Pack: freshest working-memory bundle.",
+            "",
+            startHere,
+            "",
+            "---",
             "",
             digest,
             "",
