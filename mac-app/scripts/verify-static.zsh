@@ -14,6 +14,7 @@ Runs non-launching local QA:
   - Swift typecheck
   - macOS app build
   - misleading static UI copy guard
+  - value surface regression guard
   - secret pattern scan
 
 This script never launches or foregrounds Terminal Brain.
@@ -42,6 +43,7 @@ done
 "$ROOT/mac-app/scripts/check-api-routes.zsh"
 "$ROOT/mac-app/scripts/check-no-foreground.zsh"
 "$ROOT/mac-app/scripts/check-ui-copy.zsh"
+"$ROOT/mac-app/scripts/check-value-surfaces.zsh"
 node --check "$ROOT/mcp-server/server.mjs" >/dev/null
 node --check "$ROOT/mcp-server/check-tools.mjs" >/dev/null
 node "$ROOT/mcp-server/check-tools.mjs"

@@ -92,7 +92,7 @@ For non-launching local QA:
 ./mac-app/scripts/verify-static.zsh
 ```
 
-The static verifier checks shell syntax, MCP syntax, Swift type-checking, app build, and secret patterns without launching or foregrounding Terminal Brain.
+The static verifier checks shell syntax, MCP syntax, Swift type-checking, app build, value-surface coverage, no-foreground guardrails, and secret patterns without launching or foregrounding Terminal Brain.
 
 For API/MCP checks against an already-running app:
 
