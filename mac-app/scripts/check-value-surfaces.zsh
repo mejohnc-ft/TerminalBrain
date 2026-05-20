@@ -187,6 +187,8 @@ require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'Captured First Signal' "Use
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'idea.zsh' "Use Now writes capture through idea fallback"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'What You Get In 60 Seconds' "Use Now immediate value"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" '## One Move' "Use Now one-move section"
+require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'one executable move before the detailed read' "Use Now help one-move copy"
+require_in_file "$ROOT/Makefile" 'one move, ask, capture, delegate, close' "Makefile Use Now one-move help"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'Ask, Capture, Delegate, Close' "Use Now closed loop commands"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'work-block.zsh' "Use Now embeds Work Block"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'make outcome' "Use Now outcome command"

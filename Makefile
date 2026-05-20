@@ -2,7 +2,7 @@
 
 help:
 	@echo "Terminal Brain commands:"
-	@echo "  make use-now       One-command non-launching path: read, ask, capture, delegate, close"
+	@echo "  make use-now       One-command non-launching path: one move, ask, capture, delegate, close"
 	@echo "  make work-block    Non-launching work block: pull forward, triage, close loop"
 	@echo "  make next          Non-launching next move; prints Start Here if app is reachable"
 	@echo "  make first-minute  Non-launching one-command value path and working proof"

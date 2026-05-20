@@ -44,8 +44,9 @@ Usage: ./mac-app/scripts/use-now.zsh [--project PROJECT] [--limit N]
 
 Prints the shortest useful Terminal Brain path for a new or overwhelmed operator:
   - what value you can get immediately
+  - one executable move before the detailed read
   - optional idea capture if IDEA or --idea is supplied
-  - the current pull-forward work block
+  - compact pull-forward context from the current work block
   - the exact ask, capture, delegate, and outcome commands
 
 This script never launches, foregrounds, quits, kills, screenshots, or controls Terminal Brain.
