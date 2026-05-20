@@ -84,7 +84,8 @@ struct ContentView: View {
             BrainCommand(title: "Copy Now", subtitle: "Bottom line, next action, process truth, and close loop", symbol: "sparkles", category: "Action", action: .copyNow),
             BrainCommand(title: "Copy Process Map", subtitle: "Terminal Brain, Codex, MCP, kernel, Drafts, launchctl, and API state", symbol: "point.3.connected.trianglepath.dotted", category: "Action", action: .copyProcessMap),
             BrainCommand(title: "Copy Cleanup Plan", subtitle: "Read-only stale MCP/kernel process cleanup guidance", symbol: "wrench.and.screwdriver.fill", category: "Action", action: .copyCleanupPlan),
-            BrainCommand(title: "Copy Support Bundle", subtitle: "Now, Doctor, Audit, Process Map, Cleanup Plan, and Git state", symbol: "shippingbox.and.arrow.backward.fill", category: "Action", action: .copySupportBundle),
+            BrainCommand(title: "Copy Support Bundle", subtitle: "Now, Work Block, Doctor, Audit, Process Map, Cleanup Plan, and Git state", symbol: "shippingbox.and.arrow.backward.fill", category: "Action", action: .copySupportBundle),
+            BrainCommand(title: "Copy Work Block", subtitle: "Pull forward, triage, and close the loop", symbol: "target", category: "Action", action: .copyWorkBlock),
             BrainCommand(title: "Copy Start Here", subtitle: "One block, one artifact, one written outcome", symbol: "play.circle.fill", category: "Action", action: .copyStartHere),
             BrainCommand(title: "Copy Value Brief", subtitle: "Compact read on why the current move is worth attention", symbol: "bolt.fill", category: "Action", action: .copyValueBrief),
             BrainCommand(title: "Copy Oracle Brief", subtitle: "Direct read, next moves, missing signal, cheap test, and agent handoff", symbol: "wand.and.stars", category: "Action", action: .copyOracleBrief),
@@ -599,6 +600,11 @@ struct ContentView: View {
                     }
                     .buttonStyle(.bordered)
 
+                    Button { Task { await model.copyWorkBlock() } } label: {
+                        Label("Work Block", systemImage: "target")
+                    }
+                    .buttonStyle(.bordered)
+
                     Button {
                         model.workQuery = focus.query.isEmpty ? focus.title : focus.query
                         selectedSection = "start"
@@ -613,8 +619,8 @@ struct ContentView: View {
                     .buttonStyle(.bordered)
                 }
 
-                if !model.firstMinuteCopyOutput.isEmpty || !model.agentPromptCopyOutput.isEmpty || !model.valueProofCopyOutput.isEmpty {
-                    Text(!model.firstMinuteCopyOutput.isEmpty ? model.firstMinuteCopyOutput : (!model.agentPromptCopyOutput.isEmpty ? model.agentPromptCopyOutput : model.valueProofCopyOutput))
+                if !model.firstMinuteCopyOutput.isEmpty || !model.agentPromptCopyOutput.isEmpty || !model.workBlockCopyOutput.isEmpty || !model.valueProofCopyOutput.isEmpty {
+                    Text(!model.firstMinuteCopyOutput.isEmpty ? model.firstMinuteCopyOutput : (!model.agentPromptCopyOutput.isEmpty ? model.agentPromptCopyOutput : (!model.workBlockCopyOutput.isEmpty ? model.workBlockCopyOutput : model.valueProofCopyOutput)))
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.58))
                 }
@@ -3349,6 +3355,8 @@ struct ContentView: View {
             Task { await model.copyCleanupPlan() }
         case .copySupportBundle:
             Task { await model.copySupportBundle() }
+        case .copyWorkBlock:
+            Task { await model.copyWorkBlock() }
         case .copyStartHere:
             Task { await model.copyStartHere() }
         case .copyValueBrief:
@@ -3643,6 +3651,7 @@ enum BrainCommandAction {
     case copyProcessMap
     case copyCleanupPlan
     case copySupportBundle
+    case copyWorkBlock
     case copyStartHere
     case copyValueBrief
     case copyOracleBrief

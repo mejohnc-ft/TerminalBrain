@@ -61,6 +61,10 @@ struct TerminalBrainApp: App {
                     Task { await model.copySupportBundle() }
                 }
 
+                Button("Copy Work Block") {
+                    Task { await model.copyWorkBlock() }
+                }
+
                 Button("Copy Value Proof") {
                     Task { await model.copyValueProof() }
                 }
@@ -139,6 +143,9 @@ struct TerminalBrainApp: App {
             }
             Button("Copy Support Bundle") {
                 Task { await model.copySupportBundle() }
+            }
+            Button("Copy Work Block") {
+                Task { await model.copyWorkBlock() }
             }
             Button("Copy Value Proof") {
                 Task { await model.copyValueProof() }

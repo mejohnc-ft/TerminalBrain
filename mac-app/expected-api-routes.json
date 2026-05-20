@@ -11,6 +11,7 @@
   "GET /cleanup-plan/markdown",
   "GET /process-map/markdown",
   "GET /support-bundle/markdown",
+  "GET /work-block/markdown",
   "GET /value-proof/markdown",
   "GET /start-here/markdown",
   "GET /sources",

@@ -79,6 +79,8 @@ final class LocalControlServer {
             return .text(200, await ProcessMapSnapshot.markdown())
         case ("GET", "/support-bundle/markdown"):
             return .text(200, await SupportBundleSnapshot.markdown())
+        case ("GET", "/work-block/markdown"):
+            return .text(200, await WorkBlockSnapshot.markdown())
         case ("GET", "/value-proof/markdown"):
             return .text(200, await ValueProofSnapshot.markdown())
         case ("GET", "/start-here/markdown"):
@@ -2059,6 +2061,59 @@ enum SupportBundleSnapshot {
             "## Output",
             "",
             result.stdout.trimmingCharacters(in: .whitespacesAndNewlines).ifEmpty("(no stdout)"),
+            "",
+            "## Error",
+            "",
+            result.stderr.trimmingCharacters(in: .whitespacesAndNewlines).ifEmpty("(no stderr)"),
+            "",
+            "## Guardrail",
+            "",
+            "- This API response did not launch, foreground, quit, kill, or control anything."
+        ].joined(separator: "\n")
+    }
+}
+
+enum WorkBlockSnapshot {
+    static func markdown() async -> String {
+        let script = "\(Paths.home)/Git/TerminalBrain/mac-app/scripts/work-block.zsh"
+        guard FileManager.default.fileExists(atPath: script) else {
+            return [
+                "# Terminal Brain Work Block",
+                "",
+                "The work-block script is not available at:",
+                "",
+                "```text",
+                script,
+                "```",
+                "",
+                "Open the TerminalBrain repo and run:",
+                "",
+                "```zsh",
+                "make work-block",
+                "```",
+                "",
+                "Guardrail: this API response did not launch, foreground, quit, kill, or control anything."
+            ].joined(separator: "\n")
+        }
+
+        let result = await CommandRunner.run("/bin/zsh", [script])
+        let output = result.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
+        if result.succeeded, !output.isEmpty {
+            return output
+        }
+
+        return [
+            "# Terminal Brain Work Block",
+            "",
+            "Work Block failed before completing.",
+            "",
+            "## Status",
+            "",
+            "- Exit: \(result.status)",
+            "",
+            "## Output",
+            "",
+            output.ifEmpty("(no stdout)"),
             "",
             "## Error",
             "",

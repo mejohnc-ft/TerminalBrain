@@ -226,7 +226,7 @@ struct CopyProcessMapIntent: AppIntent {
 
 struct CopySupportBundleIntent: AppIntent {
     static var title: LocalizedStringResource = "Copy Support Bundle"
-    static var description = IntentDescription("Copy Terminal Brain's Now, Doctor, Audit, Process Map, Cleanup Plan, and Git state as one Markdown bundle.")
+    static var description = IntentDescription("Copy Terminal Brain's Now, Work Block, Doctor, Audit, Process Map, Cleanup Plan, and Git state as one Markdown bundle.")
 
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
@@ -234,6 +234,19 @@ struct CopySupportBundleIntent: AppIntent {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(markdown, forType: .string)
         return .result(dialog: "Support Bundle copied.")
+    }
+}
+
+struct CopyWorkBlockIntent: AppIntent {
+    static var title: LocalizedStringResource = "Copy Work Block"
+    static var description = IntentDescription("Copy Terminal Brain's pull-forward, triage, and outcome work block as Markdown.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let markdown = try await ShortcutClient.text(path: "/work-block/markdown")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "Work Block copied.")
     }
 }
 
@@ -617,6 +630,15 @@ struct TerminalBrainShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Copy Bundle",
             systemImageName: "shippingbox"
+        )
+        AppShortcut(
+            intent: CopyWorkBlockIntent(),
+            phrases: [
+                "Copy \(.applicationName) work block",
+                "Copy \(.applicationName) next work block"
+            ],
+            shortTitle: "Work Block",
+            systemImageName: "target"
         )
         AppShortcut(
             intent: CopyValueProofIntent(),
