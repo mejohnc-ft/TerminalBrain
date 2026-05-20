@@ -34,6 +34,7 @@ final class BrainStatusModel: ObservableObject {
     @Published var outcomeText = ""
     @Published var outcomeNextAction = ""
     @Published var outcomeOutput = ""
+    @Published var useNowCopyOutput = ""
     @Published var firstMinuteCopyOutput = ""
     @Published var demoCopyOutput = ""
     @Published var playbookCopyOutput = ""
@@ -252,6 +253,12 @@ final class BrainStatusModel: ObservableObject {
     func copyAgentPrompt() async {
         await copyMarkdown(path: "/agent-prompt/markdown", label: "Agent Prompt") { message in
             agentPromptCopyOutput = message
+        }
+    }
+
+    func copyUseNow() async {
+        await copyMarkdown(path: "/use-now/markdown", label: "Use Now") { message in
+            useNowCopyOutput = message
         }
     }
 

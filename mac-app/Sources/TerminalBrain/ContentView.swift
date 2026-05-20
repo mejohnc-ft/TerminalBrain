@@ -3,7 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject private var model: BrainStatusModel
     @EnvironmentObject private var settings: AppSettings
-    @State private var selectedSection = "work-block"
+    @State private var selectedSection = "use-now"
     @State private var selectedFeedID = ""
     @State private var selectedCommitID = ""
     @State private var selectedRadarID = ""
@@ -62,6 +62,7 @@ struct ContentView: View {
 
     private var commandItems: [BrainCommand] {
         var items: [BrainCommand] = [
+            BrainCommand(title: "Open Use Now", subtitle: "Read, ask, capture, delegate, and close the loop", symbol: "bolt.circle.fill", category: "Navigate", action: .section("use-now")),
             BrainCommand(title: "Open Work Block", subtitle: "Pull forward, triage, and close the loop", symbol: "target", category: "Navigate", action: .section("work-block")),
             BrainCommand(title: "Open First Minute", subtitle: "Shortest value path, next step, and working proof", symbol: "1.circle.fill", category: "Navigate", action: .section("first-minute")),
             BrainCommand(title: "Open Demo", subtitle: "Temporary seeded walkthrough of the value loop", symbol: "play.rectangle.fill", category: "Navigate", action: .section("demo")),
@@ -95,6 +96,7 @@ struct ContentView: View {
             BrainCommand(title: "Copy Process Map", subtitle: "Terminal Brain, Codex, MCP, kernel, Drafts, launchctl, and API state", symbol: "point.3.connected.trianglepath.dotted", category: "Action", action: .copyProcessMap),
             BrainCommand(title: "Copy Cleanup Plan", subtitle: "Read-only stale MCP/kernel process cleanup guidance", symbol: "wrench.and.screwdriver.fill", category: "Action", action: .copyCleanupPlan),
             BrainCommand(title: "Copy Support Bundle", subtitle: "Now, Work Block, Doctor, Audit, Process Map, Cleanup Plan, and Git state", symbol: "shippingbox.and.arrow.backward.fill", category: "Action", action: .copySupportBundle),
+            BrainCommand(title: "Copy Use Now", subtitle: "One-page read, ask, capture, delegate, and outcome path", symbol: "bolt.circle.fill", category: "Action", action: .copyUseNow),
             BrainCommand(title: "Copy Work Block", subtitle: "Pull forward, triage, and close the loop", symbol: "target", category: "Action", action: .copyWorkBlock),
             BrainCommand(title: "Copy Start Here", subtitle: "One block, one artifact, one written outcome", symbol: "play.circle.fill", category: "Action", action: .copyStartHere),
             BrainCommand(title: "Copy Value Brief", subtitle: "Compact read on why the current move is worth attention", symbol: "bolt.fill", category: "Action", action: .copyValueBrief),
@@ -200,6 +202,7 @@ struct ContentView: View {
 
     private var sectionTitle: String {
         switch selectedSection {
+        case "use-now": return "Use Now"
         case "work-block": return "Work Block"
         case "first-minute": return "First Minute"
         case "demo": return "Demo"
@@ -228,6 +231,7 @@ struct ContentView: View {
 
     private var sectionSubtitle: String {
         switch selectedSection {
+        case "use-now": return "One page to read the signal, ask what is missing, capture a thought, delegate work, and write back the outcome."
         case "work-block": return "Pull forward the strongest signal, triage it, do the smallest useful work, and write back the outcome."
         case "first-minute": return "The shortest path to value: what this is, what to do, and proof the loop works."
         case "demo": return "Seed a temporary workspace and watch ideas become review, Bubble Up, Work Block, and outcome commands."
@@ -364,6 +368,7 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 7) {
                 Text("Home")
                     .sidebarHeader()
+                NavRow(title: "Use Now", symbol: "bolt.circle.fill", badge: "", selected: selectedSection == "use-now") { selectedSection = "use-now" }
                 NavRow(title: "Work Block", symbol: "target", badge: "\(model.oracleCommits.filter { $0.status == .new || $0.status == .delegated }.count)", selected: selectedSection == "work-block") { selectedSection = "work-block" }
                 NavRow(title: "Now", symbol: "sparkles", badge: model.setupAttentionCount == 0 ? "" : "\(model.setupAttentionCount)", selected: selectedSection == "now") { selectedSection = "now" }
                 NavRow(title: "Value", symbol: "bolt.fill", badge: "\(model.focusItem.score)", selected: selectedSection == "value") { selectedSection = "value" }
@@ -512,6 +517,7 @@ struct ContentView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     switch selectedSection {
+                    case "use-now": useNowView
                     case "work-block": workBlockView
                     case "first-minute": firstMinuteView
                     case "demo": demoView
@@ -544,6 +550,101 @@ struct ContentView: View {
             LinearGradient(colors: settings.theme.background, startPoint: .topLeading, endPoint: .bottomTrailing)
                 .ignoresSafeArea()
         )
+    }
+
+    private var useNowView: some View {
+        let focus = model.focusItem
+        let topReview = model.oracleCommits.first { $0.status == .new || $0.status == .delegated }
+        let project = focus.project.isEmpty ? "Terminal Brain" : focus.project
+
+        return VStack(alignment: .leading, spacing: 18) {
+            valueSurfaceHero(
+                eyebrow: "Use Now",
+                title: "Get value without choosing a dashboard.",
+                detail: "Read the current signal, ask what is missing, capture the thought, delegate the bounded work, and write back the outcome.",
+                symbol: "bolt.circle.fill",
+                primaryTitle: "Copy Use Now",
+                primarySymbol: "bolt.circle.fill",
+                primaryAction: { Task { await model.copyUseNow() } },
+                secondaryTitle: "Ask Oracle",
+                secondarySymbol: "sparkle.magnifyingglass",
+                secondaryAction: {
+                    model.oracleQuestion = "What should I do next for \(project), and what am I missing?"
+                    selectedSection = "oracle"
+                },
+                output: model.useNowCopyOutput
+            )
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 240), spacing: 12)], spacing: 12) {
+                ValueBriefTile(
+                    label: "1. Read",
+                    title: topReview?.title ?? focus.title,
+                    detail: topReview?.preview ?? focus.reason,
+                    action: topReview == nil ? focus.action : "Open Review",
+                    symbol: topReview?.status.symbol ?? focus.symbol,
+                    accent: topReview?.status.color ?? focus.state.color
+                ) {
+                    if let topReview {
+                        selectedCommitID = topReview.id
+                        reviewProjectFilter = topReview.project.isEmpty ? "all" : topReview.project
+                        selectedSection = "review"
+                    } else {
+                        applyFocusAction(focus)
+                    }
+                }
+
+                ValueBriefTile(
+                    label: "2. Ask",
+                    title: "What am I missing?",
+                    detail: "Turn ambiguity into one direct Oracle read instead of scanning more surfaces.",
+                    action: "Ask Oracle",
+                    symbol: "sparkle.magnifyingglass",
+                    accent: settings.theme.accent
+                ) {
+                    model.oracleQuestion = "What should I do next for \(project), and what am I missing?"
+                    selectedSection = "oracle"
+                }
+
+                ValueBriefTile(
+                    label: "3. Capture",
+                    title: "Pressure point",
+                    detail: "If the next signal is still in your head, save it before it disappears.",
+                    action: "Capture",
+                    symbol: "lightbulb.fill",
+                    accent: .yellow
+                ) {
+                    model.quickIdea = "The thing I keep circling is ..."
+                    selectedSection = "focus"
+                }
+
+                ValueBriefTile(
+                    label: "4. Delegate",
+                    title: "Agent Prompt",
+                    detail: "Copy a bounded Codex or Claude prompt with guardrails and close-loop instructions.",
+                    action: "Copy Prompt",
+                    symbol: "paperplane.fill",
+                    accent: .blue
+                ) {
+                    Task { await model.copyAgentPrompt() }
+                }
+
+                ValueBriefTile(
+                    label: "5. Close",
+                    title: "Outcome writeback",
+                    detail: "Write what changed, why it mattered, evidence, and next action into durable memory.",
+                    action: "Commit Outcome",
+                    symbol: "square.and.arrow.down.fill",
+                    accent: .green
+                ) {
+                    model.outcomeTitle = focus.title
+                    model.outcomeNextAction = "Run Use Now again and pick the next useful signal."
+                    selectedSection = "start-here"
+                }
+            }
+
+            focusIdeaCapturePanel(focus)
+            startHereOutcomePanel(project: project)
+        }
     }
 
     private var detailHeader: some View {
@@ -3921,6 +4022,8 @@ struct ContentView: View {
             Task { await model.copyCleanupPlan() }
         case .copySupportBundle:
             Task { await model.copySupportBundle() }
+        case .copyUseNow:
+            Task { await model.copyUseNow() }
         case .copyWorkBlock:
             Task { await model.copyWorkBlock() }
         case .copyStartHere:
@@ -4227,6 +4330,7 @@ enum BrainCommandAction {
     case copyProcessMap
     case copyCleanupPlan
     case copySupportBundle
+    case copyUseNow
     case copyWorkBlock
     case copyStartHere
     case copyValueBrief

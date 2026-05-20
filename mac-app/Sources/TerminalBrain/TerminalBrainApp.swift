@@ -45,6 +45,10 @@ struct TerminalBrainApp: App {
                 }
                 .keyboardShortcut("n", modifiers: [.command, .shift])
 
+                Button("Copy Use Now") {
+                    Task { await model.copyUseNow() }
+                }
+
                 Button("Copy First Minute") {
                     Task { await model.copyFirstMinute() }
                 }
@@ -149,6 +153,9 @@ struct TerminalBrainApp: App {
 
         MenuBarExtra("Terminal Brain", systemImage: "brain.head.profile") {
             Text("Focus: \(model.focusItem.title)")
+            Button("Copy Use Now") {
+                Task { await model.copyUseNow() }
+            }
             Button("Copy Now") {
                 Task { await model.copyNow() }
             }
