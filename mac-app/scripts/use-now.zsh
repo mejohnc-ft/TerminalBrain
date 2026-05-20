@@ -68,6 +68,21 @@ demote_work_block() {
     /^## Use This Block$/ { skip_intro = 1; next }
     skip_intro && /^## Pull Forward$/ { skip_intro = 0; print "### Pull Forward"; next }
     skip_intro { next }
+    /^## Direct Read$/ { skip_direct = 1; next }
+    skip_direct && /^## What You May Not Be Considering$/ { skip_direct = 0; print "### What You May Not Be Considering"; next }
+    skip_direct { next }
+    /^## Items To Pull Forward$/ { hold_items = 1; item_blank = 0; next }
+    hold_items && /^$/ { item_blank = 1; next }
+    hold_items && /^No open items matched\.$/ { hold_items = 0; item_blank = 0; next }
+    hold_items {
+      print "### Items To Pull Forward"
+      if (item_blank) { print "" }
+      hold_items = 0
+      item_blank = 0
+    }
+    /^## Next Clean Move$/ { skip_next_clean = 1; next }
+    skip_next_clean && /^## Broader Queue$/ { skip_next_clean = 0; print "### Broader Queue"; next }
+    skip_next_clean { next }
     /^## Guardrail$/ { skip = 1; next }
     skip { next }
     /^## Completed Evidence$/ { skip_completed = 1; next }
@@ -118,10 +133,10 @@ echo "- One command to write the outcome back into memory."
 echo
 echo "## Do This"
 echo
-echo "1. Read the pull-forward block below."
-echo "2. Pick exactly one item or capture one pressure point."
-echo "3. Run the ask or agent command if the next action is unclear."
-echo "4. When anything useful happens, run the outcome command."
+echo "1. Run the One Move command if it fits."
+echo "2. If it does not fit, read the pull-forward block below."
+echo "3. Ask, capture, or delegate if the next action is unclear."
+echo "4. When anything useful happens, write the outcome back."
 echo
 if [[ -n "$IDEA_TEXT" ]]; then
   echo "## Captured First Signal"
