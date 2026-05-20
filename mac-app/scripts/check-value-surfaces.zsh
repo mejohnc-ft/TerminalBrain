@@ -17,6 +17,8 @@ require_in_file() {
 }
 
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Start Here' "Start Here app surface"
+require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Value Now' "Value Now app surface"
+require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'selectedSection = "value"' "Value Now default app section"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/TerminalBrainApp.swift" 'Copy Start Here' "Start Here menu bar/menu command"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Commit Outcome' "in-app outcome close loop"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Oracle Digest' "Oracle Digest app surface"

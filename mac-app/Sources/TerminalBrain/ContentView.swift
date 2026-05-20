@@ -3,7 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject private var model: BrainStatusModel
     @EnvironmentObject private var settings: AppSettings
-    @State private var selectedSection = "start-here"
+    @State private var selectedSection = "value"
     @State private var selectedFeedID = ""
     @State private var selectedCommitID = ""
     @State private var selectedRadarID = ""
@@ -60,6 +60,7 @@ struct ContentView: View {
 
     private var commandItems: [BrainCommand] {
         var items: [BrainCommand] = [
+            BrainCommand(title: "Open Value Now", subtitle: "Plain-language value read and fastest useful path", symbol: "bolt.fill", category: "Navigate", action: .section("value")),
             BrainCommand(title: "Open Start Here", subtitle: "One block, one artifact, one written outcome", symbol: "play.circle.fill", category: "Navigate", action: .section("start-here")),
             BrainCommand(title: "Ask Current Focus", subtitle: model.focusItem.title, symbol: "sparkle.magnifyingglass", category: "Action", action: .askFocus),
             BrainCommand(title: "Open Focus", subtitle: "One recommended action from Radar and Today", symbol: "target", category: "Navigate", action: .section("focus")),
@@ -177,6 +178,7 @@ struct ContentView: View {
 
     private var sectionTitle: String {
         switch selectedSection {
+        case "value": return "Value Now"
         case "start-here": return "Start Here"
         case "focus": return "Focus"
         case "setup": return "Setup"
@@ -197,6 +199,7 @@ struct ContentView: View {
 
     private var sectionSubtitle: String {
         switch selectedSection {
+        case "value": return "What this is worth right now, what to do next, and what artifact to create."
         case "start-here": return "One block, one artifact, one written outcome."
         case "focus": return "One recommended move, why it matters, and the fastest next action."
         case "setup": return "Readiness checklist for the app, MCP gateway, memory, sync, and permission posture."
@@ -325,6 +328,7 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 7) {
                 Text("Home")
                     .sidebarHeader()
+                NavRow(title: "Value", symbol: "bolt.fill", badge: "\(model.focusItem.score)", selected: selectedSection == "value") { selectedSection = "value" }
                 NavRow(title: "Start Here", symbol: "play.circle.fill", badge: "", selected: selectedSection == "start-here") { selectedSection = "start-here" }
                 NavRow(title: "Focus", symbol: "target", badge: "\(model.focusItem.score)", selected: selectedSection == "focus") { selectedSection = "focus" }
                 NavRow(title: "Cockpit", symbol: "house.fill", badge: model.summaryLine == "Brain status ready" ? "" : "!", selected: selectedSection == "cockpit") { selectedSection = "cockpit" }
@@ -455,6 +459,7 @@ struct ContentView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     switch selectedSection {
+                    case "value": valueNowView
                     case "start-here": startHereView
                     case "focus": focusView
                     case "setup": setupView
@@ -534,6 +539,43 @@ struct ContentView: View {
                 .frame(width: 420)
             }
             syncOutput
+        }
+    }
+
+    private var valueNowView: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            valueBriefPanel
+            oracleDigestPanel
+            operatorBriefPanel
+
+            HStack(spacing: 8) {
+                Button { Task { await model.copyValueBrief() } } label: {
+                    Label("Copy Value", systemImage: "bolt.fill")
+                }
+                .buttonStyle(.borderedProminent)
+
+                Button { Task { await model.copyStartHere() } } label: {
+                    Label("Copy Start Here", systemImage: "play.circle.fill")
+                }
+                .buttonStyle(.bordered)
+
+                Button { Task { await model.copyAgentPrompt() } } label: {
+                    Label("Agent Prompt", systemImage: "paperplane.fill")
+                }
+                .buttonStyle(.bordered)
+
+                Button {
+                    model.workQuery = model.focusItem.query.isEmpty ? model.focusItem.title : model.focusItem.query
+                    selectedSection = "start"
+                } label: {
+                    Label("Start Work", systemImage: "shippingbox.fill")
+                }
+                .buttonStyle(.bordered)
+            }
+            .padding(16)
+            .darkPanel()
+
+            startHereOutcomePanel(project: model.focusItem.project)
         }
     }
 
