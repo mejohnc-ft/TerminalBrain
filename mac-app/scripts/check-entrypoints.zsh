@@ -193,6 +193,22 @@ test -f "$mcp_ask_workspace/Oracle Inbox/"*.md || {
 }
 rm -rf "$mcp_ask_workspace"
 
+mcp_commit_workspace="$(mktemp -d)"
+mcp_oracle_commit_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$mcp_commit_workspace" printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_oracle_commit","arguments":{"title":"MCP Local Commit","content":"Persist this read without the app.","question":"Can agents write memory closed-app?","project":"Terminal Brain"}}}' | TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$mcp_commit_workspace" node "$ROOT/mcp-server/server.mjs")"
+require_contains "$mcp_oracle_commit_output" 'local-fallback' "MCP oracle commit local fallback"
+require_contains "$mcp_oracle_commit_output" 'reviewStatus.*new' "MCP oracle commit review status"
+mcp_outcome_commit_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$mcp_commit_workspace" printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_commit_outcome","arguments":{"title":"MCP Local Outcome","outcome":"Persist this outcome without the app.","nextAction":"Review the note.","project":"Terminal Brain"}}}' | TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$mcp_commit_workspace" node "$ROOT/mcp-server/server.mjs")"
+require_contains "$mcp_outcome_commit_output" 'local-fallback' "MCP outcome commit local fallback"
+require_contains "$mcp_outcome_commit_output" 'reviewStatus.*accepted' "MCP outcome commit accepted status"
+note_count="$(find "$mcp_commit_workspace/Oracle Inbox" -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')"
+if [[ "$note_count" != "2" ]]; then
+  echo "Entrypoint check failed: MCP commit fallbacks wrote $note_count notes, expected 2" >&2
+  echo "$mcp_oracle_commit_output" >&2
+  echo "$mcp_outcome_commit_output" >&2
+  exit 1
+fi
+rm -rf "$mcp_commit_workspace"
+
 mcp_idea_workspace="$(mktemp -d)"
 mcp_idea_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$mcp_idea_workspace" printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_capture_idea","arguments":{"title":"MCP Entrypoint Idea","content":"Captured through MCP fallback.","project":"Terminal Brain"}}}' | TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$mcp_idea_workspace" node "$ROOT/mcp-server/server.mjs")"
 require_contains "$mcp_idea_output" 'local-fallback' "MCP idea local fallback"

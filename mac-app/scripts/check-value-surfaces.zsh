@@ -183,6 +183,8 @@ require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_start_here_markdow
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_oracle_digest_markdown' "Oracle Digest MCP tool"
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_commit_outcome' "Outcome MCP tool"
 require_in_file "$ROOT/mcp-server/server.mjs" 'oracleAskMarkdown' "Oracle Ask MCP local fallback"
+require_in_file "$ROOT/mcp-server/server.mjs" 'localOracleCommit' "Oracle Commit MCP local fallback"
+require_in_file "$ROOT/mcp-server/server.mjs" 'localOutcomeCommit' "Outcome Commit MCP local fallback"
 require_in_file "$ROOT/mcp-server/server.mjs" 'captureIdea' "Idea MCP closed fallback"
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_review_queue_markdown' "Review Queue MCP tool"
 require_in_file "$ROOT/mcp-server/server.mjs" 'setReviewStatus' "Review Status MCP closed fallback"
