@@ -1,8 +1,9 @@
-.PHONY: help build install verify live ask ask-commit outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live status ask ask-commit outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
 	@echo "  make verify        Non-launching static QA"
+	@echo "  make status        Non-launching repo, CI, process, launchctl, and API status"
 	@echo "  make live          API/MCP QA against an already-running app"
 	@echo "  make ask QUERY=... Ask Terminal Brain Oracle from an already-running app"
 	@echo "  make ask-commit QUERY=... PROJECT=... Ask Oracle and commit the answer"
@@ -37,6 +38,9 @@ install:
 
 verify:
 	./mac-app/scripts/verify-static.zsh
+
+status:
+	./mac-app/scripts/status.zsh
 
 live:
 	./mac-app/scripts/verify-live.zsh

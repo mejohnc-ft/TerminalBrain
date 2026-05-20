@@ -11,6 +11,7 @@ Common commands:
 ```zsh
 make
 make verify
+make status
 make live
 make ask QUERY="what should I work on next?"
 make ask-commit QUERY="what changed?" PROJECT="Terminal Brain"
@@ -27,7 +28,7 @@ make start-here
 make handoff
 ```
 
-Plain `make` prints help. `make verify`, `make live`, `make build`, and `make install` do not launch or foreground Terminal Brain. `make live` expects the app to already be running.
+Plain `make` prints help. `make verify`, `make status`, `make live`, `make build`, and `make install` do not launch or foreground Terminal Brain. `make status` answers what is currently running across repo, CI, process, launchctl, and localhost API state. `make live` expects the app to already be running.
 
 ## Components
 
@@ -95,6 +96,14 @@ For non-launching local QA:
 ```
 
 The static verifier checks shell syntax, MCP syntax, Swift type-checking, app build, value-surface coverage, no-foreground guardrails, and secret patterns without launching or foregrounding Terminal Brain. The foreground guard rejects `open -a`, direct app-bundle `open`, AppleScript app control, and Computer Use automation hooks in scripts and MCP tooling.
+
+For a non-launching status check:
+
+```zsh
+make status
+```
+
+This prints the repo state, latest CI run, local process state, launchctl registration state, and localhost API health without starting the app.
 
 For API/MCP checks against an already-running app:
 

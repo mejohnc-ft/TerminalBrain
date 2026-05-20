@@ -10,6 +10,12 @@ Terminal Brain is useful when it turns scattered local context into one work blo
    make start-here
    ```
 
+   If you first need to know what is still active, run:
+
+   ```zsh
+   make status
+   ```
+
 2. If an agent needs the task, copy the focused execution prompt:
 
    ```zsh
@@ -31,6 +37,7 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 ## What To Look For
 
 - `Start Here` gives the shortest path from signal to action to outcome.
+- `Status` shows repo, CI, process, launchctl, and API state without touching app focus.
 - `Oracle Digest` says what to notice, decide, test, create, and avoid.
 - `Agent Prompt` turns the current signal into a bounded Codex/Claude task.
 - `Outcome` writeback saves what changed as accepted durable memory.
