@@ -179,6 +179,29 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_focus_ask_commit",
+    description: "Ask Terminal Brain Oracle about the current Focus item, then commit the answer into the Oracle Inbox.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        question: {
+          type: "string",
+          description: "Optional follow-up question. Defaults to asking what to do next about the current focus."
+        },
+        project: {
+          type: "string",
+          description: "Optional project override for the committed read."
+        },
+        tags: {
+          type: "array",
+          items: { type: "string" },
+          description: "Optional additional tags."
+        }
+      },
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_radar",
     description: "Get proactive Terminal Brain radar signals: delegated reads, stale reviews, project risks, open loops, and ideas worth testing.",
     inputSchema: {
@@ -495,6 +518,23 @@ async function callTool(name, args = {}) {
       });
     case "terminal_brain_focus_ask":
       return api("/focus/ask", { method: "POST", body: { question: args.question || "" } });
+    case "terminal_brain_focus_ask_commit": {
+      const asked = await api("/focus/ask", { method: "POST", body: { question: args.question || "" } });
+      const suggestion = asked.commitSuggestion || {};
+      const committed = await api("/oracle/commit", {
+        method: "POST",
+        body: {
+          title: suggestion.title || `Focus - ${asked.question || "Oracle Read"}`,
+          content: asked.answer || "",
+          question: asked.question || args.question || "",
+          source: "Terminal Brain MCP",
+          project: args.project || suggestion.project || "",
+          tags: (Array.isArray(suggestion.tags) ? suggestion.tags : ["terminal-brain", "focus", "oracle"])
+            .concat(Array.isArray(args.tags) ? args.tags : [])
+        }
+      });
+      return { ok: true, ask: asked, commit: committed };
+    }
     case "terminal_brain_radar":
       return api("/radar");
     case "terminal_brain_radar_triage":
