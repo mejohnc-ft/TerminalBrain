@@ -322,15 +322,15 @@ struct ContentView: View {
                 Text("Library")
                     .sidebarHeader()
                 NavRow(title: "Sources", symbol: "tray.full.fill", badge: "\(model.sources.count)", selected: selectedSection == "sources") { selectedSection = "sources" }
-                NavRow(title: "System", symbol: "puzzlepiece.extension.fill", badge: "6", selected: selectedSection == "system") { selectedSection = "system" }
+                NavRow(title: "System", symbol: "puzzlepiece.extension.fill", badge: systemBadge, selected: selectedSection == "system") { selectedSection = "system" }
             }
 
             Spacer()
 
             VStack(alignment: .leading, spacing: 9) {
                 MiniStatus(label: "API", value: "8765", symbol: "network")
-                MiniStatus(label: "MCP", value: "Gateway", symbol: "antenna.radiowaves.left.and.right")
-                MiniStatus(label: "Safety", value: "Prompt safe", symbol: "lock.shield.fill")
+                MiniStatus(label: "MCP", value: mcpMiniStatus, symbol: "antenna.radiowaves.left.and.right")
+                MiniStatus(label: "Safety", value: safetyMiniStatus, symbol: "lock.shield.fill")
             }
             .padding(10)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -343,6 +343,23 @@ struct ContentView: View {
             .padding(.bottom, 12)
         }
         .background(.clear)
+    }
+
+    private var systemBadge: String {
+        let attention = model.cards.filter { $0.state == .warn }.count
+        return attention == 0 ? "" : "\(attention)"
+    }
+
+    private var mcpMiniStatus: String {
+        guard let card = healthCard(named: "Local Brain MCP") else { return "Unknown" }
+        return card.state == .good ? "Running" : "Needs check"
+    }
+
+    private var safetyMiniStatus: String {
+        let promptRisk = ["Apple Notes MCP", "Drafts MCP", "Hourly Sync Agent"]
+            .compactMap { healthCard(named: $0) }
+            .contains { $0.state == .warn }
+        return promptRisk ? "Review" : "Quiet"
     }
 
     private var profileMenu: some View {
