@@ -18,7 +18,7 @@ without launching or foregrounding anything.
 
 Oracle commits accept an optional `project` argument. When provided, Terminal Brain writes that project into note frontmatter so Review filters and Project Memory pages can attach the read to the correct work surface.
 
-`terminal_brain_capture_idea` also works when the app is closed. It falls back to the local `mac-app/scripts/idea.zsh` writer and creates a reviewable Oracle Inbox note without launching the app. `terminal_brain_review_queue_markdown` reads that same queue without launching the app, `terminal_brain_bubble_up_markdown` surfaces neglected and repeated signals from it, `terminal_brain_work_block_markdown` combines pull-forward, triage, and close-loop guidance, and `terminal_brain_oracle_review_status` can update note review state without the app open.
+`terminal_brain_capture_idea` also works when the app is closed. It falls back to the local `mac-app/scripts/idea.zsh` writer and creates a reviewable Oracle Inbox note without launching the app. `terminal_brain_recent_work_promote` uses the same safe path to promote recent git work into reviewed memory. `terminal_brain_review_queue_markdown` reads that same queue without launching the app, `terminal_brain_bubble_up_markdown` surfaces neglected and repeated signals from it, `terminal_brain_work_block_markdown` combines pull-forward, triage, and close-loop guidance, and `terminal_brain_oracle_review_status` can update note review state without the app open.
 
 Codex/workspace config can register this server as:
 
@@ -58,6 +58,10 @@ Codex/workspace config can register this server as:
 - `terminal_brain_agent_prompt_markdown`
 - `terminal_brain_start_here_markdown`
 - `terminal_brain_sources`
+- `terminal_brain_sources_markdown`
+- `terminal_brain_memory_brief_markdown`
+- `terminal_brain_memory_promote`
+- `terminal_brain_recent_work_promote`
 - `terminal_brain_setup`
 - `terminal_brain_briefing`
 - `terminal_brain_today`

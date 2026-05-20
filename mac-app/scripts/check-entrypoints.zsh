@@ -419,6 +419,20 @@ test -f "$mcp_memory_workspace/Oracle Inbox/"*.md || {
 }
 rm -rf "$mcp_memory_workspace"
 
+mcp_recent_work_workspace="$(mktemp -d)"
+mcp_recent_work_dry_output="$(TERMINAL_BRAIN_WORKSPACE="$mcp_recent_work_workspace" printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_recent_work_promote","arguments":{"index":1,"dryRun":true}}}' | TERMINAL_BRAIN_WORKSPACE="$mcp_recent_work_workspace" node "$ROOT/mcp-server/server.mjs")"
+require_contains "$mcp_recent_work_dry_output" 'Follow up:' "MCP recent work dry title"
+require_contains "$mcp_recent_work_dry_output" 'recent-work promotion did not launch or foreground' "MCP recent work dry guardrail"
+mcp_recent_work_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$mcp_recent_work_workspace" printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_recent_work_promote","arguments":{"index":1}}}' | TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$mcp_recent_work_workspace" node "$ROOT/mcp-server/server.mjs")"
+require_contains "$mcp_recent_work_output" 'local-fallback' "MCP recent work local fallback"
+require_contains "$mcp_recent_work_output" 'reviewStatus.*new' "MCP recent work review status"
+test -f "$mcp_recent_work_workspace/Oracle Inbox/"*.md || {
+  echo "Entrypoint check failed: MCP recent work promotion did not write note" >&2
+  echo "$mcp_recent_work_output" >&2
+  exit 1
+}
+rm -rf "$mcp_recent_work_workspace"
+
 mcp_oracle_output="$(call_mcp_tool terminal_brain_oracle_brief_markdown)"
 require_contains "$mcp_oracle_output" '# Terminal Brain Oracle Brief' "MCP Oracle Brief title"
 require_contains "$mcp_oracle_output" 'cheapest test' "MCP Oracle Brief closed fallback"

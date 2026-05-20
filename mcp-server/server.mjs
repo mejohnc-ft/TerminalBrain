@@ -326,6 +326,28 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_recent_work_promote",
+    description: "Promote one recent git commit from Bubble Up's Recent Work Signals into Oracle Inbox as reviewable memory. Use dryRun first to preview without writing.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        index: {
+          type: "number",
+          description: "One-based recent work index from Bubble Up's Recent Work Signals. Defaults to 1."
+        },
+        project: {
+          type: "string",
+          description: "Project name for the captured memory. Defaults to Terminal Brain."
+        },
+        dryRun: {
+          type: "boolean",
+          description: "Preview the selected recent work item without writing. Defaults to false."
+        }
+      },
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_setup",
     description: "Read Terminal Brain readiness setup: app, MCP config, workspace, sync, memory, Mission Control, prompt safety, and Oracle writeback.",
     inputSchema: {
@@ -1563,6 +1585,39 @@ function promoteMemory(args = {}) {
   }
 }
 
+function promoteRecentWork(args = {}) {
+  const index = Number.isFinite(args.index) ? Math.max(1, Math.floor(args.index)) : 1;
+  const commandArgs = [
+    join(ROOT, "mac-app", "scripts", "recent-work.zsh"),
+    "--index",
+    String(index)
+  ];
+  if (typeof args.project === "string" && args.project.trim()) {
+    commandArgs.push("--project", args.project.trim());
+  }
+  if (args.dryRun === true) {
+    commandArgs.push("--dry-run");
+  }
+  const result = runCommand("zsh", commandArgs, { timeout: 20000 });
+  if (!result.ok) {
+    return {
+      ok: false,
+      error: result.error || "Recent work promotion failed.",
+      output: result.text || "",
+      guardrail: "recent work promotion did not launch or foreground Terminal Brain"
+    };
+  }
+  try {
+    return JSON.parse(result.text);
+  } catch {
+    return {
+      ok: true,
+      output: result.text,
+      guardrail: "recent work promotion did not launch or foreground Terminal Brain"
+    };
+  }
+}
+
 function setReviewStatus(args = {}) {
   const id = typeof args.id === "string" ? args.id.trim() : "";
   const status = typeof args.status === "string" ? args.status.trim() : "";
@@ -1957,6 +2012,8 @@ async function callTool(name, args = {}) {
       return memoryBriefMarkdown(args);
     case "terminal_brain_memory_promote":
       return promoteMemory(args);
+    case "terminal_brain_recent_work_promote":
+      return promoteRecentWork(args);
     case "terminal_brain_setup":
       return api("/setup");
     case "terminal_brain_briefing":
