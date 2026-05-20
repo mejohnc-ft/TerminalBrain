@@ -226,6 +226,21 @@ struct FocusItem: Identifiable {
     let path: String?
 }
 
+struct BlindspotItem: Identifiable {
+    let id: String
+    let title: String
+    let why: String
+    let question: String
+    let nextAction: String
+    let project: String
+    let source: String
+    let sourceID: String
+    let score: Int
+    let symbol: String
+    let state: HealthState
+    let path: String?
+}
+
 enum RadarDisposition: String, CaseIterable, Identifiable {
     case fresh
     case watching

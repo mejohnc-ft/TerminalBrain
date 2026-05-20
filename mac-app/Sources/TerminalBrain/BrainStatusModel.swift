@@ -25,6 +25,7 @@ final class BrainStatusModel: ObservableObject {
     @Published var snapshotCopyOutput = ""
     @Published var briefCopyOutput = ""
     @Published var decisionLaneCopyOutput = ""
+    @Published var blindspotCopyOutput = ""
     @Published var projectMemoryCopyOutput = ""
     @Published var deckCopyOutput = ""
     @Published var latestPackCopyOutput = ""
@@ -61,6 +62,17 @@ final class BrainStatusModel: ObservableObject {
 
     var focusItem: FocusItem {
         buildFocusItem(radarItems: radarItems, dailyCommands: dailyCommands)
+    }
+
+    var blindspotItems: [BlindspotItem] {
+        buildBlindspots(
+            focus: focusItem,
+            radarItems: radarItems,
+            setupSteps: setupSteps,
+            projects: projects,
+            oracleItems: oracleItems,
+            oracleCommits: oracleCommits
+        )
     }
 
     init() {
@@ -205,6 +217,12 @@ final class BrainStatusModel: ObservableObject {
     func copyDecisionLane() async {
         await copyMarkdown(path: "/today/markdown", label: "Decision Lane") { message in
             decisionLaneCopyOutput = message
+        }
+    }
+
+    func copyBlindspotBrief() async {
+        await copyMarkdown(path: "/blindspots/markdown", label: "Blindspot Brief") { message in
+            blindspotCopyOutput = message
         }
     }
 
@@ -1387,6 +1405,174 @@ final class BrainStatusModel: ObservableObject {
         }
 
         return Array(items.prefix(4))
+    }
+
+    private func buildBlindspots(focus: FocusItem, radarItems: [RadarItem], setupSteps: [SetupStep], projects: [ProjectMemory], oracleItems: [OracleItem], oracleCommits: [OracleCommit]) -> [BlindspotItem] {
+        var items: [BlindspotItem] = []
+
+        if let delegated = oracleCommits.first(where: { $0.status == .delegated }) {
+            items.append(
+                BlindspotItem(
+                    id: "delegated-\(delegated.id)",
+                    title: "Delegation without artifact",
+                    why: "This read is already marked delegated. It needs to become a Start Work pack or agent handoff, not another parked note.",
+                    question: "What concrete artifact should this delegated read become?",
+                    nextAction: "Start Work",
+                    project: delegated.project,
+                    source: "Oracle commit",
+                    sourceID: delegated.id,
+                    score: 96,
+                    symbol: "paperplane.fill",
+                    state: .busy,
+                    path: delegated.path
+                )
+            )
+        }
+
+        if let review = oracleCommits.first(where: { $0.status == .new }) {
+            items.append(
+                BlindspotItem(
+                    id: "review-\(review.id)",
+                    title: "Decision debt in the Oracle Inbox",
+                    why: "Committed reads are only useful after they are accepted, linked, delegated, or dismissed.",
+                    question: "Is this read accepted, linked to a project, delegated, or dismissed?",
+                    nextAction: "Review",
+                    project: review.project,
+                    source: "Oracle commit",
+                    sourceID: review.id,
+                    score: 92,
+                    symbol: "tray.and.arrow.down.fill",
+                    state: .warn,
+                    path: review.path
+                )
+            )
+        }
+
+        if let openLoop = oracleItems.first(where: { $0.kind == .openLoop }) {
+            items.append(
+                BlindspotItem(
+                    id: "loop-\(openLoop.id)",
+                    title: "Open loop resurfacing",
+                    why: openLoop.detail,
+                    question: "What would make this loop closed enough to stop resurfacing?",
+                    nextAction: "Start Work",
+                    project: projectName(from: "\(openLoop.title) \(openLoop.detail)"),
+                    source: openLoop.source,
+                    sourceID: openLoop.id,
+                    score: 86,
+                    symbol: openLoop.symbol,
+                    state: .warn,
+                    path: openLoop.path
+                )
+            )
+        }
+
+        if let idea = oracleItems.first(where: { $0.kind == .idea || $0.kind == .opportunity || $0.kind == .bubbling }) {
+            items.append(
+                BlindspotItem(
+                    id: "idea-\(idea.id)",
+                    title: "Idea that needs pressure testing",
+                    why: idea.detail,
+                    question: "What is the cheapest test that would prove whether this idea is worth keeping?",
+                    nextAction: "Ask Oracle",
+                    project: projectName(from: "\(idea.title) \(idea.detail)"),
+                    source: idea.source,
+                    sourceID: idea.id,
+                    score: 78,
+                    symbol: idea.symbol,
+                    state: .good,
+                    path: idea.path
+                )
+            )
+        }
+
+        if let project = projects.first(where: { $0.signalCount >= 2 && $0.delegatedCount == 0 }) {
+            items.append(
+                BlindspotItem(
+                    id: "project-\(project.id)",
+                    title: "Active project without an execution edge",
+                    why: project.recommendedAction,
+                    question: "What is the one artifact that would move \(project.name) forward today?",
+                    nextAction: "Open Project",
+                    project: project.name,
+                    source: "Project Memory",
+                    sourceID: project.id,
+                    score: 72,
+                    symbol: project.symbol,
+                    state: .good,
+                    path: project.contextPacks.first?.path
+                )
+            )
+        }
+
+        if let secondSignal = radarItems.first(where: { $0.id != focus.id }) {
+            items.append(
+                BlindspotItem(
+                    id: "radar-\(secondSignal.id)",
+                    title: "Second-order signal",
+                    why: "This did not win the focus slot, but its score is high enough that it may be underweighted.",
+                    question: "Why is this not the first thing you are doing?",
+                    nextAction: secondSignal.action,
+                    project: secondSignal.project,
+                    source: "Radar",
+                    sourceID: secondSignal.id,
+                    score: max(secondSignal.score - 4, 50),
+                    symbol: secondSignal.symbol,
+                    state: secondSignal.state,
+                    path: secondSignal.path
+                )
+            )
+        }
+
+        if let gap = setupSteps.first(where: { $0.state == .warn }) {
+            items.append(
+                BlindspotItem(
+                    id: "setup-\(gap.id)",
+                    title: "System assumption to verify",
+                    why: gap.detail,
+                    question: "Does this gap change which agent work is safe to delegate?",
+                    nextAction: gap.action,
+                    project: "System",
+                    source: "Setup",
+                    sourceID: gap.id,
+                    score: 70,
+                    symbol: gap.symbol,
+                    state: .warn,
+                    path: nil
+                )
+            )
+        }
+
+        if items.isEmpty {
+            items.append(
+                BlindspotItem(
+                    id: "fallback",
+                    title: "No blindspot candidate is strong enough yet",
+                    why: "No stale review debt, delegated work, project drift, or resurfacing open loops were found in the current local scan.",
+                    question: "What changed since the last sync that is not represented in durable memory?",
+                    nextAction: "Capture Idea",
+                    project: "General Brain",
+                    source: "Fallback",
+                    sourceID: "fallback",
+                    score: 40,
+                    symbol: "sparkle.magnifyingglass",
+                    state: .good,
+                    path: nil
+                )
+            )
+        }
+
+        var seen = Set<String>()
+        return items
+            .sorted { $0.score > $1.score }
+            .filter { item in
+                let key = "\(item.title)-\(item.project)-\(item.sourceID)".lowercased()
+                guard !seen.contains(key) else { return false }
+                seen.insert(key)
+                return true
+            }
+            .prefix(6)
+            .map { $0 }
     }
 
     private func buildRadarItems(cards: [HealthCard], setupSteps: [SetupStep], projects: [ProjectMemory], oracleItems: [OracleItem], oracleCommits: [OracleCommit], feedItems: [BrainFeedItem]) -> [RadarItem] {

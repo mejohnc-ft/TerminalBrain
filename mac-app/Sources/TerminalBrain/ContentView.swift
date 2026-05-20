@@ -7,6 +7,7 @@ struct ContentView: View {
     @State private var selectedFeedID = ""
     @State private var selectedCommitID = ""
     @State private var selectedRadarID = ""
+    @State private var selectedBlindspotID = ""
     @State private var selectedProjectID = ""
     @State private var reviewProjectFilter = "all"
     @State private var feedFilter: FeedKind = .all
@@ -39,6 +40,10 @@ struct ContentView: View {
         model.radarItems.first { $0.id == selectedRadarID } ?? model.radarItems.first
     }
 
+    private var selectedBlindspotItem: BlindspotItem? {
+        model.blindspotItems.first { $0.id == selectedBlindspotID } ?? model.blindspotItems.first
+    }
+
     private var selectedProject: ProjectMemory? {
         model.projects.first { $0.id == selectedProjectID } ?? model.projects.first
     }
@@ -55,6 +60,7 @@ struct ContentView: View {
             BrainCommand(title: "Open Cockpit", subtitle: "Local gateway, source health, and Mission reachability", symbol: "house.fill", category: "Navigate", action: .section("cockpit")),
             BrainCommand(title: "Open Setup", subtitle: "Readiness checklist for app, MCP, sources, and sync", symbol: "checklist.checked", category: "Navigate", action: .section("setup")),
             BrainCommand(title: "Open Radar", subtitle: "Proactive signals, stale reads, risks, and opportunities", symbol: "scope", category: "Navigate", action: .section("radar")),
+            BrainCommand(title: "Open Blindspots", subtitle: "Ignored, stale, under-tested, or unresolved work", symbol: "eye.fill", category: "Navigate", action: .section("blindspots")),
             BrainCommand(title: "Open Feed", subtitle: "Recent context packs, sync events, and source alerts", symbol: "list.bullet.rectangle.portrait.fill", category: "Navigate", action: .section("feed")),
             BrainCommand(title: "Open Oracle", subtitle: "Narrative brief, bubbling ideas, and open loops", symbol: "sparkle.magnifyingglass", category: "Navigate", action: .section("oracle")),
             BrainCommand(title: "Open Review Queue", subtitle: "Committed Oracle reads, decisions, and follow-ups", symbol: "tray.and.arrow.down.fill", category: "Navigate", action: .section("review")),
@@ -66,6 +72,7 @@ struct ContentView: View {
             BrainCommand(title: "Copy Operator Snapshot", subtitle: "Prompt-ready Focus, Radar, actions, and memory trail", symbol: "doc.on.clipboard", category: "Action", action: .copySnapshot),
             BrainCommand(title: "Copy Operator Brief", subtitle: "Plain-language value read", symbol: "wand.and.stars", category: "Action", action: .copyBrief),
             BrainCommand(title: "Copy Decision Lane", subtitle: "Ranked Today action queue", symbol: "list.number", category: "Action", action: .copyDecisionLane),
+            BrainCommand(title: "Copy Blindspot Brief", subtitle: "Counter-signal before broad planning", symbol: "eye.fill", category: "Action", action: .copyBlindspots),
             BrainCommand(title: "Copy Project Memory", subtitle: "Active work surfaces and recommended actions", symbol: "folder.fill.badge.gearshape", category: "Action", action: .copyProjectMemory),
             BrainCommand(title: "Copy Operator Deck", subtitle: "Prompt-ready four-card deck for handoffs", symbol: "rectangle.stack.fill.badge.person.crop", category: "Action", action: .copyDeck),
             BrainCommand(title: "Copy Latest Context Pack", subtitle: "Copy newest context pack Markdown", symbol: "doc.on.doc", category: "Action", action: .copyLatestPack),
@@ -133,6 +140,10 @@ struct ContentView: View {
             BrainCommand(title: item.title, subtitle: "\(item.urgency) - \(item.detail)", symbol: item.symbol, category: "Radar", action: .radar(item.id))
         })
 
+        items.append(contentsOf: model.blindspotItems.map { item in
+            BrainCommand(title: item.title, subtitle: "\(item.score) - \(item.question)", symbol: item.symbol, category: "Blindspot", action: .blindspot(item.id))
+        })
+
         items.append(contentsOf: model.projects.map { project in
             BrainCommand(title: project.name, subtitle: project.summary, symbol: project.symbol, category: "Project", action: .project(project.id))
         })
@@ -153,6 +164,7 @@ struct ContentView: View {
         case "focus": return "Focus"
         case "setup": return "Setup"
         case "radar": return "Radar"
+        case "blindspots": return "Blindspots"
         case "feed": return "Feed"
         case "oracle": return "Oracle"
         case "review": return "Review"
@@ -170,6 +182,7 @@ struct ContentView: View {
         case "focus": return "One recommended move, why it matters, and the fastest next action."
         case "setup": return "Readiness checklist for the app, MCP gateway, memory, sync, and permission posture."
         case "radar": return "Proactive signals, stale reads, quiet risks, and opportunities worth a decision."
+        case "blindspots": return "The counter-signal lane for ignored, stale, under-tested, or unresolved work."
         case "feed": return "Recent context packs, sync events, and source alerts."
         case "oracle": return "Narrative signals, open loops, and ideas worth revisiting."
         case "review": return "Committed Oracle reads that need acceptance, linking, delegation, or dismissal."
@@ -296,6 +309,7 @@ struct ContentView: View {
                 NavRow(title: "Cockpit", symbol: "house.fill", badge: model.summaryLine == "Brain status ready" ? "" : "!", selected: selectedSection == "cockpit") { selectedSection = "cockpit" }
                 NavRow(title: "Setup", symbol: "checklist.checked", badge: model.setupAttentionCount == 0 ? "" : "\(model.setupAttentionCount)", selected: selectedSection == "setup") { selectedSection = "setup" }
                 NavRow(title: "Radar", symbol: "scope", badge: "\(model.radarItems.count)", selected: selectedSection == "radar") { selectedSection = "radar" }
+                NavRow(title: "Blindspots", symbol: "eye.fill", badge: "\(model.blindspotItems.count)", selected: selectedSection == "blindspots") { selectedSection = "blindspots" }
                 NavRow(title: "Oracle", symbol: "sparkle.magnifyingglass", badge: "\(model.oracleItems.count)", selected: selectedSection == "oracle") { selectedSection = "oracle" }
                 NavRow(title: "Review", symbol: "tray.and.arrow.down.fill", badge: "\(model.oracleCommits.filter { $0.status == .new }.count)", selected: selectedSection == "review") { selectedSection = "review" }
                 NavRow(title: "Projects", symbol: "folder.fill.badge.gearshape", badge: "\(model.projects.count)", selected: selectedSection == "projects") { selectedSection = "projects" }
@@ -405,6 +419,7 @@ struct ContentView: View {
                     case "focus": focusView
                     case "setup": setupView
                     case "radar": radarView
+                    case "blindspots": blindspotsView
                     case "oracle": oracleView
                     case "review": reviewView
                     case "projects": projectsView
@@ -1304,6 +1319,142 @@ struct ContentView: View {
         }
     }
 
+    private var blindspotsView: some View {
+        HStack(alignment: .top, spacing: 18) {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack {
+                    SectionTitle("Blindspot Brief", symbol: "eye.fill")
+                    Spacer()
+                    if !model.blindspotCopyOutput.isEmpty {
+                        Text(model.blindspotCopyOutput)
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.white.opacity(0.48))
+                            .lineLimit(1)
+                    }
+                    Button {
+                        Task { await model.copyBlindspotBrief() }
+                    } label: {
+                        Label("Copy", systemImage: "doc.on.clipboard")
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                }
+
+                VStack(spacing: 0) {
+                    ForEach(model.blindspotItems) { item in
+                        Button {
+                            selectedBlindspotID = item.id
+                        } label: {
+                            BlindspotItemRow(item: item, selected: selectedBlindspotItem?.id == item.id)
+                        }
+                        .buttonStyle(.plain)
+                        if item.id != model.blindspotItems.last?.id {
+                            Divider().overlay(.white.opacity(0.08)).padding(.leading, 52)
+                        }
+                    }
+                    if model.blindspotItems.isEmpty {
+                        EmptyStateRow(title: "No blindspots surfaced", detail: "Refresh, sync, or capture an idea to give the brief more signal.", symbol: "eye")
+                    }
+                }
+                .darkPanel()
+            }
+            .frame(width: 520)
+
+            VStack(alignment: .leading, spacing: 14) {
+                if let item = selectedBlindspotItem {
+                    SectionTitle("Question To Ask", symbol: item.symbol)
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack(alignment: .top, spacing: 14) {
+                            Image(systemName: item.symbol)
+                                .font(.title2)
+                                .foregroundStyle(item.state.color)
+                                .frame(width: 42, height: 42)
+                                .background(item.state.color.opacity(0.16), in: RoundedRectangle(cornerRadius: 11, style: .continuous))
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(item.title)
+                                    .font(.title2.weight(.bold))
+                                    .foregroundStyle(.white)
+                                Text("\(item.project) - \(item.source)")
+                                    .font(.callout.weight(.semibold))
+                                    .foregroundStyle(item.state.color)
+                            }
+                            Spacer()
+                            Text("\(item.score)")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 5)
+                                .background(item.state.color.opacity(0.18), in: Capsule())
+                        }
+
+                        Text(item.question)
+                            .font(.title3.weight(.semibold))
+                            .foregroundStyle(.white.opacity(0.86))
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        Text(item.why)
+                            .font(.body)
+                            .foregroundStyle(.white.opacity(0.66))
+                            .fixedSize(horizontal: false, vertical: true)
+                            .textSelection(.enabled)
+
+                        if let path = item.path {
+                            Text(path)
+                                .font(.caption.monospaced())
+                                .foregroundStyle(.white.opacity(0.44))
+                                .lineLimit(2)
+                                .textSelection(.enabled)
+                        }
+
+                        HStack {
+                            Button {
+                                applyBlindspotAction(item)
+                            } label: {
+                                Label(item.nextAction, systemImage: "arrow.right.circle.fill")
+                            }
+                            .buttonStyle(.borderedProminent)
+                            Button {
+                                model.oracleQuestion = item.question
+                                selectedSection = "oracle"
+                            } label: {
+                                Label("Ask Oracle", systemImage: "sparkle.magnifyingglass")
+                            }
+                            .buttonStyle(.bordered)
+                            if item.source == "Oracle commit" {
+                                Button {
+                                    selectedCommitID = item.sourceID
+                                    selectedSection = "review"
+                                } label: {
+                                    Label("Review", systemImage: "tray.and.arrow.down.fill")
+                                }
+                                .buttonStyle(.bordered)
+                            }
+                            if let path = item.path {
+                                Button { model.openPath(path) } label: {
+                                    Label("Open", systemImage: "arrow.up.right.square")
+                                }
+                                .buttonStyle(.bordered)
+                            }
+                        }
+                    }
+                    .padding(16)
+                    .darkPanel()
+                }
+
+                SectionTitle("Blindspot Rules", symbol: "slider.horizontal.3")
+                VStack(alignment: .leading, spacing: 10) {
+                    PolicyLine("Delegated reads without artifacts outrank passive ideas.")
+                    PolicyLine("New Oracle commits are treated as unresolved decisions.")
+                    PolicyLine("Open loops and under-tested ideas appear before general project browsing.")
+                    PolicyLine("Use this lane before broad planning so ignored work has a chance to object.")
+                }
+                .padding(14)
+                .darkPanel()
+            }
+            .frame(minWidth: 620)
+        }
+    }
+
     private var heroPanel: some View {
         HStack(alignment: .bottom, spacing: 22) {
             VStack(alignment: .leading, spacing: 12) {
@@ -2146,6 +2297,9 @@ struct ContentView: View {
         case .radar(let id):
             selectedRadarID = id
             selectedSection = "radar"
+        case .blindspot(let id):
+            selectedBlindspotID = id
+            selectedSection = "blindspots"
         case .project(let id):
             selectedProjectID = id
             selectedSection = "projects"
@@ -2165,6 +2319,8 @@ struct ContentView: View {
             Task { await model.copyOperatorBrief() }
         case .copyDecisionLane:
             Task { await model.copyDecisionLane() }
+        case .copyBlindspots:
+            Task { await model.copyBlindspotBrief() }
         case .copyProjectMemory:
             Task { await model.copyProjectMemory() }
         case .copyDeck:
@@ -2289,6 +2445,31 @@ struct ContentView: View {
         return "arrow.right.circle"
     }
 
+    private func applyBlindspotAction(_ item: BlindspotItem) {
+        switch item.nextAction {
+        case "Review":
+            selectedCommitID = item.sourceID
+            reviewProjectFilter = item.project.isEmpty ? "all" : item.project
+            selectedSection = "review"
+        case "Open Project":
+            if let project = model.projects.first(where: { $0.name == item.project || $0.id == item.sourceID }) {
+                selectedProjectID = project.id
+            }
+            selectedSection = "projects"
+        case "Open System", "Open Settings":
+            selectedSection = "setup"
+        case "Capture Idea":
+            model.quickIdea = item.question
+            selectedSection = "focus"
+        case "Ask Oracle":
+            model.oracleQuestion = item.question
+            selectedSection = "oracle"
+        default:
+            model.workQuery = [item.project, item.question].filter { !$0.isEmpty && $0 != "General Brain" }.joined(separator: " - ")
+            selectedSection = "start"
+        }
+    }
+
     private func applyRadarAction(_ item: RadarItem) {
         switch item.action {
         case "Open Review":
@@ -2403,6 +2584,7 @@ enum BrainCommandAction {
     case feed(String, FeedKind)
     case commit(String)
     case radar(String)
+    case blindspot(String)
     case project(String)
     case openMission
     case openLogs
@@ -2412,6 +2594,7 @@ enum BrainCommandAction {
     case copySnapshot
     case copyBrief
     case copyDecisionLane
+    case copyBlindspots
     case copyProjectMemory
     case copyDeck
     case copyLatestPack
@@ -2973,6 +3156,57 @@ struct RadarItemRow: View {
                     .foregroundStyle(.white.opacity(0.62))
                     .lineLimit(2)
                 Text(item.reason)
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.44))
+                    .lineLimit(2)
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(selected ? Color.white.opacity(0.10) : Color.clear, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+    }
+}
+
+struct BlindspotItemRow: View {
+    let item: BlindspotItem
+    let selected: Bool
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 14) {
+            Image(systemName: item.symbol)
+                .font(.title3)
+                .foregroundStyle(item.state.color)
+                .frame(width: 30, height: 30)
+                .background(item.state.color.opacity(0.16), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            VStack(alignment: .leading, spacing: 5) {
+                HStack(spacing: 8) {
+                    Text(item.title)
+                        .font(.headline.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                    Spacer()
+                    Text("\(item.score)")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(item.state.color.opacity(0.16), in: Capsule())
+                    Text(item.nextAction)
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(item.state.color)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(item.state.color.opacity(0.13), in: Capsule())
+                }
+                Text(item.project)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.white.opacity(0.48))
+                    .lineLimit(1)
+                Text(item.question)
+                    .font(.callout)
+                    .foregroundStyle(.white.opacity(0.66))
+                    .lineLimit(2)
+                Text(item.why)
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.44))
                     .lineLimit(2)
