@@ -122,6 +122,13 @@ final class LocalControlServer {
             return .json(200, await OracleSnapshot.items())
         case ("GET", "/oracle/commits"):
             return .json(200, OracleSnapshot.commits())
+        case ("POST", "/oracle/review-status"):
+            let id = (request.jsonBody?["id"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            let status = (request.jsonBody?["status"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !id.isEmpty, !status.isEmpty else {
+                return .json(400, ["ok": false, "error": "id and status are required"])
+            }
+            return .json(200, OracleSnapshot.setReviewStatus(id: id, status: status))
         case ("POST", "/oracle/ask"):
             let question = (request.jsonBody?["question"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
             guard !question.isEmpty else {

@@ -397,6 +397,26 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_oracle_review_status",
+    description: "Set the review status for a committed Oracle read.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: {
+          type: "string",
+          description: "Oracle commit id, currently the note path returned by terminal_brain_oracle_commits."
+        },
+        status: {
+          type: "string",
+          enum: ["new", "accepted", "linked", "delegated", "dismissed"],
+          description: "Review state to apply."
+        }
+      },
+      required: ["id", "status"],
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_permissions",
     description: "Read Terminal Brain permission policy for local sources.",
     inputSchema: {
@@ -592,6 +612,11 @@ async function callTool(name, args = {}) {
       });
     case "terminal_brain_oracle_commits":
       return api("/oracle/commits");
+    case "terminal_brain_oracle_review_status":
+      return api("/oracle/review-status", {
+        method: "POST",
+        body: { id: args.id, status: args.status }
+      });
     case "terminal_brain_permissions":
       return api("/permissions");
     case "terminal_brain_sync":

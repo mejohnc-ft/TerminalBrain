@@ -26,6 +26,7 @@
   "GET /oracle/brief",
   "GET /oracle/items",
   "GET /oracle/commits",
+  "POST /oracle/review-status",
   "POST /oracle/ask",
   "POST /oracle/commit",
   "POST /ideas/capture",
