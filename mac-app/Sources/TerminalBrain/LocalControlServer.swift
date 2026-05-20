@@ -95,6 +95,8 @@ final class LocalControlServer {
             return .json(200, await ControlSnapshot.sources())
         case ("GET", "/sources/markdown"):
             return .text(200, await ScriptMarkdownSnapshot.markdown(title: "Terminal Brain Source Inventory", scriptName: "sources.zsh", makeTarget: "make sources"))
+        case ("GET", "/memory/markdown"):
+            return .text(200, await ScriptMarkdownSnapshot.markdown(title: "Terminal Brain Memory Brief", scriptName: "memory.zsh", makeTarget: "make memory"))
         case ("GET", "/setup"):
             return .json(200, await SetupSnapshot.setup())
         case ("GET", "/projects"):

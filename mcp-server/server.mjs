@@ -285,6 +285,24 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_memory_brief_markdown",
+    description: "Get a non-launching brief from derived Codex/Claude work memory with continuity leads and commands to promote useful follow-ups.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        limit: {
+          type: "number",
+          description: "Maximum continuity leads to show. Defaults to 6."
+        },
+        project: {
+          type: "string",
+          description: "Optional project substring filter."
+        }
+      },
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_setup",
     description: "Read Terminal Brain readiness setup: app, MCP config, workspace, sync, memory, Mission Control, prompt safety, and Oracle writeback.",
     inputSchema: {
@@ -1462,6 +1480,31 @@ function sourcesMarkdown() {
   ].join("\n");
 }
 
+function memoryBriefMarkdown(args = {}) {
+  const commandArgs = [join(ROOT, "mac-app", "scripts", "memory.zsh")];
+  if (Number.isFinite(args.limit)) {
+    commandArgs.push("--limit", String(Math.max(1, Math.floor(args.limit))));
+  }
+  if (typeof args.project === "string" && args.project.trim()) {
+    commandArgs.push("--project", args.project.trim());
+  }
+  const result = runCommand("zsh", commandArgs, { timeout: 20000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Memory Brief",
+    "",
+    "Memory brief failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 function setReviewStatus(args = {}) {
   const id = typeof args.id === "string" ? args.id.trim() : "";
   const status = typeof args.status === "string" ? args.status.trim() : "";
@@ -1852,6 +1895,8 @@ async function callTool(name, args = {}) {
       }
     case "terminal_brain_sources_markdown":
       return sourcesMarkdown();
+    case "terminal_brain_memory_brief_markdown":
+      return memoryBriefMarkdown(args);
     case "terminal_brain_setup":
       return api("/setup");
     case "terminal_brain_briefing":

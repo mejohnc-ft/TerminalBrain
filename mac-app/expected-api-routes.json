@@ -19,6 +19,7 @@
   "GET /start-here/markdown",
   "GET /sources",
   "GET /sources/markdown",
+  "GET /memory/markdown",
   "GET /setup",
   "GET /projects",
   "GET /projects/markdown",
