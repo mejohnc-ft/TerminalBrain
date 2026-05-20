@@ -217,7 +217,8 @@ final class LocalControlServer {
                 question: "What changed, why does it matter, and what should happen next?",
                 source: request.jsonBody?["source"] as? String ?? "Terminal Brain Outcome",
                 project: request.jsonBody?["project"] as? String ?? "",
-                tags: tags
+                tags: tags,
+                reviewStatus: "accepted"
             ))
         case ("POST", "/ideas/capture"):
             let content = (request.jsonBody?["content"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
@@ -329,7 +330,7 @@ enum OracleSnapshot {
         ]
     }
 
-    static func commit(title: String, content: String, question: String, source: String, project: String, tags: [String]) -> [String: Any] {
+    static func commit(title: String, content: String, question: String, source: String, project: String, tags: [String], reviewStatus: String = "new") -> [String: Any] {
         let directory = URL(fileURLWithPath: Paths.workspace).appendingPathComponent("Oracle Inbox", isDirectory: true)
         do {
             try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -343,13 +344,15 @@ enum OracleSnapshot {
             let tagLines = mergedTags.map { "  - \($0)" }.joined(separator: "\n")
             let questionBlock = question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "" : "\n## Question\n\n\(question.trimmingCharacters(in: .whitespacesAndNewlines))\n"
             let resolvedProject = project.trimmingCharacters(in: .whitespacesAndNewlines).ifEmpty(ProjectSnapshot.projectName(from: "\(title) \(question) \(content) \(tags.joined(separator: " "))"))
+            let allowedStatuses = ["new", "accepted", "linked", "delegated", "dismissed"]
+            let resolvedStatus = allowedStatuses.contains(reviewStatus) ? reviewStatus : "new"
             let body = """
             ---
             type: oracle_commit
             source: \(source)
             project: \(resolvedProject)
             created: \(timestamp)
-            reviewStatus: new
+            reviewStatus: \(resolvedStatus)
             tags:
             \(tagLines)
             ---
@@ -371,6 +374,7 @@ enum OracleSnapshot {
                 "path": fileURL.path,
                 "title": title,
                 "project": resolvedProject,
+                "reviewStatus": resolvedStatus,
                 "tags": mergedTags,
                 "created": timestamp
             ]

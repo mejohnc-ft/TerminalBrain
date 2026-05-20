@@ -26,6 +26,7 @@ require_in_file "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CopyOr
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '"/start-here/markdown"' "Start Here API route"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '"/oracle-digest/markdown"' "Oracle Digest API route"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '"/outcomes/commit"' "Outcome commit API route"
+require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" 'reviewStatus: "accepted"' "outcomes close as accepted"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" 'enum StartHereSnapshot' "Start Here Markdown artifact"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" 'enum OracleDigestSnapshot' "Oracle Digest artifact"
 

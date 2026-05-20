@@ -41,7 +41,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Oracle Digest that turns current signals into a Notice / Decide / Test / Create / Avoid read for the next work block, available in the app, command palette, App Shortcuts, CLI, API, and MCP.
 - Start Here app/API/MCP/CLI/App Shortcut surface that gives a one-block path from digest to agent prompt to context pack to structured outcome writeback.
 - Agent Prompt generator that turns the Oracle Digest and Value Brief into a concise Codex/Claude execution prompt with acceptance criteria and guardrails.
-- Structured Outcome commit endpoint/tool/CLI so agents can write back what changed, evidence, and next action without launching the app.
+- Structured Outcome commit endpoint/tool/CLI so agents can write back what changed, evidence, and next action without launching the app; outcome notes enter memory as accepted instead of unresolved review items.
 - Operator Deck for app and agents: do first, ask about, review or capture, and project/start-work cards.
 - Prompt-ready Operator Deck Markdown for agent handoffs and quick paste workflows.
 - Operator Deck action tool for agents to mark directly actionable Radar and Oracle commit cards without opening the app.
