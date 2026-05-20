@@ -59,22 +59,38 @@ echo "make outcome TITLE=\"...\" OUTCOME=\"...\" PROJECT=\"${PROJECT:-Terminal B
 echo '```'
 echo
 
+clean_section() {
+  awk '
+    /^# Terminal Brain Bubble Up$/ { print "### Bubble Up"; next }
+    /^# Terminal Brain Review Queue$/ { print "### Review Queue"; next }
+    /^Workspace: / { next }
+    /^Inbox: / { next }
+    /^## Guardrail$/ { skip = 1; next }
+    skip { next }
+    { print }
+  '
+}
+
 bubble_args=(--limit "$LIMIT")
-review_args=(--limit "$LIMIT")
 if [[ -n "$PROJECT" ]]; then
   bubble_args+=(--project "$PROJECT")
-  review_args+=(--project "$PROJECT")
 fi
 
 echo "## Pull Forward"
 echo
-"$ROOT/mac-app/scripts/bubble-up.zsh" "${bubble_args[@]}"
+"$ROOT/mac-app/scripts/bubble-up.zsh" "${bubble_args[@]}" | clean_section
 echo
-echo "---"
+echo "## Broader Queue"
 echo
-echo "## Review Queue"
+echo "If the pulled-forward item is not the right one, inspect the full queue:"
 echo
-"$ROOT/mac-app/scripts/review.zsh" "${review_args[@]}"
+echo '```zsh'
+if [[ -n "$PROJECT" ]]; then
+  echo "make review PROJECT=\"$PROJECT\""
+else
+  echo "make review"
+fi
+echo '```'
 echo
 echo "## Guardrail"
 echo
