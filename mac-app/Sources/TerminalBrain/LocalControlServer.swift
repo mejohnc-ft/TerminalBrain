@@ -980,6 +980,9 @@ enum ProjectSnapshot {
                 lines.append("- Fresh context:")
                 for pack in context.prefix(3) {
                     lines.append("  - \(pack["title"] as? String ?? "Context pack"): \(pack["detail"] as? String ?? "")")
+                    if let path = pack["path"] as? String, !path.isEmpty {
+                        lines.append("    Path: \(path)")
+                    }
                 }
             }
 
@@ -988,6 +991,9 @@ enum ProjectSnapshot {
                 lines.append("- Oracle reads:")
                 for commit in commits.prefix(3) {
                     lines.append("  - \(commit["title"] as? String ?? "Oracle read") (\(commit["status"] as? String ?? "new"))")
+                    if let path = commit["path"] as? String, !path.isEmpty {
+                        lines.append("    Path: \(path)")
+                    }
                 }
             }
             lines.append("")
