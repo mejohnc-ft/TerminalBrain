@@ -538,7 +538,7 @@ struct ContentView: View {
 
     private var startHereView: some View {
         let focus = model.focusItem
-        let review = model.oracleCommits.first { $0.status == .new || $0.status == .delegated } ?? model.oracleCommits.first
+        let review = model.oracleCommits.first { $0.status == .new || $0.status == .delegated }
         let project = model.projects.first
 
         return VStack(alignment: .leading, spacing: 18) {
@@ -954,7 +954,7 @@ struct ContentView: View {
 
     private var oracleDigestPanel: some View {
         let focus = model.focusItem
-        let review = model.oracleCommits.first { $0.status == .new || $0.status == .delegated } ?? model.oracleCommits.first
+        let review = model.oracleCommits.first { $0.status == .new || $0.status == .delegated }
         let idea = model.ideaPulseItems.first
         let blindspot = model.blindspotItems.first
         let project = model.projects.first
@@ -1165,7 +1165,7 @@ struct ContentView: View {
     private var operatorDeck: some View {
         let focus = model.focusItem
         let bubble = model.oracleItems.first
-        let review = model.oracleCommits.first { $0.status == .new } ?? model.oracleCommits.first
+        let review = model.oracleCommits.first { $0.status == .new || $0.status == .delegated }
         let radar = model.radarItems.first { $0.disposition == .fresh } ?? model.radarItems.first
         let project = model.projects.first
 

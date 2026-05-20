@@ -1658,7 +1658,7 @@ enum OracleDigestSnapshot {
         let focusProject = focus["project"] as? String ?? "General Brain"
         let focusAction = focus["action"] as? String ?? "Ask Oracle"
         let focusReason = focus["reason"] as? String ?? focus["detail"] as? String ?? "No focus signal is available yet."
-        let commit = commits.first { ["new", "delegated"].contains($0["status"] as? String ?? "") } ?? commits.first
+        let commit = commits.first { ["new", "delegated"].contains($0["status"] as? String ?? "") }
         let blindspot = blindspots.first
         let idea = ideas.first
         let project = projects.first
