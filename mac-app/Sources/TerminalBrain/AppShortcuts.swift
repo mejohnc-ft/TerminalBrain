@@ -121,6 +121,32 @@ struct CopyOperatorSnapshotIntent: AppIntent {
     }
 }
 
+struct CopyOperatorBriefIntent: AppIntent {
+    static var title: LocalizedStringResource = "Copy Operator Brief"
+    static var description = IntentDescription("Copy Terminal Brain's plain-language Operator Brief as Markdown.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let markdown = try await ShortcutClient.text(path: "/operator-brief/markdown")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "Operator Brief copied.")
+    }
+}
+
+struct CopyDecisionLaneIntent: AppIntent {
+    static var title: LocalizedStringResource = "Copy Decision Lane"
+    static var description = IntentDescription("Copy Terminal Brain's ranked Decision Lane as Markdown.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let markdown = try await ShortcutClient.text(path: "/today/markdown")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "Decision Lane copied.")
+    }
+}
+
 struct RunTerminalBrainSyncIntent: AppIntent {
     static var title: LocalizedStringResource = "Run Terminal Brain Sync"
     static var description = IntentDescription("Run Terminal Brain sync with Apple Notes excluded by default.")
@@ -218,6 +244,24 @@ struct TerminalBrainShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Copy Snapshot",
             systemImageName: "doc.on.clipboard"
+        )
+        AppShortcut(
+            intent: CopyOperatorBriefIntent(),
+            phrases: [
+                "Copy \(.applicationName) brief",
+                "Copy \(.applicationName) operator brief"
+            ],
+            shortTitle: "Copy Brief",
+            systemImageName: "wand.and.stars"
+        )
+        AppShortcut(
+            intent: CopyDecisionLaneIntent(),
+            phrases: [
+                "Copy \(.applicationName) decision lane",
+                "Copy \(.applicationName) today"
+            ],
+            shortTitle: "Copy Decisions",
+            systemImageName: "list.number"
         )
         AppShortcut(
             intent: RunTerminalBrainSyncIntent(),

@@ -64,6 +64,8 @@ struct ContentView: View {
             BrainCommand(title: "Open System", subtitle: "Native macOS surfaces and integration roadmap", symbol: "puzzlepiece.extension.fill", category: "Navigate", action: .section("system")),
             BrainCommand(title: "Run Sync", subtitle: "Refresh edge brain export with current permission policy", symbol: "arrow.triangle.2.circlepath", category: "Action", action: .runSync),
             BrainCommand(title: "Copy Operator Snapshot", subtitle: "Prompt-ready Focus, Radar, actions, and memory trail", symbol: "doc.on.clipboard", category: "Action", action: .copySnapshot),
+            BrainCommand(title: "Copy Operator Brief", subtitle: "Plain-language value read", symbol: "wand.and.stars", category: "Action", action: .copyBrief),
+            BrainCommand(title: "Copy Decision Lane", subtitle: "Ranked Today action queue", symbol: "list.number", category: "Action", action: .copyDecisionLane),
             BrainCommand(title: "Copy Operator Deck", subtitle: "Prompt-ready four-card deck for handoffs", symbol: "rectangle.stack.fill.badge.person.crop", category: "Action", action: .copyDeck),
             BrainCommand(title: "Copy Latest Context Pack", subtitle: "Copy newest context pack Markdown", symbol: "doc.on.doc", category: "Action", action: .copyLatestPack),
             BrainCommand(title: "Copy Agent Handoff", subtitle: "Copy Operator Deck plus latest context pack", symbol: "doc.richtext", category: "Action", action: .copyHandoff),
@@ -608,6 +610,26 @@ struct ContentView: View {
             HStack(alignment: .firstTextBaseline) {
                 SectionTitle("Operator Brief", symbol: "wand.and.stars")
                 Spacer()
+                if !model.briefCopyOutput.isEmpty || !model.decisionLaneCopyOutput.isEmpty {
+                    Text(model.briefCopyOutput.isEmpty ? model.decisionLaneCopyOutput : model.briefCopyOutput)
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.white.opacity(0.48))
+                        .lineLimit(1)
+                }
+                Button {
+                    Task { await model.copyOperatorBrief() }
+                } label: {
+                    Label("Copy Brief", systemImage: "doc.on.clipboard")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                Button {
+                    Task { await model.copyDecisionLane() }
+                } label: {
+                    Label("Decision Lane", systemImage: "list.number")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
                 Text("Plain-English value read")
                     .font(.caption.weight(.bold))
                     .foregroundStyle(.white.opacity(0.42))
@@ -2122,6 +2144,10 @@ struct ContentView: View {
             Task { await model.runSyncNow() }
         case .copySnapshot:
             Task { await model.copyOperatorSnapshot() }
+        case .copyBrief:
+            Task { await model.copyOperatorBrief() }
+        case .copyDecisionLane:
+            Task { await model.copyDecisionLane() }
         case .copyDeck:
             Task { await model.copyOperatorDeck() }
         case .copyLatestPack:
@@ -2365,6 +2391,8 @@ enum BrainCommandAction {
     case openPath(String)
     case runSync
     case copySnapshot
+    case copyBrief
+    case copyDecisionLane
     case copyDeck
     case copyLatestPack
     case copyHandoff

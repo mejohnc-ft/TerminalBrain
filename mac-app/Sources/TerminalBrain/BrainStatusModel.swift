@@ -23,6 +23,8 @@ final class BrainStatusModel: ObservableObject {
     @Published var quickIdea = ""
     @Published var quickIdeaOutput = ""
     @Published var snapshotCopyOutput = ""
+    @Published var briefCopyOutput = ""
+    @Published var decisionLaneCopyOutput = ""
     @Published var deckCopyOutput = ""
     @Published var latestPackCopyOutput = ""
     @Published var handoffCopyOutput = ""
@@ -108,6 +110,18 @@ final class BrainStatusModel: ObservableObject {
         lastRefresh = Date()
     }
 
+    private func rebuildOperatorBrief() {
+        operatorBrief = buildOperatorBrief(
+            cards: cards,
+            focus: focusItem,
+            radarItems: radarItems,
+            projects: projects,
+            oracleCommits: oracleCommits,
+            oracleItems: oracleItems,
+            feedItems: feedItems
+        )
+    }
+
     func runSyncNow() async {
         guard !isSyncing else { return }
         isSyncing = true
@@ -178,6 +192,18 @@ final class BrainStatusModel: ObservableObject {
             handoffCopyOutput = "Handoff copied."
         } catch {
             handoffCopyOutput = "Handoff copy failed: \(error.localizedDescription)"
+        }
+    }
+
+    func copyOperatorBrief() async {
+        await copyMarkdown(path: "/operator-brief/markdown", label: "Operator Brief") { message in
+            briefCopyOutput = message
+        }
+    }
+
+    func copyDecisionLane() async {
+        await copyMarkdown(path: "/today/markdown", label: "Decision Lane") { message in
+            decisionLaneCopyOutput = message
         }
     }
 
@@ -323,6 +349,7 @@ final class BrainStatusModel: ObservableObject {
             projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
             radarItems = buildRadarItems(cards: cards, setupSteps: setupSteps, projects: projects, oracleItems: oracleItems, oracleCommits: oracleCommits, feedItems: feedItems)
             dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems, radarItems: radarItems)
+            rebuildOperatorBrief()
         } catch {
             oracleCommitOutput = "Commit failed: \(error.localizedDescription)"
         }
@@ -357,6 +384,7 @@ final class BrainStatusModel: ObservableObject {
             projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
             radarItems = buildRadarItems(cards: cards, setupSteps: setupSteps, projects: projects, oracleItems: oracleItems, oracleCommits: oracleCommits, feedItems: feedItems)
             dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems, radarItems: radarItems)
+            rebuildOperatorBrief()
         } catch {
             quickIdeaOutput = "Idea capture failed: \(error.localizedDescription)"
         }
@@ -391,6 +419,22 @@ final class BrainStatusModel: ObservableObject {
             deckCopyOutput = "Deck copied."
         } catch {
             deckCopyOutput = "Deck copy failed: \(error.localizedDescription)"
+        }
+    }
+
+    private func copyMarkdown(path: String, label: String, setOutput: (String) -> Void) async {
+        guard let url = URL(string: "http://127.0.0.1:8765\(path)") else { return }
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            guard let markdown = String(data: data, encoding: .utf8), !markdown.isEmpty else {
+                setOutput("\(label) copy failed.")
+                return
+            }
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(markdown, forType: .string)
+            setOutput("\(label) copied.")
+        } catch {
+            setOutput("\(label) copy failed: \(error.localizedDescription)")
         }
     }
 
@@ -437,6 +481,7 @@ final class BrainStatusModel: ObservableObject {
             projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
             radarItems = buildRadarItems(cards: cards, setupSteps: setupSteps, projects: projects, oracleItems: oracleItems, oracleCommits: oracleCommits, feedItems: feedItems)
             dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems, radarItems: radarItems)
+            rebuildOperatorBrief()
         } catch {
             oracleCommitOutput = "Project update commit failed: \(error.localizedDescription)"
         }
@@ -480,6 +525,7 @@ final class BrainStatusModel: ObservableObject {
             projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
             radarItems = buildRadarItems(cards: cards, setupSteps: setupSteps, projects: projects, oracleItems: oracleItems, oracleCommits: oracleCommits, feedItems: feedItems)
             dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems, radarItems: radarItems)
+            rebuildOperatorBrief()
         } catch {
             oracleCommitOutput = "Radar commit failed: \(error.localizedDescription)"
         }
@@ -502,6 +548,7 @@ final class BrainStatusModel: ObservableObject {
         saveRadarDispositionRecords(records)
         radarItems = buildRadarItems(cards: cards, setupSteps: setupSteps, projects: projects, oracleItems: oracleItems, oracleCommits: oracleCommits, feedItems: feedItems)
         dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems, radarItems: radarItems)
+        rebuildOperatorBrief()
     }
 
     func delegateOracleCommitToStartWork(_ commit: OracleCommit) {
@@ -545,6 +592,7 @@ final class BrainStatusModel: ObservableObject {
         projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
         radarItems = buildRadarItems(cards: cards, setupSteps: setupSteps, projects: projects, oracleItems: oracleItems, oracleCommits: oracleCommits, feedItems: feedItems)
         dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems, radarItems: radarItems)
+        rebuildOperatorBrief()
     }
 
     func openOracleInbox() {
@@ -579,6 +627,7 @@ final class BrainStatusModel: ObservableObject {
         projects = buildProjectMemories(feedItems: feedItems, oracleItems: oracleItems, oracleCommits: oracleCommits)
         radarItems = buildRadarItems(cards: cards, setupSteps: setupSteps, projects: projects, oracleItems: oracleItems, oracleCommits: oracleCommits, feedItems: feedItems)
         dailyCommands = buildDailyCommands(cards: cards, projects: projects, oracleCommits: oracleCommits, feedItems: feedItems, radarItems: radarItems)
+        rebuildOperatorBrief()
     }
 
     private func processCards() async -> [HealthCard] {

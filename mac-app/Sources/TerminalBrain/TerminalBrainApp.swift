@@ -40,6 +40,14 @@ struct TerminalBrainApp: App {
                 }
                 .keyboardShortcut("c", modifiers: [.command, .shift])
 
+                Button("Copy Operator Brief") {
+                    Task { await model.copyOperatorBrief() }
+                }
+
+                Button("Copy Decision Lane") {
+                    Task { await model.copyDecisionLane() }
+                }
+
                 Button("Copy Operator Deck") {
                     Task { await model.copyOperatorDeck() }
                 }
@@ -82,6 +90,12 @@ struct TerminalBrainApp: App {
             }
             Button("Copy Agent Handoff") {
                 Task { await model.copyHandoff() }
+            }
+            Button("Copy Operator Brief") {
+                Task { await model.copyOperatorBrief() }
+            }
+            Button("Copy Decision Lane") {
+                Task { await model.copyDecisionLane() }
             }
             Divider()
             Button("Refresh Status") {
