@@ -178,6 +178,7 @@ require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_support_bundle_mar
 require_in_file "$ROOT/mcp-server/server.mjs" 'handoffMarkdown' "Handoff MCP closed-app fallback"
 require_in_file "$ROOT/mcp-server/server.mjs" 'localSnapshotMarkdown' "Snapshot Markdown MCP closed-app fallback"
 require_in_file "$ROOT/mcp-server/server.mjs" 'localSnapshot' "Snapshot MCP closed-app fallback"
+require_in_file "$ROOT/mcp-server/server.mjs" 'app-api-unreachable' "Status MCP local fallback"
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_next_markdown' "Next Move MCP tool"
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_doctor_markdown' "Doctor MCP tool"
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_value_now_markdown' "Value Now MCP tool"

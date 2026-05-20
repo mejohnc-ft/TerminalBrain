@@ -196,6 +196,11 @@ require_contains "$mcp_snapshot_json_output" 'local-fallback' "MCP snapshot loca
 require_contains "$mcp_snapshot_json_output" 'startHereMarkdown' "MCP snapshot structured Start Here"
 require_contains "$mcp_snapshot_json_output" 'processMapMarkdown' "MCP snapshot structured Process Map"
 
+mcp_status_output="$(call_mcp_tool terminal_brain_status)"
+require_contains "$mcp_status_output" 'local-fallback' "MCP status local fallback"
+require_contains "$mcp_status_output" 'app-api-unreachable' "MCP status app unavailable state"
+require_contains "$mcp_status_output" 'runtimeStatus' "MCP status runtime fallback"
+
 mcp_first_minute_output="$(call_mcp_tool terminal_brain_first_minute_markdown)"
 require_contains "$mcp_first_minute_output" '# Terminal Brain First Minute' "MCP first minute title"
 require_contains "$mcp_first_minute_output" 'What You Can Get Immediately' "MCP first minute value section"

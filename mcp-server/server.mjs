@@ -1696,7 +1696,17 @@ async function callTool(name, args = {}) {
     case "terminal_brain_audit_markdown":
       return auditMarkdown();
     case "terminal_brain_status":
-      return api("/status");
+      try {
+        return await api("/status");
+      } catch {
+        return {
+          ok: true,
+          mode: "local-fallback",
+          status: "app-api-unreachable",
+          runtimeStatus: await runtimeStatus(),
+          guardrail: "MCP status fallback did not launch or foreground Terminal Brain"
+        };
+      }
     case "terminal_brain_snapshot":
       try {
         return await api("/snapshot");
