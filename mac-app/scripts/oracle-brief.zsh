@@ -13,7 +13,7 @@ Prints Terminal Brain's direct Oracle Brief without launching the app.
 
 Behavior:
   - If Terminal Brain is reachable, print the live Oracle Brief.
-  - If Terminal Brain is closed, print a plain fallback and current status.
+  - If Terminal Brain is closed, print a local pull-forward read and current status.
 
 This script never launches, foregrounds, quits, or controls Terminal Brain.
 EOF
@@ -35,17 +35,60 @@ if [[ -n "$health" ]]; then
   exit 0
 fi
 
+demote_without_guardrail() {
+  awk '
+    /^# Terminal Brain Work Block$/ { next }
+    /^## Use This Block$/ { skip_use = 1; next }
+    skip_use && /^## Pull Forward$/ { skip_use = 0; next }
+    skip_use { next }
+    /^## Pull Forward$/ { next }
+    /^## Guardrail$/ { skip = 1; next }
+    skip { next }
+    /^Checked: / { next }
+    /^# / { print "### " substr($0, 3); next }
+    /^## / { print "### " substr($0, 4); next }
+    /^### / { print "### " substr($0, 5); next }
+    { print }
+  '
+}
+
 cat <<EOF
 # Terminal Brain Oracle Brief
 
-Terminal Brain is not currently reachable at $API.
+Terminal Brain is not currently reachable at $API, so this is a local closed-app read.
 
 ## Direct Read
 
-Open Terminal Brain manually when you want the UI/API active. Then run:
+- Treat the pull-forward item below as the current highest-signal thread.
+- Do one small action, then commit the result so the system gets smarter.
+- Open Terminal Brain manually only when you want the UI/API active.
+
+## Local Pull Forward
+
+EOF
+
+"$ROOT/mac-app/scripts/work-block.zsh" --limit 1 | demote_without_guardrail
+
+cat <<EOF
+
+## What May Be Missing
+
+- The useful question is not "what does the dashboard say?" It is "what should change because this signal surfaced?"
+- If the pulled-forward item is vague, pressure-test it before turning it into a project.
+- If it is already actionable, skip more reading and close one loop.
+
+## Cheapest Test
 
 \`\`\`zsh
-make oracle-brief
+make ask QUERY="What is the smallest useful next action for the pulled-forward item?" PROJECT="Terminal Brain"
+make ask-commit QUERY="What did this work reveal that should be saved?" PROJECT="Terminal Brain"
+\`\`\`
+
+## Agent Handoff
+
+\`\`\`zsh
+make agent-prompt
+make outcome TITLE="..." OUTCOME="..." PROJECT="Terminal Brain" NEXT="..."
 \`\`\`
 
 ## Why This Exists
@@ -54,7 +97,7 @@ make oracle-brief
 - It names what to do next, what may be missing, the cheapest test, and the agent handoff.
 - It is designed to produce one useful artifact and one committed outcome, not another dashboard scan.
 
-## Current State
+## Runtime Truth
 
 EOF
 

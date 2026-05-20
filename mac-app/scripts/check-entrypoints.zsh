@@ -62,6 +62,13 @@ require_contains "$agent_prompt_output" 'make work-block' "agent prompt Work Blo
 require_contains "$agent_prompt_output" 'make bubble-up' "agent prompt Bubble Up command"
 require_contains "$agent_prompt_output" 'did not launch, foreground, quit, kill, or control' "agent prompt guardrail"
 
+oracle_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/oracle-brief.zsh")"
+require_contains "$oracle_output" '# Terminal Brain Oracle Brief' "oracle brief title"
+require_contains "$oracle_output" 'Local Pull Forward' "oracle brief local pull-forward"
+require_contains "$oracle_output" 'make ask-commit' "oracle brief closed-app ask commit"
+require_contains "$oracle_output" 'make outcome' "oracle brief outcome close loop"
+require_contains "$oracle_output" 'did not launch or foreground' "oracle brief status guardrail"
+
 outcome_workspace="$(mktemp -d)"
 outcome_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$outcome_workspace" "$ROOT/mac-app/scripts/outcome.zsh" --title "Entrypoint Test" --project "Terminal Brain" --next "Remove temp workspace" "Verified local fallback.")"
 require_contains "$outcome_output" '"mode":"local-fallback"' "outcome local fallback mode"

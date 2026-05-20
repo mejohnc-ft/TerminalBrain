@@ -128,6 +128,8 @@ require_in_file "$ROOT/mac-app/scripts/next.zsh" 'make outcome' "non-launching n
 require_in_file "$ROOT/mac-app/scripts/value.zsh" 'Terminal Brain Value Now' "non-launching value read"
 require_in_file "$ROOT/mac-app/scripts/prove-value.zsh" 'Terminal Brain Value Proof' "non-launching value proof"
 require_in_file "$ROOT/mac-app/scripts/oracle-brief.zsh" 'Terminal Brain Oracle Brief' "non-launching Oracle Brief"
+require_in_file "$ROOT/mac-app/scripts/oracle-brief.zsh" 'work-block.zsh' "Oracle Brief closed-app pull-forward"
+require_in_file "$ROOT/mac-app/scripts/oracle-brief.zsh" 'make ask-commit' "Oracle Brief closed-app ask commit"
 require_in_file "$ROOT/mac-app/scripts/agent-prompt.zsh" 'Terminal Brain Agent Prompt' "non-launching Agent Prompt"
 require_in_file "$ROOT/mac-app/scripts/agent-prompt.zsh" 'make work-block' "Agent Prompt includes Work Block"
 require_in_file "$ROOT/mac-app/scripts/agent-prompt.zsh" 'make bubble-up' "Agent Prompt includes Bubble Up"
