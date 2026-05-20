@@ -36,9 +36,11 @@ require_in_file "$ROOT/mac-app/scripts/snapshot.zsh" '--start-here' "Start Here 
 require_in_file "$ROOT/mac-app/scripts/snapshot.zsh" '--digest' "Oracle Digest CLI flag"
 require_in_file "$ROOT/mac-app/scripts/outcome.zsh" '/outcomes/commit' "Outcome CLI writeback"
 require_in_file "$ROOT/mac-app/scripts/status.zsh" 'App process' "non-launching status process check"
+require_in_file "$ROOT/mac-app/scripts/next.zsh" 'make start-here' "non-launching next move handoff"
 require_in_file "$ROOT/Makefile" '^start-here:' "Start Here Make target"
 require_in_file "$ROOT/Makefile" '^outcome:' "Outcome Make target"
 require_in_file "$ROOT/Makefile" '^status:' "Status Make target"
+require_in_file "$ROOT/Makefile" '^next:' "Next Make target"
 
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_runtime_status' "Runtime Status MCP tool"
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_start_here_markdown' "Start Here MCP tool"
@@ -52,7 +54,7 @@ require_in_file "$ROOT/AGENTS.md" 'Do not use Computer Use' "UI automation guard
 require_in_file "$ROOT/AGENTS.md" 'terminal_brain_runtime_status' "agent runtime status instruction"
 require_in_file "$ROOT/AGENTS.md" 'terminal_brain_start_here_markdown' "agent Start Here instruction"
 require_in_file "$ROOT/README.md" 'START-HERE.md' "README Start Here link"
-require_in_file "$ROOT/START-HERE.md" 'make start-here' "repo Start Here command"
+require_in_file "$ROOT/START-HERE.md" 'make next' "repo next command"
 require_in_file "$ROOT/START-HERE.md" 'make status' "repo status command"
 require_in_file "$ROOT/START-HERE.md" 'make outcome' "repo outcome close loop"
 

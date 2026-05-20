@@ -12,6 +12,7 @@ Common commands:
 make
 make verify
 make status
+make next
 make live
 make ask QUERY="what should I work on next?"
 make ask-commit QUERY="what changed?" PROJECT="Terminal Brain"
@@ -28,7 +29,7 @@ make start-here
 make handoff
 ```
 
-Plain `make` prints help. `make verify`, `make status`, `make live`, `make build`, and `make install` do not launch or foreground Terminal Brain. `make status` answers what is currently running across repo, CI, process, launchctl, and localhost API state. `make live` expects the app to already be running.
+Plain `make` prints help. `make verify`, `make status`, `make next`, `make live`, `make build`, and `make install` do not launch or foreground Terminal Brain. `make next` prints Start Here when the app is reachable, or a safe status and manual next step when it is closed. `make status` answers what is currently running across repo, CI, process, launchctl, and localhost API state. `make live` expects the app to already be running.
 
 ## Components
 
@@ -43,7 +44,7 @@ Plain `make` prints help. `make verify`, `make status`, `make live`, `make build
 - Value Brief that collapses Focus, Idea Pulse, Blindspots, and Project Memory into one compact value read.
 - Oracle Digest that turns current signals into a Notice / Decide / Test / Create / Avoid read for the next work block, available in the app, command palette, App Shortcuts, CLI, API, and MCP.
 - Start Here app/API/MCP/CLI/App Shortcut surface that gives a one-block path from digest to agent prompt to context pack to structured outcome writeback, with direct copy actions in the app, menu bar, command palette, and Shortcuts.
-- Runtime Status for humans and agents: `make status` and `terminal_brain_runtime_status` report repo, CI, process, launchctl, and API state without requiring or launching the app.
+- Runtime Status and Next Move for humans and agents: `make next`, `make status`, and `terminal_brain_runtime_status` report what to do, repo, CI, process, launchctl, and API state without requiring or launching the app.
 - Agent Prompt generator that turns the Oracle Digest and Value Brief into a concise Codex/Claude execution prompt with acceptance criteria and guardrails.
 - Structured Outcome commit endpoint/tool/CLI so agents can write back what changed, evidence, and next action without launching the app; outcome notes enter memory as accepted instead of unresolved review items.
 - Operator Deck for app and agents: do first, ask about, review or capture, and project/start-work cards.
@@ -105,6 +106,14 @@ make status
 ```
 
 This prints the repo state, latest CI run, local process state, launchctl registration state, and localhost API health without starting the app.
+
+For the safest first command:
+
+```zsh
+make next
+```
+
+This prints Start Here if Terminal Brain is already reachable. If it is closed, it prints the manual next step and status without starting anything.
 
 For API/MCP checks against an already-running app:
 

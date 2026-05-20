@@ -7,10 +7,10 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 1. Read the current value path:
 
    ```zsh
-   make start-here
+   make next
    ```
 
-   If you first need to know what is still active, run:
+   If the app is already reachable, `make next` prints Start Here. If it is closed, it prints the manual next move and status without starting anything. To read only status, run:
 
    ```zsh
    make status

@@ -4,6 +4,7 @@ This repository builds a local macOS app used during active work. Do not steal t
 
 ## Safe Defaults
 
+- Use `make next` as the safest first command when you need to know the next move without launching the app.
 - Use `./mac-app/scripts/verify-static.zsh` for normal verification.
 - Use `./mac-app/scripts/build-app.zsh` for build-only checks.
 - Use `./mac-app/scripts/verify-static.zsh` for Swift type-checking because the app now depends on SwiftUI, AppKit, Network, and AppIntents framework flags.
@@ -11,7 +12,7 @@ This repository builds a local macOS app used during active work. Do not steal t
 
 ## Fast Context Path
 
-When Terminal Brain may not be running, use `make status` or MCP `terminal_brain_runtime_status` first. These checks do not launch or foreground the app.
+When Terminal Brain may not be running, use `make next`, `make status`, or MCP `terminal_brain_runtime_status` first. These checks do not launch or foreground the app.
 
 When Terminal Brain is already running and the user asks for useful work, start from the handoff instead of re-discovering the system:
 
