@@ -172,6 +172,19 @@ struct CopyValueBriefIntent: AppIntent {
     }
 }
 
+struct CopyNowIntent: AppIntent {
+    static var title: LocalizedStringResource = "Copy Now"
+    static var description = IntentDescription("Copy Terminal Brain's bottom line, next action, process truth, readiness, and close loop as Markdown.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let markdown = try await ShortcutClient.text(path: "/now/markdown")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "Now copied.")
+    }
+}
+
 struct CopyStartHereIntent: AppIntent {
     static var title: LocalizedStringResource = "Copy Start Here"
     static var description = IntentDescription("Copy Terminal Brain's one-block Start Here path as Markdown.")
@@ -481,6 +494,15 @@ struct TerminalBrainShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Copy Value",
             systemImageName: "bolt.fill"
+        )
+        AppShortcut(
+            intent: CopyNowIntent(),
+            phrases: [
+                "Copy \(.applicationName) now",
+                "Copy \(.applicationName) current now"
+            ],
+            shortTitle: "Copy Now",
+            systemImageName: "sparkles"
         )
         AppShortcut(
             intent: CopyStartHereIntent(),

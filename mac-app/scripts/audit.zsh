@@ -63,6 +63,8 @@ require_evidence "$ROOT/Makefile" '^doctor:' "make doctor"
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'selectedSection = "now"' "native app opens on Now"
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Open Value Now' "command palette can open Value Now"
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Open Now' "command palette can open Now"
+require_evidence "$ROOT/mac-app/Sources/TerminalBrain/LocalControlServer.swift" '"/now/markdown"' "Now API artifact"
+require_evidence "$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift" 'CopyNowIntent' "Copy Now shortcut"
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Commit Outcome' "native outcome close loop"
 echo
 

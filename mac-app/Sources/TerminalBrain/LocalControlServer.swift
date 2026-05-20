@@ -67,6 +67,8 @@ final class LocalControlServer {
             return .text(200, await BrainHandoffSnapshot.markdown())
         case ("GET", "/agent-prompt/markdown"):
             return .text(200, await AgentPromptSnapshot.markdown())
+        case ("GET", "/now/markdown"):
+            return .text(200, await NowSnapshot.markdown())
         case ("GET", "/start-here/markdown"):
             return .text(200, await StartHereSnapshot.markdown())
         case ("GET", "/sources"):
@@ -690,7 +692,7 @@ enum OracleSnapshot {
             "",
             "Current Terminal Brain implementation:",
             "- Native macOS app with local control API on http://127.0.0.1:8765.",
-            "- Current API routes: /health, /status, /setup, /focus, /blindspots, /blindspots/markdown, /blindspots/ask, /blindspots/action, /operator-deck, /operator-deck/markdown, /operator-deck/action, /handoff/markdown, /context-packs/latest, /context-packs/latest/markdown, /radar, /radar/disposition, /sources, /briefing, /permissions, /oracle/brief, /oracle/items, /oracle/ask, /oracle/commit, /sync, /start-work.",
+            "- Current API routes include /now/markdown, /start-here/markdown, /value-brief/markdown, /oracle-digest/markdown, /handoff/markdown, /agent-prompt/markdown, /outcomes/commit, /context-packs/latest/markdown, /radar, /sources, /permissions, /oracle/ask, /oracle/commit, /sync, and /start-work.",
             "- Oracle ask already combines local deterministic signals, Mission retrieval, Mission workbench synthesis, citations, supporting items, and fallback behavior.",
             "- Oracle commit can write synthesized decisions and outcomes into the Obsidian-backed Oracle Inbox.",
             "- MCP proxy can call Terminal Brain status, setup, focus, blindspots, blindspot ask/commit/action, operator deck, operator deck action, radar, radar triage, sources, briefing, permissions, sync, start work, oracle brief, oracle items, oracle ask, oracle commit, and oracle review status.",
@@ -1632,6 +1634,74 @@ enum ValueBriefSnapshot {
             "score": score,
             "source": source
         ]
+    }
+}
+
+enum NowSnapshot {
+    static func markdown() async -> String {
+        let generatedAt = ISO8601DateFormatter().string(from: Date())
+        let focusPayload = await FocusSnapshot.focus()
+        let focus = (focusPayload["item"] as? [String: Any]) ?? [:]
+        let title = focus["title"] as? String ?? "Start with the top visible signal"
+        let action = focus["action"] as? String ?? "Act"
+        let project = focus["project"] as? String ?? "General Brain"
+        let reason = (focus["reason"] as? String ?? focus["detail"] as? String ?? "").ifEmpty("Use the top signal as the next work block unless newer evidence changes priority.")
+        let query = (focus["query"] as? String ?? title).ifEmpty(title)
+        let setup = await SetupSnapshot.setup()
+        let steps = (setup["steps"] as? [[String: Any]]) ?? []
+        let warningCount = steps.filter { ($0["state"] as? String ?? "").lowercased() == "warn" }.count
+        let readiness = warningCount == 0 ? "ready" : "\(warningCount) setup item\(warningCount == 1 ? "" : "s") need attention"
+        let value = await ValueBriefSnapshot.markdown()
+        let digest = await OracleDigestSnapshot.markdown()
+
+        return [
+            "# Terminal Brain Now",
+            "",
+            "Generated: \(generatedAt)",
+            "",
+            "## Bottom Line",
+            "",
+            "Do \(title).",
+            "",
+            reason,
+            "",
+            "## Do This",
+            "",
+            "1. \(action) for \(project).",
+            "2. Build or attach a context pack for `\(query)` before handing deeper work to an agent.",
+            "3. Commit the outcome with what changed, why it matters, evidence, and the next action.",
+            "",
+            "## Process Truth",
+            "",
+            "- API: reachable at 127.0.0.1:8765",
+            "- App-backed tools: ready while Terminal Brain remains open",
+            "- Setup readiness: \(readiness)",
+            "- Guardrail: this artifact is read-only and does not launch, foreground, quit, kill, or control other apps.",
+            "",
+            "## Close Loop",
+            "",
+            "Use `/outcomes/commit`, `terminal_brain_commit_outcome`, or the app's Commit Outcome panel after useful work happens.",
+            "",
+            "---",
+            "",
+            demote(value),
+            "",
+            "---",
+            "",
+            demote(digest)
+        ].joined(separator: "\n")
+    }
+
+    private static func demote(_ markdown: String) -> String {
+        markdown
+            .split(separator: "\n", omittingEmptySubsequences: false)
+            .map { line -> String in
+                if line.hasPrefix("### ") { return "##### " + String(line.dropFirst(4)) }
+                if line.hasPrefix("## ") { return "#### " + String(line.dropFirst(3)) }
+                if line.hasPrefix("# ") { return "### " + String(line.dropFirst(2)) }
+                return String(line)
+            }
+            .joined(separator: "\n")
     }
 }
 

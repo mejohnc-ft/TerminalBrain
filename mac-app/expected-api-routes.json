@@ -5,6 +5,7 @@
   "GET /snapshot/markdown",
   "GET /handoff/markdown",
   "GET /agent-prompt/markdown",
+  "GET /now/markdown",
   "GET /start-here/markdown",
   "GET /sources",
   "GET /setup",

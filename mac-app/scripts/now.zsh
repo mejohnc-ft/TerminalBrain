@@ -15,7 +15,7 @@ Prints the fastest Terminal Brain orientation:
   - process truth
   - readiness verdict
 
-If the app is reachable, this prints live Start Here. If the app is closed,
+If the app is reachable, this prints live Now Markdown. If the app is closed,
 it prints a useful terminal-only orientation. This script never launches,
 foregrounds, quits, kills, or controls Terminal Brain.
 EOF
@@ -32,23 +32,15 @@ esac
 
 health="$(curl -fsS --max-time 0.5 "$API/health" 2>/dev/null || true)"
 
+if [[ -n "$health" ]]; then
+  curl -fsS "$API/now/markdown"
+  exit 0
+fi
+
 echo "# Terminal Brain Now"
 echo
 echo "Checked: $(date '+%Y-%m-%d %H:%M:%S %Z')"
 echo
-
-if [[ -n "$health" ]]; then
-  echo "## Bottom Line"
-  echo
-  echo "Terminal Brain is reachable. Use the live Start Here path now."
-  echo
-  curl -fsS "$API/start-here/markdown"
-  echo
-  echo "## Guardrail"
-  echo
-  echo "- This command did not launch, foreground, quit, kill, or control Terminal Brain."
-  exit 0
-fi
 
 doctor_output="$("$ROOT/mac-app/scripts/doctor.zsh")"
 readiness="$(printf '%s\n' "$doctor_output" | sed -nE 's/^- readiness: //p' | tail -1)"
