@@ -78,6 +78,7 @@ echo
 echo "## Safety And Reliability"
 echo
 require_evidence "$ROOT/mac-app/scripts/check-no-foreground.zsh" 'Foreground app launch|AppleScript|automation is not allowed' "foreground guard"
+require_evidence "$ROOT/mac-app/scripts/processes.zsh" 'This command did not launch, foreground, quit, kill, or control anything' "process map guard"
 require_evidence "$ROOT/mac-app/scripts/doctor.zsh" 'Prompt Safety' "prompt safety doctor section"
 require_evidence "$ROOT/mac-app/scripts/doctor.zsh" 'installed app executable matches current build' "installed app freshness"
 require_evidence "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_value_now_markdown' "closed-API entrypoint regression"
@@ -91,6 +92,7 @@ echo "- make next"
 echo "- make doctor"
 echo "- make audit"
 echo "- make status"
+echo "- make processes"
 echo "- make verify"
 echo
 echo "Guardrail: audit did not launch or foreground Terminal Brain."

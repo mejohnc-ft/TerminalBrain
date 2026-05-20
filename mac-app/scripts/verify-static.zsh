@@ -36,6 +36,7 @@ for script in \
   "$ROOT/mac-app/scripts/outcome.zsh" \
   "$ROOT/mac-app/scripts/snapshot.zsh" \
   "$ROOT/mac-app/scripts/status.zsh" \
+  "$ROOT/mac-app/scripts/processes.zsh" \
   "$ROOT/mac-app/scripts/next.zsh" \
   "$ROOT/mac-app/scripts/value.zsh" \
   "$ROOT/mac-app/scripts/doctor.zsh" \

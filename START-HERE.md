@@ -22,6 +22,12 @@ Terminal Brain is useful when it turns scattered local context into one work blo
    make status
    ```
 
+   To see what is still running without killing anything, run:
+
+   ```zsh
+   make processes
+   ```
+
    To audit setup wiring without launching the app, run:
 
    ```zsh
@@ -51,6 +57,7 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 - `Start Here` gives the shortest path from signal to action to outcome.
 - `Value` says what Terminal Brain is useful for right now.
 - `Status` shows repo, CI, process, launchctl, and API state without touching app focus.
+- `Processes` separates app/runtime focus stealers from Codex, MCP, kernel, brain-console, and Drafts background noise.
 - `Doctor` checks app install, MCP contract, agent config references, and runtime readiness.
 - `Oracle Digest` says what to notice, decide, test, create, and avoid.
 - `Agent Prompt` turns the current signal into a bounded Codex/Claude task.

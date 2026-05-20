@@ -8,6 +8,7 @@ This repository builds a local macOS app used during active work. Do not steal t
 - Use `make value` when the operator needs a plain-language read on why Terminal Brain is useful right now.
 - Use `make doctor` when setup readiness is unclear; it audits repo, CI, app install freshness, MCP contract, agent config, prompt-prone Apple Notes/Drafts bridges, process state, launchctl, API reachability, and a readiness verdict without launching the app.
 - Use `make audit` when you need a non-launching evidence checklist for value, MCP, safety, and readiness surfaces.
+- Use `make processes` when the operator asks what is still running; it maps Terminal Brain, launchctl, API, Codex, MCP, brain-kernel, brain-console, and Drafts state without launching, foregrounding, quitting, or killing anything.
 - Use `./mac-app/scripts/verify-static.zsh` for normal verification.
 - Use `./mac-app/scripts/build-app.zsh` for build-only checks.
 - Use `./mac-app/scripts/verify-static.zsh` for Swift type-checking because the app now depends on SwiftUI, AppKit, Network, and AppIntents framework flags.
@@ -15,7 +16,7 @@ This repository builds a local macOS app used during active work. Do not steal t
 
 ## Fast Context Path
 
-When Terminal Brain may not be running, use `make value`, `make next`, `make status`, `make doctor`, `make audit`, MCP `terminal_brain_value_now_markdown`, MCP `terminal_brain_next_markdown`, MCP `terminal_brain_doctor_markdown`, MCP `terminal_brain_audit_markdown`, or MCP `terminal_brain_runtime_status` first. These checks do not launch or foreground the app.
+When Terminal Brain may not be running, use `make value`, `make next`, `make status`, `make processes`, `make doctor`, `make audit`, MCP `terminal_brain_value_now_markdown`, MCP `terminal_brain_next_markdown`, MCP `terminal_brain_doctor_markdown`, MCP `terminal_brain_audit_markdown`, or MCP `terminal_brain_runtime_status` first. These checks do not launch or foreground the app.
 
 When Terminal Brain is already running and the user asks for useful work, start from the handoff instead of re-discovering the system:
 
