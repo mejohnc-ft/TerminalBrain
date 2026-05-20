@@ -11,7 +11,7 @@ help:
 	@echo "  make snapshot-deck Print Operator Deck JSON from an already-running app"
 	@echo "  make snapshot-deck-md Print Operator Deck Markdown from an already-running app"
 	@echo "  make latest-pack   Print latest context pack Markdown from an already-running app"
-	@echo "  make handoff       Write deck + latest pack handoff Markdown"
+	@echo "  make handoff OUTPUT=/tmp/terminal-brain-handoff.md"
 	@echo "  make snapshot-file OUTPUT=/tmp/terminal-brain-snapshot.md"
 	@echo "  make mcp-check     Check MCP server syntax"
 	@echo "  make mcp-test      Check MCP tool contract"
