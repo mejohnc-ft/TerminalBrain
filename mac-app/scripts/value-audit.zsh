@@ -64,6 +64,7 @@ echo
 echo "| Status | Requirement | Evidence |"
 echo "| --- | --- | --- |"
 evidence "One-command Use Now path" "grep -q 'Terminal Brain Use Now' '$ROOT/mac-app/scripts/use-now.zsh' && grep -q '^use-now:' '$ROOT/Makefile' && grep -q 'terminal_brain_use_now_markdown' '$ROOT/mcp-server/server.mjs'" "make use-now, default operator path, and MCP use-now surface"
+evidence "One-command capture loop" "grep -q 'Captured First Signal' '$ROOT/mac-app/scripts/use-now.zsh' && grep -q 'idea.zsh' '$ROOT/mac-app/scripts/use-now.zsh' && grep -q 'use_now_capture_output' '$ROOT/mac-app/scripts/check-entrypoints.zsh'" "make use-now IDEA=... writes a reviewable note before showing the work block"
 evidence "First-use explanation" "grep -q 'terminal_brain_first_minute_markdown' '$ROOT/mcp-server/server.mjs' && grep -q '^first-minute:' '$ROOT/Makefile'" "make first-minute and MCP first-minute surface"
 evidence "Temporary proof" "grep -q 'Terminal Brain Value Proof' '$ROOT/mac-app/scripts/prove-value.zsh' && grep -q 'terminal_brain_value_proof_markdown' '$ROOT/mcp-server/server.mjs'" "make prove-value and MCP value proof"
 evidence "Seeded walkthrough" "grep -q 'Seeded Scenario' '$ROOT/mac-app/scripts/demo.zsh' && grep -q 'terminal_brain_demo_markdown' '$ROOT/mcp-server/server.mjs'" "make demo and MCP demo"

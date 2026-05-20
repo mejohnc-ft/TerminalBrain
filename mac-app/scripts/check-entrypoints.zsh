@@ -50,6 +50,17 @@ require_contains "$use_now_output" 'make idea IDEA=' "use now idea command"
 require_contains "$use_now_output" 'make agent-prompt' "use now agent prompt command"
 require_contains "$use_now_output" 'make outcome TITLE=' "use now outcome command"
 require_contains "$use_now_output" 'did not launch, foreground, screenshot, quit, kill, or control' "use now guardrail"
+use_now_workspace="$(mktemp -d)"
+use_now_capture_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$use_now_workspace" "$ROOT/mac-app/scripts/use-now.zsh" --project "Terminal Brain" --idea "Capture this first-use pressure point." --limit 1)"
+require_contains "$use_now_capture_output" 'Captured First Signal' "use now capture section"
+require_contains "$use_now_capture_output" '"reviewStatus":"new"' "use now capture review status"
+require_contains "$use_now_capture_output" 'Capture this first-use pressure point' "use now captured idea visible"
+test -f "$use_now_workspace/Oracle Inbox/"*.md || {
+  echo "Entrypoint check failed: use now capture did not write note" >&2
+  echo "$use_now_capture_output" >&2
+  exit 1
+}
+rm -rf "$use_now_workspace"
 
 handoff_workspace="$(mktemp -d)"
 handoff_path="$handoff_workspace/handoff.md"

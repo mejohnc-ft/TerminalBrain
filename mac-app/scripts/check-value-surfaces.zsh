@@ -183,6 +183,8 @@ require_in_file "$ROOT/mac-app/scripts/support-bundle.zsh" 'did not launch, fore
 require_in_file "$ROOT/mac-app/scripts/handoff.zsh" 'local closed-app handoff' "handoff closed-app fallback"
 require_in_file "$ROOT/mac-app/scripts/handoff.zsh" 'snapshot.zsh.*--start-here' "handoff includes Start Here fallback"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'Terminal Brain Use Now' "non-launching Use Now path"
+require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'Captured First Signal' "Use Now optional idea capture"
+require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'idea.zsh' "Use Now writes capture through idea fallback"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'What You Get In 60 Seconds' "Use Now immediate value"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'Ask, Capture, Delegate, Close' "Use Now closed loop commands"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'work-block.zsh' "Use Now embeds Work Block"

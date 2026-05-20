@@ -66,7 +66,7 @@ verify:
 	./mac-app/scripts/verify-static.zsh
 
 use-now:
-	@if test -n "$$PROJECT"; then ./mac-app/scripts/use-now.zsh --project "$$PROJECT"; else ./mac-app/scripts/use-now.zsh; fi
+	@if test -n "$(PROJECT)"; then IDEA="$(IDEA)" TITLE="$(TITLE)" SOURCE="$(SOURCE)" ./mac-app/scripts/use-now.zsh --project "$(PROJECT)"; else IDEA="$(IDEA)" TITLE="$(TITLE)" SOURCE="$(SOURCE)" ./mac-app/scripts/use-now.zsh; fi
 
 first-minute:
 	./mac-app/scripts/first-minute.zsh

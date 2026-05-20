@@ -4,9 +4,26 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 PROJECT="${PROJECT:-Terminal Brain}"
 LIMIT="${LIMIT:-2}"
+IDEA_TEXT="${IDEA:-}"
+TITLE="${TITLE:-Use Now Capture}"
+SOURCE="${SOURCE:-Terminal Brain Use Now}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --idea)
+      IDEA_TEXT="${2:-}"
+      shift
+      ;;
+    --idea=*)
+      IDEA_TEXT="${1#--idea=}"
+      ;;
+    --title)
+      TITLE="${2:-Use Now Capture}"
+      shift
+      ;;
+    --title=*)
+      TITLE="${1#--title=}"
+      ;;
     --project)
       PROJECT="${2:-Terminal Brain}"
       shift
@@ -27,6 +44,7 @@ Usage: ./mac-app/scripts/use-now.zsh [--project PROJECT] [--limit N]
 
 Prints the shortest useful Terminal Brain path for a new or overwhelmed operator:
   - what value you can get immediately
+  - optional idea capture if IDEA or --idea is supplied
   - the current pull-forward work block
   - the exact ask, capture, delegate, and outcome commands
 
@@ -81,6 +99,19 @@ echo "2. Pick exactly one item or capture one pressure point."
 echo "3. Run the ask or agent command if the next action is unclear."
 echo "4. When anything useful happens, run the outcome command."
 echo
+if [[ -n "$IDEA_TEXT" ]]; then
+  echo "## Captured First Signal"
+  echo
+  capture_output="$(
+    IDEA="$IDEA_TEXT" \
+    TITLE="$TITLE" \
+    PROJECT="$PROJECT" \
+    SOURCE="$SOURCE" \
+    "$ROOT/mac-app/scripts/idea.zsh"
+  )"
+  printf '%s\n' "$capture_output"
+  echo
+fi
 echo "## Current Work Block"
 echo
 "$ROOT/mac-app/scripts/work-block.zsh" --project "$PROJECT" --limit "$LIMIT" | demote_work_block
@@ -89,7 +120,7 @@ echo "## Ask, Capture, Delegate, Close"
 echo
 echo '```zsh'
 echo "make ask QUERY=\"What should I do next for ${PROJECT}, and what am I missing?\""
-echo "make idea IDEA=\"The thing I keep circling is ...\" PROJECT=\"$PROJECT\""
+echo "make use-now IDEA=\"The thing I keep circling is ...\" PROJECT=\"$PROJECT\""
 echo "make agent-prompt"
 echo "make outcome TITLE=\"...\" OUTCOME=\"...\" PROJECT=\"$PROJECT\" NEXT=\"...\""
 echo '```'
