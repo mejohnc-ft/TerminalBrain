@@ -23,6 +23,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_next_markdown",
+    description: "Get the safest next move as Markdown. Returns Start Here when the app is reachable, otherwise returns non-launching runtime status and the manual next step.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_status",
     description: "Read Terminal Brain app status, including MCP, sync, index, Mission Control, and prompt-safety state.",
     inputSchema: {
@@ -769,6 +778,45 @@ async function apiHealth() {
   }
 }
 
+function runtimeStatusMarkdown(status) {
+  const lines = [
+    "# Terminal Brain Runtime Status",
+    "",
+    `Checked: ${status.checkedAt}`,
+    "",
+    "## Repo",
+    "",
+    `- Branch: ${status.repo.branch}`,
+    `- Upstream: ${status.repo.upstream}`,
+    `- Head: ${status.repo.head}`,
+    `- Working tree: ${status.repo.clean ? "clean" : "dirty"}`
+  ];
+
+  if (status.repo.changes.length > 0) {
+    lines.push(...status.repo.changes.map((change) => `  ${change}`));
+  }
+
+  lines.push(
+    "",
+    "## CI",
+    "",
+    status.ci.latest ? `- ${status.ci.latest}` : `- ${status.ci.available ? "No run found." : "GitHub CLI unavailable."}`,
+    "",
+    "## Local Runtime",
+    "",
+    `- App process: ${status.runtime.appProcessRunning ? "running" : "not running"}`,
+    `- launchctl: ${status.runtime.launchctlRegistered ? "registered" : "no matching loaded service"}`,
+    `- API: ${status.runtime.apiReachable ? `reachable at ${status.api}` : `not reachable at ${status.api}`}`,
+    "",
+    "## Guardrails",
+    "",
+    "- This MCP tool did not launch or foreground Terminal Brain.",
+    "- App-backed tools should be used only when the app is reachable."
+  );
+
+  return lines.join("\n");
+}
+
 async function runtimeStatus() {
   const branch = runCommand("git", ["branch", "--show-current"]);
   const upstream = runCommand("git", ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"]);
@@ -821,6 +869,38 @@ async function runtimeStatus() {
   };
 }
 
+async function nextMarkdown() {
+  const health = await apiHealth();
+  if (health.reachable) {
+    const response = await fetch(`${API}/start-here/markdown`);
+    const text = await response.text();
+    if (response.ok) return text;
+  }
+
+  const status = await runtimeStatus();
+  return [
+    "# Terminal Brain Next",
+    "",
+    `Terminal Brain is not currently reachable at ${API}.`,
+    "",
+    "## Next Move",
+    "",
+    "Open Terminal Brain manually when you want it in focus, then run:",
+    "",
+    "```zsh",
+    "make start-here",
+    "```",
+    "",
+    "Until then, agents can use:",
+    "",
+    "```text",
+    "terminal_brain_runtime_status",
+    "```",
+    "",
+    runtimeStatusMarkdown(status)
+  ].join("\n");
+}
+
 async function api(path, { method = "GET", body, rawText = false } = {}) {
   const response = await fetch(`${API}${path}`, {
     method,
@@ -848,6 +928,8 @@ async function callTool(name, args = {}) {
   switch (name) {
     case "terminal_brain_runtime_status":
       return runtimeStatus();
+    case "terminal_brain_next_markdown":
+      return nextMarkdown();
     case "terminal_brain_status":
       return api("/status");
     case "terminal_brain_snapshot":
