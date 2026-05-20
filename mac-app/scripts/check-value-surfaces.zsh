@@ -265,6 +265,7 @@ require_in_file "$ROOT/Makefile" '^audit:' "Audit Make target"
 
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_runtime_status' "Runtime Status MCP tool"
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_use_now_markdown' "Use Now MCP tool"
+require_in_file "$ROOT/mcp-server/server.mjs" 'args.idea' "Use Now MCP idea argument"
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_first_minute_markdown' "First Minute MCP tool"
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_now_markdown' "Now MCP tool"
 require_in_file "$ROOT/mcp-server/server.mjs" 'terminal_brain_now' "Now structured MCP tool"

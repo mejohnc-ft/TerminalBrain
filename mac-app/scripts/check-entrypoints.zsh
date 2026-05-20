@@ -22,6 +22,22 @@ call_mcp_tool() {
     | TERMINAL_BRAIN_API="$CLOSED_API" node "$ROOT/mcp-server/server.mjs"
 }
 
+call_mcp_tool_json() {
+  local tool="$1"
+  local arguments_json="$2"
+  TERMINAL_BRAIN_API="$CLOSED_API" TOOL="$tool" ARGS_JSON="$arguments_json" ruby -rjson -e '
+    puts JSON.generate({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "tools/call",
+      params: {
+        name: ENV.fetch("TOOL"),
+        arguments: JSON.parse(ENV.fetch("ARGS_JSON"))
+      }
+    })
+  ' | TERMINAL_BRAIN_API="$CLOSED_API" node "$ROOT/mcp-server/server.mjs"
+}
+
 next_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/next.zsh")"
 require_contains "$next_output" '# Terminal Brain Next' "next title"
 require_contains "$next_output" 'make oracle-brief' "next closed-app Oracle Brief command"
@@ -325,6 +341,18 @@ require_contains "$mcp_use_now_output" '# Terminal Brain Use Now' "MCP use now t
 require_contains "$mcp_use_now_output" 'What You Get In 60 Seconds' "MCP use now value section"
 require_contains "$mcp_use_now_output" 'Ask, Capture, Delegate, Close' "MCP use now command section"
 require_contains "$mcp_use_now_output" 'make outcome TITLE=' "MCP use now outcome command"
+mcp_use_now_workspace="$(mktemp -d)"
+mcp_use_now_capture_output="$(TERMINAL_BRAIN_WORKSPACE="$mcp_use_now_workspace" call_mcp_tool_json terminal_brain_use_now_markdown '{"project":"Terminal Brain","idea":"MCP captured first-use pressure point.","title":"MCP Use Now Capture","limit":1}')"
+require_contains "$mcp_use_now_capture_output" 'Captured First Signal' "MCP use now capture section"
+require_contains "$mcp_use_now_capture_output" 'reviewStatus' "MCP use now capture review status field"
+require_contains "$mcp_use_now_capture_output" 'new' "MCP use now capture review status value"
+require_contains "$mcp_use_now_capture_output" 'MCP captured first-use pressure point' "MCP use now captured idea visible"
+test -f "$mcp_use_now_workspace/Oracle Inbox/"*.md || {
+  echo "Entrypoint check failed: MCP use now capture did not write note" >&2
+  echo "$mcp_use_now_capture_output" >&2
+  exit 1
+}
+rm -rf "$mcp_use_now_workspace"
 
 mcp_start_here_output="$(call_mcp_tool terminal_brain_start_here_markdown)"
 require_contains "$mcp_start_here_output" '# Terminal Brain Start Here' "MCP start here title"

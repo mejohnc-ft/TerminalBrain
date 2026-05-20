@@ -45,6 +45,14 @@ const tools = [
         project: {
           type: "string",
           description: "Optional project label for capture and outcome commands. Defaults to Terminal Brain."
+        },
+        idea: {
+          type: "string",
+          description: "Optional rough thought to capture into the Oracle Inbox before returning the Use Now work block."
+        },
+        title: {
+          type: "string",
+          description: "Optional title for the captured idea when idea is supplied."
         }
       },
       additionalProperties: false
@@ -1251,6 +1259,12 @@ function useNowMarkdown(args = {}) {
   }
   if (typeof args.project === "string" && args.project.trim()) {
     commandArgs.push("--project", args.project.trim());
+  }
+  if (typeof args.idea === "string" && args.idea.trim()) {
+    commandArgs.push("--idea", args.idea.trim());
+  }
+  if (typeof args.title === "string" && args.title.trim()) {
+    commandArgs.push("--title", args.title.trim());
   }
   const result = runCommand("zsh", commandArgs, { timeout: 25000 });
   if (result.ok) return result.text;
