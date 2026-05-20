@@ -52,8 +52,9 @@ EOF
 done
 
 selection_json="$(
-  ROOT="$ROOT" INDEX="$INDEX" PROJECT="$PROJECT" ruby -rjson -e '
+  ROOT="$ROOT" WORKSPACE="$WORKSPACE" INDEX="$INDEX" PROJECT="$PROJECT" ruby -rjson -e '
     root = ENV.fetch("ROOT")
+    workspace = ENV.fetch("WORKSPACE")
     index = Integer(ENV.fetch("INDEX", "1"))
     project = ENV.fetch("PROJECT", "Terminal Brain").strip
     project = "Terminal Brain" if project.empty?
@@ -61,6 +62,37 @@ selection_json="$(
       warn "No git repository found at #{root}."
       exit 66
     end
+    def meaningful_words(value)
+      stop = %w[the and for with from this that into after before because should what when where were was are has have had queue clean fresh work recent follow outcome action terminal brain]
+      value.to_s.downcase.scan(/[a-z0-9]+/).reject { |word| word.length < 3 || stop.include?(word) }.uniq
+    end
+
+    def parse_memory_notes(workspace)
+      inbox = File.join(workspace, "Oracle Inbox")
+      return [] unless Dir.exist?(inbox)
+      Dir.children(inbox).select { |name| name.end_with?(".md") }.map do |name|
+        text = File.read(File.join(inbox, name))
+        status = text[/^reviewStatus:\s*(.+)$/i, 1].to_s.strip.downcase
+        next unless ["accepted", "linked"].include?(status)
+        text.downcase
+      rescue
+        nil
+      end.compact
+    end
+
+    def memory_covers_commit?(commit, memory_texts)
+      subject_words = meaningful_words(commit[:subject])
+      memory_texts.any? do |text|
+        return true if !commit[:short].to_s.empty? && text.include?(commit[:short].downcase)
+        return true if !commit[:full].to_s.empty? && text.include?(commit[:full].downcase)
+        next false if subject_words.empty?
+        memory_words = meaningful_words(text)
+        overlap = subject_words & memory_words
+        overlap.length >= [3, subject_words.length].min && (overlap.length.to_f / subject_words.length) >= 0.55
+      end
+    end
+
+    memory_texts = parse_memory_notes(workspace)
     output = IO.popen(["git", "-C", root, "log", "-50", "--pretty=format:%h%x09%H%x09%cr%x09%ci%x09%s"], &:read).to_s
     commits = output.lines.map do |line|
       short, full, age, committed_at, subject = line.chomp.split("\t", 5)
@@ -72,10 +104,10 @@ selection_json="$(
         committedAt: committed_at.to_s,
         subject: subject.to_s.strip
       }
-    end.compact
+    end.compact.reject { |commit| memory_covers_commit?(commit, memory_texts) }
     commit = commits[index - 1]
     unless commit
-      warn "No recent work signal at index #{index}. Run make bubble-up to see available commits."
+      warn "No uncaptured recent work signal at index #{index}. Run make bubble-up to see available commits."
       exit 66
     end
     title = "Follow up: #{commit[:subject]}"

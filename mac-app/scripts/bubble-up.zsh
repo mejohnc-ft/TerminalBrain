@@ -122,12 +122,13 @@ WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtim
 
   def recent_work_signals(root, limit)
     return [] unless Dir.exist?(File.join(root, ".git"))
-    output = IO.popen(["git", "-C", root, "log", "-#{[limit, 5].max}", "--pretty=format:%h%x09%cr%x09%s"], &:read).to_s
+    output = IO.popen(["git", "-C", root, "log", "-#{[limit, 5].max}", "--pretty=format:%h%x09%H%x09%cr%x09%s"], &:read).to_s
     output.lines.map do |line|
-      sha, age, subject = line.chomp.split("\t", 3)
+      sha, full_sha, age, subject = line.chomp.split("\t", 4)
       next if subject.to_s.strip.empty?
       {
         sha: sha.to_s,
+        full_sha: full_sha.to_s,
         age: age.to_s,
         title: subject.to_s.strip,
         project: "Terminal Brain"
@@ -137,8 +138,26 @@ WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtim
     []
   end
 
-  def print_recent_work_fallback(root, limit, intro = nil)
-    signals = recent_work_signals(root, limit)
+  def meaningful_words(value)
+    stop = %w[the and for with from this that into after before because should what when where were was are has have had queue clean fresh work recent follow outcome action terminal brain]
+    value.to_s.downcase.scan(/[a-z0-9]+/).reject { |word| word.length < 3 || stop.include?(word) }.uniq
+  end
+
+  def memory_covers_signal?(signal, items)
+    subject_words = meaningful_words(signal[:title])
+    items.any? do |item|
+      next false unless ["accepted", "linked"].include?(item[:status])
+      memory_text = [item[:title], item[:question], item[:read], item[:outcome], item[:follow_up], item[:preview]].join(" ").downcase
+      return true if !signal[:sha].to_s.empty? && memory_text.include?(signal[:sha].downcase)
+      return true if !signal[:full_sha].to_s.empty? && memory_text.include?(signal[:full_sha].downcase)
+      next false if subject_words.empty?
+      memory_words = meaningful_words(memory_text)
+      overlap = subject_words & memory_words
+      overlap.length >= [3, subject_words.length].min && (overlap.length.to_f / subject_words.length) >= 0.55
+    end
+  end
+
+  def print_recent_work_fallback(signals, limit, intro = nil)
     return false if signals.empty?
 
     puts "## Recent Work Signals"
@@ -178,7 +197,7 @@ WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtim
     puts "- No Oracle Inbox exists yet."
     puts "- Recent repo work can still be converted into reviewable memory."
     puts
-    print_recent_work_fallback(root, limit, "No Oracle Inbox exists yet, so Bubble Up is using recent repo history as the fallback signal.")
+    print_recent_work_fallback(recent_work_signals(root, limit), limit, "No Oracle Inbox exists yet, so Bubble Up is using recent repo history as the fallback signal.")
     puts
     puts "## Prime The Brain"
     puts
@@ -233,7 +252,7 @@ WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtim
   oldest_new = unclosed.select { |item| item[:status] == "new" }.sort_by { |item| item[:created_time] }.first
   delegated = unclosed.select { |item| item[:status] == "delegated" }.sort_by { |item| item[:created_time] }.first
   top = ranked.first
-  fallback_signals = recent_work_signals(root, limit)
+  fallback_signals = recent_work_signals(root, [limit * 4, 12].max).reject { |signal| memory_covers_signal?(signal, reviewable) }
   fallback_top = fallback_signals.first
 
   puts "## Direct Read"
@@ -303,12 +322,12 @@ WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtim
         puts item[:preview].empty? ? "(no preview)" : item[:preview]
         puts
       end
-      print_recent_work_fallback(root, limit, "There are no open review items, so Bubble Up is showing recent shipped work as the next memory/action signal.")
+      print_recent_work_fallback(fallback_signals, limit, "There are no open review items, so Bubble Up is showing recent shipped work as the next memory/action signal.")
     elsif fallback_signals.empty?
       puts "No items matched."
       puts
     else
-      print_recent_work_fallback(root, limit)
+      print_recent_work_fallback(fallback_signals, limit)
       puts
     end
     if completed.empty?

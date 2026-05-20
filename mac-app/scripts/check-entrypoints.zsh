@@ -16,6 +16,18 @@ require_contains() {
   fi
 }
 
+require_not_contains_literal() {
+  local text="$1"
+  local needle="$2"
+  local label="$3"
+
+  if grep -qF -- "$needle" <<<"$text"; then
+    echo "Entrypoint check failed: unexpected $label" >&2
+    echo "$text" >&2
+    exit 1
+  fi
+}
+
 call_mcp_tool() {
   local tool="$1"
   TERMINAL_BRAIN_API="$CLOSED_API" printf '%s\n' "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/call\",\"params\":{\"name\":\"$tool\",\"arguments\":{}}}" \
@@ -289,6 +301,42 @@ test -f "$recent_work_workspace/Oracle Inbox/"*.md || {
   exit 1
 }
 rm -rf "$recent_work_workspace"
+
+covered_recent_workspace="$(mktemp -d)"
+latest_subject="$(git -C "$ROOT" log -1 --pretty=%s)"
+latest_short="$(git -C "$ROOT" log -1 --pretty=%h)"
+LATEST_SUBJECT="$latest_subject" LATEST_SHORT="$latest_short" WORKSPACE="$covered_recent_workspace" ruby -rfileutils -rtime -e '
+  workspace = ENV.fetch("WORKSPACE")
+  inbox = File.join(workspace, "Oracle Inbox")
+  FileUtils.mkdir_p(inbox)
+  created = Time.now.utc.iso8601
+  path = File.join(inbox, "#{created.tr(":", "-")}-covered-recent-work.md")
+  File.write(path, <<~MARKDOWN)
+    ---
+    type: oracle_commit
+    source: Entrypoint Test
+    project: Terminal Brain
+    created: #{created}
+    reviewStatus: accepted
+    tags:
+      - terminal-brain
+      - outcome
+    ---
+
+    # Outcome - #{ENV.fetch("LATEST_SUBJECT")}
+
+    ## Outcome
+
+    Commit #{ENV.fetch("LATEST_SHORT")} is already covered by accepted memory: #{ENV.fetch("LATEST_SUBJECT")}.
+  MARKDOWN
+'
+covered_recent_output="$(TERMINAL_BRAIN_WORKSPACE="$covered_recent_workspace" "$ROOT/mac-app/scripts/recent-work.zsh" --index 1 --dry-run)"
+require_not_contains_literal "$covered_recent_output" "$latest_subject" "covered latest commit in recent-work dry run"
+covered_bubble_output="$(TERMINAL_BRAIN_WORKSPACE="$covered_recent_workspace" "$ROOT/mac-app/scripts/bubble-up.zsh" --limit 3)"
+covered_bubble_recent_section="$(printf '%s\n' "$covered_bubble_output" | ruby -e 'text = STDIN.read; puts text[/## Recent Work Signals.*?(?=\n## |\z)/m].to_s')"
+require_contains "$covered_bubble_recent_section" 'Recent Work Signals' "covered bubble recent work section"
+require_not_contains_literal "$covered_bubble_recent_section" "$latest_subject" "covered latest commit in Bubble Up recent work lane"
+rm -rf "$covered_recent_workspace"
 
 proof_output="$(TERMINAL_BRAIN_PROOF_API="$CLOSED_API" "$ROOT/mac-app/scripts/prove-value.zsh")"
 require_contains "$proof_output" '# Terminal Brain Value Proof' "value proof title"
