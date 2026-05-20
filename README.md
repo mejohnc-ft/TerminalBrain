@@ -29,6 +29,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Operator Deck for app and agents: do first, ask about, review or capture, and project/start-work cards.
 - Prompt-ready Operator Deck Markdown for agent handoffs and quick paste workflows.
 - Operator Deck action tool for agents to mark directly actionable Radar and Oracle commit cards without opening the app.
+- Latest context pack API/MCP surface for opening or handing off the newest agent-ready artifact.
 - Setup readiness checklist for app, MCP config, workspace paths, sync, memory, Mission Control, prompt safety, and Oracle writeback.
 - Oracle ask flow with deterministic local fallback and a Focus-grounded ask flow for the current best action.
 - Mission-backed retrieval and synthesis when Mission Control is reachable.

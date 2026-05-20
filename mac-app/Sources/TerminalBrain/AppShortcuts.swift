@@ -26,6 +26,27 @@ enum ShortcutClient {
         }
     }
 
+    static func json(path: String) async throws -> [String: Any] {
+        guard let url = URL(string: path, relativeTo: api)?.absoluteURL else {
+            throw ShortcutError.invalidURL
+        }
+        do {
+            let (data, response) = try await URLSession.shared.data(from: url)
+            let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+            guard status == 200 else {
+                throw ShortcutError.requestFailed(status: status)
+            }
+            guard let payload = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                throw ShortcutError.emptyResponse
+            }
+            return payload
+        } catch let error as ShortcutError {
+            throw error
+        } catch {
+            throw ShortcutError.unreachable(error.localizedDescription)
+        }
+    }
+
     static func post(path: String, body: [String: Any]) async throws {
         guard let url = URL(string: path, relativeTo: api)?.absoluteURL else {
             throw ShortcutError.invalidURL
@@ -128,6 +149,23 @@ struct BuildContextPackIntent: AppIntent {
     }
 }
 
+struct OpenLatestContextPackIntent: AppIntent {
+    static var title: LocalizedStringResource = "Open Latest Context Pack"
+    static var description = IntentDescription("Open the newest Terminal Brain context pack.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let payload = try await ShortcutClient.json(path: "/context-packs/latest")
+        guard payload["ok"] as? Bool == true,
+              let path = payload["path"] as? String,
+              !path.isEmpty else {
+            throw ShortcutError.emptyResponse
+        }
+        NSWorkspace.shared.open(URL(fileURLWithPath: path))
+        return .result(dialog: "Latest context pack opened.")
+    }
+}
+
 struct TerminalBrainShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
@@ -165,6 +203,15 @@ struct TerminalBrainShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Start Work",
             systemImageName: "shippingbox"
+        )
+        AppShortcut(
+            intent: OpenLatestContextPackIntent(),
+            phrases: [
+                "Open latest \(.applicationName) context pack",
+                "Open \(.applicationName) latest pack"
+            ],
+            shortTitle: "Open Pack",
+            systemImageName: "doc.richtext"
         )
     }
 }
