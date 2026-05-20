@@ -179,6 +179,40 @@ final class LocalControlServer {
                 project: request.jsonBody?["project"] as? String ?? "",
                 tags: request.jsonBody?["tags"] as? [String] ?? []
             ))
+        case ("POST", "/outcomes/commit"):
+            let title = (request.jsonBody?["title"] as? String ?? "Outcome").trimmingCharacters(in: .whitespacesAndNewlines)
+            let outcome = (request.jsonBody?["outcome"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            let nextAction = (request.jsonBody?["nextAction"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            let evidence = request.jsonBody?["evidence"] as? [String] ?? []
+            guard !outcome.isEmpty else {
+                return .json(400, ["ok": false, "error": "outcome is required"])
+            }
+            let evidenceBlock = evidence
+                .map { "- \($0.trimmingCharacters(in: .whitespacesAndNewlines))" }
+                .filter { $0 != "- " }
+                .joined(separator: "\n")
+            let body = [
+                "## Outcome",
+                "",
+                outcome,
+                "",
+                "## Evidence",
+                "",
+                evidenceBlock.ifEmpty("- No evidence supplied."),
+                "",
+                "## Next Action",
+                "",
+                nextAction.ifEmpty("Review and decide the next concrete action.")
+            ].joined(separator: "\n")
+            let tags = Array(Set((request.jsonBody?["tags"] as? [String] ?? []) + ["terminal-brain", "outcome"])).sorted()
+            return .json(200, OracleSnapshot.commit(
+                title: title.isEmpty ? "Outcome" : "Outcome - \(title)",
+                content: body,
+                question: "What changed, why does it matter, and what should happen next?",
+                source: request.jsonBody?["source"] as? String ?? "Terminal Brain Outcome",
+                project: request.jsonBody?["project"] as? String ?? "",
+                tags: tags
+            ))
         case ("POST", "/ideas/capture"):
             let content = (request.jsonBody?["content"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
             guard !content.isEmpty else {
@@ -2552,7 +2586,7 @@ enum AgentPromptSnapshot {
         lines.append("## Acceptance Criteria")
         lines.append("- Produce one concrete artifact, patch, decision, or written recommendation tied to \(project).")
         lines.append("- State what changed, why it matters, and the next action.")
-        lines.append("- Commit useful findings back through Terminal Brain Oracle or the Obsidian-backed Oracle Inbox.")
+        lines.append("- Commit useful findings back with `terminal_brain_commit_outcome` or through the Obsidian-backed Oracle Inbox.")
         lines.append("- If implementation is unsafe or under-specified, return the smallest clarifying question and a proposed next test.")
         lines.append("")
 

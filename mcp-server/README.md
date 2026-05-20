@@ -68,6 +68,7 @@ Codex/workspace config can register this server as:
 - `terminal_brain_oracle_items`
 - `terminal_brain_oracle_ask`
 - `terminal_brain_oracle_commit`
+- `terminal_brain_commit_outcome`
 - `terminal_brain_oracle_ask_commit`
 - `terminal_brain_capture_idea`
 - `terminal_brain_oracle_commits`

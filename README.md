@@ -36,6 +36,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Plain-language Operator Brief that says what matters, why it matters, what not to miss, and what artifact to create next.
 - Value Brief that collapses Focus, Idea Pulse, Blindspots, and Project Memory into one compact value read.
 - Agent Prompt generator that turns the current Value Brief into a concise Codex/Claude execution prompt with acceptance criteria and guardrails.
+- Structured Outcome commit endpoint/tool so agents can write back what changed, evidence, and next action.
 - Operator Deck for app and agents: do first, ask about, review or capture, and project/start-work cards.
 - Prompt-ready Operator Deck Markdown for agent handoffs and quick paste workflows.
 - Operator Deck action tool for agents to mark directly actionable Radar and Oracle commit cards without opening the app.
@@ -62,7 +63,7 @@ Plain `make` prints help. `make verify`, `make live`, `make build`, and `make in
 - Proactive Radar for delegated reads, stale reviews, quiet project risks, open loops, and ideas worth testing, with scores, evidence, and persistent watch/acted/snooze/dismiss triage.
 - Focus Mode that opens to one recommended action, why it won, the fastest next move, and inline Oracle follow-up prompts.
 - Daily Command Center with ranked actions for reviews, delegations, projects, system attention, and fresh context.
-- MCP tools for status, snapshot, snapshot Markdown, setup, focus, Value Brief, Agent Prompt, Blindspot Brief, Idea Pulse, Idea ask, Idea ask-and-commit, Blindspot ask, Blindspot ask-and-commit, Blindspot action, Operator Brief, focus ask, focus ask-and-commit, radar, sources, briefing, permissions, sync, Start Work, Oracle ask, ask-and-commit, idea capture, Oracle items, Oracle commits, and Oracle review status.
+- MCP tools for status, snapshot, snapshot Markdown, setup, focus, Value Brief, Agent Prompt, Blindspot Brief, Idea Pulse, Idea ask, Idea ask-and-commit, Blindspot ask, Blindspot ask-and-commit, Blindspot action, Operator Brief, focus ask, focus ask-and-commit, radar, sources, briefing, permissions, sync, Start Work, Oracle ask, ask-and-commit, outcome commit, idea capture, Oracle items, Oracle commits, and Oracle review status.
 
 ## Build
 

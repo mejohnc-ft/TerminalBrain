@@ -39,6 +39,7 @@
   "POST /oracle/review-status",
   "POST /oracle/ask",
   "POST /oracle/commit",
+  "POST /outcomes/commit",
   "POST /ideas/capture",
   "POST /sync",
   "POST /start-work"

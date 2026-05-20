@@ -514,6 +514,43 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_commit_outcome",
+    description: "Commit a structured outcome into Terminal Brain memory: what changed, evidence, and the next action.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        title: {
+          type: "string",
+          description: "Short outcome title."
+        },
+        outcome: {
+          type: "string",
+          description: "What changed and why it matters."
+        },
+        nextAction: {
+          type: "string",
+          description: "Recommended next concrete action."
+        },
+        project: {
+          type: "string",
+          description: "Optional project name."
+        },
+        evidence: {
+          type: "array",
+          items: { type: "string" },
+          description: "Evidence, files, commands, links, or verification notes."
+        },
+        tags: {
+          type: "array",
+          items: { type: "string" },
+          description: "Optional additional tags."
+        }
+      },
+      required: ["title", "outcome"],
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_oracle_ask_commit",
     description: "Ask Terminal Brain Oracle, then commit the answer into the Obsidian-backed Oracle Inbox in one call.",
     inputSchema: {
@@ -827,6 +864,18 @@ async function callTool(name, args = {}) {
           question: args.question || "",
           source: args.source || "Terminal Brain MCP",
           project: args.project || "",
+          tags: Array.isArray(args.tags) ? args.tags : []
+        }
+      });
+    case "terminal_brain_commit_outcome":
+      return api("/outcomes/commit", {
+        method: "POST",
+        body: {
+          title: args.title,
+          outcome: args.outcome,
+          nextAction: args.nextAction || "",
+          project: args.project || "",
+          evidence: Array.isArray(args.evidence) ? args.evidence : [],
           tags: Array.isArray(args.tags) ? args.tags : []
         }
       });
