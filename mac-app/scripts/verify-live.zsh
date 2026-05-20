@@ -55,6 +55,7 @@ curl -fsS "$API/snapshot/markdown" | ruby -e '
   abort("markdown missing title") unless text.include?("# Terminal Brain Snapshot")
   abort("markdown missing focus") unless text.include?("## Focus")
   abort("markdown missing radar") unless text.include?("## Radar")
+  abort("markdown missing blindspot brief") unless text.include?("## Blindspot Brief")
   puts "markdown ok chars=#{text.length}"
 '
 
@@ -80,6 +81,13 @@ curl -fsS "$API/today/markdown" | ruby -e '
   puts "decision lane ok chars=#{text.length}"
 '
 
+curl -fsS "$API/blindspots/markdown" | ruby -e '
+  text = STDIN.read
+  abort("blindspot brief missing title") unless text.include?("# Terminal Brain Blindspot Brief")
+  abort("blindspot brief missing scoring") unless text.include?("- Score:")
+  puts "blindspot brief ok chars=#{text.length}"
+'
+
 curl -fsS "$API/projects/markdown" | ruby -e '
   text = STDIN.read
   abort("project memory missing title") unless text.include?("# Terminal Brain Project Memory")
@@ -93,6 +101,7 @@ curl -fsS "$API/handoff/markdown" | ruby -e '
   abort("handoff missing operating instructions") unless text.include?("## How To Use This")
   abort("handoff missing contents") unless text.include?("## Contents")
   abort("handoff missing operator brief") unless text.include?("# Terminal Brain Operator Brief")
+  abort("handoff missing blindspot brief") unless text.include?("# Terminal Brain Blindspot Brief")
   abort("handoff missing decision lane") unless text.include?("# Terminal Brain Decision Lane")
   abort("handoff missing operator deck") unless text.include?("# Terminal Brain Operator Deck")
   abort("handoff missing project memory") unless text.include?("# Terminal Brain Project Memory")
@@ -120,6 +129,7 @@ printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal
       text = response.dig("result", "content", 0, "text").to_s
       abort("mcp markdown missing title") unless text.include?("# Terminal Brain Snapshot")
       abort("mcp markdown missing focus") unless text.include?("## Focus")
+      abort("mcp markdown missing blindspot brief") unless text.include?("## Blindspot Brief")
       puts "mcp markdown ok chars=#{text.length}"
     '
 
@@ -145,6 +155,17 @@ printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal
       puts "mcp decision lane ok chars=#{text.length}"
     '
 
+printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_blindspots_markdown","arguments":{}}}\n' \
+  | node "$ROOT/mcp-server/server.mjs" \
+  | ruby -rjson -e '
+      line = STDIN.each_line.find { |l| l.include?("\"result\"") } || "{}"
+      response = JSON.parse(line)
+      text = response.dig("result", "content", 0, "text").to_s
+      abort("mcp blindspot brief missing title") unless text.include?("# Terminal Brain Blindspot Brief")
+      abort("mcp blindspot brief missing scoring") unless text.include?("- Score:")
+      puts "mcp blindspot brief ok chars=#{text.length}"
+    '
+
 printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_projects_markdown","arguments":{}}}\n' \
   | node "$ROOT/mcp-server/server.mjs" \
   | ruby -rjson -e '
@@ -164,6 +185,7 @@ printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal
       abort("mcp handoff missing title") unless text.include?("# Terminal Brain Handoff")
       abort("mcp handoff missing contents") unless text.include?("## Contents")
       abort("mcp handoff missing operator brief") unless text.include?("# Terminal Brain Operator Brief")
+      abort("mcp handoff missing blindspot brief") unless text.include?("# Terminal Brain Blindspot Brief")
       abort("mcp handoff missing decision lane") unless text.include?("# Terminal Brain Decision Lane")
       abort("mcp handoff missing operator deck") unless text.include?("# Terminal Brain Operator Deck")
       abort("mcp handoff missing project memory") unless text.include?("# Terminal Brain Project Memory")
