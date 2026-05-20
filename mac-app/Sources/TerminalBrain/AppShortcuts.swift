@@ -185,6 +185,19 @@ struct CopyNowIntent: AppIntent {
     }
 }
 
+struct CopyFirstMinuteIntent: AppIntent {
+    static var title: LocalizedStringResource = "Copy First Minute"
+    static var description = IntentDescription("Copy Terminal Brain's one-command first-minute value path and working proof as Markdown.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let markdown = try await ShortcutClient.text(path: "/first-minute/markdown")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "First Minute copied.")
+    }
+}
+
 struct CopyCleanupPlanIntent: AppIntent {
     static var title: LocalizedStringResource = "Copy Cleanup Plan"
     static var description = IntentDescription("Copy Terminal Brain's read-only stale MCP and kernel cleanup plan as Markdown.")
@@ -568,6 +581,15 @@ struct TerminalBrainShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Copy Now",
             systemImageName: "sparkles"
+        )
+        AppShortcut(
+            intent: CopyFirstMinuteIntent(),
+            phrases: [
+                "Copy \(.applicationName) first minute",
+                "Explain \(.applicationName) value"
+            ],
+            shortTitle: "First Minute",
+            systemImageName: "1.circle"
         )
         AppShortcut(
             intent: CopyCleanupPlanIntent(),

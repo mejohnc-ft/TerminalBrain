@@ -71,6 +71,8 @@ final class LocalControlServer {
             return .json(200, await NowSnapshot.now())
         case ("GET", "/now/markdown"):
             return .text(200, await NowSnapshot.markdown())
+        case ("GET", "/first-minute/markdown"):
+            return .text(200, await FirstMinuteSnapshot.markdown())
         case ("GET", "/cleanup-plan/markdown"):
             return .text(200, await CleanupPlanSnapshot.markdown())
         case ("GET", "/process-map/markdown"):
@@ -1889,6 +1891,59 @@ enum CleanupPlanSnapshot {
             "# Terminal Brain Cleanup Plan",
             "",
             "Cleanup plan failed before completing.",
+            "",
+            "## Status",
+            "",
+            "- Exit: \(result.status)",
+            "",
+            "## Output",
+            "",
+            output.ifEmpty("(no stdout)"),
+            "",
+            "## Error",
+            "",
+            result.stderr.trimmingCharacters(in: .whitespacesAndNewlines).ifEmpty("(no stderr)"),
+            "",
+            "## Guardrail",
+            "",
+            "- This API response did not launch, foreground, quit, kill, or control anything."
+        ].joined(separator: "\n")
+    }
+}
+
+enum FirstMinuteSnapshot {
+    static func markdown() async -> String {
+        let script = "\(Paths.home)/Git/TerminalBrain/mac-app/scripts/first-minute.zsh"
+        guard FileManager.default.fileExists(atPath: script) else {
+            return [
+                "# Terminal Brain First Minute",
+                "",
+                "The first-minute script is not available at:",
+                "",
+                "```text",
+                script,
+                "```",
+                "",
+                "Open the TerminalBrain repo and run:",
+                "",
+                "```zsh",
+                "make first-minute",
+                "```",
+                "",
+                "Guardrail: this API response did not launch, foreground, quit, kill, or control anything."
+            ].joined(separator: "\n")
+        }
+
+        let result = await CommandRunner.run("/bin/zsh", [script])
+        let output = result.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
+        if result.succeeded, !output.isEmpty {
+            return output
+        }
+
+        return [
+            "# Terminal Brain First Minute",
+            "",
+            "First-minute artifact failed before completing.",
             "",
             "## Status",
             "",

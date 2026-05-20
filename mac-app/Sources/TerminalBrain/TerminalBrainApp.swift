@@ -45,6 +45,10 @@ struct TerminalBrainApp: App {
                 }
                 .keyboardShortcut("n", modifiers: [.command, .shift])
 
+                Button("Copy First Minute") {
+                    Task { await model.copyFirstMinute() }
+                }
+
                 Button("Copy Process Map") {
                     Task { await model.copyProcessMap() }
                 }
@@ -123,6 +127,9 @@ struct TerminalBrainApp: App {
             Text("Focus: \(model.focusItem.title)")
             Button("Copy Now") {
                 Task { await model.copyNow() }
+            }
+            Button("Copy First Minute") {
+                Task { await model.copyFirstMinute() }
             }
             Button("Copy Process Map") {
                 Task { await model.copyProcessMap() }
