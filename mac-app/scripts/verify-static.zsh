@@ -44,6 +44,7 @@ for script in \
   "$ROOT/mac-app/scripts/value.zsh" \
   "$ROOT/mac-app/scripts/demo.zsh" \
   "$ROOT/mac-app/scripts/playbook.zsh" \
+  "$ROOT/mac-app/scripts/value-audit.zsh" \
   "$ROOT/mac-app/scripts/prove-value.zsh" \
   "$ROOT/mac-app/scripts/oracle-brief.zsh" \
   "$ROOT/mac-app/scripts/agent-prompt.zsh" \

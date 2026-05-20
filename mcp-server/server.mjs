@@ -137,6 +137,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_value_audit_markdown",
+    description: "Run the non-launching value audit: success criteria, prompt-to-artifact checklist, evidence, current state, and remaining gaps.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_review_queue_markdown",
     description: "Read the non-launching Oracle Inbox review queue as Markdown without opening Terminal Brain.",
     inputSchema: {
@@ -1330,6 +1339,24 @@ function playbookMarkdown() {
   ].join("\n");
 }
 
+function valueAuditMarkdown() {
+  const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "value-audit.zsh")], { timeout: 60000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Value Audit",
+    "",
+    "Value audit failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 function reviewQueueMarkdown(args = {}) {
   const commandArgs = [join(ROOT, "mac-app", "scripts", "review.zsh")];
   if (Number.isFinite(args.limit)) {
@@ -1743,6 +1770,8 @@ async function callTool(name, args = {}) {
       return demoMarkdown();
     case "terminal_brain_playbook_markdown":
       return playbookMarkdown();
+    case "terminal_brain_value_audit_markdown":
+      return valueAuditMarkdown();
     case "terminal_brain_review_queue_markdown":
       return reviewQueueMarkdown(args);
     case "terminal_brain_bubble_up_markdown":

@@ -42,6 +42,14 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 
    `make playbook` maps common work situations to exact commands, the first five-minute loop, daily cadence, agent cadence, and current readiness.
 
+   To audit what is covered and what is still weak, run:
+
+   ```zsh
+   make value-audit
+   ```
+
+   `make value-audit` maps the first-use value objective to concrete artifacts, evidence, and remaining gaps.
+
    ```zsh
    make now
    ```
@@ -126,6 +134,7 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 - `Value Proof` demonstrates Oracle Brief -> Agent Prompt -> accepted Outcome without touching the real workspace.
 - `Demo` shows ideas becoming a review queue, bubbled-up signals, and one work block in a temporary workspace.
 - `Playbook` tells you which command to use for capture, Oracle reads, agent handoff, outcomes, and runtime checks.
+- `Value Audit` proves which first-use value requirements are covered and names the remaining gaps.
 - `Oracle Brief` gives the direct read, missing signal, cheap test, and agent handoff.
 - `Status` shows repo, CI, process, launchctl, and API state without touching app focus.
 - `Processes` separates app/runtime focus stealers from Codex, MCP, kernel, brain-console, and Drafts background noise.
