@@ -63,7 +63,7 @@ Plain `make` prints help. `make verify`, `make first-minute`, `make now`, `make 
 ## Current Capabilities
 
 - Local status, source, permission, briefing, and sync checks.
-- First Minute: `make first-minute`, `/first-minute/markdown`, `terminal_brain_first_minute_markdown`, the default in-app First Minute surface, Copy First Minute in the app/menu bar, and the Copy First Minute App Shortcut provide the shortest explanation, next step, and working proof for a new operator or agent.
+- First Minute: `make first-minute`, `/first-minute/markdown`, `terminal_brain_first_minute_markdown`, the default in-app First Minute surface with quick thought capture, Copy First Minute in the app/menu bar, and the Copy First Minute App Shortcut provide the shortest explanation, next step, and working proof for a new operator or agent.
 - One-call operator snapshot for agents: Focus, Operator Brief, Operator Deck, Blindspot Brief, Radar, setup gaps, Today, memory trail, and suggested next actions.
 - Plain-language Operator Brief that says what matters, why it matters, what not to miss, and what artifact to create next.
 - Value Brief that collapses Focus, Idea Pulse, Blindspots, and Project Memory into one compact value read.

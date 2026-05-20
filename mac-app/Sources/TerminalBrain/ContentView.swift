@@ -669,6 +669,7 @@ struct ContentView: View {
                 }
             }
 
+            focusIdeaCapturePanel(focus)
             valueBriefPanel
             startHereOutcomePanel(project: focus.project)
         }
