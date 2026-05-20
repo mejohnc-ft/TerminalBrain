@@ -11,6 +11,8 @@
   "GET /context-packs/latest/markdown",
   "GET /today",
   "GET /focus",
+  "GET /operator-brief",
+  "GET /operator-brief/markdown",
   "GET /operator-deck",
   "GET /operator-deck/markdown",
   "POST /operator-deck/action",

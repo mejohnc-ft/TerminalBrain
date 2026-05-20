@@ -1,4 +1,4 @@
-.PHONY: help build install verify live snapshot snapshot-json snapshot-deck snapshot-deck-md latest-pack handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-deck snapshot-deck-md latest-pack handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
@@ -8,6 +8,8 @@ help:
 	@echo "  make install       Copy the app to ~/Applications without launching it"
 	@echo "  make snapshot      Print Markdown snapshot from an already-running app"
 	@echo "  make snapshot-json Print JSON snapshot from an already-running app"
+	@echo "  make snapshot-brief Print Operator Brief JSON from an already-running app"
+	@echo "  make snapshot-brief-md Print Operator Brief Markdown from an already-running app"
 	@echo "  make snapshot-deck Print Operator Deck JSON from an already-running app"
 	@echo "  make snapshot-deck-md Print Operator Deck Markdown from an already-running app"
 	@echo "  make latest-pack   Print latest context pack Markdown from an already-running app"
@@ -33,6 +35,12 @@ snapshot:
 
 snapshot-json:
 	./mac-app/scripts/snapshot.zsh --json
+
+snapshot-brief:
+	./mac-app/scripts/snapshot.zsh --brief
+
+snapshot-brief-md:
+	./mac-app/scripts/snapshot.zsh --brief-markdown
 
 snapshot-deck:
 	./mac-app/scripts/snapshot.zsh --deck

@@ -481,6 +481,7 @@ struct ContentView: View {
     private var focusView: some View {
         let item = model.focusItem
         return VStack(alignment: .leading, spacing: 18) {
+            operatorBriefPanel
             operatorDeck
 
             HStack(alignment: .top, spacing: 18) {
@@ -600,6 +601,74 @@ struct ContentView: View {
                 .frame(width: 420)
             }
         }
+    }
+
+    private var operatorBriefPanel: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .firstTextBaseline) {
+                SectionTitle("Operator Brief", symbol: "wand.and.stars")
+                Spacer()
+                Text("Plain-English value read")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.white.opacity(0.42))
+                    .textCase(.uppercase)
+            }
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 240), spacing: 12)], spacing: 12) {
+                ForEach(model.operatorBrief) { item in
+                    Button {
+                        applyOperatorBrief(item)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack(alignment: .top, spacing: 10) {
+                                Image(systemName: item.symbol)
+                                    .font(.headline.weight(.semibold))
+                                    .foregroundStyle(item.state.color)
+                                    .frame(width: 34, height: 34)
+                                    .background(item.state.color.opacity(0.15), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(item.label)
+                                        .font(.caption2.weight(.bold))
+                                        .foregroundStyle(item.state.color)
+                                        .textCase(.uppercase)
+                                    Text(item.title)
+                                        .font(.headline.weight(.semibold))
+                                        .foregroundStyle(.white)
+                                        .lineLimit(2)
+                                        .minimumScaleFactor(0.82)
+                                }
+                                Spacer()
+                            }
+
+                            Text(item.detail)
+                                .font(.callout)
+                                .foregroundStyle(.white.opacity(0.62))
+                                .lineLimit(3)
+                                .fixedSize(horizontal: false, vertical: true)
+
+                            HStack(spacing: 8) {
+                                Text(item.project.isEmpty ? "General Brain" : item.project)
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(.white.opacity(0.46))
+                                    .lineLimit(1)
+                                Spacer()
+                                Label(item.action, systemImage: "arrow.right.circle.fill")
+                                    .font(.caption.weight(.bold))
+                                    .foregroundStyle(item.state.color)
+                                    .lineLimit(1)
+                            }
+                        }
+                        .padding(14)
+                        .frame(maxWidth: .infinity, minHeight: 164, alignment: .topLeading)
+                        .background(.white.opacity(0.075), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(.white.opacity(0.10), lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .padding(16)
+        .darkPanel()
     }
 
     private var operatorDeck: some View {
@@ -2118,6 +2187,21 @@ struct ContentView: View {
             title: item.title,
             detail: item.detail,
             priority: item.score > 0 ? "\(item.score)" : "Focus",
+            action: item.action,
+            project: item.project,
+            symbol: item.symbol,
+            state: item.state,
+            query: item.query
+        )
+        applyDailyCommand(command)
+    }
+
+    private func applyOperatorBrief(_ item: OperatorBriefItem) {
+        let command = DailyCommandItem(
+            id: item.id,
+            title: item.title,
+            detail: item.detail,
+            priority: item.label,
             action: item.action,
             project: item.project,
             symbol: item.symbol,

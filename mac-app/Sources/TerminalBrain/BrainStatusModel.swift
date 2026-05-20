@@ -9,6 +9,7 @@ final class BrainStatusModel: ObservableObject {
     @Published var briefing: [BriefingItem] = []
     @Published var setupSteps: [SetupStep] = []
     @Published var dailyCommands: [DailyCommandItem] = []
+    @Published var operatorBrief: [OperatorBriefItem] = []
     @Published var radarItems: [RadarItem] = []
     @Published var feedItems: [BrainFeedItem] = []
     @Published var oracleBrief: [String] = []
@@ -56,49 +57,7 @@ final class BrainStatusModel: ObservableObject {
     }
 
     var focusItem: FocusItem {
-        if let radar = radarItems.first {
-            return FocusItem(
-                id: radar.id,
-                title: radar.title,
-                detail: radar.detail,
-                reason: radar.evidence.isEmpty ? radar.reason : radar.evidence.joined(separator: " • "),
-                action: radar.action,
-                project: radar.project,
-                score: radar.score,
-                symbol: radar.symbol,
-                state: radar.state,
-                query: radar.query,
-                path: radar.path
-            )
-        }
-        if let command = dailyCommands.first {
-            return FocusItem(
-                id: command.id,
-                title: command.title,
-                detail: command.detail,
-                reason: "Top item from the Daily Command Center.",
-                action: command.action,
-                project: command.project,
-                score: 0,
-                symbol: command.symbol,
-                state: command.state,
-                query: command.query,
-                path: nil
-            )
-        }
-        return FocusItem(
-            id: "ask-oracle",
-            title: "Ask what changed",
-            detail: "No active signal is available yet.",
-            reason: "Run sync or ask Oracle to create a useful starting point.",
-            action: "Ask Oracle",
-            project: "General Brain",
-            score: 0,
-            symbol: "sparkle.magnifyingglass",
-            state: .good,
-            query: "What am I not considering right now?",
-            path: nil
-        )
+        buildFocusItem(radarItems: radarItems, dailyCommands: dailyCommands)
     }
 
     init() {
@@ -128,11 +87,14 @@ final class BrainStatusModel: ObservableObject {
         let builtProjects = buildProjectMemories(feedItems: builtFeed, oracleItems: builtOracleItems, oracleCommits: builtOracleCommits)
         let builtRadarItems = buildRadarItems(cards: sections, setupSteps: builtSetupSteps, projects: builtProjects, oracleItems: builtOracleItems, oracleCommits: builtOracleCommits, feedItems: builtFeed)
         let builtDailyCommands = buildDailyCommands(cards: sections, projects: builtProjects, oracleCommits: builtOracleCommits, feedItems: builtFeed, radarItems: builtRadarItems)
+        let builtFocusItem = buildFocusItem(radarItems: builtRadarItems, dailyCommands: builtDailyCommands)
+        let builtOperatorBrief = buildOperatorBrief(cards: sections, focus: builtFocusItem, radarItems: builtRadarItems, projects: builtProjects, oracleCommits: builtOracleCommits, oracleItems: builtOracleItems, feedItems: builtFeed)
         cards = sections
         sources = builtSources
         briefing = builtBriefing
         setupSteps = builtSetupSteps
         dailyCommands = builtDailyCommands
+        operatorBrief = builtOperatorBrief
         radarItems = builtRadarItems
         feedItems = builtFeed
         oracleItems = builtOracleItems
@@ -1192,6 +1154,183 @@ final class BrainStatusModel: ObservableObject {
         }
 
         return dedupeDailyCommands(items).prefix(8).map { $0 }
+    }
+
+    private func buildFocusItem(radarItems: [RadarItem], dailyCommands: [DailyCommandItem]) -> FocusItem {
+        if let radar = radarItems.first {
+            return FocusItem(
+                id: radar.id,
+                title: radar.title,
+                detail: radar.detail,
+                reason: radar.evidence.isEmpty ? radar.reason : radar.evidence.joined(separator: " • "),
+                action: radar.action,
+                project: radar.project,
+                score: radar.score,
+                symbol: radar.symbol,
+                state: radar.state,
+                query: radar.query,
+                path: radar.path
+            )
+        }
+        if let command = dailyCommands.first {
+            return FocusItem(
+                id: command.id,
+                title: command.title,
+                detail: command.detail,
+                reason: "Top item from the Daily Command Center.",
+                action: command.action,
+                project: command.project,
+                score: 0,
+                symbol: command.symbol,
+                state: command.state,
+                query: command.query,
+                path: nil
+            )
+        }
+        return FocusItem(
+            id: "ask-oracle",
+            title: "Ask what changed",
+            detail: "No active signal is available yet.",
+            reason: "Run sync or ask Oracle to create a useful starting point.",
+            action: "Ask Oracle",
+            project: "General Brain",
+            score: 0,
+            symbol: "sparkle.magnifyingglass",
+            state: .good,
+            query: "What am I not considering right now?",
+            path: nil
+        )
+    }
+
+    private func buildOperatorBrief(cards: [HealthCard], focus: FocusItem, radarItems: [RadarItem], projects: [ProjectMemory], oracleCommits: [OracleCommit], oracleItems: [OracleItem], feedItems: [BrainFeedItem]) -> [OperatorBriefItem] {
+        var items: [OperatorBriefItem] = [
+            OperatorBriefItem(
+                id: "matters",
+                label: "What matters",
+                title: focus.title,
+                detail: focus.detail,
+                action: focus.action,
+                project: focus.project,
+                symbol: focus.symbol,
+                state: focus.state,
+                query: focus.query
+            ),
+            OperatorBriefItem(
+                id: "why",
+                label: "Why it matters",
+                title: focus.score > 0 ? "Signal score \(focus.score)" : "Top visible queue item",
+                detail: focus.reason,
+                action: "Ask Oracle",
+                project: focus.project,
+                symbol: "list.bullet.clipboard",
+                state: focus.state,
+                query: "Why does \(focus.title) matter right now?"
+            )
+        ]
+
+        if let commit = oracleCommits.first(where: { $0.status == .new }) {
+            items.append(
+                OperatorBriefItem(
+                    id: "missed-\(commit.id)",
+                    label: "Do not miss",
+                    title: "Unreviewed Oracle read",
+                    detail: commit.preview,
+                    action: "Open Review",
+                    project: commit.project,
+                    symbol: commit.status.symbol,
+                    state: .warn,
+                    query: commit.title
+                )
+            )
+        } else if let oracle = oracleItems.first {
+            items.append(
+                OperatorBriefItem(
+                    id: "missed-\(oracle.id)",
+                    label: "Do not miss",
+                    title: oracle.title,
+                    detail: oracle.detail,
+                    action: "Ask Oracle",
+                    project: projectName(from: "\(oracle.title) \(oracle.detail)"),
+                    symbol: oracle.symbol,
+                    state: .good,
+                    query: "What should I notice about \(oracle.title)?"
+                )
+            )
+        } else if let warning = cards.first(where: { $0.state == .warn }) {
+            items.append(
+                OperatorBriefItem(
+                    id: "missed-\(warning.title)",
+                    label: "Do not miss",
+                    title: warning.title,
+                    detail: warning.detail,
+                    action: "Open System",
+                    project: "System",
+                    symbol: warning.symbol,
+                    state: .warn,
+                    query: warning.title
+                )
+            )
+        }
+
+        if let delegated = oracleCommits.first(where: { $0.status == .delegated }) {
+            items.append(
+                OperatorBriefItem(
+                    id: "artifact-\(delegated.id)",
+                    label: "Next artifact",
+                    title: "Build a handoff",
+                    detail: delegated.title,
+                    action: "Start Work",
+                    project: delegated.project,
+                    symbol: "shippingbox.fill",
+                    state: .busy,
+                    query: [delegated.project, delegated.title].filter { !$0.isEmpty }.joined(separator: " - ")
+                )
+            )
+        } else if let project = projects.first {
+            items.append(
+                OperatorBriefItem(
+                    id: "artifact-\(project.id)",
+                    label: "Next artifact",
+                    title: project.name,
+                    detail: project.recommendedAction,
+                    action: "Open Project",
+                    project: project.name,
+                    symbol: project.symbol,
+                    state: project.delegatedCount > 0 ? .busy : .good,
+                    query: project.name
+                )
+            )
+        } else if let pack = feedItems.first(where: { $0.kind == .context }) {
+            items.append(
+                OperatorBriefItem(
+                    id: "artifact-\(pack.id)",
+                    label: "Next artifact",
+                    title: "Use latest context pack",
+                    detail: pack.title,
+                    action: "Open Pack",
+                    project: projectName(from: "\(pack.title) \(pack.detail)"),
+                    symbol: pack.symbol,
+                    state: pack.state,
+                    query: pack.title
+                )
+            )
+        } else if let radar = radarItems.first {
+            items.append(
+                OperatorBriefItem(
+                    id: "artifact-\(radar.id)",
+                    label: "Next artifact",
+                    title: "Turn signal into handoff",
+                    detail: radar.reason,
+                    action: radar.action,
+                    project: radar.project,
+                    symbol: radar.symbol,
+                    state: radar.state,
+                    query: radar.query
+                )
+            )
+        }
+
+        return Array(items.prefix(4))
     }
 
     private func buildRadarItems(cards: [HealthCard], setupSteps: [SetupStep], projects: [ProjectMemory], oracleItems: [OracleItem], oracleCommits: [OracleCommit], feedItems: [BrainFeedItem]) -> [RadarItem] {

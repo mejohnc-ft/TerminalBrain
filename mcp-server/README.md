@@ -38,6 +38,8 @@ Codex/workspace config can register this server as:
 - `terminal_brain_briefing`
 - `terminal_brain_today`
 - `terminal_brain_focus`
+- `terminal_brain_operator_brief`
+- `terminal_brain_operator_brief_markdown`
 - `terminal_brain_operator_deck`
 - `terminal_brain_operator_deck_markdown`
 - `terminal_brain_operator_deck_action`

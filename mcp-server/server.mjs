@@ -90,6 +90,24 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_operator_brief",
+    description: "Get the plain-language Operator Brief: what matters, why it matters, what not to miss, and the next artifact.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
+    name: "terminal_brain_operator_brief_markdown",
+    description: "Get the current Terminal Brain Operator Brief as prompt-ready Markdown.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_operator_deck",
     description: "Get the same four-card Operator Deck shown in the app: do first, ask about, review or capture, and project/start-work card.",
     inputSchema: {
@@ -413,6 +431,10 @@ async function callTool(name, args = {}) {
       return api("/today");
     case "terminal_brain_focus":
       return api("/focus");
+    case "terminal_brain_operator_brief":
+      return api("/operator-brief");
+    case "terminal_brain_operator_brief_markdown":
+      return api("/operator-brief/markdown", { rawText: true });
     case "terminal_brain_operator_deck":
       return api("/operator-deck");
     case "terminal_brain_operator_deck_markdown":

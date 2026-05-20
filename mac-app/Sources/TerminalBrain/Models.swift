@@ -183,6 +183,18 @@ struct DailyCommandItem: Identifiable {
     let query: String
 }
 
+struct OperatorBriefItem: Identifiable {
+    let id: String
+    let label: String
+    let title: String
+    let detail: String
+    let action: String
+    let project: String
+    let symbol: String
+    let state: HealthState
+    let query: String
+}
+
 struct RadarItem: Identifiable {
     let id: String
     let title: String

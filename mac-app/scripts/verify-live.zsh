@@ -58,10 +58,26 @@ curl -fsS "$API/snapshot/markdown" | ruby -e '
   puts "markdown ok chars=#{text.length}"
 '
 
+curl -fsS "$API/operator-brief" | ruby -rjson -e '
+  j=JSON.parse(STDIN.read)
+  items = j["items"] || []
+  abort("operator brief missing items") if items.empty?
+  abort("operator brief missing headline") if j["headline"].to_s.empty?
+  puts "operator brief ok items=#{items.length}"
+'
+
+curl -fsS "$API/operator-brief/markdown" | ruby -e '
+  text = STDIN.read
+  abort("operator brief markdown missing title") unless text.include?("# Terminal Brain Operator Brief")
+  abort("operator brief markdown missing value section") unless text.include?("## What matters:")
+  puts "operator brief markdown ok chars=#{text.length}"
+'
+
 curl -fsS "$API/handoff/markdown" | ruby -e '
   text = STDIN.read
   abort("handoff missing title") unless text.include?("# Terminal Brain Handoff")
   abort("handoff missing operating instructions") unless text.include?("## How To Use This")
+  abort("handoff missing operator brief") unless text.include?("# Terminal Brain Operator Brief")
   abort("handoff missing operator deck") unless text.include?("# Terminal Brain Operator Deck")
   abort("handoff missing latest context pack") unless text.include?("# Latest Context Pack")
   puts "handoff ok chars=#{text.length}"
@@ -90,6 +106,17 @@ printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal
       puts "mcp markdown ok chars=#{text.length}"
     '
 
+printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_operator_brief_markdown","arguments":{}}}\n' \
+  | node "$ROOT/mcp-server/server.mjs" \
+  | ruby -rjson -e '
+      line = STDIN.each_line.find { |l| l.include?("\"result\"") } || "{}"
+      response = JSON.parse(line)
+      text = response.dig("result", "content", 0, "text").to_s
+      abort("mcp operator brief missing title") unless text.include?("# Terminal Brain Operator Brief")
+      abort("mcp operator brief missing value section") unless text.include?("## What matters:")
+      puts "mcp operator brief ok chars=#{text.length}"
+    '
+
 printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_handoff_markdown","arguments":{}}}\n' \
   | node "$ROOT/mcp-server/server.mjs" \
   | ruby -rjson -e '
@@ -97,6 +124,7 @@ printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal
       response = JSON.parse(line)
       text = response.dig("result", "content", 0, "text").to_s
       abort("mcp handoff missing title") unless text.include?("# Terminal Brain Handoff")
+      abort("mcp handoff missing operator brief") unless text.include?("# Terminal Brain Operator Brief")
       abort("mcp handoff missing operator deck") unless text.include?("# Terminal Brain Operator Deck")
       puts "mcp handoff ok chars=#{text.length}"
     '

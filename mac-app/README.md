@@ -45,7 +45,7 @@ That means Apple Notes prompts should say **Terminal Brain**, not `node`, once N
 ## Views
 
 - **Cockpit**: Current health across MCP, config, indexes, sync, and Mission Control.
-- **Focus**: The default working surface with one recommended action, score, evidence, immediate next moves, inline Oracle follow-up prompts, and quick thought capture.
+- **Focus**: The default working surface with a plain-language Operator Brief, one recommended action, score, evidence, immediate next moves, inline Oracle follow-up prompts, and quick thought capture.
 - **Setup**: Readiness checklist for app, MCP config, workspace, sync, memory, Mission Control, prompt safety, and Oracle writeback.
 - **Radar**: Proactive inbox for delegated reads, stale reviews, quiet project risks, open loops, and ideas worth testing. Radar signals include score/evidence, can be watched, marked acted, snoozed, dismissed, or committed back into the Oracle Inbox as durable memory.
 - **Sources**: Permission-aware status for Obsidian, agent histories, Drafts, Apple Notes, and Mission Control.
@@ -67,7 +67,7 @@ Terminal Brain uses a native macOS window shell:
 - Transparent full-size titlebar configured through AppKit.
 - Native toolbar items for sidebar toggle, back, search, status, refresh, sync, and profile.
 - Command palette entries for asking the current Focus, copying the operator snapshot or Operator Deck, asking Oracle from typed text, drafting captured ideas, and building context packs.
-- One-click operator snapshot and Operator Deck copy for pasting current Focus, Radar, suggested actions, memory trail, or four-card handoff into another agent or work surface.
+- One-click operator snapshot, Operator Brief, and Operator Deck copy for pasting current Focus, Radar, suggested actions, memory trail, or handoff into another agent or work surface.
 - App Shortcuts for Copy Handoff, Copy Deck, Copy Snapshot, Run Sync, Start Work, Open Latest Context Pack, and Copy Latest Context Pack in Spotlight, Siri, and automation.
 - Menu bar extra with current Focus, Ask Current Focus, Build Focus Pack, Open/Copy Latest Context Pack, Copy Agent Handoff, refresh, sync, copy, Mission, and logs.
 - Floating rounded sidebar surface over the main background.
@@ -94,6 +94,7 @@ Print or copy the current operator snapshot from an already-running app:
 ```zsh
 ./mac-app/scripts/snapshot.zsh --markdown
 ./mac-app/scripts/snapshot.zsh --json
+./mac-app/scripts/snapshot.zsh --brief-markdown
 ./mac-app/scripts/snapshot.zsh --deck
 ./mac-app/scripts/snapshot.zsh --deck-markdown
 ./mac-app/scripts/snapshot.zsh --latest-pack
@@ -102,8 +103,8 @@ Print or copy the current operator snapshot from an already-running app:
 ./mac-app/scripts/handoff.zsh --output /tmp/terminal-brain-handoff.md
 ```
 
-The snapshot helper never launches or foregrounds Terminal Brain. Use `--deck` for app-aligned action-card JSON, `--deck-markdown` for paste-ready cards, `--latest-pack` for the newest context pack Markdown, and `--output` for handoff files.
-The handoff helper also never launches or foregrounds Terminal Brain. It writes the Operator Deck plus latest context pack into one Markdown file.
+The snapshot helper never launches or foregrounds Terminal Brain. Use `--brief-markdown` for the plain-language value read, `--deck` for app-aligned action-card JSON, `--deck-markdown` for paste-ready cards, `--latest-pack` for the newest context pack Markdown, and `--output` for handoff files.
+The handoff helper also never launches or foregrounds Terminal Brain. It writes the Operator Brief, Operator Deck, and latest context pack into one Markdown file.
 
 Install the app into `~/Applications`:
 
@@ -140,6 +141,8 @@ Routes:
 - `GET /sources`
 - `GET /setup`
 - `GET /focus`
+- `GET /operator-brief`
+- `GET /operator-brief/markdown`
 - `GET /context-packs/latest`
 - `GET /context-packs/latest/markdown`
 - `GET /operator-deck`
@@ -179,12 +182,12 @@ Implemented:
 - Local-only control API for MCP/agent access.
 - Mission-backed Oracle synthesis with deterministic local fallback.
 - Obsidian-backed Oracle commit and Review Queue.
+- App Shortcuts for Run Sync, Start Work, context pack handoff, Operator Deck, and Agent Handoff.
 
 Next:
 
 - WidgetKit extension for prompt-safety, sync age, and Mission Control points.
 - Login item via ServiceManagement after a stable signed app bundle.
-- App Shortcuts for Run Sync and Start Work.
 - Notification summaries for sync failures and stale source state.
 - Quick Look / Share extension for sending selected files or text into Brain.
 - Spotlight indexing for context packs and briefing summaries.

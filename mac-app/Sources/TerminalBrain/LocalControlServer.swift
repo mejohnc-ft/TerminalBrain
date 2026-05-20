@@ -79,6 +79,10 @@ final class LocalControlServer {
             return .json(200, await TodaySnapshot.today())
         case ("GET", "/focus"):
             return .json(200, await FocusSnapshot.focus())
+        case ("GET", "/operator-brief"):
+            return .json(200, await OperatorBriefSnapshot.brief())
+        case ("GET", "/operator-brief/markdown"):
+            return .text(200, await OperatorBriefSnapshot.markdown())
         case ("GET", "/operator-deck"):
             return .json(200, await OperatorDeckSnapshot.deck())
         case ("GET", "/operator-deck/markdown"):
@@ -1150,6 +1154,185 @@ enum TodaySnapshot {
     }
 }
 
+enum OperatorBriefSnapshot {
+    static func brief() async -> [String: Any] {
+        let generatedAt = ISO8601DateFormatter().string(from: Date())
+        let focusPayload = await FocusSnapshot.focus()
+        let radarPayload = await RadarSnapshot.radar()
+        let oraclePayload = await OracleSnapshot.items()
+        let commitsPayload = OracleSnapshot.commits()
+        let projectsPayload = ProjectSnapshot.projects()
+        let setupPayload = await SetupSnapshot.setup()
+
+        let focus = (focusPayload["item"] as? [String: Any]) ?? [:]
+        let radar = (radarPayload["items"] as? [[String: Any]]) ?? []
+        let oracleItems = (oraclePayload["items"] as? [[String: Any]]) ?? []
+        let commits = (commitsPayload["items"] as? [[String: Any]]) ?? []
+        let projects = (projectsPayload["items"] as? [[String: Any]]) ?? []
+        let setupSteps = (setupPayload["steps"] as? [[String: Any]]) ?? []
+
+        let focusTitle = focus["title"] as? String ?? "Ask what changed"
+        let focusProject = focus["project"] as? String ?? "General Brain"
+        let focusDetail = focus["detail"] as? String ?? "No active signal is available yet."
+        let focusReason = focus["reason"] as? String ?? "Run sync or ask Oracle to create a useful starting point."
+        let focusAction = focus["action"] as? String ?? "Ask Oracle"
+        let focusScore = focus["score"] as? Int ?? 0
+
+        var items: [[String: Any]] = [
+            item(
+                id: "matters",
+                label: "What matters",
+                title: focusTitle,
+                detail: focusDetail,
+                action: focusAction,
+                project: focusProject,
+                symbol: focus["symbol"] as? String ?? "target",
+                state: focus["state"] as? String ?? "Ready",
+                query: focus["query"] as? String ?? ""
+            ),
+            item(
+                id: "why",
+                label: "Why it matters",
+                title: focusScore > 0 ? "Signal score \(focusScore)" : "Top visible queue item",
+                detail: focusReason,
+                action: "Ask Oracle",
+                project: focusProject,
+                symbol: "list.bullet.clipboard",
+                state: focus["state"] as? String ?? "Ready",
+                query: "Why does \(focusTitle) matter right now?"
+            )
+        ]
+
+        if let review = commits.first(where: { ($0["status"] as? String) == "new" }) {
+            items.append(item(
+                id: "missed-\(review["id"] as? String ?? "review")",
+                label: "Do not miss",
+                title: "Unreviewed Oracle read",
+                detail: review["preview"] as? String ?? review["title"] as? String ?? "Review the newest committed read.",
+                action: "Open Review",
+                project: review["project"] as? String ?? "General Brain",
+                symbol: "tray.and.arrow.down.fill",
+                state: "Attention",
+                query: review["title"] as? String ?? ""
+            ))
+        } else if let oracle = oracleItems.first {
+            let title = oracle["title"] as? String ?? "Oracle surfaced item"
+            items.append(item(
+                id: "missed-\(oracle["id"] as? String ?? "oracle")",
+                label: "Do not miss",
+                title: title,
+                detail: oracle["detail"] as? String ?? "Ask what changed and whether this matters.",
+                action: "Ask Oracle",
+                project: ProjectSnapshot.projectName(from: "\(title) \(oracle["detail"] ?? "")"),
+                symbol: oracle["symbol"] as? String ?? "sparkle.magnifyingglass",
+                state: "Ready",
+                query: "What should I notice about \(title)?"
+            ))
+        } else if let warning = setupSteps.first(where: { ($0["state"] as? String) == "Attention" }) {
+            items.append(item(
+                id: "missed-\(warning["id"] as? String ?? "setup")",
+                label: "Do not miss",
+                title: warning["title"] as? String ?? "Setup item needs attention",
+                detail: warning["detail"] as? String ?? "Review setup before trusting automation.",
+                action: "Open System",
+                project: "System",
+                symbol: warning["symbol"] as? String ?? "exclamationmark.triangle.fill",
+                state: "Attention",
+                query: warning["title"] as? String ?? ""
+            ))
+        }
+
+        if let delegated = commits.first(where: { ($0["status"] as? String) == "delegated" }) {
+            let title = delegated["title"] as? String ?? "Delegated Oracle read"
+            items.append(item(
+                id: "artifact-\(delegated["id"] as? String ?? "delegated")",
+                label: "Next artifact",
+                title: "Build a handoff",
+                detail: title,
+                action: "Start Work",
+                project: delegated["project"] as? String ?? "General Brain",
+                symbol: "shippingbox.fill",
+                state: "Running",
+                query: [delegated["project"] as? String ?? "", title].filter { !$0.isEmpty }.joined(separator: " - ")
+            ))
+        } else if let project = projects.first {
+            let name = project["name"] as? String ?? "Project memory"
+            items.append(item(
+                id: "artifact-\(project["id"] as? String ?? "project")",
+                label: "Next artifact",
+                title: name,
+                detail: project["recommendedAction"] as? String ?? "Open the project memory page.",
+                action: "Open Project",
+                project: name,
+                symbol: project["symbol"] as? String ?? "folder.fill",
+                state: ((project["delegatedCount"] as? Int) ?? 0) > 0 ? "Running" : "Ready",
+                query: name
+            ))
+        } else if let firstRadar = radar.first {
+            items.append(item(
+                id: "artifact-\(firstRadar["id"] as? String ?? "radar")",
+                label: "Next artifact",
+                title: "Turn signal into handoff",
+                detail: firstRadar["reason"] as? String ?? "Build a focused context pack from the top signal.",
+                action: firstRadar["action"] as? String ?? "Start Work",
+                project: firstRadar["project"] as? String ?? "General Brain",
+                symbol: firstRadar["symbol"] as? String ?? "scope",
+                state: firstRadar["state"] as? String ?? "Ready",
+                query: firstRadar["query"] as? String ?? ""
+            ))
+        }
+
+        return [
+            "generatedAt": generatedAt,
+            "headline": "Do \(focusTitle)",
+            "mode": "operator-brief",
+            "items": Array(items.prefix(4))
+        ]
+    }
+
+    static func markdown() async -> String {
+        let payload = await brief()
+        let items = (payload["items"] as? [[String: Any]]) ?? []
+        var lines: [String] = [
+            "# Terminal Brain Operator Brief",
+            "",
+            "Generated: \(payload["generatedAt"] as? String ?? ISO8601DateFormatter().string(from: Date()))",
+            "",
+            "\(payload["headline"] as? String ?? "Start with the top visible signal.")",
+            ""
+        ]
+
+        for item in items {
+            lines.append("## \(item["label"] as? String ?? "Signal"): \(item["title"] as? String ?? "Untitled")")
+            lines.append("- Action: \(item["action"] as? String ?? "Act")")
+            lines.append("- Project: \(item["project"] as? String ?? "General Brain")")
+            if let detail = item["detail"] as? String, !detail.isEmpty {
+                lines.append("- Detail: \(detail)")
+            }
+            if let query = item["query"] as? String, !query.isEmpty {
+                lines.append("- Query: \(query)")
+            }
+            lines.append("")
+        }
+
+        return lines.joined(separator: "\n")
+    }
+
+    private static func item(id: String, label: String, title: String, detail: String, action: String, project: String, symbol: String, state: String, query: String) -> [String: Any] {
+        [
+            "id": id,
+            "label": label,
+            "title": title,
+            "detail": detail,
+            "action": action,
+            "project": project,
+            "symbol": symbol,
+            "state": state,
+            "query": query
+        ]
+    }
+}
+
 enum OperatorDeckSnapshot {
     static func deck() async -> [String: Any] {
         let generatedAt = ISO8601DateFormatter().string(from: Date())
@@ -1352,6 +1535,7 @@ enum OperatorDeckSnapshot {
 enum BrainSnapshot {
     static func snapshot() async -> [String: Any] {
         let generatedAt = ISO8601DateFormatter().string(from: Date())
+        let briefPayload = await OperatorBriefSnapshot.brief()
         let deckPayload = await OperatorDeckSnapshot.deck()
         let focus = await FocusSnapshot.focus()
         let radarPayload = await RadarSnapshot.radar()
@@ -1371,6 +1555,7 @@ enum BrainSnapshot {
             radarItems: Array(radarItems.prefix(5)),
             setupSteps: attentionSteps(from: setupSteps),
             todayCommands: Array(todayCommands.prefix(5)),
+            operatorBrief: (briefPayload["items"] as? [[String: Any]]) ?? [],
             operatorDeck: (deckPayload["items"] as? [[String: Any]]) ?? [],
             memoryTrail: Array(commits.prefix(5)),
             suggestedActions: suggestedActions(focusItem: focusItem, setupSteps: setupSteps, commits: commits)
@@ -1381,7 +1566,7 @@ enum BrainSnapshot {
         renderMarkdown(snapshot: await snapshot())
     }
 
-    private static func payload(generatedAt: String, focus: [String: Any], radarItems: [[String: Any]], setupSteps: [[String: Any]], todayCommands: [[String: Any]], operatorDeck: [[String: Any]], memoryTrail: [[String: Any]], suggestedActions: [String]) -> [String: Any] {
+    private static func payload(generatedAt: String, focus: [String: Any], radarItems: [[String: Any]], setupSteps: [[String: Any]], todayCommands: [[String: Any]], operatorBrief: [[String: Any]], operatorDeck: [[String: Any]], memoryTrail: [[String: Any]], suggestedActions: [String]) -> [String: Any] {
         var result: [String: Any] = [:]
         result["generatedAt"] = generatedAt
         result["mode"] = "operator-snapshot"
@@ -1389,6 +1574,7 @@ enum BrainSnapshot {
         result["radar"] = radarItems
         result["setupAttention"] = setupSteps
         result["today"] = todayCommands
+        result["operatorBrief"] = operatorBrief
         result["operatorDeck"] = operatorDeck
         result["memoryTrail"] = memoryTrail
         result["suggestedActions"] = suggestedActions
@@ -1418,6 +1604,7 @@ enum BrainSnapshot {
     private static func renderMarkdown(snapshot: [String: Any]) -> String {
         let focus = snapshot["focus"] as? [String: Any] ?? [:]
         let focusItem = focus["item"] as? [String: Any] ?? [:]
+        let operatorBrief = snapshot["operatorBrief"] as? [[String: Any]] ?? []
         let operatorDeck = snapshot["operatorDeck"] as? [[String: Any]] ?? []
         let radar = snapshot["radar"] as? [[String: Any]] ?? []
         let trail = snapshot["memoryTrail"] as? [[String: Any]] ?? []
@@ -1440,6 +1627,16 @@ enum BrainSnapshot {
         lines.append("## Suggested Actions")
         lines.append(contentsOf: actions.prefix(5).map { "- \($0)" })
         if actions.isEmpty { lines.append("- Ask the Focus Oracle what changed.") }
+        lines.append("")
+
+        lines.append("## Operator Brief")
+        lines.append(contentsOf: operatorBrief.prefix(4).map { item in
+            let label = item["label"] as? String ?? "Signal"
+            let title = item["title"] as? String ?? "Untitled"
+            let action = item["action"] as? String ?? "Act"
+            return "- \(label): \(title) -> \(action)"
+        })
+        if operatorBrief.isEmpty { lines.append("- No operator brief items.") }
         lines.append("")
 
         lines.append("## Operator Deck")
@@ -1478,6 +1675,7 @@ enum BrainSnapshot {
 enum BrainHandoffSnapshot {
     static func markdown() async -> String {
         let generated = ISO8601DateFormatter().string(from: Date())
+        let brief = await OperatorBriefSnapshot.markdown()
         let deck = await OperatorDeckSnapshot.markdown()
         let pack = ControlSnapshot.latestContextPackMarkdown()
         return [
@@ -1486,10 +1684,15 @@ enum BrainHandoffSnapshot {
             "Generated: \(generated)",
             "",
             "## How To Use This",
-            "- Start with the Operator Deck. Treat the first card as the default next move unless new evidence contradicts it.",
+            "- Start with the Operator Brief for plain-language value, then use the Operator Deck for concrete actions.",
+            "- Treat the first action card as the default next move unless new evidence contradicts it.",
             "- Use the latest context pack as the working memory bundle for implementation, review, or planning.",
             "- Prefer concrete actions: build a pack, ask a focused question, commit useful findings, or mark queue items acted/dismissed.",
             "- Do not relaunch or foreground Terminal Brain unless the operator explicitly asks.",
+            "",
+            brief,
+            "",
+            "---",
             "",
             deck,
             "",
