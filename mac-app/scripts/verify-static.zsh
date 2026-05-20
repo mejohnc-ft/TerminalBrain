@@ -29,6 +29,14 @@ EOF
 esac
 
 zsh -n "$ROOT"/mac-app/scripts/*.zsh
+for script in \
+  "$ROOT/mac-app/scripts/oracle.zsh" \
+  "$ROOT/mac-app/scripts/snapshot.zsh" \
+  "$ROOT/mac-app/scripts/handoff.zsh" \
+  "$ROOT/mac-app/scripts/install-app.zsh" \
+  "$ROOT/mac-app/scripts/verify-live.zsh"; do
+  "$script" --help >/dev/null
+done
 "$ROOT/mac-app/scripts/check-api-routes.zsh"
 "$ROOT/mac-app/scripts/check-no-foreground.zsh"
 node --check "$ROOT/mcp-server/server.mjs" >/dev/null
