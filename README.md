@@ -31,7 +31,7 @@ make start-here
 make handoff
 ```
 
-Plain `make` prints help. `make verify`, `make status`, `make next`, `make value`, `make doctor`, `make live`, `make build`, and `make install` do not launch or foreground Terminal Brain. `make value` explains what value is available now and prints the live Value Brief when the app is reachable. `make next` prints Start Here when the app is reachable, or a safe status and manual next step when it is closed. `make doctor` audits app install, MCP contract, agent config references, process state, launchctl, and API readiness. `make status` answers what is currently running across repo, CI, process, launchctl, and localhost API state. `make live` expects the app to already be running.
+Plain `make` prints help. `make verify`, `make status`, `make next`, `make value`, `make doctor`, `make live`, `make build`, and `make install` do not launch or foreground Terminal Brain. `make value` explains what value is available now and prints the live Value Brief when the app is reachable. `make next` prints Start Here when the app is reachable, or a safe status and manual next step when it is closed. `make doctor` audits app install, MCP contract, agent config references, prompt-prone Apple Notes/Drafts bridges, process state, launchctl, and API readiness. `make status` answers what is currently running across repo, CI, process, launchctl, and localhost API state. `make live` expects the app to already be running.
 
 ## Components
 
@@ -132,7 +132,7 @@ For a non-launching readiness audit:
 make doctor
 ```
 
-This checks app build/install state, MCP syntax and tool contract, common agent config references, process state, launchctl, and localhost API readiness.
+This checks app build/install state, MCP syntax and tool contract, common agent config references, prompt-prone Apple Notes/Drafts bridges, process state, launchctl, and localhost API readiness.
 
 For API/MCP checks against an already-running app:
 

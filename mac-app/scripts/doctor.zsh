@@ -17,6 +17,7 @@ Runs a non-launching Terminal Brain readiness audit:
   - built and installed app bundles
   - MCP server syntax and tool contract
   - likely Codex/agent MCP config references
+  - prompt-prone Apple Notes/Drafts bridge checks
   - app process, launchctl, and API reachability
 
 This script never launches, foregrounds, quits, or controls Terminal Brain.
@@ -137,6 +138,37 @@ if (( ${#config_hits[@]} > 0 )); then
   printf '     %s\n' "${config_hits[@]}"
 else
   warn "no common Codex/Claude config reference found for Terminal Brain MCP"
+fi
+echo
+
+echo "## Prompt Safety"
+prompt_config_hits=()
+for file in "${config_files[@]}"; do
+  [[ -f "$file" ]] || continue
+  if grep -qEi 'apple[-_ ]?notes|drafts[-_ ]?(obsidian|mcp|bridge)' "$file"; then
+    prompt_config_hits+=("$file")
+  fi
+done
+
+if (( ${#prompt_config_hits[@]} > 0 )); then
+  warn "common agent config may auto-start prompt-prone Apple Notes/Drafts bridges"
+  printf '     %s\n' "${prompt_config_hits[@]}"
+else
+  ok "no prompt-prone Apple Notes/Drafts MCP auto-start entries found in common configs"
+fi
+
+bridge_processes="$(ps ax -o pid=,args= | grep -Ei 'apple[-_ ]?notes|drafts[-_ ]?(obsidian|mcp|bridge)' | grep -Ev 'grep -Ei|doctor\.zsh|check-entrypoints\.zsh|verify-static\.zsh' || true)"
+if [[ -n "$bridge_processes" ]]; then
+  warn "prompt-prone Apple Notes/Drafts bridge process may be running"
+  printf '%s\n' "$bridge_processes" | sed 's/^/     /'
+else
+  ok "no prompt-prone Apple Notes/Drafts bridge process detected"
+fi
+
+if [[ "${EDGE_BRAIN_INCLUDE_APPLE_NOTES:-0}" == "1" ]]; then
+  warn "EDGE_BRAIN_INCLUDE_APPLE_NOTES=1; Apple Notes export is opt-in enabled for this shell"
+else
+  ok "Apple Notes export remains opt-in disabled for this shell"
 fi
 echo
 

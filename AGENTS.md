@@ -6,7 +6,7 @@ This repository builds a local macOS app used during active work. Do not steal t
 
 - Use `make next` as the safest first command when you need to know the next move without launching the app.
 - Use `make value` when the operator needs a plain-language read on why Terminal Brain is useful right now.
-- Use `make doctor` when setup readiness is unclear; it audits app install, MCP contract, agent config, process state, launchctl, and API reachability without launching the app.
+- Use `make doctor` when setup readiness is unclear; it audits app install, MCP contract, agent config, prompt-prone Apple Notes/Drafts bridges, process state, launchctl, and API reachability without launching the app.
 - Use `./mac-app/scripts/verify-static.zsh` for normal verification.
 - Use `./mac-app/scripts/build-app.zsh` for build-only checks.
 - Use `./mac-app/scripts/verify-static.zsh` for Swift type-checking because the app now depends on SwiftUI, AppKit, Network, and AppIntents framework flags.
