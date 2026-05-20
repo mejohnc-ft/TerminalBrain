@@ -180,9 +180,16 @@ final class BrainStatusModel: ObservableObject {
     }
 
     func copyLatestContextPack() async {
-        guard let url = URL(string: "http://127.0.0.1:8765/context-packs/latest/markdown") else { return }
+        guard let metadataURL = URL(string: "http://127.0.0.1:8765/context-packs/latest"),
+              let markdownURL = URL(string: "http://127.0.0.1:8765/context-packs/latest/markdown") else { return }
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            let (metadataData, _) = try await URLSession.shared.data(from: metadataURL)
+            guard let metadata = try JSONSerialization.jsonObject(with: metadataData) as? [String: Any],
+                  metadata["ok"] as? Bool == true else {
+                latestPackCopyOutput = "No context pack yet."
+                return
+            }
+            let (data, _) = try await URLSession.shared.data(from: markdownURL)
             guard let markdown = String(data: data, encoding: .utf8), !markdown.isEmpty else {
                 latestPackCopyOutput = "Latest pack copy failed."
                 return

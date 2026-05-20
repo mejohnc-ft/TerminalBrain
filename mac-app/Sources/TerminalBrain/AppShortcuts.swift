@@ -75,6 +75,7 @@ enum ShortcutError: LocalizedError {
     case requestFailed(status: Int)
     case emptyResponse
     case emptyQuery
+    case noContextPack
 
     var errorDescription: String? {
         switch self {
@@ -88,6 +89,8 @@ enum ShortcutError: LocalizedError {
             return "Terminal Brain returned an empty response."
         case .emptyQuery:
             return "Enter a project, task, repo, or question before building a context pack."
+        case .noContextPack:
+            return "No Terminal Brain context pack exists yet. Build one with Start Work, then try again."
         }
     }
 }
@@ -159,7 +162,7 @@ struct OpenLatestContextPackIntent: AppIntent {
         guard payload["ok"] as? Bool == true,
               let path = payload["path"] as? String,
               !path.isEmpty else {
-            throw ShortcutError.emptyResponse
+            throw ShortcutError.noContextPack
         }
         NSWorkspace.shared.open(URL(fileURLWithPath: path))
         return .result(dialog: "Latest context pack opened.")
@@ -172,6 +175,10 @@ struct CopyLatestContextPackIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
+        let payload = try await ShortcutClient.json(path: "/context-packs/latest")
+        guard payload["ok"] as? Bool == true else {
+            throw ShortcutError.noContextPack
+        }
         let markdown = try await ShortcutClient.text(path: "/context-packs/latest/markdown")
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(markdown, forType: .string)
