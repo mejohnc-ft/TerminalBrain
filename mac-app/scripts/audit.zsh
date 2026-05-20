@@ -68,6 +68,7 @@ echo "ok   MCP tool contract count: ${tool_count:-unknown}"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_value_now_markdown' "MCP Value Now"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_next_markdown' "MCP Next"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_doctor_markdown' "MCP Doctor"
+require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_audit_markdown' "MCP Audit"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_runtime_status' "MCP Runtime Status"
 require_evidence "$ROOT/mcp-server/server.mjs" 'terminal_brain_commit_outcome' "MCP Outcome Commit"
 echo
