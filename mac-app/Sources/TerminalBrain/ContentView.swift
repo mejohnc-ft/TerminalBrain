@@ -672,6 +672,18 @@ struct ContentView: View {
                 }
 
                 ValueBriefTile(
+                    label: "Check In",
+                    title: "One real sentence",
+                    detail: "When nothing is clearly bubbling up, capture the decision, loose end, or artifact that is actually on your mind.",
+                    action: "Start",
+                    symbol: "text.badge.plus",
+                    accent: .teal
+                ) {
+                    model.quickIdea = "The decision I keep circling is ..."
+                    selectedSection = "focus"
+                }
+
+                ValueBriefTile(
                     label: "Capture",
                     title: "Pressure point",
                     detail: "If the next signal is still in your head, save it before it disappears.",
