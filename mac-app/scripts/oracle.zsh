@@ -98,6 +98,13 @@ local_answer_read() {
       markdown.lines.map(&:strip).find { |line| line.match?(pattern) }.to_s
     end
 
+    def shell_assignment(name, value)
+      escaped = value.to_s.gsub(/["\\$`]/) { |char| "\\#{char}" }
+      %(#{name}="#{escaped}")
+    end
+
+    project_assignment = shell_assignment("PROJECT", project)
+
     recent = section(text, "Recent Work Signals")
     items = section(text, "Items To Pull Forward")
     missing = section(text, "What You May Not Be Considering")
@@ -111,7 +118,7 @@ local_answer_read() {
     if !recent.empty?
       signal = first_heading(recent)
       command = first_code_command(recent, /^make recent-work INDEX=1\b/)
-      command = "#{command} PROJECT=#{project.shellescape}" if !command.empty? && !command.include?(" PROJECT=")
+      command = "#{command} #{project_assignment}" if !command.empty? && !command.include?(" PROJECT=")
       why = "Fresh shipped work needs to become durable memory, or future agents will see the commit but miss the judgment behind it."
       blindspot = "A clean review queue can still hide uncaptured implementation context."
     elsif !items.empty? && items !~ /^No (open )?items matched\./
@@ -127,7 +134,7 @@ local_answer_read() {
       blindspot = "Do not manufacture review work just because the system is available."
     end
 
-    command = "make idea TITLE=\"Decision pressure\" IDEA=\"The decision I keep circling is ...\" PROJECT=#{project.shellescape}" if command.empty?
+    command = "make idea TITLE=\"Decision pressure\" IDEA=\"The decision I keep circling is ...\" #{project_assignment}" if command.empty?
     signal = "No dominant open signal" if signal.empty?
     why ||= "The system needs one concrete artifact: a decision, memory note, delegated task, or outcome."
     blindspot ||= missing.lines.map(&:strip).find { |line| line.start_with?("- ") }.to_s.sub(/^- /, "")
@@ -155,7 +162,7 @@ local_answer_read() {
     puts "## Save The Result"
     puts
     puts "```zsh"
-    puts "make outcome TITLE=\"...\" OUTCOME=\"What changed, why it mattered, and what evidence exists.\" PROJECT=#{project.shellescape} NEXT=\"The next concrete action.\""
+    puts "make outcome TITLE=\"...\" OUTCOME=\"What changed, why it mattered, and what evidence exists.\" #{project_assignment} NEXT=\"The next concrete action.\""
     puts "```"
   '
 }
