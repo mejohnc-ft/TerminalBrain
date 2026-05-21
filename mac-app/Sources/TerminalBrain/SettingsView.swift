@@ -12,6 +12,7 @@ struct SettingsView: View {
                     }
                 }
                 Toggle("Reduce glass effects", isOn: $settings.reduceGlass)
+                Toggle("Simple operator navigation", isOn: $settings.operatorPathOnly)
                 Toggle("Show advanced system surfaces", isOn: $settings.showAdvancedSystem)
             }
             .padding(24)

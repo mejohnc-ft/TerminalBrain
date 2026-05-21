@@ -374,14 +374,34 @@ struct ContentView: View {
                     .sidebarHeader()
                 NavRow(title: "Use Now", symbol: "bolt.circle.fill", badge: "", selected: selectedSection == "use-now") { selectedSection = "use-now" }
                 NavRow(title: "Work Block", symbol: "target", badge: "\(model.oracleCommits.filter { $0.status == .new || $0.status == .delegated }.count)", selected: selectedSection == "work-block") { selectedSection = "work-block" }
-                NavRow(title: "Now", symbol: "sparkles", badge: model.setupAttentionCount == 0 ? "" : "\(model.setupAttentionCount)", selected: selectedSection == "now") { selectedSection = "now" }
-                NavRow(title: "Value", symbol: "bolt.fill", badge: "\(model.focusItem.score)", selected: selectedSection == "value") { selectedSection = "value" }
-                NavRow(title: "Start Here", symbol: "play.circle.fill", badge: "", selected: selectedSection == "start-here") { selectedSection = "start-here" }
-                NavRow(title: "Focus", symbol: "target", badge: "\(model.focusItem.score)", selected: selectedSection == "focus") { selectedSection = "focus" }
-                NavRow(title: "Cockpit", symbol: "house.fill", badge: model.summaryLine == "Brain status ready" ? "" : "!", selected: selectedSection == "cockpit") { selectedSection = "cockpit" }
-                NavRow(title: "Setup", symbol: "checklist.checked", badge: model.setupAttentionCount == 0 ? "" : "\(model.setupAttentionCount)", selected: selectedSection == "setup") { selectedSection = "setup" }
+                NavRow(title: "Oracle", symbol: "sparkle.magnifyingglass", badge: "\(model.oracleItems.count)", selected: selectedSection == "oracle") { selectedSection = "oracle" }
+                NavRow(title: "Review", symbol: "tray.and.arrow.down.fill", badge: "\(model.oracleCommits.filter { $0.status == .new }.count)", selected: selectedSection == "review") { selectedSection = "review" }
+                NavRow(title: "Ideas", symbol: "lightbulb.fill", badge: "\(model.ideaPulseItems.count)", selected: selectedSection == "ideas") { selectedSection = "ideas" }
+                NavRow(title: "Start Work", symbol: "sparkles", badge: "", selected: selectedSection == "start") { selectedSection = "start" }
+                if settings.operatorPathOnly {
+                    Button {
+                        settings.operatorPathOnly = false
+                    } label: {
+                        Label("Show All Surfaces", systemImage: "sidebar.leading")
+                            .font(.callout.weight(.semibold))
+                            .foregroundStyle(.white.opacity(0.72))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 8)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    NavRow(title: "Now", symbol: "sparkles", badge: model.setupAttentionCount == 0 ? "" : "\(model.setupAttentionCount)", selected: selectedSection == "now") { selectedSection = "now" }
+                    NavRow(title: "Value", symbol: "bolt.fill", badge: "\(model.focusItem.score)", selected: selectedSection == "value") { selectedSection = "value" }
+                    NavRow(title: "Start Here", symbol: "play.circle.fill", badge: "", selected: selectedSection == "start-here") { selectedSection = "start-here" }
+                    NavRow(title: "Focus", symbol: "target", badge: "\(model.focusItem.score)", selected: selectedSection == "focus") { selectedSection = "focus" }
+                    NavRow(title: "Cockpit", symbol: "house.fill", badge: model.summaryLine == "Brain status ready" ? "" : "!", selected: selectedSection == "cockpit") { selectedSection = "cockpit" }
+                    NavRow(title: "Setup", symbol: "checklist.checked", badge: model.setupAttentionCount == 0 ? "" : "\(model.setupAttentionCount)", selected: selectedSection == "setup") { selectedSection = "setup" }
+                }
             }
 
+            if !settings.operatorPathOnly {
             VStack(alignment: .leading, spacing: 7) {
                 Text("Learn")
                     .sidebarHeader()
@@ -397,14 +417,10 @@ struct ContentView: View {
                     .sidebarHeader()
                 NavRow(title: "Radar", symbol: "scope", badge: "\(model.radarItems.count)", selected: selectedSection == "radar") { selectedSection = "radar" }
                 NavRow(title: "Blindspots", symbol: "eye.fill", badge: "\(model.blindspotItems.count)", selected: selectedSection == "blindspots") { selectedSection = "blindspots" }
-                NavRow(title: "Ideas", symbol: "lightbulb.fill", badge: "\(model.ideaPulseItems.count)", selected: selectedSection == "ideas") { selectedSection = "ideas" }
-                NavRow(title: "Oracle", symbol: "sparkle.magnifyingglass", badge: "\(model.oracleItems.count)", selected: selectedSection == "oracle") { selectedSection = "oracle" }
-                NavRow(title: "Review", symbol: "tray.and.arrow.down.fill", badge: "\(model.oracleCommits.filter { $0.status == .new }.count)", selected: selectedSection == "review") { selectedSection = "review" }
                 NavRow(title: "Projects", symbol: "folder.fill.badge.gearshape", badge: "\(model.projects.count)", selected: selectedSection == "projects") { selectedSection = "projects" }
                 NavRow(title: "Memory", symbol: "brain.head.profile", badge: "", selected: selectedSection == "memory") { selectedSection = "memory" }
                 NavRow(title: "Feed", symbol: "list.bullet.rectangle.portrait.fill", badge: "\(model.feedItems.count)", selected: selectedSection == "feed") { selectedSection = "feed" }
                 NavRow(title: "Today", symbol: "sun.max.fill", badge: "\(model.briefing.count)", selected: selectedSection == "briefing") { selectedSection = "briefing" }
-                NavRow(title: "Start Work", symbol: "sparkles", badge: "", selected: selectedSection == "start") { selectedSection = "start" }
             }
 
             VStack(alignment: .leading, spacing: 7) {
@@ -412,6 +428,7 @@ struct ContentView: View {
                     .sidebarHeader()
                 NavRow(title: "Sources", symbol: "tray.full.fill", badge: "\(model.sources.count)", selected: selectedSection == "sources") { selectedSection = "sources" }
                 NavRow(title: "System", symbol: "puzzlepiece.extension.fill", badge: systemBadge, selected: selectedSection == "system") { selectedSection = "system" }
+            }
             }
 
             Spacer()

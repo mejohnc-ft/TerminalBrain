@@ -66,6 +66,9 @@ final class AppSettings: ObservableObject {
     @Published var showAdvancedSystem: Bool {
         didSet { UserDefaults.standard.set(showAdvancedSystem, forKey: "terminalBrainShowAdvancedSystem") }
     }
+    @Published var operatorPathOnly: Bool {
+        didSet { UserDefaults.standard.set(operatorPathOnly, forKey: "terminalBrainOperatorPathOnly") }
+    }
     @Published var workspacePath: String {
         didSet { UserDefaults.standard.set(workspacePath, forKey: AppConfig.Keys.workspacePath) }
     }
@@ -90,6 +93,7 @@ final class AppSettings: ObservableObject {
         theme = AppTheme(rawValue: rawTheme) ?? .system
         reduceGlass = UserDefaults.standard.bool(forKey: "terminalBrainReduceGlass")
         showAdvancedSystem = UserDefaults.standard.bool(forKey: "terminalBrainShowAdvancedSystem")
+        operatorPathOnly = UserDefaults.standard.object(forKey: "terminalBrainOperatorPathOnly") as? Bool ?? true
         workspacePath = AppConfig.workspacePath
         missionURLString = AppConfig.missionURLString
         missionSSHHost = AppConfig.missionSSHHost
