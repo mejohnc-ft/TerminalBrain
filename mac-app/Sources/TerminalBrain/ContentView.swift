@@ -5259,8 +5259,12 @@ struct ValueBriefTile: View {
                 in: RoundedRectangle(cornerRadius: 14, style: .continuous)
             )
             .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(.white.opacity(0.10), lineWidth: 1))
+            .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
         .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label): \(title)")
+        .accessibilityHint("\(detail) Action: \(action).")
     }
 }
 

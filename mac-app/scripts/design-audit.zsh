@@ -88,6 +88,8 @@ require_evidence "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Comman
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Promote Recent Work' "recent-work action in command palette"
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Promote Work' "recent-work action on Memory surface"
 require_evidence "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Ask Terminal Brain' "Oracle interaction surface"
+require_evidence "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'contentShape\(RoundedRectangle\(cornerRadius: 14' "full-card action hit targets"
+require_evidence "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'accessibilityHint' "action card accessibility hints"
 echo
 
 echo "## Remaining Visual Gap"
