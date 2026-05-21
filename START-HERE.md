@@ -2,6 +2,10 @@
 
 Terminal Brain is useful when it turns scattered local context into one work block with a written outcome.
 
+If you open the native app manually, start in the simple operator sidebar. The default path is `Use Now` -> `Oracle` -> `Review` -> `Start Work`, with `Ideas` for anything you do not want to lose. Use `Show All Surfaces` only when you need the deeper dashboard.
+
+On `Use Now`, use the inline `Ask, Decide, Remember` panel before browsing: ask what you may be missing, ask for the cheapest useful test, delegate a bounded agent task, or commit the useful read into the review queue.
+
 ## One-Block Loop
 
 1. Start with the one-command path:

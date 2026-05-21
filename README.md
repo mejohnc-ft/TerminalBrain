@@ -6,6 +6,8 @@ Agent contributors should read `AGENTS.md` before running local commands. The de
 
 For the shortest value path, start with [`START-HERE.md`](START-HERE.md).
 
+Native app path: open Terminal Brain manually when you want the UI active. The default sidebar is intentionally simple: `Use Now`, `Work Block`, `Oracle`, `Review`, `Ideas`, and `Start Work`. Use `Show All Surfaces` or Settings -> Simple operator navigation when you need the advanced map. On `Use Now`, the inline `Ask, Decide, Remember` panel is the first interaction: challenge the move, ask for the cheapest test, delegate to an agent, or commit the useful read.
+
 Start here:
 
 ```zsh
@@ -87,6 +89,8 @@ Plain `make` prints help. `make verify`, `make use-now`, `make first-minute`, `m
 
 - Local status, source, permission, briefing, and sync checks.
 - Use Now: the default native app surface, `make use-now`, `make use-now IDEA="..."`, `/use-now/markdown`, the Copy Use Now menu/menu-bar/Shortcut action, and `terminal_brain_use_now_markdown` give a single first-use path that starts with one move, can capture one rough thought, shows compact pull-forward context, asks the Oracle, delegates a bounded task, and writes the outcome back.
+- Simple operator navigation: the native sidebar defaults to the core path, with `Show All Surfaces` and Settings -> Simple operator navigation for advanced surfaces. This keeps the first screen from feeling like a metrics wall.
+- Inline Oracle loop: the native `Use Now` screen has `Ask, Decide, Remember` controls for missing-signal checks, cheap tests, agent delegation, and commit-read writeback before the operator has to browse deeper views.
 - First Minute: `make first-minute`, `/first-minute/markdown`, `terminal_brain_first_minute_markdown`, the default in-app First Minute surface with quick thought capture, Copy First Minute in the app/menu bar, and the Copy First Minute App Shortcut provide the shortest explanation, next step, and working proof for a new operator or agent.
 - Demo: native app section, Copy Demo menu/shortcut, `make demo`, `/demo/markdown`, and `terminal_brain_demo_markdown` create a temporary workspace with seeded ideas and outcomes, then show Review Queue, Bubble Up, Work Block, and real-use commands without touching your real workspace.
 - Playbook: native app section, Copy Playbook menu/shortcut, `make playbook`, `/playbook/markdown`, and `terminal_brain_playbook_markdown` map common operator situations to exact commands, first five-minute loop, daily cadence, agent handoff cadence, and current readiness.
