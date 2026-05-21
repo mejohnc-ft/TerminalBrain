@@ -21,6 +21,8 @@ require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Termina
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Value Now' "Value Now app surface"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'selectedSection = "use-now"' "Use Now default app section"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'useNowNoChoicePanel' "Use Now native no-choice panel"
+require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'useNowDirectAnswerPreview' "Use Now native direct answer preview"
+require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Ask Direct Answer' "Use Now native direct answer action"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'No-Choice Path' "Use Now native no-choice copy"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Do This Now' "Use Now native immediate action"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Save Result' "Use Now native outcome action"

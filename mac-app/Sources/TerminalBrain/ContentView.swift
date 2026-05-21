@@ -582,10 +582,11 @@ struct ContentView: View {
         let focus = model.focusItem
         let topReview = model.oracleCommits.first { $0.status == .new || $0.status == .delegated }
         let project = focus.project.isEmpty ? "Terminal Brain" : focus.project
-        let useNowTitle = topReview?.title ?? focus.title
+        let directQuestion = useNowDirectQuestion(project: project)
+        let useNowTitle = topReview?.title ?? "Ask the direct Oracle question"
         let useNowReason: String
         if topReview == nil {
-            useNowReason = focus.reason
+            useNowReason = "The queue is clean, so the useful move is to get one direct decision read instead of scanning more surfaces."
         } else {
             useNowReason = "This is the top open review signal. Accept, delegate, link, or dismiss it so it stops floating."
         }
@@ -610,14 +611,18 @@ struct ContentView: View {
 
             useNowNoChoicePanel(focus: focus, topReview: topReview, title: useNowTitle, project: project)
 
+            if topReview == nil {
+                useNowDirectAnswerPreview(project: project, question: directQuestion)
+            }
+
             useNowOraclePanel(focus: focus, topReview: topReview)
 
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 240), spacing: 12)], spacing: 12) {
                 ValueBriefTile(
                     label: "One Move",
                     title: useNowTitle,
-                    detail: topReview?.preview ?? "Do this first: \(focus.reason)",
-                    action: topReview == nil ? focus.action : "Open Review",
+                    detail: topReview?.preview ?? "Do this first: \(directQuestion)",
+                    action: topReview == nil ? "Ask Oracle" : "Open Review",
                     symbol: topReview?.status.symbol ?? focus.symbol,
                     accent: topReview?.status.color ?? focus.state.color
                 ) {
@@ -626,7 +631,7 @@ struct ContentView: View {
                         reviewProjectFilter = topReview.project.isEmpty ? "all" : topReview.project
                         selectedSection = "review"
                     } else {
-                        applyFocusAction(focus)
+                        askUseNowDirectAnswer(project: project)
                     }
                 }
 
@@ -661,8 +666,7 @@ struct ContentView: View {
                     symbol: "sparkle.magnifyingglass",
                     accent: settings.theme.accent
                 ) {
-                    model.oracleQuestion = "What should I do next for \(project), and what am I missing?"
-                    selectedSection = "oracle"
+                    askUseNowDirectAnswer(project: project)
                 }
 
                 ValueBriefTile(
@@ -714,6 +718,92 @@ struct ContentView: View {
         }
     }
 
+    private func useNowDirectQuestion(project: String) -> String {
+        "What should I do next for \(project), what am I missing, and what cheap test would create value?"
+    }
+
+    private func askUseNowDirectAnswer(project: String) {
+        model.oracleQuestion = useNowDirectQuestion(project: project)
+        selectedSection = "oracle"
+        Task { await model.askOracle() }
+    }
+
+    private func useNowDirectAnswerPreview(project: String, question: String) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: "sparkle.magnifyingglass")
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundStyle(settings.theme.accent)
+                    .frame(width: 46, height: 46)
+                    .background(settings.theme.accent.opacity(0.14), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Direct Answer Preview")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(settings.theme.accent)
+                        .textCase(.uppercase)
+                    Text("Ask once, then leave an artifact.")
+                        .font(.title3.weight(.bold))
+                        .foregroundStyle(.white)
+                    Text("This mirrors `make answer`: one direct read, one cheap test, and one writeback command instead of a metrics sweep.")
+                        .font(.callout)
+                        .foregroundStyle(.white.opacity(0.58))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer()
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text(question)
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text("Good output is one decision, one note, one artifact, or one next action.")
+                    .font(.callout)
+                    .foregroundStyle(.white.opacity(0.62))
+            }
+            .padding(12)
+            .background(.white.opacity(0.07), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(.white.opacity(0.09), lineWidth: 1))
+
+            HStack(spacing: 8) {
+                Button {
+                    askUseNowDirectAnswer(project: project)
+                } label: {
+                    Label("Ask Direct Answer", systemImage: "sparkle.magnifyingglass")
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(settings.theme.accent)
+                .help("Ask the same direct question used by make answer.")
+                .accessibilityHint("Asks for one next move, missing signal, and cheap test.")
+
+                Button {
+                    Task { await model.promoteRecentWork(index: 1) }
+                } label: {
+                    Label("Promote Recent Work", systemImage: "arrow.up.doc.fill")
+                }
+                .buttonStyle(.bordered)
+                .help("Turn the freshest uncovered git change into reviewable memory.")
+
+                Button {
+                    model.outcomeTitle = "Use Now direct answer"
+                    model.outcomeText = "What changed, why it mattered, and what evidence exists."
+                    model.outcomeNextAction = "Run Use Now again and pick the next useful signal."
+                    selectedSection = "start-here"
+                } label: {
+                    Label("Save Outcome", systemImage: "square.and.arrow.down.fill")
+                }
+                .buttonStyle(.bordered)
+                .tint(.green)
+                .help("Write the result back into durable memory.")
+            }
+            .controlSize(.large)
+        }
+        .padding(16)
+        .darkPanel()
+    }
+
     private func useNowNoChoicePanel(focus: FocusItem, topReview: OracleCommit?, title: String, project: String) -> some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .top, spacing: 12) {
@@ -747,7 +837,7 @@ struct ContentView: View {
                         reviewProjectFilter = topReview.project.isEmpty ? "all" : topReview.project
                         selectedSection = "review"
                     } else {
-                        applyFocusAction(focus)
+                        askUseNowDirectAnswer(project: project)
                     }
                 } label: {
                     VStack(alignment: .leading, spacing: 5) {
@@ -767,8 +857,7 @@ struct ContentView: View {
                 .accessibilityHint("Starts the selected move.")
 
                 Button {
-                    model.oracleQuestion = "What should I do next for \(project), what am I missing, and what cheap test would create value?"
-                    selectedSection = "oracle"
+                    askUseNowDirectAnswer(project: project)
                 } label: {
                     VStack(alignment: .leading, spacing: 5) {
                         Label("If Not", systemImage: "questionmark.circle.fill")
