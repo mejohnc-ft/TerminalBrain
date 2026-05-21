@@ -88,6 +88,8 @@ final class LocalControlServer {
                 makeTarget: "make completion-audit",
                 environment: ["TERMINAL_BRAIN_COMPLETION_AUDIT_SKIP_VERIFY": "1"]
             ))
+        case ("GET", "/visual-review-plan/markdown"):
+            return .text(200, await ScriptMarkdownSnapshot.markdown(title: "Terminal Brain Visual Review Plan", scriptName: "visual-review-plan.zsh", makeTarget: "make visual-review-plan"))
         case ("GET", "/cleanup-plan/markdown"):
             return .text(200, await CleanupPlanSnapshot.markdown())
         case ("GET", "/process-map/markdown"):

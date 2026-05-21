@@ -181,6 +181,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_visual_review_plan_markdown",
+    description: "Get the non-launching manual visual review plan for certifying the remaining native UX gate when the operator explicitly opens the app.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_review_queue_markdown",
     description: "Read the non-launching Oracle Inbox review queue as Markdown without opening Terminal Brain.",
     inputSchema: {
@@ -1516,6 +1525,24 @@ function completionAuditMarkdown() {
   ].join("\n");
 }
 
+function visualReviewPlanMarkdown() {
+  const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "visual-review-plan.zsh")], { timeout: 15000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Visual Review Plan",
+    "",
+    "Visual review plan failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 function reviewQueueMarkdown(args = {}) {
   const commandArgs = [join(ROOT, "mac-app", "scripts", "review.zsh")];
   if (Number.isFinite(args.limit)) {
@@ -2046,6 +2073,8 @@ async function callTool(name, args = {}) {
       return valueAuditMarkdown();
     case "terminal_brain_completion_audit_markdown":
       return completionAuditMarkdown();
+    case "terminal_brain_visual_review_plan_markdown":
+      return visualReviewPlanMarkdown();
     case "terminal_brain_review_queue_markdown":
       return reviewQueueMarkdown(args);
     case "terminal_brain_bubble_up_markdown":

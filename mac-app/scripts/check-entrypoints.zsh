@@ -535,6 +535,12 @@ require_contains "$mcp_completion_audit_output" '# Terminal Brain Completion Aud
 require_contains "$mcp_completion_audit_output" 'Prompt-To-Artifact Checklist' "MCP completion audit checklist"
 require_contains "$mcp_completion_audit_output" 'Completion status: not marked complete' "MCP completion audit visual blocker"
 
+mcp_visual_review_plan_output="$(call_mcp_tool terminal_brain_visual_review_plan_markdown)"
+require_contains "$mcp_visual_review_plan_output" '# Terminal Brain Visual Review Plan' "MCP visual review plan title"
+require_contains "$mcp_visual_review_plan_output" 'Simple operator navigation is the default' "MCP visual review simple nav"
+require_contains "$mcp_visual_review_plan_output" 'Ask, Decide, Remember panel' "MCP visual review inline Oracle"
+require_contains "$mcp_visual_review_plan_output" 'did not launch, foreground, screenshot, quit, kill, or control' "MCP visual review guardrail"
+
 mcp_memory_workspace="$(mktemp -d)"
 mkdir -p "$mcp_memory_workspace/.brain"
 cat >"$mcp_memory_workspace/.brain/agent-history-stats.json" <<'JSON'

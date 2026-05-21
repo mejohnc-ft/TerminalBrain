@@ -263,6 +263,19 @@ struct CopyCompletionAuditIntent: AppIntent {
     }
 }
 
+struct CopyVisualReviewPlanIntent: AppIntent {
+    static var title: LocalizedStringResource = "Copy Visual Review Plan"
+    static var description = IntentDescription("Copy Terminal Brain's manual live visual certification checklist as Markdown.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let markdown = try await ShortcutClient.text(path: "/visual-review-plan/markdown")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "Visual Review Plan copied.")
+    }
+}
+
 struct CopyCleanupPlanIntent: AppIntent {
     static var title: LocalizedStringResource = "Copy Cleanup Plan"
     static var description = IntentDescription("Copy Terminal Brain's read-only stale MCP and kernel cleanup plan as Markdown.")
@@ -739,6 +752,15 @@ struct TerminalBrainShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Completion Audit",
             systemImageName: "checkmark.shield"
+        )
+        AppShortcut(
+            intent: CopyVisualReviewPlanIntent(),
+            phrases: [
+                "Copy \(.applicationName) visual review plan",
+                "Review \(.applicationName) visual polish"
+            ],
+            shortTitle: "Visual Review",
+            systemImageName: "eye.trianglebadge.exclamationmark"
         )
         AppShortcut(
             intent: CopyCleanupPlanIntent(),

@@ -13,6 +13,7 @@
   "GET /playbook/markdown",
   "GET /value-audit/markdown",
   "GET /completion-audit/markdown",
+  "GET /visual-review-plan/markdown",
   "GET /cleanup-plan/markdown",
   "GET /process-map/markdown",
   "GET /support-bundle/markdown",

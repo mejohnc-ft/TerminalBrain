@@ -94,6 +94,7 @@ struct ContentView: View {
             BrainCommand(title: "Copy Playbook", subtitle: "Operator command map and daily cadence", symbol: "book.closed.fill", category: "Action", action: .copyPlaybook),
             BrainCommand(title: "Copy Value Audit", subtitle: "Evidence checklist and gaps", symbol: "checkmark.seal.fill", category: "Action", action: .copyValueAudit),
             BrainCommand(title: "Copy Completion Audit", subtitle: "World-class readiness checklist and visual blocker", symbol: "checkmark.shield.fill", category: "Action", action: .copyCompletionAudit),
+            BrainCommand(title: "Copy Visual Review Plan", subtitle: "Manual checklist for the remaining live UX gate", symbol: "eye.trianglebadge.exclamationmark.fill", category: "Action", action: .copyVisualReviewPlan),
             BrainCommand(title: "Copy Now", subtitle: "Bottom line, next action, process truth, and close loop", symbol: "sparkles", category: "Action", action: .copyNow),
             BrainCommand(title: "Copy Process Map", subtitle: "Terminal Brain, Codex, MCP, kernel, Drafts, launchctl, and API state", symbol: "point.3.connected.trianglepath.dotted", category: "Action", action: .copyProcessMap),
             BrainCommand(title: "Copy Cleanup Plan", subtitle: "Read-only stale MCP/kernel process cleanup guidance", symbol: "wrench.and.screwdriver.fill", category: "Action", action: .copyCleanupPlan),
@@ -4235,6 +4236,8 @@ struct ContentView: View {
             Task { await model.copyValueAudit() }
         case .copyCompletionAudit:
             Task { await model.copyCompletionAudit() }
+        case .copyVisualReviewPlan:
+            Task { await model.copyVisualReviewPlan() }
         case .copyNow:
             Task { await model.copyNow() }
         case .copyProcessMap:
@@ -4548,6 +4551,7 @@ enum BrainCommandAction {
     case copyPlaybook
     case copyValueAudit
     case copyCompletionAudit
+    case copyVisualReviewPlan
     case copyNow
     case copyProcessMap
     case copyCleanupPlan
