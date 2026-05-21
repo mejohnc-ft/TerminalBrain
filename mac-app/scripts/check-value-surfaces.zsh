@@ -201,6 +201,7 @@ require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'Why This Move' "Use Now exp
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'Choose Your Mode' "Use Now explicit operator mode menu"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'make ask-commit QUERY=.*clean' "Use Now clean-queue committed Oracle read"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'recent-work.zsh.*--dry-run' "Use Now checks recent work before falling back"
+require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'Selected Signal' "Use Now explains selected recent-work signal"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'one executable move before the detailed read' "Use Now help one-move copy"
 require_in_file "$ROOT/Makefile" 'one move, ask, capture, delegate, close' "Makefile Use Now one-move help"
 require_in_file "$ROOT/mac-app/scripts/doctor.zsh" 'one move, compact context' "doctor Use Now one-move next step"

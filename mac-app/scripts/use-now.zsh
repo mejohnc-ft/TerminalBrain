@@ -167,6 +167,32 @@ why_this_move() {
   fi
 }
 
+selected_signal_detail() {
+  local command="$1"
+  local project="$2"
+
+  if ! grep -q 'make recent-work INDEX=' <<<"$command"; then
+    return
+  fi
+
+  local selection_json
+  selection_json="$(INDEX=1 PROJECT="$project" "$ROOT/mac-app/scripts/recent-work.zsh" --dry-run 2>/dev/null || true)"
+  if [[ -z "$selection_json" ]]; then
+    return
+  fi
+
+  SELECTION_JSON="$selection_json" ruby -rjson -e '
+    payload = JSON.parse(ENV.fetch("SELECTION_JSON"))
+    commit = payload.fetch("commit", {})
+    puts "## Selected Signal"
+    puts
+    puts "- #{payload.fetch("title", "Recent work signal")}"
+    puts "- Commit: #{commit.fetch("short", "unknown")} - #{commit.fetch("subject", "unknown change")}"
+    puts "- Age: #{commit.fetch("age", "unknown")}"
+    puts "- Why it surfaced: recent shipped work has not yet been covered by accepted Oracle memory."
+  ' 2>/dev/null || true
+}
+
 echo "# Terminal Brain Use Now"
 echo
 echo "This is the one-command path when you do not want to think about which Terminal Brain surface to use."
@@ -224,6 +250,8 @@ echo
 echo "## Why This Move"
 echo
 why_this_move "$one_move"
+echo
+selected_signal_detail "$one_move" "$PROJECT"
 echo
 echo "## Choose Your Mode"
 echo
