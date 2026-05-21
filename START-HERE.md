@@ -12,10 +12,11 @@ On `Use Now`, use the inline `Ask, Decide, Remember` panel before browsing: ask 
 
    ```zsh
    make start
+   make easy
    make use-now
    ```
 
-   `make start` and `make use-now` start with one executable move, then show the pull-forward context, Oracle ask command, idea capture command, agent handoff command, and outcome writeback command.
+   `make start`, `make easy`, and `make use-now` start with a no-choice path: one executable move, a fallback ask/capture path if that move does not fit, and the outcome writeback command before the detailed context.
 
    The native signal loop is: Radar surfaces a signal, Blindspots challenges it, and Ideas captures the follow-up if the counter-signal should become durable work. In the app this is exposed as `Check Blindspots`, `Capture as Idea`, and the Ideas capture lane. From the terminal, use:
 

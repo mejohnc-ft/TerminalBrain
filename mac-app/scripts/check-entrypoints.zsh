@@ -69,6 +69,10 @@ require_contains "$start_here_output" 'did not launch or foreground' "start here
 
 use_now_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/use-now.zsh" --project "Terminal Brain" --limit 1)"
 require_contains "$use_now_output" '# Terminal Brain Use Now' "use now title"
+require_contains "$use_now_output" 'No-Choice Path' "use now no-choice path"
+require_contains "$use_now_output" 'Do This Now' "use now immediate command"
+require_contains "$use_now_output" 'Save The Result' "use now save result command"
+require_contains "$use_now_output" 'Good result: one decision, one note, one artifact, or one next action' "use now plain success criteria"
 require_contains "$use_now_output" 'What You Get In 60 Seconds' "use now value section"
 require_contains "$use_now_output" '## One Move' "use now one move section"
 require_contains "$use_now_output" '## Why This Move' "use now one move rationale"

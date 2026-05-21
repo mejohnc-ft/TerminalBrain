@@ -223,9 +223,41 @@ selected_signal_detail() {
   ' 2>/dev/null || true
 }
 
+work_block_output="$("$ROOT/mac-app/scripts/work-block.zsh" --project "$PROJECT" --limit "$LIMIT")"
+one_move="$(printf '%s\n' "$work_block_output" | one_move_from_work_block)"
+if [[ "$one_move" == "__NO_SIGNAL__" ]]; then
+  one_move="$(fallback_one_move "$PROJECT")"
+fi
+
 echo "# Terminal Brain Use Now"
 echo
 echo "This is the one-command path when you do not want to think about which Terminal Brain surface to use."
+echo
+echo "## No-Choice Path"
+echo
+echo "If you are lost, do not browse the app and do not pick a dashboard. Run the first command, then save what changed."
+echo
+echo "### 1. Do This Now"
+echo
+echo '```zsh'
+printf '%s\n' "$one_move"
+echo '```'
+echo
+echo "### 2. If That Does Not Fit"
+echo
+echo '```zsh'
+echo "make ask-commit QUERY=\"What should I do next for ${PROJECT}, what am I missing, and what cheap test would create value?\" PROJECT=\"$PROJECT\""
+echo "make start IDEA=\"The thing I keep circling is ...\" PROJECT=\"$PROJECT\""
+echo '```'
+echo
+echo "### 3. Save The Result"
+echo
+echo '```zsh'
+echo "make outcome TITLE=\"...\" OUTCOME=\"What changed, why it mattered, and what evidence exists.\" PROJECT=\"$PROJECT\" NEXT=\"The next concrete action.\""
+echo '```'
+echo
+echo "- Good result: one decision, one note, one artifact, or one next action."
+echo "- Stop after that. Terminal Brain gets smarter from the writeback, not from more browsing."
 echo
 echo "## What You Get In 60 Seconds"
 echo
@@ -252,23 +284,18 @@ if [[ -n "$IDEA_TEXT" ]]; then
     SOURCE="$SOURCE" \
     "$ROOT/mac-app/scripts/idea.zsh"
   )"
-  if ! CAPTURE_OUTPUT="$capture_output" ruby -rjson -e '
+  if ! CAPTURE_OUTPUT="$capture_output" IDEA_TEXT="$IDEA_TEXT" ruby -rjson -e '
     payload = JSON.parse(ENV.fetch("CAPTURE_OUTPUT"))
     puts "- Captured: #{payload.fetch("title", "Captured Idea")}"
     puts "- Project: #{payload.fetch("project", "General Brain")}"
     puts "- Review status: #{payload.fetch("reviewStatus", "new")}"
+    puts "- Thought: #{ENV.fetch("IDEA_TEXT", "").strip}"
     puts "- Path: #{payload.fetch("path", "(app API)")}"
     puts "- Guardrail: #{payload.fetch("guardrail", "capture did not launch or foreground Terminal Brain")}"
   '; then
     printf '%s\n' "$capture_output"
   fi
   echo
-fi
-
-work_block_output="$("$ROOT/mac-app/scripts/work-block.zsh" --project "$PROJECT" --limit "$LIMIT")"
-one_move="$(printf '%s\n' "$work_block_output" | one_move_from_work_block)"
-if [[ "$one_move" == "__NO_SIGNAL__" ]]; then
-  one_move="$(fallback_one_move "$PROJECT")"
 fi
 
 echo "## One Move"

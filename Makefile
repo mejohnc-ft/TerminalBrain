@@ -1,8 +1,9 @@
-.PHONY: help build install verify live start use-now first-minute demo playbook value-audit completion-audit design-audit visual-review-plan now what-now sources memory memory-promote recent-work status processes cleanup-plan support-bundle next value prove-value oracle-brief bubble-up work-block doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live start easy use-now first-minute demo playbook value-audit completion-audit design-audit visual-review-plan now what-now sources memory memory-promote recent-work status processes cleanup-plan support-bundle next value prove-value oracle-brief bubble-up work-block doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
 	@echo "  make start         Same as make use-now; safest first command"
+	@echo "  make easy          Same as make start; no-choice path for first value"
 	@echo "  make use-now       One-command non-launching path: one move, ask, capture, delegate, close"
 	@echo "  make work-block    Non-launching work block: pull forward, triage, close loop"
 	@echo "  make next          Non-launching next move; prints Start Here if app is reachable"
@@ -70,6 +71,8 @@ verify:
 	./mac-app/scripts/verify-static.zsh
 
 start: use-now
+
+easy: use-now
 
 use-now:
 	@if test -n "$(PROJECT)"; then IDEA="$(IDEA)" TITLE="$(TITLE)" SOURCE="$(SOURCE)" ./mac-app/scripts/use-now.zsh --project "$(PROJECT)"; else IDEA="$(IDEA)" TITLE="$(TITLE)" SOURCE="$(SOURCE)" ./mac-app/scripts/use-now.zsh; fi
