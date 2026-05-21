@@ -116,6 +116,17 @@ compact_blank_lines() {
   '
 }
 
+answer_preview() {
+  local question="What should I do next, what am I missing, and what cheap test would create value?"
+
+  TERMINAL_BRAIN_WORKSPACE="$WORKSPACE" "$ROOT/mac-app/scripts/oracle.zsh" "$question" | awk '
+    /^## Direct Answer$/ { started = 1; print "### Direct Answer"; next }
+    !started { next }
+    /^## / { print "### " substr($0, 4); next }
+    { print }
+  ' | compact_blank_lines
+}
+
 one_move_from_work_block() {
   awk '
     /^## Pull Forward$/ { pull_forward = 1; next }
@@ -241,7 +252,7 @@ echo
 echo "## Do This"
 echo
 echo "1. Run the One Move command if it fits."
-echo "2. If it does not fit, read the pull-forward block below."
+echo "2. If it does not fit, read the answer preview or pull-forward block below."
 echo "3. Ask, capture, or delegate if the next action is unclear."
 echo "4. When anything useful happens, write the outcome back."
 echo
@@ -293,9 +304,15 @@ echo "| Capture a rough thought | \`make start IDEA=\"The thing I keep circling 
 echo "| Delegate the next bounded task | \`make agent-prompt\` |"
 echo "| Close the loop | \`make outcome TITLE=\"...\" OUTCOME=\"...\" PROJECT=\"$PROJECT\" NEXT=\"...\"\` |"
 echo
-echo "## Current Work Block"
-echo
-printf '%s\n' "$work_block_output" | demote_work_block | compact_blank_lines
+if grep -q '^make answer$' <<<"$one_move"; then
+  echo "## Direct Answer Preview"
+  echo
+  answer_preview
+else
+  echo "## Current Work Block"
+  echo
+  printf '%s\n' "$work_block_output" | demote_work_block | compact_blank_lines
+fi
 echo
 echo "## Ask, Capture, Delegate, Close"
 echo

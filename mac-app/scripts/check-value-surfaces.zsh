@@ -230,6 +230,7 @@ require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'What You Get In 60 Seconds'
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" '## One Move' "Use Now one-move section"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'Why This Move' "Use Now explains the selected move"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'Choose Your Mode' "Use Now explicit operator mode menu"
+require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'Direct Answer Preview' "Use Now clean queue answer preview"
 require_in_file "$ROOT/Makefile" '^answer:' "Answer Make target"
 require_in_file "$ROOT/Makefile" 'What should I do next, what am I missing, and what cheap test would create value' "Answer default Oracle question"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'make answer' "Use Now clean-queue direct Oracle read"
