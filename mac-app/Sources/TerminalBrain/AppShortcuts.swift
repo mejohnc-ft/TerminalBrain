@@ -250,6 +250,19 @@ struct CopyValueAuditIntent: AppIntent {
     }
 }
 
+struct CopyCompletionAuditIntent: AppIntent {
+    static var title: LocalizedStringResource = "Copy Completion Audit"
+    static var description = IntentDescription("Copy Terminal Brain's world-class readiness completion audit as Markdown.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let markdown = try await ShortcutClient.text(path: "/completion-audit/markdown")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
+        return .result(dialog: "Completion Audit copied.")
+    }
+}
+
 struct CopyCleanupPlanIntent: AppIntent {
     static var title: LocalizedStringResource = "Copy Cleanup Plan"
     static var description = IntentDescription("Copy Terminal Brain's read-only stale MCP and kernel cleanup plan as Markdown.")
@@ -717,6 +730,15 @@ struct TerminalBrainShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Value Audit",
             systemImageName: "checkmark.seal"
+        )
+        AppShortcut(
+            intent: CopyCompletionAuditIntent(),
+            phrases: [
+                "Copy \(.applicationName) completion audit",
+                "Audit \(.applicationName) readiness"
+            ],
+            shortTitle: "Completion Audit",
+            systemImageName: "checkmark.shield"
         )
         AppShortcut(
             intent: CopyCleanupPlanIntent(),

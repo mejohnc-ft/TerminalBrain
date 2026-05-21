@@ -81,6 +81,13 @@ final class LocalControlServer {
             return .text(200, await ScriptMarkdownSnapshot.markdown(title: "Terminal Brain Playbook", scriptName: "playbook.zsh", makeTarget: "make playbook"))
         case ("GET", "/value-audit/markdown"):
             return .text(200, await ScriptMarkdownSnapshot.markdown(title: "Terminal Brain Value Audit", scriptName: "value-audit.zsh", makeTarget: "make value-audit"))
+        case ("GET", "/completion-audit/markdown"):
+            return .text(200, await ScriptMarkdownSnapshot.markdown(
+                title: "Terminal Brain Completion Audit",
+                scriptName: "completion-audit.zsh",
+                makeTarget: "make completion-audit",
+                environment: ["TERMINAL_BRAIN_COMPLETION_AUDIT_SKIP_VERIFY": "1"]
+            ))
         case ("GET", "/cleanup-plan/markdown"):
             return .text(200, await CleanupPlanSnapshot.markdown())
         case ("GET", "/process-map/markdown"):
@@ -2055,7 +2062,7 @@ enum FirstMinuteSnapshot {
 }
 
 enum ScriptMarkdownSnapshot {
-    static func markdown(title: String, scriptName: String, makeTarget: String) async -> String {
+    static func markdown(title: String, scriptName: String, makeTarget: String, environment: [String: String] = [:]) async -> String {
         let script = "\(Paths.home)/Git/TerminalBrain/mac-app/scripts/\(scriptName)"
         guard FileManager.default.fileExists(atPath: script) else {
             return [
@@ -2077,7 +2084,7 @@ enum ScriptMarkdownSnapshot {
             ].joined(separator: "\n")
         }
 
-        let result = await CommandRunner.run("/bin/zsh", [script])
+        let result = await CommandRunner.run("/bin/zsh", [script], environment: environment)
         let output = result.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
         if result.succeeded, !output.isEmpty {
             return output

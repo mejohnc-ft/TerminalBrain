@@ -65,6 +65,10 @@ struct TerminalBrainApp: App {
                     Task { await model.copyValueAudit() }
                 }
 
+                Button("Copy Completion Audit") {
+                    Task { await model.copyCompletionAudit() }
+                }
+
                 Button("Copy Process Map") {
                     Task { await model.copyProcessMap() }
                 }
@@ -170,6 +174,9 @@ struct TerminalBrainApp: App {
             }
             Button("Copy Value Audit") {
                 Task { await model.copyValueAudit() }
+            }
+            Button("Copy Completion Audit") {
+                Task { await model.copyCompletionAudit() }
             }
             Button("Copy Process Map") {
                 Task { await model.copyProcessMap() }

@@ -68,6 +68,7 @@ struct ContentView: View {
             BrainCommand(title: "Open Demo", subtitle: "Temporary seeded walkthrough of the value loop", symbol: "play.rectangle.fill", category: "Navigate", action: .section("demo")),
             BrainCommand(title: "Open Playbook", subtitle: "Which command to run for common situations", symbol: "book.closed.fill", category: "Navigate", action: .section("playbook")),
             BrainCommand(title: "Open Value Audit", subtitle: "Evidence map for first-use value and remaining gaps", symbol: "checkmark.seal.fill", category: "Navigate", action: .section("value-audit")),
+            BrainCommand(title: "Open Completion Audit", subtitle: "World-class readiness evidence and explicit visual gate", symbol: "checkmark.shield.fill", category: "Navigate", action: .section("completion-audit")),
             BrainCommand(title: "Open Now", subtitle: "Bottom line, next action, process truth, and outcome loop", symbol: "sparkles", category: "Navigate", action: .section("now")),
             BrainCommand(title: "Open Value Now", subtitle: "Plain-language value read and fastest useful path", symbol: "bolt.fill", category: "Navigate", action: .section("value")),
             BrainCommand(title: "Open Start Here", subtitle: "One block, one artifact, one written outcome", symbol: "play.circle.fill", category: "Navigate", action: .section("start-here")),
@@ -92,6 +93,7 @@ struct ContentView: View {
             BrainCommand(title: "Copy Demo", subtitle: "Seeded temporary walkthrough", symbol: "play.rectangle.fill", category: "Action", action: .copyDemo),
             BrainCommand(title: "Copy Playbook", subtitle: "Operator command map and daily cadence", symbol: "book.closed.fill", category: "Action", action: .copyPlaybook),
             BrainCommand(title: "Copy Value Audit", subtitle: "Evidence checklist and gaps", symbol: "checkmark.seal.fill", category: "Action", action: .copyValueAudit),
+            BrainCommand(title: "Copy Completion Audit", subtitle: "World-class readiness checklist and visual blocker", symbol: "checkmark.shield.fill", category: "Action", action: .copyCompletionAudit),
             BrainCommand(title: "Copy Now", subtitle: "Bottom line, next action, process truth, and close loop", symbol: "sparkles", category: "Action", action: .copyNow),
             BrainCommand(title: "Copy Process Map", subtitle: "Terminal Brain, Codex, MCP, kernel, Drafts, launchctl, and API state", symbol: "point.3.connected.trianglepath.dotted", category: "Action", action: .copyProcessMap),
             BrainCommand(title: "Copy Cleanup Plan", subtitle: "Read-only stale MCP/kernel process cleanup guidance", symbol: "wrench.and.screwdriver.fill", category: "Action", action: .copyCleanupPlan),
@@ -208,6 +210,7 @@ struct ContentView: View {
         case "demo": return "Demo"
         case "playbook": return "Playbook"
         case "value-audit": return "Value Audit"
+        case "completion-audit": return "Completion Audit"
         case "now": return "Now"
         case "value": return "Value Now"
         case "start-here": return "Start Here"
@@ -237,6 +240,7 @@ struct ContentView: View {
         case "demo": return "Seed a temporary workspace and watch ideas become review, Bubble Up, Work Block, and outcome commands."
         case "playbook": return "A plain operator map for capture, Oracle reads, agent handoff, outcomes, and runtime checks."
         case "value-audit": return "Evidence that first-use value is covered, plus the remaining gaps before native UI certification."
+        case "completion-audit": return "World-class readiness evidence, current state, and the explicit live visual review blocker."
         case "now": return "Bottom line, next action, process truth, readiness, and close loop."
         case "value": return "What this is worth right now, what to do next, and what artifact to create."
         case "start-here": return "One block, one artifact, one written outcome."
@@ -385,6 +389,7 @@ struct ContentView: View {
                 NavRow(title: "Demo", symbol: "play.rectangle.fill", badge: "", selected: selectedSection == "demo") { selectedSection = "demo" }
                 NavRow(title: "Playbook", symbol: "book.closed.fill", badge: "", selected: selectedSection == "playbook") { selectedSection = "playbook" }
                 NavRow(title: "Value Audit", symbol: "checkmark.seal.fill", badge: "", selected: selectedSection == "value-audit") { selectedSection = "value-audit" }
+                NavRow(title: "Completion Audit", symbol: "checkmark.shield.fill", badge: "", selected: selectedSection == "completion-audit") { selectedSection = "completion-audit" }
             }
 
             VStack(alignment: .leading, spacing: 7) {
@@ -523,6 +528,7 @@ struct ContentView: View {
                     case "demo": demoView
                     case "playbook": playbookView
                     case "value-audit": valueAuditView
+                    case "completion-audit": completionAuditView
                     case "now": nowView
                     case "value": valueNowView
                     case "start-here": startHereView
@@ -1132,6 +1138,36 @@ struct ContentView: View {
                 }
                 ValueBriefTile(label: "Next", title: "Run real loop", detail: "Use Work Block on the actual workspace and write one outcome back.", action: "Work Block", symbol: "target", accent: settings.theme.accent) {
                     selectedSection = "work-block"
+                }
+            }
+        }
+    }
+
+    private var completionAuditView: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            valueSurfaceHero(
+                eyebrow: "Completion Audit",
+                title: "Readiness with the blocker named.",
+                detail: "Maps world-class readiness to real evidence and keeps live visual certification explicit instead of pretending green checks are enough.",
+                symbol: "checkmark.shield.fill",
+                primaryTitle: "Copy Audit",
+                primarySymbol: "checkmark.shield.fill",
+                primaryAction: { Task { await model.copyCompletionAudit() } },
+                secondaryTitle: "Visual Plan",
+                secondarySymbol: "eye.fill",
+                secondaryAction: { selectedSection = "system" },
+                output: model.completionAuditCopyOutput
+            )
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 240), spacing: 12)], spacing: 12) {
+                ValueBriefTile(label: "Covered", title: "Non-launching value path", detail: "Use Now, Work Block, Agent Prompt, writeback, MCP, and static design evidence are mapped to concrete checks.", action: "Use Now", symbol: "checkmark.circle.fill", accent: .green) {
+                    selectedSection = "use-now"
+                }
+                ValueBriefTile(label: "Gate", title: "Live visual review", detail: "The audit refuses to mark visual polish complete until the operator manually opens the app.", action: "System", symbol: "eye.trianglebadge.exclamationmark.fill", accent: .orange) {
+                    selectedSection = "system"
+                }
+                ValueBriefTile(label: "Agent", title: "MCP readiness", detail: "Agents can call the completion audit without recursively running the full verifier.", action: "Prompt", symbol: "paperplane.fill", accent: .blue) {
+                    Task { await model.copyAgentPrompt() }
                 }
             }
         }
@@ -4082,6 +4118,8 @@ struct ContentView: View {
             Task { await model.copyPlaybook() }
         case .copyValueAudit:
             Task { await model.copyValueAudit() }
+        case .copyCompletionAudit:
+            Task { await model.copyCompletionAudit() }
         case .copyNow:
             Task { await model.copyNow() }
         case .copyProcessMap:
@@ -4394,6 +4432,7 @@ enum BrainCommandAction {
     case copyDemo
     case copyPlaybook
     case copyValueAudit
+    case copyCompletionAudit
     case copyNow
     case copyProcessMap
     case copyCleanupPlan
