@@ -73,6 +73,10 @@ clean_section() {
   '
 }
 
+recent_work_available() {
+  INDEX=1 PROJECT="${PROJECT:-Terminal Brain}" "$ROOT/mac-app/scripts/recent-work.zsh" --dry-run >/dev/null 2>&1
+}
+
 bubble_args=(--limit "$LIMIT")
 if [[ -n "$PROJECT" ]]; then
   bubble_args+=(--project "$PROJECT")
@@ -86,17 +90,23 @@ echo
 if grep -q 'Open pull-forward items: 0' <<<"$bubble_output"; then
   echo "## Next Clean Move"
   echo
-  echo "No open review item is demanding triage. Start the next useful loop deliberately:"
+  echo "No open review item is demanding triage. Do not manufacture busywork; choose one deliberate lane:"
   echo
   echo '```zsh'
-  echo "make recent-work INDEX=1"
+  if recent_work_available; then
+    echo "make recent-work INDEX=1 PROJECT=\"${PROJECT:-Terminal Brain}\""
+  fi
   echo "make idea TITLE=\"Decision pressure\" IDEA=\"The decision I keep circling is ...\" PROJECT=\"${PROJECT:-Terminal Brain}\""
-  echo "make agent-prompt"
+  echo "make outcome TITLE=\"Clean queue\" OUTCOME=\"No open review item or uncovered recent work needed action; stopping instead of creating noise.\" PROJECT=\"${PROJECT:-Terminal Brain}\" NEXT=\"Capture a real pressure point when one appears.\""
   echo '```'
   echo
-  echo "- Use recent work when shipped code needs durable memory."
+  if recent_work_available; then
+    echo "- Use recent work when shipped code needs durable memory."
+  else
+    echo "- Recent work is already covered; do not run recent-work just to create a note."
+  fi
   echo "- Use idea capture when the next signal is still in your head."
-  echo "- Use agent prompt when you already know the next bounded task."
+  echo "- Use the clean-queue outcome when the correct move is to stop and avoid review noise."
   echo
 fi
 echo

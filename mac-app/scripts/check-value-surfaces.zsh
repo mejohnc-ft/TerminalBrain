@@ -157,6 +157,8 @@ require_in_file "$ROOT/mac-app/scripts/work-block.zsh" 'Terminal Brain Work Bloc
 require_in_file "$ROOT/mac-app/scripts/work-block.zsh" 'bubble-up.zsh' "Work Block includes Bubble Up"
 require_in_file "$ROOT/mac-app/scripts/work-block.zsh" 'Prime The Brain' "Work Block actionable empty state"
 require_in_file "$ROOT/mac-app/scripts/work-block.zsh" 'Next Clean Move' "Work Block no-open-item guidance"
+require_in_file "$ROOT/mac-app/scripts/work-block.zsh" 'recent_work_available' "Work Block checks recent-work before recommending it"
+require_in_file "$ROOT/mac-app/scripts/work-block.zsh" 'Do not manufacture busywork' "Work Block clean-queue stop rule"
 require_in_file "$ROOT/mac-app/scripts/work-block.zsh" 'Broader Queue' "Work Block points to broader queue"
 require_in_file "$ROOT/mac-app/scripts/work-block.zsh" 'make review' "Work Block review queue command"
 require_in_file "$ROOT/mac-app/scripts/work-block.zsh" 'make outcome' "Work Block close-loop command"
