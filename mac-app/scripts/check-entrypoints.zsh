@@ -73,6 +73,8 @@ require_contains "$use_now_output" 'What You Get In 60 Seconds' "use now value s
 require_contains "$use_now_output" '## One Move' "use now one move section"
 require_contains "$use_now_output" 'Current Work Block' "use now work block section"
 require_contains "$use_now_output" 'make (use-now|agent-prompt|recent-work|review-status)' "use now one executable action"
+require_not_contains_literal "$use_now_output" '### Pull Forward' "use now empty Pull Forward wrapper"
+require_not_contains_literal "$use_now_output" '#### Bubble Up' "use now empty nested Bubble Up wrapper"
 require_not_contains_literal "$use_now_output" 'Reviewable items:' "use now dashboard metrics"
 require_not_contains_literal "$use_now_output" 'No open items matched.' "use now empty pull-forward placeholder"
 require_not_contains_literal "$use_now_output" 'Next Clean Move' "use now duplicate next-clean section"

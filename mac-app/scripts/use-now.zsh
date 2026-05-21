@@ -67,7 +67,7 @@ demote_work_block() {
     /^# Terminal Brain Work Block$/ { next }
     /^Checked: / { next }
     /^## Use This Block$/ { skip_intro = 1; next }
-    skip_intro && /^## Pull Forward$/ { skip_intro = 0; print "### Pull Forward"; next }
+    skip_intro && /^## Pull Forward$/ { skip_intro = 0; next }
     skip_intro { next }
     /^## Direct Read$/ { skip_direct = 1; next }
     skip_direct && /^## What You May Not Be Considering$/ { skip_direct = 0; print "### What You May Not Be Considering"; next }
@@ -94,9 +94,24 @@ demote_work_block() {
     /^# Equivalent manual capture:$/ { skip_manual_capture = 1; next }
     skip_manual_capture && /^make work-block$/ { skip_manual_capture = 0; next }
     skip_manual_capture { next }
+    /^### Bubble Up$/ { next }
     /^## / { print "### " substr($0, 4); next }
     /^### / { print "#### " substr($0, 5); next }
     { print }
+  '
+}
+
+compact_blank_lines() {
+  awk '
+    /^$/ {
+      if (!blank) { print }
+      blank = 1
+      next
+    }
+    {
+      blank = 0
+      print
+    }
   '
 }
 
@@ -179,7 +194,7 @@ echo '```'
 echo
 echo "## Current Work Block"
 echo
-printf '%s\n' "$work_block_output" | demote_work_block
+printf '%s\n' "$work_block_output" | demote_work_block | compact_blank_lines
 echo
 echo "## Ask, Capture, Delegate, Close"
 echo
