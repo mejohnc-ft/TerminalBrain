@@ -90,7 +90,7 @@ if grep -q 'make recent-work' <<<"$use_now_first_command"; then
   echo "$use_now_output" >&2
   exit 1
 fi
-require_contains "$use_now_first_command" 'make (ask|ask-commit|agent-prompt|review-status|idea)' "use now first command operator-facing"
+require_contains "$use_now_first_command" 'make (answer|ask|ask-commit|agent-prompt|review-status|idea)' "use now first command operator-facing"
 require_not_contains_literal "$use_now_output" '### Pull Forward' "use now empty Pull Forward wrapper"
 require_not_contains_literal "$use_now_output" '#### Bubble Up' "use now empty nested Bubble Up wrapper"
 require_not_contains_literal "$use_now_output" 'Reviewable items:' "use now dashboard metrics"
@@ -314,6 +314,9 @@ require_contains "$ask_output" 'Suggested Actions' "ask fallback suggested actio
 make_ask_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$ask_workspace" QUERY="what should I do next?" make -s -C "$ROOT" ask)"
 require_contains "$make_ask_output" 'Question: what should I do next\?' "make ask question"
 require_not_contains_literal "$make_ask_output" 'what should I do next? what should I do next?' "make ask duplicated question"
+make_answer_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$ask_workspace" make -s -C "$ROOT" answer)"
+require_contains "$make_answer_output" '# Terminal Brain Oracle' "make answer Oracle output"
+require_contains "$make_answer_output" 'What should I do next, what am I missing, and what cheap test would create value\?' "make answer default question"
 ask_commit_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$ask_workspace" "$ROOT/mac-app/scripts/oracle.zsh" --commit --project "Terminal Brain" "what should I do next?")"
 require_contains "$ask_commit_output" '"mode":"local-fallback"' "ask commit fallback mode"
 require_contains "$ask_commit_output" '"reviewStatus":"new"' "ask commit review status"

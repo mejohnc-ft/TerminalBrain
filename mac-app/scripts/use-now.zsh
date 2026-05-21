@@ -141,7 +141,7 @@ one_move_from_work_block() {
 fallback_one_move() {
   local project="$1"
 
-  echo "make ask QUERY=\"What should I do next for ${project}, what am I missing, and what cheap test would create value?\""
+  echo "make answer"
 }
 
 why_this_move() {
@@ -151,6 +151,8 @@ why_this_move() {
     echo "This moves the highest-signal inbox item out of limbo so it becomes accepted, delegated, or intentionally dismissed."
   elif grep -q 'make recent-work INDEX=' <<<"$command"; then
     echo "This reopens the freshest shipped work so useful context can become durable memory instead of disappearing into commit history."
+  elif grep -q 'make answer' <<<"$command"; then
+    echo "The queue is clean, so the useful move is to get one direct decision read instead of scanning more surfaces."
   elif grep -q 'make ask ' <<<"$command"; then
     echo "The queue is clean, so the useful move is to get one direct decision read instead of scanning more surfaces."
   elif grep -q 'make ask-commit' <<<"$command"; then
