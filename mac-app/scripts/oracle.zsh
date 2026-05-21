@@ -76,16 +76,83 @@ if [[ -z "$QUESTION" ]]; then
   exit 64
 fi
 
-local_oracle_read() {
-  TERMINAL_BRAIN_API="$API" "$ROOT/mac-app/scripts/oracle-brief.zsh" | awk '
-    /^# Terminal Brain Oracle Brief$/ { next }
-    /^Terminal Brain is not currently reachable at / { next }
-    /^## Cheapest Test$/ { skip_section = 1; next }
-    skip_section && /^## / { skip_section = 0 }
-    skip_section { next }
-    /^## Runtime Truth$/ { skip = 1; next }
-    skip { next }
-    { print }
+local_answer_read() {
+  local work_block
+  work_block="$(TERMINAL_BRAIN_API="$API" TERMINAL_BRAIN_WORKSPACE="$WORKSPACE" "$ROOT/mac-app/scripts/work-block.zsh" --limit 1)"
+
+  WORK_BLOCK="$work_block" QUESTION="$QUESTION" PROJECT="${PROJECT:-Terminal Brain}" ruby -rshellwords -e '
+    text = ENV.fetch("WORK_BLOCK")
+    question = ENV.fetch("QUESTION", "").strip
+    project = ENV.fetch("PROJECT", "Terminal Brain").strip
+    project = "Terminal Brain" if project.empty?
+
+    def section(text, name)
+      text[/^## #{Regexp.escape(name)}\n(.*?)(?=^## |\z)/m, 1].to_s.strip
+    end
+
+    def first_heading(markdown)
+      markdown[/^###\s+\d+\.\s+([^\n]+)$/m, 1].to_s.strip
+    end
+
+    def first_code_command(markdown, pattern)
+      markdown.lines.map(&:strip).find { |line| line.match?(pattern) }.to_s
+    end
+
+    recent = section(text, "Recent Work Signals")
+    items = section(text, "Items To Pull Forward")
+    missing = section(text, "What You May Not Be Considering")
+    clean_move = section(text, "Next Clean Move")
+
+    command = nil
+    signal = nil
+    why = nil
+    blindspot = nil
+
+    if !recent.empty?
+      signal = first_heading(recent)
+      command = first_code_command(recent, /^make recent-work INDEX=1\b/)
+      why = "Fresh shipped work needs to become durable memory, or future agents will see the commit but miss the judgment behind it."
+      blindspot = "A clean review queue can still hide uncaptured implementation context."
+    elsif !items.empty? && items !~ /^No (open )?items matched\./
+      signal = first_heading(items)
+      command = first_code_command(items, /^make review-status ID=.* STATUS=accepted/)
+      why = "The strongest open signal needs a disposition before more browsing creates noise."
+      blindspot = "The useful work may be accepting, delegating, or dismissing an existing signal rather than creating a new one."
+    elsif !clean_move.empty?
+      command = first_code_command(clean_move, /^make (idea|outcome) /)
+      why = "There is no dominant open item, so the next valuable move is to capture a real pressure point or intentionally stop."
+      blindspot = "Do not manufacture review work just because the system is available."
+    end
+
+    command = "make idea TITLE=\"Decision pressure\" IDEA=\"The decision I keep circling is ...\" PROJECT=#{project.shellescape}" if command.empty?
+    signal = "No dominant open signal" if signal.empty?
+    why ||= "The system needs one concrete artifact: a decision, memory note, delegated task, or outcome."
+    blindspot ||= missing.lines.map(&:strip).find { |line| line.start_with?("- ") }.to_s.sub(/^- /, "")
+    blindspot = "The next useful move is probably smaller than another dashboard scan." if blindspot.empty?
+
+    puts "## Direct Answer"
+    puts
+    puts "- Do next: `#{command}`"
+    puts "- Why: #{why}"
+    puts "- What you may be missing: #{blindspot}"
+    puts "- Cheap test: run the command, then save one sentence about what changed."
+    puts
+    puts "## One Command"
+    puts
+    puts "```zsh"
+    puts command
+    puts "```"
+    puts
+    puts "## Source Signal"
+    puts
+    puts "- #{signal}"
+    puts "- Question answered: #{question}"
+    puts
+    puts "## Save The Result"
+    puts
+    puts "```zsh"
+    puts "make outcome TITLE=\"...\" OUTCOME=\"What changed, why it mattered, and what evidence exists.\" PROJECT=#{project.shellescape} NEXT=\"The next concrete action.\""
+    puts "```"
   '
 }
 
@@ -157,21 +224,13 @@ write_local_commit() {
 if ! curl -fsS "$API/health" >/dev/null 2>&1; then
   answer_file="$(mktemp)"
   {
-    echo "Terminal Brain is not reachable at $API, so this answer uses the local closed-app Oracle Brief."
+    echo "Terminal Brain is not reachable at $API, so this answer uses the local closed-app Oracle fallback."
     echo
     echo "The question was:"
     echo
     echo "> $QUESTION"
     echo
-    echo "## Local Read"
-    echo
-    local_oracle_read
-    echo
-    echo "## Suggested Actions"
-    echo
-    echo "- Run make work-block and act on the pulled-forward item."
-    echo "- If there is no local signal yet, capture the current question with make idea IDEA=\"...\" PROJECT=\"${PROJECT:-Terminal Brain}\"."
-    echo "- Close the loop with make outcome TITLE=\"...\" OUTCOME=\"...\" PROJECT=\"${PROJECT:-Terminal Brain}\" NEXT=\"...\"."
+    local_answer_read
   } > "$answer_file"
 
   OUTPUT="$(
