@@ -111,11 +111,14 @@ local_answer_read() {
     if !recent.empty?
       signal = first_heading(recent)
       command = first_code_command(recent, /^make recent-work INDEX=1\b/)
+      command = "#{command} PROJECT=#{project.shellescape}" if !command.empty? && !command.include?(" PROJECT=")
       why = "Fresh shipped work needs to become durable memory, or future agents will see the commit but miss the judgment behind it."
       blindspot = "A clean review queue can still hide uncaptured implementation context."
     elsif !items.empty? && items !~ /^No (open )?items matched\./
       signal = first_heading(items)
-      command = first_code_command(items, /^make review-status ID=.* STATUS=accepted/)
+      note = first_code_command(items, /^NOTE=/)
+      review_command = first_code_command(items, /^make review-status ID=.* STATUS=accepted/)
+      command = [note, review_command].reject(&:empty?).join("\n")
       why = "The strongest open signal needs a disposition before more browsing creates noise."
       blindspot = "The useful work may be accepting, delegating, or dismissing an existing signal rather than creating a new one."
     elsif !clean_move.empty?
@@ -129,10 +132,11 @@ local_answer_read() {
     why ||= "The system needs one concrete artifact: a decision, memory note, delegated task, or outcome."
     blindspot ||= missing.lines.map(&:strip).find { |line| line.start_with?("- ") }.to_s.sub(/^- /, "")
     blindspot = "The next useful move is probably smaller than another dashboard scan." if blindspot.empty?
+    display_command = command.lines.map(&:strip).reject(&:empty?).last || command
 
     puts "## Direct Answer"
     puts
-    puts "- Do next: `#{command}`"
+    puts "- Do next: `#{display_command}`"
     puts "- Why: #{why}"
     puts "- What you may be missing: #{blindspot}"
     puts "- Cheap test: run the command, then save one sentence about what changed."
