@@ -98,6 +98,7 @@ Plain `make` prints help. `make verify`, `make start`, `make easy`, `make answer
 
 - Local status, source, permission, briefing, and sync checks.
 - Use Now: the default native app surface, `make start`, `make easy`, `make start IDEA="..."`, `make use-now`, `/use-now/markdown`, the Copy Use Now menu/menu-bar/Shortcut action, and `terminal_brain_use_now_markdown` give a single first-use path that starts with a no-choice command, can capture one rough thought, shows compact pull-forward context, asks the Oracle, delegates a bounded task, and writes the outcome back.
+- Check In: `make check-in`, `make check-in IDEA="..."`, the native Use Now check-in tile, and `terminal_brain_check_in_markdown` turn a clean queue into one real sentence and optional reviewable memory.
 - Simple operator navigation: the native sidebar defaults to the core path, with `Show All Surfaces` and Settings -> Simple operator navigation for advanced surfaces. This keeps the first screen from feeling like a metrics wall.
 - Native no-choice path: the native `Use Now` screen starts with `Do This Now`, `If Not`, and `Save Result` controls so the operator can act, challenge the move, or write back an outcome before browsing deeper views.
 - Inline Oracle loop: the native `Use Now` screen has `Ask, Decide, Remember` controls for missing-signal checks, cheap tests, agent delegation, and commit-read writeback before the operator has to browse deeper views.
