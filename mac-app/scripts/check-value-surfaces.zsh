@@ -253,6 +253,8 @@ require_in_file "$ROOT/mac-app/scripts/design-audit.zsh" 'explicit permission to
 require_in_file "$ROOT/Makefile" '^visual-review-plan:' "visual review plan target"
 require_in_file "$ROOT/mac-app/scripts/visual-review-plan.zsh" 'Terminal Brain Visual Review Plan' "non-launching visual review plan"
 require_in_file "$ROOT/mac-app/scripts/visual-review-plan.zsh" 'Use Now opens first' "visual review checks Use Now first"
+require_in_file "$ROOT/mac-app/scripts/visual-review-plan.zsh" 'Simple operator navigation is the default' "visual review checks simple navigation"
+require_in_file "$ROOT/mac-app/scripts/visual-review-plan.zsh" 'Ask, Decide, Remember panel' "visual review checks inline Oracle panel"
 require_in_file "$ROOT/mac-app/scripts/visual-review-plan.zsh" 'Check Blindspots' "visual review checks Radar counter-signal"
 require_in_file "$ROOT/mac-app/scripts/visual-review-plan.zsh" 'Capture as Idea' "visual review checks Blindspots capture"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Start with one move' "native Use Now one-move hero"
