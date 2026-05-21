@@ -145,7 +145,7 @@ echo "## Get Value Now"
 echo "Run:"
 echo
 echo "\`\`\`zsh"
-echo "make use-now"
+echo "make start"
 echo "\`\`\`"
 echo
 echo "That gives one move, why it matters, compact context, ask/capture/delegate options, and the outcome writeback command."

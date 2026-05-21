@@ -56,7 +56,7 @@ echo
 echo "1. Start with the one-move brief when you want zero focus changes:"
 echo
 echo "   \`\`\`zsh"
-echo "   make use-now"
+echo "   make start"
 echo "   \`\`\`"
 echo
 echo "   Why: it gives one executable move, the reason for that move, compact context, and the ask/capture/delegate/outcome loop."
