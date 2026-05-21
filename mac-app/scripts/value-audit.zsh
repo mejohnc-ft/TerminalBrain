@@ -57,9 +57,11 @@ echo "4. The system can capture ideas, review them, bubble them up, create one w
 echo "5. Agents can access the same surfaces through MCP."
 echo "6. The native app opens on the same high-value Use Now path and exposes it through sections, copy actions, menus, and Shortcuts."
 echo "7. Native signal surfaces can convert Radar, Blindspots, and Ideas into challenge, capture, commit, or execution paths."
-echo "8. Verification proves these surfaces without launching or foregrounding the app."
-echo "9. A clean queue still gives a concrete choice menu and a committed Oracle path instead of empty dashboard metrics."
-echo "10. Remaining gaps are explicit instead of hidden behind green tests."
+echo "8. The native app defaults to a simple operator navigation path instead of a metrics-first surface map."
+echo "9. The first screen supports inline Oracle challenge and commit-read writeback before asking the operator to browse more views."
+echo "10. Verification proves these surfaces without launching or foregrounding the app."
+echo "11. A clean queue still gives a concrete choice menu and a committed Oracle path instead of empty dashboard metrics."
+echo "12. Remaining gaps are explicit instead of hidden behind green tests."
 echo
 echo "## Prompt-To-Artifact Checklist"
 echo
@@ -81,6 +83,8 @@ evidence "Agent handoff is actionable" "grep -q 'Current One Move' '$ROOT/mac-ap
 evidence "Outcome writeback" "grep -q 'reviewStatus: accepted' '$ROOT/mac-app/scripts/outcome.zsh' && grep -q 'terminal_brain_commit_outcome' '$ROOT/mcp-server/server.mjs'" "make outcome and MCP outcome commit"
 evidence "Native default value section" "grep -q 'selectedSection = \"use-now\"' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'useNowView' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift'" "native app defaults to Use Now"
 evidence "Native Use Now operator lanes" "grep -q 'title: \"Why this move\"' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'title: \"Recent work\"' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'promoteRecentWork(index: 1)' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'title: \"What am I missing?\"' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift'" "native Use Now exposes challenge, recent-work promotion, ask, capture, delegate, and close-loop lanes"
+evidence "Native simple navigation" "grep -q 'operatorPathOnly' '$ROOT/mac-app/Sources/TerminalBrain/Models.swift' && grep -q 'Show All Surfaces' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'Simple operator navigation' '$ROOT/mac-app/Sources/TerminalBrain/SettingsView.swift'" "native sidebar defaults to the operator path with an explicit advanced-surface escape hatch"
+evidence "Native inline Oracle loop" "grep -q 'useNowOraclePanel' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'Ask, Decide, Remember' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'Commit Read' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift'" "Use Now lets the operator challenge, test, delegate, and commit a useful read on the first screen"
 evidence "Native value sections" "grep -q 'demoView' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'playbookView' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'valueAuditView' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift'" "native Demo, Playbook, and Value Audit sections"
 evidence "Native signal action paths" "grep -q 'Check Blindspots' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'Capture as Idea' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'focusIdeaCapturePanel(focus)' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'native Radar counter-signal path' '$ROOT/mac-app/scripts/audit.zsh'" "Radar can route to Blindspots, Blindspots can become tracked ideas, and Ideas has direct capture"
 evidence "Manual visual certification plan" "grep -q '^visual-review-plan:' '$ROOT/Makefile' && grep -q 'Terminal Brain Visual Review Plan' '$ROOT/mac-app/scripts/visual-review-plan.zsh' && grep -q 'Use Now opens first' '$ROOT/mac-app/scripts/visual-review-plan.zsh'" "non-launching checklist for the remaining visual review gap"
