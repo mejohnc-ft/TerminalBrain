@@ -530,6 +530,11 @@ require_contains "$mcp_value_audit_output" '# Terminal Brain Value Audit' "MCP v
 require_contains "$mcp_value_audit_output" 'Prompt-To-Artifact Checklist' "MCP value audit checklist"
 require_contains "$mcp_value_audit_output" 'Remaining Gaps' "MCP value audit gaps"
 
+mcp_completion_audit_output="$(call_mcp_tool terminal_brain_completion_audit_markdown)"
+require_contains "$mcp_completion_audit_output" '# Terminal Brain Completion Audit' "MCP completion audit title"
+require_contains "$mcp_completion_audit_output" 'Prompt-To-Artifact Checklist' "MCP completion audit checklist"
+require_contains "$mcp_completion_audit_output" 'Completion status: not marked complete' "MCP completion audit visual blocker"
+
 mcp_memory_workspace="$(mktemp -d)"
 mkdir -p "$mcp_memory_workspace/.brain"
 cat >"$mcp_memory_workspace/.brain/agent-history-stats.json" <<'JSON'

@@ -66,7 +66,11 @@ evidence "MCP mirrors value surfaces" "node '$ROOT/mcp-server/check-tools.mjs' &
 evidence "Native value shell" "grep -q 'selectedSection = \"use-now\"' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'titlebarAppearsTransparent = true' '$ROOT/mac-app/Sources/TerminalBrain/WindowConfigurator.swift' && grep -q 'liquidPanel' '$ROOT/mac-app/Sources/TerminalBrain/GlassStyles.swift'" "App opens on Use Now and has static native glass/titlebar evidence."
 evidence "Native action quality" "grep -q 'contentShape(RoundedRectangle(cornerRadius: 14' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'accessibilityHint' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift'" "Action tiles have full-card hit targets and accessibility hints."
 evidence "Prompt/focus safety" "'$ROOT/mac-app/scripts/check-no-foreground.zsh' && '$ROOT/mac-app/scripts/doctor.zsh' | grep 'no Terminal Brain launch agent is loaded'" "Static foreground guard and doctor safety checks pass."
-evidence "Static verification gate" "'$ROOT/mac-app/scripts/verify-static.zsh' >/dev/null" "Full non-launching verifier passes."
+if [[ "${TERMINAL_BRAIN_COMPLETION_AUDIT_SKIP_VERIFY:-0}" == "1" ]]; then
+  evidence "Static verification gate" "grep -q 'terminal brain static verification passed' '$ROOT/mac-app/scripts/verify-static.zsh'" "Full non-launching verifier is wired; skipped here to avoid nested MCP recursion."
+else
+  evidence "Static verification gate" "'$ROOT/mac-app/scripts/verify-static.zsh' >/dev/null" "Full non-launching verifier passes."
+fi
 evidence "Manual visual review boundary" "grep -q 'Open Terminal Brain manually only when you want the UI/API active' '$ROOT/mac-app/scripts/visual-review-plan.zsh'" "Live visual review requires explicit operator action."
 echo
 echo "## Current State"
