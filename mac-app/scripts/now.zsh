@@ -53,23 +53,35 @@ echo
 
 echo "## Do This"
 echo
-echo "1. Stay terminal-only when you want zero focus changes:"
+echo "1. Start with the one-move brief when you want zero focus changes:"
 echo
 echo "   \`\`\`zsh"
-echo "   make oracle-brief"
-echo "   make work-block"
-echo "   make bubble-up"
+echo "   make use-now"
+echo "   \`\`\`"
+echo
+echo "   Why: it gives one executable move, the reason for that move, compact context, and the ask/capture/delegate/outcome loop."
+echo
+echo "2. If the move does not fit, challenge it or hand off a bounded task:"
+echo
+echo "   \`\`\`zsh"
+echo "   make ask QUERY=\"What should I do next for Terminal Brain, and what am I missing?\""
+echo "   make agent-prompt"
+echo "   \`\`\`"
+echo
+echo "3. Check process truth only when you need runtime confidence:"
+echo
+echo "   \`\`\`zsh"
 echo "   make processes"
 echo "   make doctor"
 echo "   \`\`\`"
 echo
-echo "2. Open Terminal Brain manually only when you want the UI/API active, then run:"
+echo "4. Open Terminal Brain manually only when you want the UI/API active, then run:"
 echo
 echo "   \`\`\`zsh"
 echo "   make start-here"
 echo "   \`\`\`"
 echo
-echo "3. After useful work happens, write the outcome back:"
+echo "5. After useful work happens, write the outcome back:"
 echo
 echo "   \`\`\`zsh"
 echo "   make outcome TITLE=\"...\" OUTCOME=\"...\" PROJECT=\"...\" NEXT=\"...\""

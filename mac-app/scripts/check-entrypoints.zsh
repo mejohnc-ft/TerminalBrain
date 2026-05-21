@@ -130,8 +130,10 @@ require_contains "$value_output" 'make doctor' "value doctor command"
 
 now_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/now.zsh")"
 require_contains "$now_output" '# Terminal Brain Now' "now title"
-require_contains "$now_output" 'make work-block' "now Work Block command"
-require_contains "$now_output" 'make bubble-up' "now Bubble Up command"
+require_contains "$now_output" 'make use-now' "now Use Now command"
+require_contains "$now_output" 'one executable move' "now one-move rationale"
+require_contains "$now_output" 'make ask QUERY=' "now Ask command"
+require_contains "$now_output" 'make agent-prompt' "now Agent Prompt command"
 require_contains "$now_output" 'make outcome' "now outcome command"
 require_contains "$now_output" 'did not launch, foreground, quit, kill, or control' "now guardrail"
 
@@ -472,8 +474,10 @@ require_contains "$mcp_first_minute_output" 'reviewStatus.*accepted' "MCP first 
 
 mcp_now_output="$(call_mcp_tool terminal_brain_now_markdown)"
 require_contains "$mcp_now_output" '# Terminal Brain Now' "MCP now title"
-require_contains "$mcp_now_output" 'make work-block' "MCP now Work Block command"
-require_contains "$mcp_now_output" 'make bubble-up' "MCP now Bubble Up command"
+require_contains "$mcp_now_output" 'make use-now' "MCP now Use Now command"
+require_contains "$mcp_now_output" 'one executable move' "MCP now one-move rationale"
+require_contains "$mcp_now_output" 'make ask QUERY=' "MCP now Ask command"
+require_contains "$mcp_now_output" 'make agent-prompt' "MCP now Agent Prompt command"
 require_contains "$mcp_now_output" 'make outcome' "MCP now outcome command"
 
 mcp_value_output="$(call_mcp_tool terminal_brain_value_now_markdown)"
