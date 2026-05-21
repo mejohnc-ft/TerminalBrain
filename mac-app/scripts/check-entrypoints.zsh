@@ -708,6 +708,7 @@ require_contains "$mcp_cleanup_output" 'did not launch, foreground, quit, kill, 
 
 mcp_support_output="$(call_mcp_tool terminal_brain_support_bundle_markdown)"
 require_contains "$mcp_support_output" '# Terminal Brain Support Bundle' "MCP support bundle title"
+require_contains "$mcp_support_output" '# What Now' "MCP support bundle What Now section"
 require_contains "$mcp_support_output" '# Now' "MCP support bundle now section"
 require_contains "$mcp_support_output" '# Oracle Brief' "MCP support bundle Oracle Brief section"
 require_contains "$mcp_support_output" '# Work Block' "MCP support bundle Work Block section"

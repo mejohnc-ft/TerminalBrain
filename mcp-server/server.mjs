@@ -110,7 +110,7 @@ const tools = [
   },
   {
     name: "terminal_brain_support_bundle_markdown",
-    description: "Get a non-launching Markdown support bundle with Now, Doctor, Audit, Process Map, Cleanup Plan, and Git state.",
+    description: "Get a non-launching Markdown support bundle with What Now, Now, Doctor, Audit, Process Map, Cleanup Plan, and Git state.",
     inputSchema: {
       type: "object",
       properties: {},

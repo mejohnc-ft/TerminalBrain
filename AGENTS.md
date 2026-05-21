@@ -28,7 +28,7 @@ This repository builds a local macOS app used during active work. Do not steal t
 - Use `make audit` when you need a non-launching evidence checklist for value, MCP, safety, and readiness surfaces.
 - Use `make processes` or MCP `terminal_brain_process_map_markdown` when the operator asks what is still running; it maps Terminal Brain, launchctl, API, Codex, MCP, brain-kernel, brain-console, and Drafts state without launching, foregrounding, quitting, or killing anything.
 - Use `make cleanup-plan` or MCP `terminal_brain_cleanup_plan_markdown` when runtime noise needs cleanup guidance; it prints stale MCP/kernel candidates and manual commands without killing anything.
-- Use `make support-bundle` or MCP `terminal_brain_support_bundle_markdown` when you need one Markdown artifact with Now, Doctor, Audit, Process Map, Cleanup Plan, and Git state.
+- Use `make support-bundle` or MCP `terminal_brain_support_bundle_markdown` when you need one Markdown artifact with What Now, Now, Doctor, Audit, Process Map, Cleanup Plan, and Git state.
 - Use `./mac-app/scripts/verify-static.zsh` for normal verification.
 - Use `./mac-app/scripts/build-app.zsh` for build-only checks.
 - Use `./mac-app/scripts/verify-static.zsh` for Swift type-checking because the app now depends on SwiftUI, AppKit, Network, and AppIntents framework flags.

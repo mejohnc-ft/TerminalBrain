@@ -10,6 +10,7 @@ case "${1:-}" in
 Usage: OUTPUT=/tmp/terminal-brain-support-bundle.md ./mac-app/scripts/support-bundle.zsh
 
 Writes a non-launching Markdown support bundle:
+  - What Now plain situation read
   - Now orientation
   - Oracle Brief
   - Bubble Up
@@ -70,6 +71,7 @@ mkdir -p "$(dirname "$OUTPUT")"
   git -C "$ROOT" status --short 2>/dev/null || true
   echo '```'
 
+  run_section "What Now" "$ROOT/mac-app/scripts/what-now.zsh"
   run_section "Now" "$ROOT/mac-app/scripts/now.zsh"
   run_section "Oracle Brief" "$ROOT/mac-app/scripts/oracle-brief.zsh"
   run_section "Work Block" "$ROOT/mac-app/scripts/work-block.zsh"

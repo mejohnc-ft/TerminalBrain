@@ -203,6 +203,7 @@ require_in_file "$ROOT/mac-app/scripts/cleanup-plan.zsh" 'did not launch, foregr
 require_in_file "$ROOT/mac-app/scripts/cleanup-plan.zsh" 'No Aggregate Kill Command' "cleanup plan suppresses broad kills"
 require_in_file "$ROOT/mac-app/scripts/cleanup-plan.zsh" 'codex_count.*-le 1' "cleanup plan only prints kill command in low-risk state"
 require_in_file "$ROOT/mac-app/scripts/support-bundle.zsh" 'Terminal Brain Support Bundle' "non-launching support bundle"
+require_in_file "$ROOT/mac-app/scripts/support-bundle.zsh" 'What Now' "support bundle includes What Now"
 require_in_file "$ROOT/mac-app/scripts/support-bundle.zsh" 'Oracle Brief' "support bundle includes Oracle Brief"
 require_in_file "$ROOT/mac-app/scripts/support-bundle.zsh" 'Bubble Up' "support bundle includes Bubble Up"
 require_in_file "$ROOT/mac-app/scripts/support-bundle.zsh" 'Work Block' "support bundle includes Work Block"
