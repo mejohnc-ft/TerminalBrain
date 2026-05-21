@@ -134,7 +134,7 @@ local_answer_read() {
       blindspot = "Do not manufacture review work just because the system is available."
     end
 
-    command = "make idea TITLE=\"Decision pressure\" IDEA=\"The decision I keep circling is ...\" #{project_assignment}" if command.empty?
+    command = "make idea TITLE=\"Decision pressure\" IDEA=\"The decision I keep circling is ...\" #{project_assignment}" if command.to_s.empty?
     signal = "No dominant open signal" if signal.empty?
     why ||= "The system needs one concrete artifact: a decision, memory note, delegated task, or outcome."
     blindspot ||= missing.lines.map(&:strip).find { |line| line.start_with?("- ") }.to_s.sub(/^- /, "")
