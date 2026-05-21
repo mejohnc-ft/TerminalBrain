@@ -273,6 +273,10 @@ test -f "$idea_workspace/Oracle Inbox/"*.md || {
   echo "$idea_output" >&2
   exit 1
 }
+idea_note="$(find "$idea_workspace/Oracle Inbox" -type f -name '*.md' | head -n 1)"
+require_contains "$(cat "$idea_note")" '## Cheap Test' "idea fallback cheap-test prompt"
+require_contains "$(cat "$idea_note")" '## Kill Criteria' "idea fallback kill-criteria prompt"
+require_contains "$(cat "$idea_note")" '## Next Action' "idea fallback next-action prompt"
 rm -rf "$idea_workspace"
 
 review_workspace="$(mktemp -d)"

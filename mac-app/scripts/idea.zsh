@@ -152,6 +152,19 @@ write_local_idea() {
       ## Follow Up
 
       - [ ] Review, link, delegate, dismiss, or turn into a cheap test.
+
+      ## Cheap Test
+
+      - Smallest test:
+      - Expected signal:
+
+      ## Kill Criteria
+
+      - Stop if:
+
+      ## Next Action
+
+      - [ ] Decide the next action before this becomes passive memory.
     MARKDOWN
     File.write(path, note)
     puts JSON.generate({
