@@ -1514,7 +1514,7 @@ function playbookMarkdown() {
 }
 
 function valueAuditMarkdown() {
-  const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "value-audit.zsh")], { timeout: 60000 });
+  const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "value-audit.zsh")], { timeout: 120000 });
   if (result.ok) return result.text;
   return [
     "# Terminal Brain Value Audit",
@@ -1533,7 +1533,7 @@ function valueAuditMarkdown() {
 
 function completionAuditMarkdown() {
   const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "completion-audit.zsh")], {
-    timeout: 30000,
+    timeout: 120000,
     env: { TERMINAL_BRAIN_COMPLETION_AUDIT_SKIP_VERIFY: "1" }
   });
   if (result.ok) return result.text;

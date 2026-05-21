@@ -70,6 +70,10 @@ selection_json="$(
         .uniq
     end
 
+    def normalized_phrase(value)
+      value.to_s.downcase.scan(/[a-z0-9]+/).join(" ").strip
+    end
+
     def parse_memory_notes(workspace)
       inbox = File.join(workspace, "Oracle Inbox")
       return [] unless Dir.exist?(inbox)
@@ -84,14 +88,13 @@ selection_json="$(
     end
 
     def memory_covers_commit?(commit, memory_texts)
-      subject_words = meaningful_words(commit[:subject])
       memory_texts.any? do |text|
         return true if !commit[:short].to_s.empty? && text.include?(commit[:short].downcase)
         return true if !commit[:full].to_s.empty? && text.include?(commit[:full].downcase)
-        next false if subject_words.empty?
-        memory_words = meaningful_words(text)
-        overlap = subject_words & memory_words
-        overlap.length >= [3, subject_words.length].min && (overlap.length.to_f / subject_words.length) >= 0.55
+        subject = normalized_phrase(commit[:subject])
+        next false if subject.empty?
+        normalized_text = normalized_phrase(text)
+        normalized_text.include?(subject)
       end
     end
 

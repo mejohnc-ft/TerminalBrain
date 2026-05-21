@@ -147,17 +147,19 @@ WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtim
       .uniq
   end
 
+  def normalized_phrase(value)
+    value.to_s.downcase.scan(/[a-z0-9]+/).join(" ").strip
+  end
+
   def memory_covers_signal?(signal, items)
-    subject_words = meaningful_words(signal[:title])
     items.any? do |item|
       next false unless ["accepted", "linked"].include?(item[:status])
       memory_text = [item[:title], item[:question], item[:read], item[:outcome], item[:follow_up], item[:preview], item[:search_text]].join(" ").downcase
       return true if !signal[:sha].to_s.empty? && memory_text.include?(signal[:sha].downcase)
       return true if !signal[:full_sha].to_s.empty? && memory_text.include?(signal[:full_sha].downcase)
-      next false if subject_words.empty?
-      memory_words = meaningful_words(memory_text)
-      overlap = subject_words & memory_words
-      overlap.length >= [3, subject_words.length].min && (overlap.length.to_f / subject_words.length) >= 0.55
+      subject = normalized_phrase(signal[:title])
+      next false if subject.empty?
+      normalized_phrase(memory_text).include?(subject)
     end
   end
 

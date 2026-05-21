@@ -214,6 +214,31 @@ test -f "$memory_workspace/Oracle Inbox/"*.md || {
 }
 rm -rf "$memory_workspace"
 
+recent_workspace="$(mktemp -d)"
+mkdir -p "$recent_workspace/Oracle Inbox"
+cat >"$recent_workspace/Oracle Inbox/generic-accepted-note.md" <<'MARKDOWN'
+---
+type: outcome
+project: Terminal Brain
+created: 2026-05-20T00:00:00Z
+reviewStatus: accepted
+---
+
+# Outcome - Generic native value note
+
+## Outcome
+
+Added native value path language and panel affordances, but this note intentionally does not name the latest commit or exact subject.
+MARKDOWN
+latest_subject="$(git -C "$ROOT" log -1 --pretty=format:%s)"
+recent_output="$(TERMINAL_BRAIN_WORKSPACE="$recent_workspace" "$ROOT/mac-app/scripts/recent-work.zsh" --dry-run)"
+if ! grep -qF -- "\"subject\":\"$latest_subject\"" <<<"$recent_output"; then
+  echo "Entrypoint check failed: recent-work hid the latest commit behind a generic accepted note" >&2
+  echo "$recent_output" >&2
+  exit 1
+fi
+rm -rf "$recent_workspace"
+
 doctor_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/doctor.zsh")"
 require_contains "$doctor_output" '# Terminal Brain Doctor' "doctor title"
 require_contains "$doctor_output" 'MCP tool contract valid' "doctor MCP contract"
