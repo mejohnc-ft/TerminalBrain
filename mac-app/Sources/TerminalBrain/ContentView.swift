@@ -556,6 +556,13 @@ struct ContentView: View {
         let focus = model.focusItem
         let topReview = model.oracleCommits.first { $0.status == .new || $0.status == .delegated }
         let project = focus.project.isEmpty ? "Terminal Brain" : focus.project
+        let useNowTitle = topReview?.title ?? focus.title
+        let useNowReason: String
+        if topReview == nil {
+            useNowReason = focus.reason
+        } else {
+            useNowReason = "This is the top open review signal. Accept, delegate, link, or dismiss it so it stops floating."
+        }
 
         return VStack(alignment: .leading, spacing: 18) {
             valueSurfaceHero(
@@ -578,7 +585,7 @@ struct ContentView: View {
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 240), spacing: 12)], spacing: 12) {
                 ValueBriefTile(
                     label: "One Move",
-                    title: topReview?.title ?? focus.title,
+                    title: useNowTitle,
                     detail: topReview?.preview ?? "Do this first: \(focus.reason)",
                     action: topReview == nil ? focus.action : "Open Review",
                     symbol: topReview?.status.symbol ?? focus.symbol,
@@ -591,6 +598,18 @@ struct ContentView: View {
                     } else {
                         applyFocusAction(focus)
                     }
+                }
+
+                ValueBriefTile(
+                    label: "Why",
+                    title: "Why this move",
+                    detail: useNowReason,
+                    action: "Challenge It",
+                    symbol: "questionmark.circle.fill",
+                    accent: .cyan
+                ) {
+                    model.oracleQuestion = "Why is \(useNowTitle) the right next move for \(project), and what could make it wrong?"
+                    selectedSection = "oracle"
                 }
 
                 ValueBriefTile(
