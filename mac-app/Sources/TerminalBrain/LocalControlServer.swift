@@ -71,6 +71,8 @@ final class LocalControlServer {
             return .json(200, await NowSnapshot.now())
         case ("GET", "/now/markdown"):
             return .text(200, await NowSnapshot.markdown())
+        case ("GET", "/what-now/markdown"):
+            return .text(200, await ScriptMarkdownSnapshot.markdown(title: "Terminal Brain What Now", scriptName: "what-now.zsh", makeTarget: "make what-now"))
         case ("GET", "/use-now/markdown"):
             return .text(200, await ScriptMarkdownSnapshot.markdown(title: "Terminal Brain Use Now", scriptName: "use-now.zsh", makeTarget: "make use-now"))
         case ("GET", "/first-minute/markdown"):

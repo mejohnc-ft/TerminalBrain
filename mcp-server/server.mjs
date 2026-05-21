@@ -33,6 +33,15 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_what_now_markdown",
+    description: "Get a concise non-launching situation read for humans and agents: what is running, repo/CI state, runtime noise, current blocker, and the next value command.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_use_now_markdown",
     description: "Get the one-command non-launching Terminal Brain path for a new or overwhelmed operator: one executable move first, compact pull-forward context, ask, capture, delegate, and close the loop.",
     inputSchema: {
@@ -1270,6 +1279,24 @@ function nowMarkdown() {
   ].join("\n");
 }
 
+function whatNowMarkdown() {
+  const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "what-now.zsh")], { timeout: 15000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain What Now",
+    "",
+    "What Now failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 function useNowMarkdown(args = {}) {
   const commandArgs = [join(ROOT, "mac-app", "scripts", "use-now.zsh")];
   if (Number.isFinite(args.limit)) {
@@ -2045,6 +2072,8 @@ async function callTool(name, args = {}) {
       return runtimeStatus();
     case "terminal_brain_now_markdown":
       return nowMarkdown();
+    case "terminal_brain_what_now_markdown":
+      return whatNowMarkdown();
     case "terminal_brain_use_now_markdown":
       return useNowMarkdown(args);
     case "terminal_brain_first_minute_markdown":

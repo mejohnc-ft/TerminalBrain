@@ -7,6 +7,7 @@
   "GET /agent-prompt/markdown",
   "GET /now",
   "GET /now/markdown",
+  "GET /what-now/markdown",
   "GET /use-now/markdown",
   "GET /first-minute/markdown",
   "GET /demo/markdown",

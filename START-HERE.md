@@ -35,6 +35,14 @@ On `Use Now`, use the inline `Ask, Decide, Remember` panel before browsing: ask 
 
    `make next` gives the safest current path without launching or foregrounding the app.
 
+   If you need the plain answer to "what is happening now?", run:
+
+   ```zsh
+   make what-now
+   ```
+
+   `make what-now` reports app focus state, repo/CI state, runtime noise, the current blocker, and the next value command without launching or foregrounding the app.
+
    To prove the loop in a temporary workspace, run:
 
    ```zsh

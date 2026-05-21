@@ -1,4 +1,4 @@
-.PHONY: help build install verify live use-now first-minute demo playbook value-audit completion-audit design-audit visual-review-plan now sources memory memory-promote recent-work status processes cleanup-plan support-bundle next value prove-value oracle-brief bubble-up work-block doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live use-now first-minute demo playbook value-audit completion-audit design-audit visual-review-plan now what-now sources memory memory-promote recent-work status processes cleanup-plan support-bundle next value prove-value oracle-brief bubble-up work-block doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
@@ -13,6 +13,7 @@ help:
 	@echo "  make design-audit  Non-launching static audit of native macOS shell and glass design"
 	@echo "  make visual-review-plan Non-launching manual visual review checklist"
 	@echo "  make now           Non-launching one-page orientation: value, next action, process truth, readiness"
+	@echo "  make what-now      Non-launching plain answer: what is running, what changed, blocker, next value command"
 	@echo "  make sources       Non-launching source inventory for Obsidian, Codex, Claude, Drafts, and agent memory"
 	@echo "  make memory        Non-launching derived Codex/Claude memory brief and follow-up prompts"
 	@echo "  make memory-promote INDEX=1 Promote a derived memory lead into Oracle Inbox"
@@ -93,6 +94,9 @@ visual-review-plan:
 
 now:
 	./mac-app/scripts/now.zsh
+
+what-now:
+	./mac-app/scripts/what-now.zsh
 
 sources:
 	./mac-app/scripts/sources.zsh

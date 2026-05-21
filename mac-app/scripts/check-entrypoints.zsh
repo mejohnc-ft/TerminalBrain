@@ -498,6 +498,13 @@ require_contains "$mcp_now_output" 'make ask QUERY=' "MCP now Ask command"
 require_contains "$mcp_now_output" 'make agent-prompt' "MCP now Agent Prompt command"
 require_contains "$mcp_now_output" 'make outcome' "MCP now outcome command"
 
+mcp_what_now_output="$(call_mcp_tool terminal_brain_what_now_markdown)"
+require_contains "$mcp_what_now_output" '# Terminal Brain What Now' "MCP What Now title"
+require_contains "$mcp_what_now_output" 'Plain Answer' "MCP What Now plain answer"
+require_contains "$mcp_what_now_output" 'No Terminal Brain relaunch loop is detected|Terminal Brain app is running' "MCP What Now relaunch read"
+require_contains "$mcp_what_now_output" 'make use-now' "MCP What Now value command"
+require_contains "$mcp_what_now_output" 'did not launch, foreground, screenshot, quit, kill, or control' "MCP What Now guardrail"
+
 mcp_value_output="$(call_mcp_tool terminal_brain_value_now_markdown)"
 require_contains "$mcp_value_output" '# Terminal Brain Value Now' "MCP value title"
 require_contains "$mcp_value_output" 'What You Can Get From It' "MCP value explanation"
