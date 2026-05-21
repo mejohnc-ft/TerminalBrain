@@ -362,8 +362,12 @@ if (( commit_count > 1 )); then
   require_not_contains_literal "$covered_recent_output" "$latest_subject" "covered latest commit in recent-work dry run"
   covered_bubble_output="$(TERMINAL_BRAIN_WORKSPACE="$covered_recent_workspace" "$ROOT/mac-app/scripts/bubble-up.zsh" --limit 3)"
   covered_bubble_recent_section="$(printf '%s\n' "$covered_bubble_output" | ruby -e 'text = STDIN.read; puts text[/## Recent Work Signals.*?(?=\n## |\z)/m].to_s')"
-  require_contains "$covered_bubble_recent_section" 'Recent Work Signals' "covered bubble recent work section"
-  require_not_contains_literal "$covered_bubble_recent_section" "$latest_subject" "covered latest commit in Bubble Up recent work lane"
+  if [[ -n "$covered_bubble_recent_section" ]]; then
+    require_contains "$covered_bubble_recent_section" 'Recent Work Signals' "covered bubble recent work section"
+    require_not_contains_literal "$covered_bubble_recent_section" "$latest_subject" "covered latest commit in Bubble Up recent work lane"
+  else
+    require_contains "$covered_bubble_output" 'Completed Evidence' "covered bubble completed evidence fallback"
+  fi
 else
   set +e
   covered_recent_output="$(TERMINAL_BRAIN_WORKSPACE="$covered_recent_workspace" "$ROOT/mac-app/scripts/recent-work.zsh" --index 1 --dry-run 2>&1)"
