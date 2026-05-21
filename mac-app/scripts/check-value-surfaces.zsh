@@ -234,6 +234,7 @@ require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'make ask-commit QUERY=.*cle
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'recent-work.zsh.*--dry-run' "Use Now checks recent work before falling back"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'clean_queue_recently_covered' "Use Now suppresses repeated clean-queue reads"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'recent clean-queue Oracle read is already accepted' "Use Now explains clean-queue delegation fallback"
+require_in_file "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'Use Now first command should not default to recent-work maintenance' "Use Now default avoids recent-work maintenance"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'Selected Signal' "Use Now explains selected recent-work signal"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'one executable move before the detailed read' "Use Now help one-move copy"
 require_in_file "$ROOT/Makefile" 'make easy' "Makefile Easy alias"

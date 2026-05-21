@@ -131,7 +131,6 @@ one_move_from_work_block() {
       found = 1
       exit
     }
-    pull_forward && in_code && /^make recent-work INDEX=/ { print; found = 1; exit }
     pull_forward && in_code && /^make idea / { print; found = 1; exit }
     END {
       if (!found) { print "__NO_SIGNAL__" }
@@ -141,11 +140,6 @@ one_move_from_work_block() {
 
 fallback_one_move() {
   local project="$1"
-
-  if INDEX=1 PROJECT="$project" "$ROOT/mac-app/scripts/recent-work.zsh" --dry-run >/dev/null 2>&1; then
-    echo "make recent-work INDEX=1 PROJECT=\"$project\""
-    return
-  fi
 
   if clean_queue_recently_covered; then
     echo "make agent-prompt"
@@ -185,7 +179,7 @@ why_this_move() {
   elif grep -q 'make recent-work INDEX=' <<<"$command"; then
     echo "This reopens the freshest shipped work so useful context can become durable memory instead of disappearing into commit history."
   elif grep -q 'make ask-commit' <<<"$command"; then
-    echo "The queue is clean and recent work is already covered, so the useful move is to force a decision read into memory instead of scanning more surfaces."
+    echo "The queue is clean, so the useful move is to force one decision read into memory instead of scanning more surfaces."
   elif grep -q 'make agent-prompt' <<<"$command"; then
     echo "The queue is clean and a recent clean-queue Oracle read is already accepted, so the next value is bounded delegation instead of another note."
   elif grep -q 'make idea ' <<<"$command"; then

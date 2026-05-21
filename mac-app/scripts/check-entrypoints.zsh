@@ -79,6 +79,18 @@ require_contains "$use_now_output" '## Why This Move' "use now one move rational
 require_contains "$use_now_output" '## Choose Your Mode' "use now operator mode menu"
 require_contains "$use_now_output" 'Current Work Block' "use now work block section"
 require_contains "$use_now_output" 'make (start|use-now|agent-prompt|recent-work|review-status|ask-commit)' "use now one executable action"
+use_now_first_command="$(printf '%s\n' "$use_now_output" | awk '
+  /^### 1\. Do This Now$/ { in_section = 1; next }
+  in_section && /^```zsh$/ { in_code = 1; next }
+  in_code && /^```$/ { exit }
+  in_code { print }
+')"
+if grep -q 'make recent-work' <<<"$use_now_first_command"; then
+  echo "Entrypoint check failed: Use Now first command should not default to recent-work maintenance" >&2
+  echo "$use_now_output" >&2
+  exit 1
+fi
+require_contains "$use_now_first_command" 'make (ask-commit|agent-prompt|review-status|idea)' "use now first command operator-facing"
 require_not_contains_literal "$use_now_output" '### Pull Forward' "use now empty Pull Forward wrapper"
 require_not_contains_literal "$use_now_output" '#### Bubble Up' "use now empty nested Bubble Up wrapper"
 require_not_contains_literal "$use_now_output" 'Reviewable items:' "use now dashboard metrics"
