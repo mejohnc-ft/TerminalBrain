@@ -244,11 +244,23 @@ latest_operator_subject="$(
     end
   '
 )"
-recent_output="$(TERMINAL_BRAIN_WORKSPACE="$recent_workspace" "$ROOT/mac-app/scripts/recent-work.zsh" --dry-run)"
-if ! grep -qF -- "\"subject\":\"$latest_operator_subject\"" <<<"$recent_output"; then
-  echo "Entrypoint check failed: recent-work hid the latest operator-facing commit behind a generic accepted note" >&2
-  echo "$recent_output" >&2
-  exit 1
+set +e
+recent_output="$(TERMINAL_BRAIN_WORKSPACE="$recent_workspace" "$ROOT/mac-app/scripts/recent-work.zsh" --dry-run 2>&1)"
+recent_status=$?
+set -e
+if [[ -n "$latest_operator_subject" ]]; then
+  if ! grep -qF -- "\"subject\":\"$latest_operator_subject\"" <<<"$recent_output"; then
+    echo "Entrypoint check failed: recent-work hid the latest operator-facing commit behind a generic accepted note" >&2
+    echo "$recent_output" >&2
+    exit 1
+  fi
+else
+  if [[ "$recent_status" != "66" ]]; then
+    echo "Entrypoint check failed: internal-only history should not produce a recent-work signal" >&2
+    echo "$recent_output" >&2
+    exit 1
+  fi
+  require_contains "$recent_output" 'No uncaptured recent work signal' "recent-work internal-only empty state"
 fi
 require_not_contains_literal "$recent_output" '"subject":"Keep recent work signals current"' "internal recent-work maintenance commit"
 require_not_contains_literal "$recent_output" '"subject":"Skip internal recent-work maintenance"' "internal recent-work maintenance filter commit"
