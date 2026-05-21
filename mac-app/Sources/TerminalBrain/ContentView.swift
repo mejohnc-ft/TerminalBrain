@@ -2738,6 +2738,13 @@ struct ContentView: View {
                             }
                             .buttonStyle(.bordered)
                             .disabled(model.isAskingBlindspot)
+                            Button {
+                                model.quickIdea = "Blindspot: \(item.title)\n\nQuestion: \(item.question)\n\nWhy it matters: \(item.why)"
+                                selectedSection = "ideas"
+                            } label: {
+                                Label("Capture as Idea", systemImage: "lightbulb.fill")
+                            }
+                            .buttonStyle(.bordered)
                             if item.source == "Oracle commit" || item.source == "Radar" {
                                 Button {
                                     Task { await model.resolveBlindspot(item) }
