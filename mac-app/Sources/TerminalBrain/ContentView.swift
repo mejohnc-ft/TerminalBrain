@@ -391,6 +391,8 @@ struct ContentView: View {
                             .background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
                     .buttonStyle(.plain)
+                    .help("Reveal the full Terminal Brain surface map.")
+                    .accessibilityHint("Shows advanced navigation sections beyond the simple operator path.")
                 } else {
                     NavRow(title: "Now", symbol: "sparkles", badge: model.setupAttentionCount == 0 ? "" : "\(model.setupAttentionCount)", selected: selectedSection == "now") { selectedSection = "now" }
                     NavRow(title: "Value", symbol: "bolt.fill", badge: "\(model.focusItem.score)", selected: selectedSection == "value") { selectedSection = "value" }
@@ -743,12 +745,18 @@ struct ContentView: View {
                 Button { askFocusOracle(focus, intent: "What am I missing?") } label: {
                     Label("Missing", systemImage: "eye.fill")
                 }
+                .help("Ask what the current move may be missing.")
+                .accessibilityHint("Challenges the selected move before you act.")
                 Button { askFocusOracle(focus, intent: "What is the cheapest useful test?") } label: {
                     Label("Cheap Test", systemImage: "testtube.2")
                 }
+                .help("Ask for the smallest useful test.")
+                .accessibilityHint("Looks for a low-cost way to test the selected move.")
                 Button { askFocusOracle(focus, intent: "What should I delegate to an agent, with guardrails?") } label: {
                     Label("Delegate", systemImage: "paperplane.fill")
                 }
+                .help("Ask what should be delegated to an agent.")
+                .accessibilityHint("Turns the selected move into a bounded agent handoff.")
                 Button {
                     Task {
                         await model.commitOracleAnswer(project: focus.project)
@@ -758,8 +766,11 @@ struct ContentView: View {
                     Label("Commit Read", systemImage: "square.and.arrow.down.fill")
                 }
                 .disabled(model.oracleAnswer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .help("Save the useful Oracle answer into the review queue.")
+                .accessibilityHint("Commits the current Oracle answer as durable reviewable memory.")
             }
             .buttonStyle(.bordered)
+            .controlSize(.large)
 
             if model.isAskingOracle {
                 Label("Asking Terminal Brain...", systemImage: "progress.indicator")
