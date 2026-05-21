@@ -613,6 +613,17 @@ struct ContentView: View {
                 }
 
                 ValueBriefTile(
+                    label: "Signal",
+                    title: "Recent work",
+                    detail: "Turn the freshest uncovered git change into reviewable Oracle memory.",
+                    action: "Promote",
+                    symbol: "arrow.up.doc.fill",
+                    accent: .orange
+                ) {
+                    Task { await model.promoteRecentWork(index: 1) }
+                }
+
+                ValueBriefTile(
                     label: "Ask",
                     title: "What am I missing?",
                     detail: "Turn ambiguity into one direct Oracle read instead of scanning more surfaces.",
@@ -659,6 +670,13 @@ struct ContentView: View {
                     model.outcomeNextAction = "Run Use Now again and pick the next useful signal."
                     selectedSection = "start-here"
                 }
+            }
+
+            if !model.recentWorkPromoteOutput.isEmpty {
+                Text(model.recentWorkPromoteOutput)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.white.opacity(0.58))
+                    .padding(.horizontal, 4)
             }
 
             focusIdeaCapturePanel(focus)

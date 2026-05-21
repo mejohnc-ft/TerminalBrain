@@ -244,6 +244,8 @@ require_in_file "$ROOT/mac-app/scripts/visual-review-plan.zsh" 'Capture as Idea'
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Start with one move' "native Use Now one-move hero"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'label: "One Move"' "native Use Now one-move card"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'title: "Why this move"' "native Use Now rationale card"
+require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'title: "Recent work"' "native Use Now recent-work lane"
+require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'promoteRecentWork\(index: 1\)' "native Use Now recent-work promotion"
 require_in_file "$ROOT/mac-app/scripts/design-audit.zsh" 'never launches, foregrounds, quits, kills, screenshots, or controls Terminal Brain' "design audit guardrail"
 require_in_file "$ROOT/mac-app/scripts/oracle-brief.zsh" 'Terminal Brain Oracle Brief' "non-launching Oracle Brief"
 require_in_file "$ROOT/mac-app/scripts/oracle-brief.zsh" 'work-block.zsh' "Oracle Brief closed-app pull-forward"
