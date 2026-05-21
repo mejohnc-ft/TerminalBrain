@@ -189,6 +189,7 @@ require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'What You Get In 60 Seconds'
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" '## One Move' "Use Now one-move section"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'one executable move before the detailed read' "Use Now help one-move copy"
 require_in_file "$ROOT/Makefile" 'one move, ask, capture, delegate, close' "Makefile Use Now one-move help"
+require_in_file "$ROOT/mac-app/scripts/doctor.zsh" 'one move, compact context' "doctor Use Now one-move next step"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'Ask, Capture, Delegate, Close' "Use Now closed loop commands"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'work-block.zsh' "Use Now embeds Work Block"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'make outcome' "Use Now outcome command"
