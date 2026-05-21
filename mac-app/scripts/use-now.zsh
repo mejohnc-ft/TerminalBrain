@@ -7,6 +7,7 @@ LIMIT="${LIMIT:-1}"
 IDEA_TEXT="${IDEA:-}"
 TITLE="${TITLE:-Use Now Capture}"
 SOURCE="${SOURCE:-Terminal Brain Use Now}"
+WORKSPACE="${TERMINAL_BRAIN_WORKSPACE:-$HOME/mejohnwc}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -146,7 +147,34 @@ fallback_one_move() {
     return
   fi
 
+  if clean_queue_recently_covered; then
+    echo "make agent-prompt"
+    return
+  fi
+
   echo "make ask-commit QUERY=\"My review queue is clean. What should I do next, what should I ignore, and what cheap test would create value?\" PROJECT=\"$project\""
+}
+
+clean_queue_recently_covered() {
+  WORKSPACE="$WORKSPACE" ruby -rtime -e '
+    inbox = File.join(ENV.fetch("WORKSPACE"), "Oracle Inbox")
+    exit 1 unless Dir.exist?(inbox)
+    cutoff = Time.now.utc - (36 * 60 * 60)
+    Dir.glob(File.join(inbox, "*.md")).each do |path|
+      text = File.read(path)
+      next unless text.match?(/^reviewStatus:\s*accepted\s*$/i)
+      next unless text.include?("My review queue is clean")
+      created = text[/^created:\s*(.+)$/i, 1].to_s.strip
+      begin
+        exit 0 if !created.empty? && Time.parse(created).utc >= cutoff
+      rescue ArgumentError
+        next
+      end
+    rescue
+      next
+    end
+    exit 1
+  ' >/dev/null 2>&1
 }
 
 why_this_move() {
@@ -158,6 +186,8 @@ why_this_move() {
     echo "This reopens the freshest shipped work so useful context can become durable memory instead of disappearing into commit history."
   elif grep -q 'make ask-commit' <<<"$command"; then
     echo "The queue is clean and recent work is already covered, so the useful move is to force a decision read into memory instead of scanning more surfaces."
+  elif grep -q 'make agent-prompt' <<<"$command"; then
+    echo "The queue is clean and a recent clean-queue Oracle read is already accepted, so the next value is bounded delegation instead of another note."
   elif grep -q 'make idea ' <<<"$command"; then
     echo "This captures the decision pressure that is still only in your head, giving Terminal Brain a real signal to work with."
   elif grep -q 'make use-now IDEA=' <<<"$command"; then
