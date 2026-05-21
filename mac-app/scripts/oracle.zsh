@@ -135,7 +135,7 @@ local_answer_read() {
     end
 
     command = "make idea TITLE=\"Decision pressure\" IDEA=\"The decision I keep circling is ...\" #{project_assignment}" if command.to_s.empty?
-    signal = "No dominant open signal" if signal.empty?
+    signal = "No dominant open signal" if signal.to_s.empty?
     why ||= "The system needs one concrete artifact: a decision, memory note, delegated task, or outcome."
     blindspot ||= missing.lines.map(&:strip).find { |line| line.start_with?("- ") }.to_s.sub(/^- /, "")
     blindspot = "The next useful move is probably smaller than another dashboard scan." if blindspot.empty?
