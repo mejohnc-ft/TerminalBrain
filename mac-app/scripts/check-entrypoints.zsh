@@ -125,7 +125,8 @@ require_contains "$check_in_output" 'did not launch, foreground, screenshot, qui
 check_in_workspace="$(mktemp -d)"
 check_in_capture_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$check_in_workspace" "$ROOT/mac-app/scripts/check-in.zsh" --project "Terminal Brain" --idea "The useful artifact I can create next is a sharper check-in loop.")"
 require_contains "$check_in_capture_output" 'Captured Check-In Signal' "check-in capture section"
-require_contains "$check_in_capture_output" '"reviewStatus":"new"' "check-in capture review status"
+require_contains "$check_in_capture_output" 'Review status: new' "check-in capture review status"
+require_contains "$check_in_capture_output" 'The useful artifact I can create next is a sharper check-in loop' "check-in capture thought"
 test -f "$check_in_workspace/Oracle Inbox/"*.md || {
   echo "Entrypoint check failed: check-in capture did not write note" >&2
   echo "$check_in_capture_output" >&2

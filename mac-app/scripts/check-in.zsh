@@ -62,12 +62,25 @@ if [[ -n "$IDEA_TEXT" ]]; then
   echo
   echo "## Captured Check-In Signal"
   echo
-  "$ROOT/mac-app/scripts/idea.zsh" \
-    --title "$TITLE" \
-    --project "$PROJECT" \
-    --source "Terminal Brain Check In" \
-    --tag check-in \
-    "$IDEA_TEXT"
+  capture_output="$(
+    "$ROOT/mac-app/scripts/idea.zsh" \
+      --title "$TITLE" \
+      --project "$PROJECT" \
+      --source "Terminal Brain Check In" \
+      --tag check-in \
+      "$IDEA_TEXT"
+  )"
+  if ! CAPTURE_OUTPUT="$capture_output" IDEA_TEXT="$IDEA_TEXT" ruby -rjson -e '
+    payload = JSON.parse(ENV.fetch("CAPTURE_OUTPUT"))
+    puts "- Captured: #{payload.fetch("title", "Check-in Signal")}"
+    puts "- Project: #{payload.fetch("project", "General Brain")}"
+    puts "- Review status: #{payload.fetch("reviewStatus", "new")}"
+    puts "- Thought: #{ENV.fetch("IDEA_TEXT", "").strip}"
+    puts "- Path: #{payload.fetch("path", "(app API)")}"
+    puts "- Guardrail: #{payload.fetch("guardrail", "check-in capture did not launch or foreground Terminal Brain")}"
+  '; then
+    printf '%s\n' "$capture_output"
+  fi
   echo
   echo "## Next"
   echo

@@ -243,6 +243,7 @@ require_in_file "$ROOT/Makefile" 'What should I do next, what am I missing, and 
 require_in_file "$ROOT/mac-app/scripts/check-in.zsh" 'Terminal Brain Check In' "non-launching Check In path"
 require_in_file "$ROOT/mac-app/scripts/check-in.zsh" 'Answer One Line' "Check In plain prompts"
 require_in_file "$ROOT/mac-app/scripts/check-in.zsh" 'Captured Check-In Signal' "Check In capture mode"
+require_in_file "$ROOT/mac-app/scripts/check-in.zsh" 'Review status' "Check In readable capture confirmation"
 require_in_file "$ROOT/mac-app/scripts/check-in.zsh" 'did not launch, foreground, screenshot, quit, kill, or control' "Check In guardrail"
 require_in_file "$ROOT/mac-app/scripts/oracle.zsh" 'make check-in' "Answer no-signal guided check-in fallback"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'make answer' "Use Now clean-queue direct Oracle read"
