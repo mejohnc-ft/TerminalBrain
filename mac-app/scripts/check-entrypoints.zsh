@@ -339,15 +339,39 @@ require_not_contains_literal "$ask_output" 'Completed Evidence' "ask fallback hi
 make_ask_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$ask_workspace" QUERY="what should I do next?" make -s -C "$ROOT" ask)"
 require_contains "$make_ask_output" 'Question: what should I do next\?' "make ask question"
 require_not_contains_literal "$make_ask_output" 'what should I do next? what should I do next?' "make ask duplicated question"
+mkdir -p "$ask_workspace/Oracle Inbox"
+latest_commit_subject="$(git -C "$ROOT" log -1 --pretty=format:%s)"
+latest_commit_sha="$(git -C "$ROOT" log -1 --pretty=format:%H)"
+recent_commit_memory="$(git -C "$ROOT" log -50 --pretty=format:'%H %s')"
+cat >"$ask_workspace/Oracle Inbox/latest-accepted.md" <<MARKDOWN
+---
+type: outcome
+project: Terminal Brain
+created: 2026-05-21T00:00:00Z
+reviewStatus: accepted
+---
+
+# Outcome - Latest work covered
+
+## Outcome
+
+Commit ${latest_commit_sha} ${latest_commit_subject} is already covered for the clean-queue answer regression.
+
+Recent commit coverage:
+
+${recent_commit_memory}
+MARKDOWN
 make_answer_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$ask_workspace" make -s -C "$ROOT" answer)"
 require_contains "$make_answer_output" '# Terminal Brain Oracle' "make answer Oracle output"
 require_contains "$make_answer_output" 'What should I do next, what am I missing, and what cheap test would create value\?' "make answer default question"
 require_contains "$make_answer_output" 'Direct Answer' "make answer direct answer"
+require_contains "$make_answer_output" 'make check-in PROJECT=' "make answer clean queue check-in command"
+require_contains "$make_answer_output" 'answer one prompt with a real sentence' "make answer check-in cheap test"
 require_not_contains_literal "$make_answer_output" 'Local Read' "make answer avoids old dump wrapper"
 ask_commit_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$ask_workspace" "$ROOT/mac-app/scripts/oracle.zsh" --commit --project "Terminal Brain" "what should I do next?")"
 require_contains "$ask_commit_output" '"mode":"local-fallback"' "ask commit fallback mode"
 require_contains "$ask_commit_output" '"reviewStatus":"new"' "ask commit review status"
-test -f "$ask_workspace/Oracle Inbox/"*.md || {
+ls "$ask_workspace/Oracle Inbox/"*.md >/dev/null 2>&1 || {
   echo "Entrypoint check failed: ask commit fallback did not write note" >&2
   echo "$ask_commit_output" >&2
   exit 1

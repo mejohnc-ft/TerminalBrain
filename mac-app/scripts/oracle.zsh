@@ -140,13 +140,18 @@ local_answer_read() {
     blindspot ||= missing.lines.map(&:strip).find { |line| line.start_with?("- ") }.to_s.sub(/^- /, "")
     blindspot = "The next useful move is probably smaller than another dashboard scan." if blindspot.empty?
     display_command = command.lines.map(&:strip).reject(&:empty?).last || command
+    cheap_test = if display_command.start_with?("make check-in")
+      "run the check-in, answer one prompt with a real sentence, then rerun `make answer`."
+    else
+      "run the command, then save one sentence about what changed."
+    end
 
     puts "## Direct Answer"
     puts
     puts "- Do next: `#{display_command}`"
     puts "- Why: #{why}"
     puts "- What you may be missing: #{blindspot}"
-    puts "- Cheap test: run the command, then save one sentence about what changed."
+    puts "- Cheap test: #{cheap_test}"
     puts
     puts "## One Command"
     puts
