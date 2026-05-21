@@ -2519,6 +2519,26 @@ struct ContentView: View {
                             .fixedSize(horizontal: false, vertical: true)
                             .textSelection(.enabled)
 
+                        HStack(alignment: .center, spacing: 10) {
+                            Label("Counter-signal", systemImage: "eye.fill")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(.white.opacity(0.70))
+                            Text("Check blindspots before acting so the top radar signal does not become tunnel vision.")
+                                .font(.caption)
+                                .foregroundStyle(.white.opacity(0.56))
+                                .fixedSize(horizontal: false, vertical: true)
+                            Spacer()
+                            Button {
+                                selectedSection = "blindspots"
+                            } label: {
+                                Label("Check Blindspots", systemImage: "arrow.right.circle.fill")
+                            }
+                            .buttonStyle(.bordered)
+                        }
+                        .padding(10)
+                        .background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(.white.opacity(0.08), lineWidth: 1))
+
                         HStack(spacing: 8) {
                             ForEach(item.evidence, id: \.self) { evidence in
                                 Text(evidence)

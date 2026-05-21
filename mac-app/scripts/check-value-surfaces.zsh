@@ -41,6 +41,7 @@ require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'focusId
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Open Memory' "command palette can open Memory"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Open Work Block' "command palette can open Work Block"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Open Now' "command palette can open Now"
+require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Check Blindspots' "Radar routes to counter-signal review"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/TerminalBrainApp.swift" 'Copy Start Here' "Start Here menu bar/menu command"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/TerminalBrainApp.swift" 'Copy Now' "Now menu bar/menu command"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/TerminalBrainApp.swift" 'Copy Demo' "Demo menu bar/menu command"
