@@ -60,7 +60,7 @@ echo "## Prompt-To-Artifact Checklist"
 echo
 echo "| Status | Requirement | Evidence |"
 echo "| --- | --- | --- |"
-evidence "One-command operator path" "grep -q '## One Move' '$ROOT/mac-app/scripts/use-now.zsh' && grep -q '^use-now:' '$ROOT/Makefile'" "make use-now prints a selected One Move."
+evidence "One-command operator path" "grep -q '## One Move' '$ROOT/mac-app/scripts/use-now.zsh' && grep -q '^use-now:' '$ROOT/Makefile' && grep -q '^start: use-now' '$ROOT/Makefile'" "make start and make use-now print a selected One Move."
 evidence "Clean queue avoids churn" "grep -q 'clean_queue_recently_covered' '$ROOT/mac-app/scripts/use-now.zsh' && grep -q 'Do not manufacture busywork' '$ROOT/mac-app/scripts/work-block.zsh'" "Use Now and Work Block suppress repeated clean-queue Oracle notes and fake work."
 evidence "Closed-app memory writeback" "grep -q 'local-fallback' '$ROOT/mac-app/scripts/idea.zsh' && grep -q 'local-fallback' '$ROOT/mac-app/scripts/outcome.zsh' && grep -q 'write_local_commit' '$ROOT/mac-app/scripts/oracle.zsh'" "Idea, Outcome, and Oracle commit paths write without app launch."
 evidence "Agent handoff is actionable" "grep -q 'next non-recursive move' '$ROOT/mac-app/scripts/agent-prompt.zsh' && grep -q 'analysis alone is not enough' '$ROOT/mac-app/scripts/agent-prompt.zsh'" "make agent-prompt avoids recursion and demands a concrete artifact."
