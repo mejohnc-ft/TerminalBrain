@@ -71,6 +71,7 @@ evidence "Prompt/focus safety" "'$ROOT/mac-app/scripts/check-no-foreground.zsh' 
 if [[ "${TERMINAL_BRAIN_COMPLETION_AUDIT_SKIP_VERIFY:-0}" == "1" ]]; then
   evidence "Static verification gate" "grep -q 'terminal brain static verification passed' '$ROOT/mac-app/scripts/verify-static.zsh'" "Full non-launching verifier is wired; skipped here to avoid nested MCP recursion."
 else
+  printf '| running | Static verification gate | Running full non-launching verifier; Swift type-check and app build can take a minute. |\n'
   evidence "Static verification gate" "'$ROOT/mac-app/scripts/verify-static.zsh' >/dev/null" "Full non-launching verifier passes."
 fi
 evidence "Manual visual review boundary" "grep -q 'Open Terminal Brain manually only when you want the UI/API active' '$ROOT/mac-app/scripts/visual-review-plan.zsh'" "Live visual review requires explicit operator action."
