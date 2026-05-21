@@ -190,7 +190,7 @@ why_this_move() {
     echo "The queue is clean and a recent clean-queue Oracle read is already accepted, so the next value is bounded delegation instead of another note."
   elif grep -q 'make idea ' <<<"$command"; then
     echo "This captures the decision pressure that is still only in your head, giving Terminal Brain a real signal to work with."
-  elif grep -q 'make use-now IDEA=' <<<"$command"; then
+  elif grep -q 'make start IDEA=' <<<"$command"; then
     echo "There is no stronger waiting signal yet, so the best move is to capture one real pressure point and immediately rerun the brief."
   else
     echo "This is the smallest available action that moves Terminal Brain from passive context into a concrete next step."
@@ -291,7 +291,7 @@ echo "| If you want to... | Run |"
 echo "| --- | --- |"
 echo "| Pressure-test the clean queue | \`make ask-commit QUERY=\"What should I do next, what should I ignore, and what cheap test would create value?\" PROJECT=\"$PROJECT\"\` |"
 echo "| Turn shipped work into memory | \`make recent-work INDEX=1 PROJECT=\"$PROJECT\"\` |"
-echo "| Capture a rough thought | \`make use-now IDEA=\"The thing I keep circling is ...\" PROJECT=\"$PROJECT\"\` |"
+echo "| Capture a rough thought | \`make start IDEA=\"The thing I keep circling is ...\" PROJECT=\"$PROJECT\"\` |"
 echo "| Delegate the next bounded task | \`make agent-prompt\` |"
 echo "| Close the loop | \`make outcome TITLE=\"...\" OUTCOME=\"...\" PROJECT=\"$PROJECT\" NEXT=\"...\"\` |"
 echo
@@ -303,7 +303,7 @@ echo "## Ask, Capture, Delegate, Close"
 echo
 echo '```zsh'
 echo "make ask QUERY=\"What should I do next for ${PROJECT}, and what am I missing?\""
-echo "make use-now IDEA=\"The thing I keep circling is ...\" PROJECT=\"$PROJECT\""
+echo "make start IDEA=\"The thing I keep circling is ...\" PROJECT=\"$PROJECT\""
 echo "make agent-prompt"
 echo "make outcome TITLE=\"...\" OUTCOME=\"...\" PROJECT=\"$PROJECT\" NEXT=\"...\""
 echo '```'
@@ -314,7 +314,7 @@ echo "Seed the brain with one real point of pressure, then come back here:"
 echo
 echo '```zsh'
 echo "make idea IDEA=\"I need Terminal Brain to help me with ...\" PROJECT=\"$PROJECT\""
-echo "make use-now PROJECT=\"$PROJECT\""
+echo "make start PROJECT=\"$PROJECT\""
 echo '```'
 echo
 echo "## Guardrail"

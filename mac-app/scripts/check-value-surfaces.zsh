@@ -214,6 +214,7 @@ require_in_file "$ROOT/mac-app/scripts/handoff.zsh" 'snapshot.zsh.*--start-here'
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'Terminal Brain Use Now' "non-launching Use Now path"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'Captured First Signal' "Use Now optional idea capture"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'idea.zsh' "Use Now writes capture through idea fallback"
+require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'make start IDEA=' "Use Now capture command uses Start alias"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'What You Get In 60 Seconds' "Use Now immediate value"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" '## One Move' "Use Now one-move section"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'Why This Move' "Use Now explains the selected move"
