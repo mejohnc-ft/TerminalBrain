@@ -595,6 +595,17 @@ mcp_check_in_output="$(call_mcp_tool_json terminal_brain_check_in_markdown '{"pr
 require_contains "$mcp_check_in_output" '# Terminal Brain Check In' "MCP check-in title"
 require_contains "$mcp_check_in_output" 'Answer One Line' "MCP check-in prompts"
 require_contains "$mcp_check_in_output" 'make check-in IDEA=' "MCP check-in capture command"
+mcp_check_in_workspace="$(mktemp -d)"
+mcp_check_in_capture_output="$(TERMINAL_BRAIN_WORKSPACE="$mcp_check_in_workspace" call_mcp_tool_json terminal_brain_check_in_markdown '{"project":"Terminal Brain","idea":"MCP check-in capture should be readable.","title":"MCP Check In Capture"}')"
+require_contains "$mcp_check_in_capture_output" 'Captured Check-In Signal' "MCP check-in capture section"
+require_contains "$mcp_check_in_capture_output" 'Review status: new' "MCP check-in capture review status"
+require_contains "$mcp_check_in_capture_output" 'MCP check-in capture should be readable' "MCP check-in captured thought visible"
+test -f "$mcp_check_in_workspace/Oracle Inbox/"*.md || {
+  echo "Entrypoint check failed: MCP check-in capture did not write note" >&2
+  echo "$mcp_check_in_capture_output" >&2
+  exit 1
+}
+rm -rf "$mcp_check_in_workspace"
 
 mcp_start_here_output="$(call_mcp_tool terminal_brain_start_here_markdown)"
 require_contains "$mcp_start_here_output" '# Terminal Brain Start Here' "MCP start here title"
