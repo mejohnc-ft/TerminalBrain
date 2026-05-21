@@ -611,6 +611,8 @@ struct ContentView: View {
 
             useNowNoChoicePanel(focus: focus, topReview: topReview, title: useNowTitle, project: project)
 
+            useNowBubblingPanel(focus: focus, topReview: topReview, project: project)
+
             if topReview == nil {
                 useNowDirectAnswerPreview(project: project, question: directQuestion)
             }
@@ -726,6 +728,129 @@ struct ContentView: View {
         model.oracleQuestion = useNowDirectQuestion(project: project)
         selectedSection = "oracle"
         Task { await model.askOracle() }
+    }
+
+    private func useNowBubblingPanel(focus: FocusItem, topReview: OracleCommit?, project: String) -> some View {
+        let bubble = model.oracleItems.first
+        let blindspot = model.blindspotItems.first
+        let idea = model.ideaPulseItems.first
+        let radar = model.radarItems.first { $0.disposition == .fresh } ?? model.radarItems.first
+        let title = topReview?.title ?? bubble?.title ?? blindspot?.title ?? idea?.title ?? radar?.title ?? focus.title
+        let detail = topReview?.preview ?? bubble?.detail ?? blindspot?.question ?? idea?.nextPrompt ?? radar?.reason ?? focus.reason
+        let symbol = topReview?.status.symbol ?? bubble?.symbol ?? blindspot?.symbol ?? idea?.symbol ?? radar?.symbol ?? focus.symbol
+        let accent = topReview?.status.color ?? blindspot?.state.color ?? idea?.state.color ?? radar?.state.color ?? focus.state.color
+        let question = "What is bubbling up about \(title), what am I likely missing, and what cheap test would prove whether it matters?"
+
+        return VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: symbol)
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundStyle(accent)
+                    .frame(width: 46, height: 46)
+                    .background(accent.opacity(0.14), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Bubbling Now")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(accent)
+                        .textCase(.uppercase)
+                    Text(title)
+                        .font(.title3.weight(.bold))
+                        .foregroundStyle(.white)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.78)
+                    Text(detail)
+                        .font(.callout)
+                        .foregroundStyle(.white.opacity(0.62))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer()
+            }
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: 12)], spacing: 12) {
+                ValueBriefTile(
+                    label: "Ask",
+                    title: "Interrogate the signal",
+                    detail: "Ask why this surfaced, what would make it wrong, and the smallest useful test.",
+                    action: "Ask Now",
+                    symbol: "sparkle.magnifyingglass",
+                    accent: settings.theme.accent
+                ) {
+                    model.oracleQuestion = question
+                    selectedSection = "oracle"
+                    Task { await model.askOracle() }
+                }
+
+                ValueBriefTile(
+                    label: "Open",
+                    title: "Go to the source",
+                    detail: "Jump to the review item, blindspot, idea, radar item, or current focus behind this read.",
+                    action: "Open Signal",
+                    symbol: "arrow.up.right.square.fill",
+                    accent: accent
+                ) {
+                    openBubblingSignal(focus: focus, topReview: topReview, bubble: bubble, blindspot: blindspot, idea: idea, radar: radar)
+                }
+
+                ValueBriefTile(
+                    label: "Capture",
+                    title: "Track the thought",
+                    detail: "Turn your reaction into reviewable memory before it becomes another loose idea.",
+                    action: "Capture",
+                    symbol: "square.and.pencil",
+                    accent: .yellow
+                ) {
+                    model.quickIdea = "Reaction to \(title): "
+                    selectedSection = "focus"
+                }
+
+                ValueBriefTile(
+                    label: "Close",
+                    title: "Save the result",
+                    detail: "If this changed the next move, write the outcome back so it becomes durable judgment.",
+                    action: "Outcome",
+                    symbol: "square.and.arrow.down.fill",
+                    accent: .green
+                ) {
+                    model.outcomeTitle = title
+                    model.outcomeText = "What changed, why it mattered, and what evidence exists."
+                    model.outcomeNextAction = "Run Use Now again and pick the next useful signal."
+                    selectedSection = "start-here"
+                }
+            }
+        }
+        .padding(16)
+        .darkPanel()
+    }
+
+    private func openBubblingSignal(
+        focus: FocusItem,
+        topReview: OracleCommit?,
+        bubble: OracleItem?,
+        blindspot: BlindspotItem?,
+        idea: IdeaPulseItem?,
+        radar: RadarItem?
+    ) {
+        if let topReview {
+            selectedCommitID = topReview.id
+            reviewProjectFilter = topReview.project.isEmpty ? "all" : topReview.project
+            selectedSection = "review"
+        } else if let bubble {
+            model.oracleQuestion = "What should I notice about \(bubble.title)? \(bubble.detail)"
+            selectedSection = "oracle"
+        } else if let blindspot {
+            selectedBlindspotID = blindspot.id
+            selectedSection = "blindspots"
+        } else if let idea {
+            selectedIdeaID = idea.id
+            selectedSection = "ideas"
+        } else if let radar {
+            selectedRadarID = radar.id
+            selectedSection = "radar"
+        } else {
+            applyFocusAction(focus)
+        }
     }
 
     private func useNowDirectAnswerPreview(project: String, question: String) -> some View {
