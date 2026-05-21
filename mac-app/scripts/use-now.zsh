@@ -138,6 +138,17 @@ one_move_from_work_block() {
   '
 }
 
+fallback_one_move() {
+  local project="$1"
+
+  if INDEX=1 PROJECT="$project" "$ROOT/mac-app/scripts/recent-work.zsh" --dry-run >/dev/null 2>&1; then
+    echo "make recent-work INDEX=1 PROJECT=\"$project\""
+    return
+  fi
+
+  echo "make ask-commit QUERY=\"My review queue is clean. What should I do next, what should I ignore, and what cheap test would create value?\" PROJECT=\"$project\""
+}
+
 why_this_move() {
   local command="$1"
 
@@ -145,6 +156,8 @@ why_this_move() {
     echo "This moves the highest-signal inbox item out of limbo so it becomes accepted, delegated, or intentionally dismissed."
   elif grep -q 'make recent-work INDEX=' <<<"$command"; then
     echo "This reopens the freshest shipped work so useful context can become durable memory instead of disappearing into commit history."
+  elif grep -q 'make ask-commit' <<<"$command"; then
+    echo "The queue is clean and recent work is already covered, so the useful move is to force a decision read into memory instead of scanning more surfaces."
   elif grep -q 'make idea ' <<<"$command"; then
     echo "This captures the decision pressure that is still only in your head, giving Terminal Brain a real signal to work with."
   elif grep -q 'make use-now IDEA=' <<<"$command"; then
@@ -199,7 +212,7 @@ fi
 work_block_output="$("$ROOT/mac-app/scripts/work-block.zsh" --project "$PROJECT" --limit "$LIMIT")"
 one_move="$(printf '%s\n' "$work_block_output" | one_move_from_work_block)"
 if [[ "$one_move" == "__NO_SIGNAL__" ]]; then
-  one_move="make use-now IDEA=\"I need Terminal Brain to help me with ...\" PROJECT=\"$PROJECT\""
+  one_move="$(fallback_one_move "$PROJECT")"
 fi
 
 echo "## One Move"
@@ -211,6 +224,18 @@ echo
 echo "## Why This Move"
 echo
 why_this_move "$one_move"
+echo
+echo "## Choose Your Mode"
+echo
+echo "Use this when the selected move does not match your intent. Pick one lane and make it leave an artifact."
+echo
+echo "| If you want to... | Run |"
+echo "| --- | --- |"
+echo "| Pressure-test the clean queue | \`make ask-commit QUERY=\"What should I do next, what should I ignore, and what cheap test would create value?\" PROJECT=\"$PROJECT\"\` |"
+echo "| Turn shipped work into memory | \`make recent-work INDEX=1 PROJECT=\"$PROJECT\"\` |"
+echo "| Capture a rough thought | \`make use-now IDEA=\"The thing I keep circling is ...\" PROJECT=\"$PROJECT\"\` |"
+echo "| Delegate the next bounded task | \`make agent-prompt\` |"
+echo "| Close the loop | \`make outcome TITLE=\"...\" OUTCOME=\"...\" PROJECT=\"$PROJECT\" NEXT=\"...\"\` |"
 echo
 echo "## Current Work Block"
 echo
