@@ -76,7 +76,7 @@ selection_json="$(
 
     def operator_facing_commit?(subject)
       value = subject.to_s.downcase
-      return false if value.match?(/\b(verifier|verification|audit|coverage|entrypoint|regression|doctor|ci|timeout|guard|guardrail|matcher|maintenance|internal|recent[- ]work|recent work signals?|runtime noise|support bundle|prompt wording|first prompts|alias|guidance|contract|manifest|quoting|process detection|bridge process detection|command blocks? runnable|fallback|empty answer|filter internal polish)\b/)
+      return false if value.match?(/\b(verifier|verifiers|verification|audit|audits|readiness|coverage|entrypoint|regression|doctor|ci|timeout|guard|guardrail|matcher|maintenance|internal|recent[- ]work|recent work signals?|runtime noise|support bundle|prompt wording|first prompts|alias|guidance|contract|manifest|quoting|process detection|bridge process detection|command blocks? runnable|fallback|empty answer|filter internal polish)\b/)
       return true if value.match?(/\b(use now|start here|what now|oracle|idea|work block|sidebar|settings|menu|shortcut|native|no-choice|widget|visual|design|liquid|profile|source|memory|drafts|apple notes)\b/)
       true
     end

@@ -248,7 +248,7 @@ latest_operator_subject="$(
     STDIN.each_line do |line|
     next if defined?(found) && found
     value = line.downcase
-    internal = value.match?(/\b(verifier|verification|audit|coverage|entrypoint|regression|doctor|ci|timeout|guard|guardrail|matcher|maintenance|internal|recent[- ]work|recent work signals?|runtime noise|support bundle|prompt wording|first prompts|alias|guidance|contract|manifest|quoting|process detection|bridge process detection|command blocks? runnable|fallback|empty answer|filter internal polish)\b/)
+    internal = value.match?(/\b(verifier|verifiers|verification|audit|audits|readiness|coverage|entrypoint|regression|doctor|ci|timeout|guard|guardrail|matcher|maintenance|internal|recent[- ]work|recent work signals?|runtime noise|support bundle|prompt wording|first prompts|alias|guidance|contract|manifest|quoting|process detection|bridge process detection|command blocks? runnable|fallback|empty answer|filter internal polish)\b/)
     operator = !internal && (
       value.match?(/\b(use now|start here|what now|oracle|idea|work block|sidebar|settings|menu|shortcut|native|no-choice|widget|visual|design|liquid|profile|source|memory|drafts|apple notes)\b/) ||
       true
@@ -280,6 +280,7 @@ else
 fi
 require_not_contains_literal "$recent_output" '"subject":"Keep recent work signals current"' "internal recent-work maintenance commit"
 require_not_contains_literal "$recent_output" '"subject":"Skip internal recent-work maintenance"' "internal recent-work maintenance filter commit"
+require_not_contains_literal "$recent_output" '"subject":"Cover What Now in readiness audits"' "internal readiness audit commit"
 rm -rf "$recent_workspace"
 
 doctor_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/doctor.zsh")"
