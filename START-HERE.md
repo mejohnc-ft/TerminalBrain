@@ -69,6 +69,12 @@ Terminal Brain is useful when it turns scattered local context into one work blo
    make design-audit
    ```
 
+   To prepare the manual visual certification pass without opening the app, run:
+
+   ```zsh
+   make visual-review-plan
+   ```
+
    ```zsh
    make now
    ```
