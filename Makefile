@@ -1,4 +1,4 @@
-.PHONY: help build install verify live use-now first-minute demo playbook value-audit design-audit visual-review-plan now sources memory memory-promote recent-work status processes cleanup-plan support-bundle next value prove-value oracle-brief bubble-up work-block doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live use-now first-minute demo playbook value-audit completion-audit design-audit visual-review-plan now sources memory memory-promote recent-work status processes cleanup-plan support-bundle next value prove-value oracle-brief bubble-up work-block doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
@@ -9,6 +9,7 @@ help:
 	@echo "  make demo          Non-launching temporary demo with seeded ideas, Bubble Up, Work Block"
 	@echo "  make playbook      Non-launching operator playbook for using Terminal Brain today"
 	@echo "  make value-audit   Non-launching evidence audit for first-use value and gaps"
+	@echo "  make completion-audit Non-launching completion audit for world-class readiness"
 	@echo "  make design-audit  Non-launching static audit of native macOS shell and glass design"
 	@echo "  make visual-review-plan Non-launching manual visual review checklist"
 	@echo "  make now           Non-launching one-page orientation: value, next action, process truth, readiness"
@@ -80,6 +81,9 @@ playbook:
 
 value-audit:
 	./mac-app/scripts/value-audit.zsh
+
+completion-audit:
+	./mac-app/scripts/completion-audit.zsh
 
 design-audit:
 	./mac-app/scripts/design-audit.zsh
