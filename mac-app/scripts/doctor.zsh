@@ -249,7 +249,18 @@ else
   prompt_config_safe=1
 fi
 
-bridge_processes="$(ps ax -o pid=,args= | grep -Ei 'apple[-_ ]?notes|drafts[-_ ]?(obsidian|mcp|bridge)' | grep -Ev 'grep -Ei|doctor\.zsh|check-entrypoints\.zsh|verify-static\.zsh' || true)"
+bridge_processes="$(
+  ps ax -o pid=,args= | awk '
+    BEGIN { IGNORECASE = 1 }
+    /doctor\.zsh|check-entrypoints\.zsh|verify-static\.zsh|awk / { next }
+    {
+      line = $0
+      appleNotesBridge = line ~ /(apple[-_ ]?notes.*(mcp|bridge|server\.mjs)|(mcp|bridge|server\.mjs).*apple[-_ ]?notes)/
+      draftsBridge = line ~ /(drafts.*(obsidian|mcp|bridge|server\.mjs)|(obsidian|mcp|bridge|server\.mjs).*drafts)/
+      if (appleNotesBridge || draftsBridge) { print line }
+    }
+  '
+)"
 if [[ -n "$bridge_processes" ]]; then
   warn "prompt-prone Apple Notes/Drafts bridge process may be running"
   printf '%s\n' "$bridge_processes" | sed 's/^/     /'
