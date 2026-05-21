@@ -96,6 +96,7 @@ Plain `make` prints help. `make verify`, `make use-now`, `make first-minute`, `m
 - One-call operator snapshot for agents: Focus, Operator Brief, Operator Deck, Blindspot Brief, Radar, setup gaps, Today, memory trail, and suggested next actions.
 - Plain-language Operator Brief that says what matters, why it matters, what not to miss, and what artifact to create next.
 - Value Brief that collapses Focus, Idea Pulse, Blindspots, and Project Memory into one compact value read.
+- Native signal loop: Radar highlights the likely next signal, `Check Blindspots` pushes a counter-signal review before acting, Blindspots can `Capture as Idea`, and Ideas has a direct capture lane so missed risks can become durable follow-up work instead of passive warnings.
 - Value Proof: `make prove-value`, `/value-proof/markdown`, `terminal_brain_value_proof_markdown`, Copy Value Proof in the app/menu bar, and the Copy Value Proof App Shortcut demonstrate the whole closed-app loop, including Use Now capture, without touching the real workspace.
 - Oracle Brief for "just tell me what matters": `make oracle-brief`, `/oracle/brief/markdown`, `terminal_brain_oracle_brief_markdown`, Copy Oracle Brief in the app/menu bar, and the Copy Oracle Brief App Shortcut provide a direct read, next moves, missing signal, cheap test, and agent handoff.
 - Agent Prompt fallback: `make agent-prompt` and `terminal_brain_agent_prompt_markdown` now return a bounded execution prompt even when the app is closed, using safe local reads instead of failing on the API.

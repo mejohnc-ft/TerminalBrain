@@ -12,6 +12,13 @@ Terminal Brain is useful when it turns scattered local context into one work blo
 
    `make use-now` starts with one executable move, then shows the pull-forward context, Oracle ask command, idea capture command, agent handoff command, and outcome writeback command.
 
+   The native signal loop is: Radar surfaces a signal, Blindspots challenges it, and Ideas captures the follow-up if the counter-signal should become durable work. In the app this is exposed as `Check Blindspots`, `Capture as Idea`, and the Ideas capture lane. From the terminal, use:
+
+   ```zsh
+   make bubble-up
+   make idea IDEA="The counter-signal I need to track is ..." PROJECT="Terminal Brain"
+   ```
+
    If you already know you only want the pull-forward block, run:
 
    ```zsh
@@ -66,7 +73,7 @@ Terminal Brain is useful when it turns scattered local context into one work blo
    make now
    ```
 
-   `make now` is the fastest orientation: bottom line, next action, process truth, readiness, and the outcome close loop.
+   `make now` is the fastest orientation: Use Now-first action, why it matters, process truth, readiness, and the outcome close loop.
 
    ```zsh
    make value
