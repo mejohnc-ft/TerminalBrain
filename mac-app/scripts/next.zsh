@@ -13,7 +13,7 @@ Prints the next useful Terminal Brain move without launching the app.
 
 Behavior:
   - If Terminal Brain is already reachable, print Start Here.
-  - If Terminal Brain is closed, print the local Oracle Brief and closed-app loop.
+  - If Terminal Brain is closed, print the one-move Use Now path and closed-app loop.
 
 This script never launches, foregrounds, quits, or controls Terminal Brain.
 EOF
@@ -53,25 +53,25 @@ Terminal Brain is not currently reachable at $API, so this stays local and close
 
 ## Next Move
 
-Start with the local oracle read:
+Start with one move:
 
 \`\`\`zsh
-make oracle-brief
+make use-now
 \`\`\`
 
-## Oracle Read
+## Use Now
 
 EOF
 
-TERMINAL_BRAIN_API="$API" "$ROOT/mac-app/scripts/oracle-brief.zsh" | demote_oracle
+TERMINAL_BRAIN_API="$API" "$ROOT/mac-app/scripts/use-now.zsh" | demote_oracle
 
 cat <<EOF
 
 ## Closed-App Loop
 
 \`\`\`zsh
-make work-block
-make bubble-up
+make use-now
+make ask QUERY="What should I do next for Terminal Brain, and what am I missing?"
 make agent-prompt
 make outcome TITLE="..." OUTCOME="..." PROJECT="Terminal Brain" NEXT="..."
 \`\`\`

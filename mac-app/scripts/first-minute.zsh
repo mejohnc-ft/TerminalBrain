@@ -56,6 +56,7 @@ else
   echo "Terminal Brain is not reachable at $API. Use the closed-app path:"
   echo
   echo "\`\`\`zsh"
+  echo "make use-now"
   echo "make agent-prompt"
   echo "make outcome TITLE=\"...\" OUTCOME=\"...\" PROJECT=\"Terminal Brain\" NEXT=\"...\""
   echo "\`\`\`"
