@@ -502,6 +502,7 @@ mcp_what_now_output="$(call_mcp_tool terminal_brain_what_now_markdown)"
 require_contains "$mcp_what_now_output" '# Terminal Brain What Now' "MCP What Now title"
 require_contains "$mcp_what_now_output" 'Plain Answer' "MCP What Now plain answer"
 require_contains "$mcp_what_now_output" 'No Terminal Brain relaunch loop is detected|Terminal Brain app is running' "MCP What Now relaunch read"
+require_contains "$mcp_what_now_output" 'Multiple Codex sessions usually mean open agent chats|Codex session count is low' "MCP What Now Codex interpretation"
 require_contains "$mcp_what_now_output" 'make use-now' "MCP What Now value command"
 require_contains "$mcp_what_now_output" 'did not launch, foreground, screenshot, quit, kill, or control' "MCP What Now guardrail"
 

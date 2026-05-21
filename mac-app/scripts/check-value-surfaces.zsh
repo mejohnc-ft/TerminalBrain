@@ -182,6 +182,7 @@ require_in_file "$ROOT/mac-app/scripts/now.zsh" 'make use-now' "Now starts with 
 require_in_file "$ROOT/mac-app/scripts/now.zsh" 'make outcome' "Now outcome close loop"
 require_in_file "$ROOT/mac-app/scripts/what-now.zsh" 'Terminal Brain What Now' "non-launching What Now situation read"
 require_in_file "$ROOT/mac-app/scripts/what-now.zsh" 'No Terminal Brain relaunch loop is detected' "What Now relaunch-loop plain answer"
+require_in_file "$ROOT/mac-app/scripts/what-now.zsh" 'Multiple Codex sessions usually mean open agent chats' "What Now explains Codex process noise"
 require_in_file "$ROOT/mac-app/scripts/what-now.zsh" 'make use-now' "What Now next value command"
 require_in_file "$ROOT/mac-app/scripts/what-now.zsh" 'did not launch, foreground, screenshot, quit, kill, or control Terminal Brain' "What Now guardrail"
 require_in_file "$ROOT/mac-app/scripts/sources.zsh" 'Terminal Brain Source Inventory' "non-launching source inventory"

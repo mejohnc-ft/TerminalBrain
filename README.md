@@ -31,7 +31,7 @@ make doctor
 make processes
 ```
 
-These commands do not launch or foreground Terminal Brain. `make now` is the Use Now-first orientation for one move, the reason for that move, process truth, and readiness. `make what-now` and MCP `terminal_brain_what_now_markdown` are the plain answers for "what is happening now": app focus, repo/CI state, runtime noise, current blocker, and next value command. `make processes` and MCP `terminal_brain_process_map_markdown` are the detailed answers for "what is still going" across Terminal Brain, Codex, MCP, kernel, Drafts, launchctl, and the localhost API.
+These commands do not launch or foreground Terminal Brain. `make now` is the Use Now-first orientation for one move, the reason for that move, process truth, and readiness. `make what-now` and MCP `terminal_brain_what_now_markdown` are the plain answers for "what is happening now": app focus, repo/CI state, runtime noise, what the counts mean, current blocker, and next value command. `make processes` and MCP `terminal_brain_process_map_markdown` are the detailed answers for "what is still going" across Terminal Brain, Codex, MCP, kernel, Drafts, launchctl, and the localhost API.
 
 Common commands:
 

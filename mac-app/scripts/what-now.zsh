@@ -13,6 +13,7 @@ Prints a concise non-launching situation read:
   - whether Terminal Brain is running or stealing focus
   - repo, CI, and last shipped change
   - agent/runtime process noise
+  - a plain interpretation of runtime counts
   - the current blocker and next value command
 
 This script never launches, foregrounds, quits, kills, screenshots, or controls Terminal Brain.
@@ -115,6 +116,24 @@ echo "- Codex engine processes: $codex_engines"
 echo "- terminal-brain-mcp children: $terminal_brain_mcp"
 echo "- brain-kernel children: $brain_kernel"
 echo "- Drafts app/widget processes: $drafts_processes"
+echo
+
+echo "## Read"
+if (( app_count == 0 )) && [[ -z "$launch_items" ]] && [[ -z "$health" ]]; then
+  echo "- Terminal Brain is not the focus stealer in this state."
+else
+  echo "- Terminal Brain has active runtime state; use make processes for details before changing anything."
+fi
+if (( codex_sessions > 1 )); then
+  echo "- Multiple Codex sessions usually mean open agent chats or old shells, not a Terminal Brain relaunch loop."
+else
+  echo "- Codex session count is low."
+fi
+if (( terminal_brain_mcp == 0 && brain_kernel == 0 )); then
+  echo "- No Terminal Brain MCP/kernel child processes are currently attached."
+else
+  echo "- Terminal Brain MCP/kernel children exist; use make cleanup-plan for a non-destructive review before killing anything."
+fi
 echo
 
 echo "## Current Blocker"

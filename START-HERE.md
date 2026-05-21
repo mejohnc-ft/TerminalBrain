@@ -41,7 +41,7 @@ On `Use Now`, use the inline `Ask, Decide, Remember` panel before browsing: ask 
    make what-now
    ```
 
-   `make what-now` reports app focus state, repo/CI state, runtime noise, the current blocker, and the next value command without launching or foregrounding the app.
+   `make what-now` reports app focus state, repo/CI state, runtime noise, what the counts mean, the current blocker, and the next value command without launching or foregrounding the app.
 
    To prove the loop in a temporary workspace, run:
 
