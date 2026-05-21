@@ -300,6 +300,8 @@ require_in_file "$ROOT/mac-app/scripts/doctor.zsh" 'installed app executable mat
 require_in_file "$ROOT/mac-app/scripts/doctor.zsh" 'latest GitHub CI succeeded' "doctor CI state check"
 require_in_file "$ROOT/mac-app/scripts/doctor.zsh" 'readiness: package ready' "doctor readiness verdict"
 require_in_file "$ROOT/mac-app/scripts/doctor.zsh" 'Prompt Safety' "doctor prompt safety check"
+require_in_file "$ROOT/mac-app/scripts/doctor.zsh" 'TerminalBrain process is closed by design' "doctor treats closed app as expected"
+require_in_file "$ROOT/mac-app/scripts/doctor.zsh" 'API not reachable.*because TerminalBrain is closed' "doctor treats closed API as expected"
 require_in_file "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'terminal_brain_value_now_markdown' "entrypoint fallback verifier"
 require_in_file "$ROOT/Makefile" '^start-here:' "Start Here Make target"
 require_in_file "$ROOT/Makefile" '^use-now:' "Use Now Make target"

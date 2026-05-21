@@ -63,6 +63,10 @@ warn() {
   printf 'warn %s\n' "$1"
 }
 
+info() {
+  printf 'info %s\n' "$1"
+}
+
 echo "# Terminal Brain Doctor"
 echo
 echo "Checked: $(date '+%Y-%m-%d %H:%M:%S %Z')"
@@ -133,7 +137,7 @@ if [[ -n "$process_pids" ]]; then
   ok "TerminalBrain process is running"
   app_running=1
 else
-  warn "TerminalBrain process is not running; open it manually when you want the UI/API active"
+  info "TerminalBrain process is closed by design; open it manually when you want the UI/API active"
 fi
 
 launch_items="$(launchctl list 2>/dev/null | grep -Ei 'terminalbrain|terminal brain' || true)"
@@ -146,8 +150,10 @@ fi
 if curl -fsS --max-time 0.5 "$API/health" >/dev/null 2>&1; then
   ok "API reachable at $API"
   api_ready=1
+elif (( app_running )); then
+  warn "API not reachable at $API while TerminalBrain is running"
 else
-  warn "API not reachable at $API; app-backed tools need the app open"
+  info "API not reachable at $API because TerminalBrain is closed; app-backed tools need a manual app open"
 fi
 echo
 
