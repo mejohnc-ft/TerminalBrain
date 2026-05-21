@@ -317,9 +317,25 @@ final class LocalControlServer {
             }
             let title = (request.jsonBody?["title"] as? String ?? "Captured Idea").trimmingCharacters(in: .whitespacesAndNewlines)
             let tags = (request.jsonBody?["tags"] as? [String] ?? []) + ["terminal-brain", "idea"]
+            let body = [
+                content,
+                "",
+                "## Cheap Test",
+                "",
+                "- Smallest test:",
+                "- Expected signal:",
+                "",
+                "## Kill Criteria",
+                "",
+                "- Stop if:",
+                "",
+                "## Next Action",
+                "",
+                "- [ ] Decide the next action before this becomes passive memory."
+            ].joined(separator: "\n")
             return .json(200, OracleSnapshot.commit(
                 title: title.isEmpty ? "Captured Idea" : title,
-                content: content,
+                content: body,
                 question: "Captured from Terminal Brain Focus",
                 source: request.jsonBody?["source"] as? String ?? "Terminal Brain Idea Capture",
                 project: request.jsonBody?["project"] as? String ?? "",
