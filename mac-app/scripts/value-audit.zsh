@@ -56,8 +56,9 @@ echo "3. The system tells the operator what command to run for common situations
 echo "4. The system can capture ideas, review them, bubble them up, create one work block, and write outcomes."
 echo "5. Agents can access the same surfaces through MCP."
 echo "6. The native app opens on the same high-value Use Now path and exposes it through sections, copy actions, menus, and Shortcuts."
-echo "7. Verification proves these surfaces without launching or foregrounding the app."
-echo "8. Remaining gaps are explicit instead of hidden behind green tests."
+echo "7. Native signal surfaces can convert Radar, Blindspots, and Ideas into challenge, capture, commit, or execution paths."
+echo "8. Verification proves these surfaces without launching or foregrounding the app."
+echo "9. Remaining gaps are explicit instead of hidden behind green tests."
 echo
 echo "## Prompt-To-Artifact Checklist"
 echo
@@ -77,6 +78,7 @@ evidence "Bubble Up" "grep -q 'What You May Not Be Considering' '$ROOT/mac-app/s
 evidence "Outcome writeback" "grep -q 'reviewStatus: accepted' '$ROOT/mac-app/scripts/outcome.zsh' && grep -q 'terminal_brain_commit_outcome' '$ROOT/mcp-server/server.mjs'" "make outcome and MCP outcome commit"
 evidence "Native default value section" "grep -q 'selectedSection = \"use-now\"' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'useNowView' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift'" "native app defaults to Use Now"
 evidence "Native value sections" "grep -q 'demoView' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'playbookView' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'valueAuditView' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift'" "native Demo, Playbook, and Value Audit sections"
+evidence "Native signal action paths" "grep -q 'Check Blindspots' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'Capture as Idea' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'focusIdeaCapturePanel(focus)' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'native Radar counter-signal path' '$ROOT/mac-app/scripts/audit.zsh'" "Radar can route to Blindspots, Blindspots can become tracked ideas, and Ideas has direct capture"
 evidence "Native copy actions" "grep -q 'func copyUseNow' '$ROOT/mac-app/Sources/TerminalBrain/BrainStatusModel.swift' && grep -q 'func copyDemo' '$ROOT/mac-app/Sources/TerminalBrain/BrainStatusModel.swift' && grep -q 'func copyPlaybook' '$ROOT/mac-app/Sources/TerminalBrain/BrainStatusModel.swift' && grep -q 'func copyValueAudit' '$ROOT/mac-app/Sources/TerminalBrain/BrainStatusModel.swift'" "in-app copy actions for Use Now and high-value surfaces"
 evidence "Native menus" "grep -q 'Copy Use Now' '$ROOT/mac-app/Sources/TerminalBrain/TerminalBrainApp.swift' && grep -q 'Copy Demo' '$ROOT/mac-app/Sources/TerminalBrain/TerminalBrainApp.swift' && grep -q 'Copy Playbook' '$ROOT/mac-app/Sources/TerminalBrain/TerminalBrainApp.swift' && grep -q 'Copy Value Audit' '$ROOT/mac-app/Sources/TerminalBrain/TerminalBrainApp.swift'" "menu and menu bar access"
 evidence "Native shortcuts" "grep -q 'CopyUseNowIntent' '$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift' && grep -q 'CopyDemoIntent' '$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift' && grep -q 'CopyPlaybookIntent' '$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift' && grep -q 'CopyValueAuditIntent' '$ROOT/mac-app/Sources/TerminalBrain/AppShortcuts.swift'" "App Shortcuts for Use Now and high-value surfaces"
