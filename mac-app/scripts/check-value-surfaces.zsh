@@ -252,6 +252,8 @@ require_in_file "$ROOT/mac-app/scripts/oracle-brief.zsh" 'work-block.zsh' "Oracl
 require_in_file "$ROOT/mac-app/scripts/oracle-brief.zsh" 'make ask-commit' "Oracle Brief closed-app ask commit"
 require_in_file "$ROOT/mac-app/scripts/oracle.zsh" 'local-fallback' "Oracle Ask closed-app fallback"
 require_in_file "$ROOT/mac-app/scripts/oracle.zsh" 'write_local_commit' "Oracle Ask commit local fallback"
+require_in_file "$ROOT/mac-app/scripts/oracle.zsh" 'QUERY_FROM_ENV' "Oracle Ask avoids duplicate Make QUERY"
+require_in_file "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'make ask duplicated question' "entrypoint covers Make QUERY duplication"
 require_in_file "$ROOT/mac-app/scripts/agent-prompt.zsh" 'Terminal Brain Agent Prompt' "non-launching Agent Prompt"
 require_in_file "$ROOT/mac-app/scripts/agent-prompt.zsh" 'make work-block' "Agent Prompt includes Work Block"
 require_in_file "$ROOT/mac-app/scripts/agent-prompt.zsh" 'make bubble-up' "Agent Prompt includes Bubble Up"

@@ -7,7 +7,9 @@ WORKSPACE="${TERMINAL_BRAIN_WORKSPACE:-$HOME/mejohnwc}"
 COPY="0"
 COMMIT="0"
 PROJECT=""
-QUESTION="${QUERY:-}"
+QUERY_FROM_ENV="${QUERY:-}"
+ARG_QUESTION=""
+QUESTION=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -50,15 +52,21 @@ EOF
       exit 0
       ;;
     *)
-      if [[ -z "$QUESTION" ]]; then
-        QUESTION="$1"
+      if [[ -z "$ARG_QUESTION" ]]; then
+        ARG_QUESTION="$1"
       else
-        QUESTION="$QUESTION $1"
+        ARG_QUESTION="$ARG_QUESTION $1"
       fi
       ;;
   esac
   shift
 done
+
+if [[ -n "$ARG_QUESTION" ]]; then
+  QUESTION="$ARG_QUESTION"
+else
+  QUESTION="$QUERY_FROM_ENV"
+fi
 
 QUESTION="${QUESTION#"${QUESTION%%[![:space:]]*}"}"
 QUESTION="${QUESTION%"${QUESTION##*[![:space:]]}"}"
