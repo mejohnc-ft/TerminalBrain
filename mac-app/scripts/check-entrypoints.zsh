@@ -248,8 +248,11 @@ latest_operator_subject="$(
     STDIN.each_line do |line|
     next if defined?(found) && found
     value = line.downcase
-    operator = value.match?(/\b(use now|start here|what now|oracle|idea|work block|sidebar|settings|menu|shortcut|native|no-choice|widget|visual|design|liquid|profile|source|memory|drafts|apple notes)\b/) ||
-      !value.match?(/\b(verifier|verification|audit|coverage|entrypoint|regression|doctor|ci|timeout|guard|guardrail|matcher|maintenance|internal|recent work signals?|runtime noise|support bundle|prompt wording|first prompts|alias|guidance|contract|manifest|quoting|process detection|bridge process detection|command blocks? runnable|fallback|empty answer|filter internal polish)\b/)
+    internal = value.match?(/\b(verifier|verification|audit|coverage|entrypoint|regression|doctor|ci|timeout|guard|guardrail|matcher|maintenance|internal|recent[- ]work|recent work signals?|runtime noise|support bundle|prompt wording|first prompts|alias|guidance|contract|manifest|quoting|process detection|bridge process detection|command blocks? runnable|fallback|empty answer|filter internal polish)\b/)
+    operator = !internal && (
+      value.match?(/\b(use now|start here|what now|oracle|idea|work block|sidebar|settings|menu|shortcut|native|no-choice|widget|visual|design|liquid|profile|source|memory|drafts|apple notes)\b/) ||
+      true
+    )
     if operator
       puts line.strip
       found = true
