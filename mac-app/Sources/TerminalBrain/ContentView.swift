@@ -2838,7 +2838,9 @@ struct ContentView: View {
     }
 
     private var ideasView: some View {
-        HStack(alignment: .top, spacing: 18) {
+        let focus = model.focusItem
+
+        return HStack(alignment: .top, spacing: 18) {
             VStack(alignment: .leading, spacing: 14) {
                 HStack {
                     SectionTitle("Idea Pulse", symbol: "lightbulb.fill")
@@ -3013,6 +3015,8 @@ struct ContentView: View {
                 }
                 .padding(14)
                 .darkPanel()
+
+                focusIdeaCapturePanel(focus)
             }
             .frame(minWidth: 680)
         }

@@ -36,6 +36,8 @@ require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Open Us
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Open Demo' "command palette can open Demo"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Open Playbook' "command palette can open Playbook"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Open Value Audit' "command palette can open Value Audit"
+require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Open Ideas' "command palette can open Ideas"
+require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'focusIdeaCapturePanel\(focus\)' "Ideas includes direct capture lane"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Open Memory' "command palette can open Memory"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Open Work Block' "command palette can open Work Block"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Open Now' "command palette can open Now"
