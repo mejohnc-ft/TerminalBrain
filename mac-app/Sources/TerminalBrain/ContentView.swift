@@ -1269,18 +1269,18 @@ struct ContentView: View {
                 primaryTitle: "Copy Audit",
                 primarySymbol: "checkmark.shield.fill",
                 primaryAction: { Task { await model.copyCompletionAudit() } },
-                secondaryTitle: "Visual Plan",
+                secondaryTitle: "Copy Visual Plan",
                 secondarySymbol: "eye.fill",
-                secondaryAction: { selectedSection = "system" },
-                output: model.completionAuditCopyOutput
+                secondaryAction: { Task { await model.copyVisualReviewPlan() } },
+                output: model.completionAuditCopyOutput.isEmpty ? model.visualReviewPlanCopyOutput : model.completionAuditCopyOutput
             )
 
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 240), spacing: 12)], spacing: 12) {
                 ValueBriefTile(label: "Covered", title: "Non-launching value path", detail: "Use Now, Work Block, Agent Prompt, writeback, MCP, and static design evidence are mapped to concrete checks.", action: "Use Now", symbol: "checkmark.circle.fill", accent: .green) {
                     selectedSection = "use-now"
                 }
-                ValueBriefTile(label: "Gate", title: "Live visual review", detail: "The audit refuses to mark visual polish complete until the operator manually opens the app.", action: "System", symbol: "eye.trianglebadge.exclamationmark.fill", accent: .orange) {
-                    selectedSection = "system"
+                ValueBriefTile(label: "Gate", title: "Live visual review", detail: "The audit refuses to mark visual polish complete until the operator manually opens the app.", action: "Copy Plan", symbol: "eye.trianglebadge.exclamationmark.fill", accent: .orange) {
+                    Task { await model.copyVisualReviewPlan() }
                 }
                 ValueBriefTile(label: "Agent", title: "MCP readiness", detail: "Agents can call the completion audit without recursively running the full verifier.", action: "Prompt", symbol: "paperplane.fill", accent: .blue) {
                     Task { await model.copyAgentPrompt() }

@@ -276,6 +276,8 @@ require_in_file "$ROOT/mac-app/Sources/TerminalBrain/SettingsView.swift" 'Simple
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Ask what the current move may be missing' "inline Oracle Missing tooltip"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Commits the current Oracle answer' "inline Oracle commit accessibility"
 require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'completionAuditView' "native Completion Audit surface"
+require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'Copy Visual Plan' "Completion Audit can copy Visual Review Plan"
+require_in_file "$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift" 'copyVisualReviewPlan' "native Visual Review Plan copy action reachable"
 require_in_file "$ROOT/mac-app/scripts/design-audit.zsh" 'never launches, foregrounds, quits, kills, screenshots, or controls Terminal Brain' "design audit guardrail"
 require_in_file "$ROOT/mac-app/scripts/oracle-brief.zsh" 'Terminal Brain Oracle Brief' "non-launching Oracle Brief"
 require_in_file "$ROOT/mac-app/scripts/oracle-brief.zsh" 'work-block.zsh' "Oracle Brief closed-app pull-forward"
