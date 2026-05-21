@@ -230,13 +230,27 @@ reviewStatus: accepted
 
 Added native value path language and panel affordances, but this note intentionally does not name the latest commit or exact subject.
 MARKDOWN
-latest_subject="$(git -C "$ROOT" log -1 --pretty=format:%s)"
+latest_operator_subject="$(
+  git -C "$ROOT" log --pretty=format:%s | ruby -e '
+    STDIN.each_line do |line|
+    next if defined?(found) && found
+    value = line.downcase
+    operator = value.match?(/\b(use now|start here|what now|oracle|idea|work block|sidebar|settings|menu|shortcut|native|no-choice|widget|visual|design|liquid|profile|source|memory|drafts|apple notes)\b/) ||
+      !value.match?(/\b(verifier|verification|audit|coverage|entrypoint|regression|doctor|ci|timeout|guard|guardrail|matcher|recent work signals?|runtime noise|support bundle|prompt wording|first prompts|alias|guidance|contract|manifest)\b/)
+    if operator
+      puts line.strip
+      found = true
+    end
+    end
+  '
+)"
 recent_output="$(TERMINAL_BRAIN_WORKSPACE="$recent_workspace" "$ROOT/mac-app/scripts/recent-work.zsh" --dry-run)"
-if ! grep -qF -- "\"subject\":\"$latest_subject\"" <<<"$recent_output"; then
-  echo "Entrypoint check failed: recent-work hid the latest commit behind a generic accepted note" >&2
+if ! grep -qF -- "\"subject\":\"$latest_operator_subject\"" <<<"$recent_output"; then
+  echo "Entrypoint check failed: recent-work hid the latest operator-facing commit behind a generic accepted note" >&2
   echo "$recent_output" >&2
   exit 1
 fi
+require_not_contains_literal "$recent_output" '"subject":"Keep recent work signals current"' "internal recent-work maintenance commit"
 rm -rf "$recent_workspace"
 
 doctor_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/doctor.zsh")"

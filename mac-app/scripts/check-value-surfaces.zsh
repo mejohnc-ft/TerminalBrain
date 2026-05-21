@@ -169,6 +169,7 @@ require_in_file "$ROOT/mac-app/scripts/bubble-up.zsh" 'did not launch, foregroun
 require_in_file "$ROOT/mac-app/scripts/recent-work.zsh" 'Terminal Brain Recent Work' "Recent Work promotion source"
 require_in_file "$ROOT/mac-app/scripts/recent-work.zsh" 'recent-work promotion did not launch or foreground' "Recent Work guardrail"
 require_in_file "$ROOT/mac-app/scripts/recent-work.zsh" 'normalized_phrase' "Recent Work conservative memory coverage"
+require_in_file "$ROOT/mac-app/scripts/recent-work.zsh" 'operator_facing_commit' "Recent Work skips internal maintenance"
 require_in_file "$ROOT/mac-app/scripts/check-entrypoints.zsh" 'generic accepted note' "Recent Work fuzzy-match regression"
 require_in_file "$ROOT/mac-app/scripts/work-block.zsh" 'Terminal Brain Work Block' "Work Block CLI"
 require_in_file "$ROOT/mac-app/scripts/work-block.zsh" 'bubble-up.zsh' "Work Block includes Bubble Up"

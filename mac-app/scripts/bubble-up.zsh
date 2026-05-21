@@ -123,10 +123,11 @@ WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtim
 
   def recent_work_signals(root, limit)
     return [] unless Dir.exist?(File.join(root, ".git"))
-    output = IO.popen(["git", "-C", root, "log", "-#{[limit, 5].max}", "--pretty=format:%h%x09%H%x09%cr%x09%s"], &:read).to_s
+    output = IO.popen(["git", "-C", root, "log", "-#{[limit * 4, 20].max}", "--pretty=format:%h%x09%H%x09%cr%x09%s"], &:read).to_s
     output.lines.map do |line|
       sha, full_sha, age, subject = line.chomp.split("\t", 4)
       next if subject.to_s.strip.empty?
+      next unless operator_facing_commit?(subject)
       {
         sha: sha.to_s,
         full_sha: full_sha.to_s,
@@ -149,6 +150,13 @@ WORKSPACE="$WORKSPACE" ROOT="$ROOT" LIMIT="$LIMIT" PROJECT="$PROJECT" ruby -rtim
 
   def normalized_phrase(value)
     value.to_s.downcase.scan(/[a-z0-9]+/).join(" ").strip
+  end
+
+  def operator_facing_commit?(subject)
+    value = subject.to_s.downcase
+    return true if value.match?(/\b(use now|start here|what now|oracle|idea|work block|sidebar|settings|menu|shortcut|native|no-choice|widget|visual|design|liquid|profile|source|memory|drafts|apple notes)\b/)
+    return false if value.match?(/\b(verifier|verification|audit|coverage|entrypoint|regression|doctor|ci|timeout|guard|guardrail|matcher|recent work signals?|runtime noise|support bundle|prompt wording|first prompts|alias|guidance|contract|manifest)\b/)
+    true
   end
 
   def memory_covers_signal?(signal, items)

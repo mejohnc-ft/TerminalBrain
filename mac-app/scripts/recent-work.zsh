@@ -74,6 +74,13 @@ selection_json="$(
       value.to_s.downcase.scan(/[a-z0-9]+/).join(" ").strip
     end
 
+    def operator_facing_commit?(subject)
+      value = subject.to_s.downcase
+      return true if value.match?(/\b(use now|start here|what now|oracle|idea|work block|sidebar|settings|menu|shortcut|native|no-choice|widget|visual|design|liquid|profile|source|memory|drafts|apple notes)\b/)
+      return false if value.match?(/\b(verifier|verification|audit|coverage|entrypoint|regression|doctor|ci|timeout|guard|guardrail|matcher|recent work signals?|runtime noise|support bundle|prompt wording|first prompts|alias|guidance|contract|manifest)\b/)
+      true
+    end
+
     def parse_memory_notes(workspace)
       inbox = File.join(workspace, "Oracle Inbox")
       return [] unless Dir.exist?(inbox)
@@ -110,7 +117,9 @@ selection_json="$(
         committedAt: committed_at.to_s,
         subject: subject.to_s.strip
       }
-    end.compact.reject { |commit| memory_covers_commit?(commit, memory_texts) }
+    end.compact
+      .select { |commit| operator_facing_commit?(commit[:subject]) }
+      .reject { |commit| memory_covers_commit?(commit, memory_texts) }
     commit = commits[index - 1]
     unless commit
       warn "No uncaptured recent work signal at index #{index}. Run make bubble-up to see available commits."
