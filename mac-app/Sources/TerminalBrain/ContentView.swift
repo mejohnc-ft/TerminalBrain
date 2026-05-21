@@ -588,6 +588,8 @@ struct ContentView: View {
                 output: model.useNowCopyOutput
             )
 
+            useNowOraclePanel(focus: focus, topReview: topReview)
+
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 240), spacing: 12)], spacing: 12) {
                 ValueBriefTile(
                     label: "One Move",
@@ -688,6 +690,91 @@ struct ContentView: View {
             focusIdeaCapturePanel(focus)
             startHereOutcomePanel(project: project)
         }
+    }
+
+    private func useNowOraclePanel(focus: FocusItem, topReview: OracleCommit?) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: "sparkle.magnifyingglass")
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundStyle(settings.theme.accent)
+                    .frame(width: 46, height: 46)
+                    .background(settings.theme.accent.opacity(0.14), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Ask, Decide, Remember")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(settings.theme.accent)
+                        .textCase(.uppercase)
+                    Text(topReview == nil ? "Challenge the next move before you act." : "Triage the top open read before it becomes noise.")
+                        .font(.title3.weight(.bold))
+                        .foregroundStyle(.white)
+                    Text("Type one question or use a preset. A useful answer can be committed straight into the review queue.")
+                        .font(.callout)
+                        .foregroundStyle(.white.opacity(0.58))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer()
+            }
+
+            TextField("Ask what you may be missing about this move", text: $model.oracleQuestion)
+                .textFieldStyle(.roundedBorder)
+                .onSubmit { askFocusOracle(focus) }
+
+            HStack(spacing: 8) {
+                Button { askFocusOracle(focus, intent: "What am I missing?") } label: {
+                    Label("Missing", systemImage: "eye.fill")
+                }
+                Button { askFocusOracle(focus, intent: "What is the cheapest useful test?") } label: {
+                    Label("Cheap Test", systemImage: "testtube.2")
+                }
+                Button { askFocusOracle(focus, intent: "What should I delegate to an agent, with guardrails?") } label: {
+                    Label("Delegate", systemImage: "paperplane.fill")
+                }
+                Button {
+                    Task {
+                        await model.commitOracleAnswer(project: focus.project)
+                        selectedSection = "review"
+                    }
+                } label: {
+                    Label("Commit Read", systemImage: "square.and.arrow.down.fill")
+                }
+                .disabled(model.oracleAnswer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+            .buttonStyle(.bordered)
+
+            if model.isAskingOracle {
+                Label("Asking Terminal Brain...", systemImage: "progress.indicator")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.white.opacity(0.58))
+            } else if !model.oracleAnswer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text(model.oracleMode.uppercased())
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(settings.theme.accent)
+                        Spacer()
+                        if !model.oracleCommitOutput.isEmpty {
+                            Text(model.oracleCommitOutput)
+                                .font(.caption.weight(.medium))
+                                .foregroundStyle(.white.opacity(0.46))
+                                .lineLimit(1)
+                        }
+                    }
+                    Text(model.oracleAnswer)
+                        .font(.callout)
+                        .foregroundStyle(.white.opacity(0.72))
+                        .fixedSize(horizontal: false, vertical: true)
+                        .textSelection(.enabled)
+                }
+                .padding(12)
+                .background(.white.opacity(0.07), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(.white.opacity(0.09), lineWidth: 1))
+            }
+        }
+        .padding(16)
+        .darkPanel()
     }
 
     private var detailHeader: some View {
