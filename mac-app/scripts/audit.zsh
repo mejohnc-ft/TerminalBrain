@@ -58,6 +58,7 @@ echo
 echo "## Value-First Surfaces"
 echo
 require_evidence "$ROOT/Makefile" '^value:' "make value"
+require_evidence "$ROOT/Makefile" '^start: use-now' "make start"
 require_evidence "$ROOT/Makefile" '^use-now:' "make use-now"
 require_evidence "$ROOT/Makefile" '^first-minute:' "make first-minute"
 require_evidence "$ROOT/Makefile" '^demo:' "make demo"
@@ -254,6 +255,7 @@ echo
 
 echo "## Non-Launching Commands"
 echo
+echo "- make start"
 echo "- make use-now"
 echo "- make now"
 echo "- make sources"

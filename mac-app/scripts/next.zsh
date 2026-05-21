@@ -56,7 +56,7 @@ Terminal Brain is not currently reachable at $API, so this stays local and close
 Start with one move:
 
 \`\`\`zsh
-make use-now
+make start
 \`\`\`
 
 ## Use Now
@@ -70,7 +70,7 @@ cat <<EOF
 ## Closed-App Loop
 
 \`\`\`zsh
-make use-now
+make start
 make ask QUERY="What should I do next for Terminal Brain, and what am I missing?"
 make agent-prompt
 make outcome TITLE="..." OUTCOME="..." PROJECT="Terminal Brain" NEXT="..."

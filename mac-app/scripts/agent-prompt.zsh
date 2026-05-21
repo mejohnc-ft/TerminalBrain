@@ -78,7 +78,7 @@ $why_move
 Use these safe local reads if the One Move needs more context:
 
 \`\`\`zsh
-make use-now
+make start
 make oracle-brief
 make work-block
 make bubble-up

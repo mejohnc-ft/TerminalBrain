@@ -62,7 +62,7 @@ outcome_json="$(
   "$ROOT/mac-app/scripts/outcome.zsh" \
     --title "Value Proof" \
     --project "Terminal Brain" \
-    --next "Use make use-now for the next real work block" \
+    --next "Use make start for the next real work block" \
     --evidence "Use Now capture, Oracle Brief, and Agent Prompt were available without launching the app." \
     "Proved the closed-app Terminal Brain loop can capture a rough thought, surface it as reviewable work, produce a direct read, produce an agent prompt, and write an accepted outcome note."
 )"
