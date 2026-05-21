@@ -74,7 +74,12 @@ if [[ -n "$IDEA_TEXT" ]]; then
     payload = JSON.parse(ENV.fetch("CAPTURE_OUTPUT"))
     project = payload.fetch("project", "General Brain").to_s
     thought = ENV.fetch("IDEA_TEXT", "").strip
-    query = "Given this check-in for #{project}: #{thought}. What should I do next, what am I missing, and what cheap test would create value?"
+    question_thought = thought.sub(/[.?!]\z/, "")
+    query = "Given this check-in for #{project}: #{question_thought}. What should I do next, what am I missing, and what cheap test would create value?"
+    def sq(value)
+      quote = 39.chr
+      quote + value.to_s.gsub(quote, quote + "\"" + quote + "\"" + quote) + quote
+    end
     puts "- Captured: #{payload.fetch("title", "Check-in Signal")}"
     puts "- Project: #{project}"
     puts "- Review status: #{payload.fetch("reviewStatus", "new")}"
@@ -87,8 +92,8 @@ if [[ -n "$IDEA_TEXT" ]]; then
     puts "- Ask against this thought: #{query}"
     puts
     puts "```zsh"
-    puts "make ask-commit QUERY=#{query.shellescape} PROJECT=#{project.shellescape}"
-    puts "make outcome TITLE=#{("Check-in outcome").shellescape} OUTCOME=#{("What changed, why it mattered, and what evidence exists.").shellescape} PROJECT=#{project.shellescape} NEXT=#{("The next concrete action.").shellescape}"
+    puts "make ask-commit QUERY=#{sq(query)} PROJECT=#{sq(project)}"
+    puts "make outcome TITLE=#{sq("Check-in outcome")} OUTCOME=#{sq("What changed, why it mattered, and what evidence exists.")} PROJECT=#{sq(project)} NEXT=#{sq("The next concrete action.")}"
     puts "```"
   '; then
     printf '%s\n' "$capture_output"

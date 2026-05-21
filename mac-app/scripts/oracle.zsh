@@ -145,6 +145,15 @@ local_answer_read() {
     else
       "run the command, then save one sentence about what changed."
     end
+    success = if display_command.start_with?("make check-in")
+      "one honest sentence is captured, the answer changes from empty queue to a real next move, and one outcome is saved."
+    elsif display_command.start_with?("make recent-work")
+      "the shipped work has an accepted memory note explaining why it mattered and what should happen next."
+    elsif display_command.include?("make review-status")
+      "the waiting item is accepted, delegated, linked, or dismissed instead of sitting in limbo."
+    else
+      "one decision, artifact, delegated task, memory note, or outcome exists that did not exist before."
+    end
 
     puts "## Direct Answer"
     puts
@@ -152,6 +161,7 @@ local_answer_read() {
     puts "- Why: #{why}"
     puts "- What you may be missing: #{blindspot}"
     puts "- Cheap test: #{cheap_test}"
+    puts "- Success looks like: #{success}"
     puts
     puts "## One Command"
     puts

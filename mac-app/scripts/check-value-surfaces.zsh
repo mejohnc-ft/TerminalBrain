@@ -248,6 +248,7 @@ require_in_file "$ROOT/mac-app/scripts/check-in.zsh" 'Use It Immediately' "Check
 require_in_file "$ROOT/mac-app/scripts/check-in.zsh" 'Given this check-in for' "Check In asks against captured thought"
 require_in_file "$ROOT/mac-app/scripts/check-in.zsh" 'did not launch, foreground, screenshot, quit, kill, or control' "Check In guardrail"
 require_in_file "$ROOT/mac-app/scripts/oracle.zsh" 'make check-in' "Answer no-signal guided check-in fallback"
+require_in_file "$ROOT/mac-app/scripts/oracle.zsh" 'Success looks like' "Answer plain success criterion"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'make answer' "Use Now clean-queue direct Oracle read"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'recent-work.zsh.*--dry-run' "Use Now checks recent work before falling back"
 require_in_file "$ROOT/mac-app/scripts/use-now.zsh" 'get one direct decision read' "Use Now explains direct clean-queue read"

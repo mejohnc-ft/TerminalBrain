@@ -371,6 +371,7 @@ require_contains "$make_answer_output" 'What should I do next, what am I missing
 require_contains "$make_answer_output" 'Direct Answer' "make answer direct answer"
 require_contains "$make_answer_output" 'make check-in PROJECT=' "make answer clean queue check-in command"
 require_contains "$make_answer_output" 'answer one prompt with a real sentence' "make answer check-in cheap test"
+require_contains "$make_answer_output" 'Success looks like' "make answer plain success criterion"
 require_not_contains_literal "$make_answer_output" 'Local Read' "make answer avoids old dump wrapper"
 ask_commit_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$ask_workspace" "$ROOT/mac-app/scripts/oracle.zsh" --commit --project "Terminal Brain" "what should I do next?")"
 require_contains "$ask_commit_output" '"mode":"local-fallback"' "ask commit fallback mode"
