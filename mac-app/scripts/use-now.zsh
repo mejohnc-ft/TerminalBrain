@@ -138,6 +138,22 @@ one_move_from_work_block() {
   '
 }
 
+why_this_move() {
+  local command="$1"
+
+  if grep -q 'make review-status' <<<"$command"; then
+    echo "This moves the highest-signal inbox item out of limbo so it becomes accepted, delegated, or intentionally dismissed."
+  elif grep -q 'make recent-work INDEX=' <<<"$command"; then
+    echo "This reopens the freshest shipped work so useful context can become durable memory instead of disappearing into commit history."
+  elif grep -q 'make idea ' <<<"$command"; then
+    echo "This captures the decision pressure that is still only in your head, giving Terminal Brain a real signal to work with."
+  elif grep -q 'make use-now IDEA=' <<<"$command"; then
+    echo "There is no stronger waiting signal yet, so the best move is to capture one real pressure point and immediately rerun the brief."
+  else
+    echo "This is the smallest available action that moves Terminal Brain from passive context into a concrete next step."
+  fi
+}
+
 echo "# Terminal Brain Use Now"
 echo
 echo "This is the one-command path when you do not want to think about which Terminal Brain surface to use."
@@ -191,6 +207,10 @@ echo
 echo '```zsh'
 printf '%s\n' "$one_move"
 echo '```'
+echo
+echo "## Why This Move"
+echo
+why_this_move "$one_move"
 echo
 echo "## Current Work Block"
 echo

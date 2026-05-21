@@ -71,6 +71,7 @@ use_now_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/use-no
 require_contains "$use_now_output" '# Terminal Brain Use Now' "use now title"
 require_contains "$use_now_output" 'What You Get In 60 Seconds' "use now value section"
 require_contains "$use_now_output" '## One Move' "use now one move section"
+require_contains "$use_now_output" '## Why This Move' "use now one move rationale"
 require_contains "$use_now_output" 'Current Work Block' "use now work block section"
 require_contains "$use_now_output" 'make (use-now|agent-prompt|recent-work|review-status)' "use now one executable action"
 require_not_contains_literal "$use_now_output" '### Pull Forward' "use now empty Pull Forward wrapper"
