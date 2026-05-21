@@ -54,6 +54,7 @@ echo "5. Native macOS design has static evidence for liquid glass, sidebar, titl
 echo "6. Native first-use UX reduces navigation overload and puts Oracle challenge/writeback on the first screen."
 echo "7. Prompt safety and focus-stealing guards are enforced by non-launching checks."
 echo "8. Any remaining live-app visual review gap is explicit."
+echo "9. A confused operator can get one plain current-state answer without reading multiple diagnostics."
 echo
 echo "## Prompt-To-Artifact Checklist"
 echo
@@ -64,6 +65,7 @@ evidence "Clean queue avoids churn" "grep -q 'clean_queue_recently_covered' '$RO
 evidence "Closed-app memory writeback" "grep -q 'local-fallback' '$ROOT/mac-app/scripts/idea.zsh' && grep -q 'local-fallback' '$ROOT/mac-app/scripts/outcome.zsh' && grep -q 'write_local_commit' '$ROOT/mac-app/scripts/oracle.zsh'" "Idea, Outcome, and Oracle commit paths write without app launch."
 evidence "Agent handoff is actionable" "grep -q 'next non-recursive move' '$ROOT/mac-app/scripts/agent-prompt.zsh' && grep -q 'analysis alone is not enough' '$ROOT/mac-app/scripts/agent-prompt.zsh'" "make agent-prompt avoids recursion and demands a concrete artifact."
 evidence "MCP mirrors value surfaces" "node '$ROOT/mcp-server/check-tools.mjs' && grep -q 'terminal_brain_use_now_markdown' '$ROOT/mcp-server/expected-tools.json' && grep -q 'terminal_brain_agent_prompt_markdown' '$ROOT/mcp-server/expected-tools.json'" "MCP contract includes Use Now and Agent Prompt."
+evidence "Plain current-state answer" "grep -q 'Terminal Brain What Now' '$ROOT/mac-app/scripts/what-now.zsh' && grep -q '^what-now:' '$ROOT/Makefile' && grep -q 'terminal_brain_what_now_markdown' '$ROOT/mcp-server/expected-tools.json' && grep -q 'What Now' '$ROOT/mac-app/scripts/support-bundle.zsh'" "make what-now and MCP What Now give one non-launching answer for app focus, CI, runtime noise, blocker, and next command."
 evidence "Native value shell" "grep -q 'selectedSection = \"use-now\"' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'titlebarAppearsTransparent = true' '$ROOT/mac-app/Sources/TerminalBrain/WindowConfigurator.swift' && grep -q 'liquidPanel' '$ROOT/mac-app/Sources/TerminalBrain/GlassStyles.swift'" "App opens on Use Now and has static native glass/titlebar evidence."
 evidence "Native first-use UX" "grep -q 'operatorPathOnly' '$ROOT/mac-app/Sources/TerminalBrain/Models.swift' && grep -q 'Show All Surfaces' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'useNowOraclePanel' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'Commit Read' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift'" "Simple operator navigation and inline Use Now Oracle loop are wired."
 evidence "Native action quality" "grep -q 'contentShape(RoundedRectangle(cornerRadius: 14' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift' && grep -q 'accessibilityHint' '$ROOT/mac-app/Sources/TerminalBrain/ContentView.swift'" "Action tiles have full-card hit targets and accessibility hints."

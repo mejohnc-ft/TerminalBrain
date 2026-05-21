@@ -62,6 +62,7 @@ echo "9. The first screen supports inline Oracle challenge and commit-read write
 echo "10. Verification proves these surfaces without launching or foregrounding the app."
 echo "11. A clean queue still gives a concrete choice menu and a committed Oracle path instead of empty dashboard metrics."
 echo "12. Remaining gaps are explicit instead of hidden behind green tests."
+echo "13. The operator can ask what is happening now and get one plain answer before deeper diagnostics."
 echo
 echo "## Prompt-To-Artifact Checklist"
 echo
@@ -72,6 +73,7 @@ evidence "One-command capture loop" "grep -q 'Captured First Signal' '$ROOT/mac-
 evidence "Agent first-signal capture loop" "grep -q 'args.idea' '$ROOT/mcp-server/server.mjs' && grep -q 'mcp_use_now_capture_output' '$ROOT/mac-app/scripts/check-entrypoints.zsh'" "terminal_brain_use_now_markdown can capture an idea before returning the work block"
 evidence "Clean-queue operator menu" "grep -q 'Choose Your Mode' '$ROOT/mac-app/scripts/use-now.zsh' && grep -q 'Selected Signal' '$ROOT/mac-app/scripts/use-now.zsh' && grep -q 'make ask-commit QUERY=.*clean' '$ROOT/mac-app/scripts/use-now.zsh' && grep -q 'clean_queue_recently_covered' '$ROOT/mac-app/scripts/use-now.zsh' && grep -q 'recent-work.zsh.*--dry-run' '$ROOT/mac-app/scripts/use-now.zsh' && grep -q '## Choose Your Mode' '$ROOT/mac-app/scripts/check-entrypoints.zsh'" "Use Now offers explicit pressure-test, recent-work, capture, delegate, and outcome lanes when no open item dominates without repeating clean-queue reads"
 evidence "First-use explanation" "grep -q 'terminal_brain_first_minute_markdown' '$ROOT/mcp-server/server.mjs' && grep -q '^first-minute:' '$ROOT/Makefile'" "make first-minute and MCP first-minute surface"
+evidence "Plain situation answer" "grep -q 'Terminal Brain What Now' '$ROOT/mac-app/scripts/what-now.zsh' && grep -q '^what-now:' '$ROOT/Makefile' && grep -q 'terminal_brain_what_now_markdown' '$ROOT/mcp-server/server.mjs' && grep -q 'What Now' '$ROOT/mac-app/scripts/support-bundle.zsh'" "make what-now, MCP What Now, and Support Bundle answer app focus, repo/CI, runtime noise, blocker, and next value command"
 evidence "Temporary proof" "grep -q 'Terminal Brain Value Proof' '$ROOT/mac-app/scripts/prove-value.zsh' && grep -q 'terminal_brain_value_proof_markdown' '$ROOT/mcp-server/server.mjs'" "make prove-value and MCP value proof"
 evidence "Seeded walkthrough" "grep -q 'Seeded Scenario' '$ROOT/mac-app/scripts/demo.zsh' && grep -q 'terminal_brain_demo_markdown' '$ROOT/mcp-server/server.mjs'" "make demo and MCP demo"
 evidence "Operator command map" "grep -q 'Pick The Situation' '$ROOT/mac-app/scripts/playbook.zsh' && grep -q 'terminal_brain_playbook_markdown' '$ROOT/mcp-server/server.mjs'" "make playbook and MCP playbook"
