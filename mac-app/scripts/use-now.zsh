@@ -142,7 +142,6 @@ one_move_from_work_block() {
       found = 1
       exit
     }
-    pull_forward && in_code && /^make idea / { print; found = 1; exit }
     END {
       if (!found) { print "__NO_SIGNAL__" }
     }
