@@ -127,6 +127,9 @@ check_in_capture_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKS
 require_contains "$check_in_capture_output" 'Captured Check-In Signal' "check-in capture section"
 require_contains "$check_in_capture_output" 'Review status: new' "check-in capture review status"
 require_contains "$check_in_capture_output" 'The useful artifact I can create next is a sharper check-in loop' "check-in capture thought"
+require_contains "$check_in_capture_output" 'Use It Immediately' "check-in capture immediate-use section"
+require_contains "$check_in_capture_output" 'Given this check-in for Terminal Brain' "check-in capture ask against the captured thought"
+require_contains "$check_in_capture_output" 'make outcome TITLE=' "check-in capture outcome close loop"
 test -f "$check_in_workspace/Oracle Inbox/"*.md || {
   echo "Entrypoint check failed: check-in capture did not write note" >&2
   echo "$check_in_capture_output" >&2
@@ -600,6 +603,8 @@ mcp_check_in_capture_output="$(TERMINAL_BRAIN_WORKSPACE="$mcp_check_in_workspace
 require_contains "$mcp_check_in_capture_output" 'Captured Check-In Signal' "MCP check-in capture section"
 require_contains "$mcp_check_in_capture_output" 'Review status: new' "MCP check-in capture review status"
 require_contains "$mcp_check_in_capture_output" 'MCP check-in capture should be readable' "MCP check-in captured thought visible"
+require_contains "$mcp_check_in_capture_output" 'Use It Immediately' "MCP check-in capture immediate-use section"
+require_contains "$mcp_check_in_capture_output" 'Given this check-in for Terminal Brain' "MCP check-in capture ask against the captured thought"
 test -f "$mcp_check_in_workspace/Oracle Inbox/"*.md || {
   echo "Entrypoint check failed: MCP check-in capture did not write note" >&2
   echo "$mcp_check_in_capture_output" >&2

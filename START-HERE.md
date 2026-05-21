@@ -18,7 +18,7 @@ On `Use Now`, use the inline `Ask, Decide, Remember` panel before browsing: ask 
    make use-now
    ```
 
-   `make answer` gives the shortest direct read. When nothing is obviously bubbling up, it routes to `make check-in`, which asks for one real sentence and can capture it with `make check-in IDEA="..."`. `make start`, `make easy`, and `make use-now` start with a no-choice path: one executable move, a fallback ask/capture/check-in path if that move does not fit, and the outcome writeback command before the detailed context.
+   `make answer` gives the shortest direct read. When nothing is obviously bubbling up, it routes to `make check-in`, which asks for one real sentence and can capture it with `make check-in IDEA="..."`. Captured check-ins print the exact ask and outcome commands for that sentence, so a clean queue still becomes a concrete loop. `make start`, `make easy`, and `make use-now` start with a no-choice path: one executable move, a fallback ask/capture/check-in path if that move does not fit, and the outcome writeback command before the detailed context.
 
    The native signal loop is: Radar surfaces a signal, Blindspots challenges it, and Ideas captures the follow-up if the counter-signal should become durable work. In the app this is exposed as `Check Blindspots`, `Capture as Idea`, and the Ideas capture lane. From the terminal, use:
 
@@ -175,7 +175,7 @@ On `Use Now`, use the inline `Ask, Decide, Remember` panel before browsing: ask 
 - `Value Proof` demonstrates Oracle Brief -> Agent Prompt -> accepted Outcome without touching the real workspace.
 - `Demo` shows ideas becoming a review queue, bubbled-up signals, and one work block in a temporary workspace.
 - `Playbook` tells you which command to use for capture, Oracle reads, agent handoff, outcomes, and runtime checks.
-- `Check In` turns a clean queue into one real sentence: a decision, loose end, or useful artifact to create next.
+- `Check In` turns a clean queue into one real sentence: a decision, loose end, or useful artifact to create next. When captured, it immediately shows how to ask Terminal Brain against that sentence and save the outcome.
 - `Value Audit` proves which first-use value requirements are covered and names the remaining gaps.
 - `Oracle Brief` gives the direct read, missing signal, cheap test, and agent handoff.
 - `Status` shows repo, CI, process, launchctl, and API state without touching app focus.

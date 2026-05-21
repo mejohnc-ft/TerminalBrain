@@ -6,7 +6,7 @@ This repository builds a local macOS app used during active work. Do not steal t
 
 - Use `make work-block` or MCP `terminal_brain_work_block_markdown` first when the operator needs one concrete closed-app work surface: pull forward, triage, do the smallest useful work, and close the loop.
 - Use `make answer`, `make start`, `make easy`, `make use-now`, or MCP `terminal_brain_use_now_markdown` as the default first value path for an overwhelmed operator: a direct answer, no-choice path, one move, why it matters, ask/capture/delegate choices, and outcome writeback without launching the app.
-- Use `make check-in` or MCP `terminal_brain_check_in_markdown` when the queue is clean or the operator has no obvious signal: it asks for one real sentence and can capture it into reviewable memory with `IDEA=...`.
+- Use `make check-in` or MCP `terminal_brain_check_in_markdown` when the queue is clean or the operator has no obvious signal: it asks for one real sentence and can capture it into reviewable memory with `IDEA=...`, then prints the ask and outcome commands for that captured sentence.
 - Use `make start-here`, MCP `terminal_brain_start_here_markdown`, or `make next` as the safest first commands when you need the one-block value path without launching the app; when the app is closed, they include local Oracle and Work Block paths.
 - Use `make first-minute` or MCP `terminal_brain_first_minute_markdown` when the operator needs the fastest explanation of what Terminal Brain is, why it matters, and proof the loop works.
 - Use `make demo` or MCP `terminal_brain_demo_markdown` when the operator needs a temporary seeded walkthrough that proves Review Queue, Bubble Up, Work Block, and outcome writeback without touching the real workspace.

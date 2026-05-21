@@ -70,14 +70,26 @@ if [[ -n "$IDEA_TEXT" ]]; then
       --tag check-in \
       "$IDEA_TEXT"
   )"
-  if ! CAPTURE_OUTPUT="$capture_output" IDEA_TEXT="$IDEA_TEXT" ruby -rjson -e '
+  if ! CAPTURE_OUTPUT="$capture_output" IDEA_TEXT="$IDEA_TEXT" ruby -rjson -rshellwords -e '
     payload = JSON.parse(ENV.fetch("CAPTURE_OUTPUT"))
+    project = payload.fetch("project", "General Brain").to_s
+    thought = ENV.fetch("IDEA_TEXT", "").strip
+    query = "Given this check-in for #{project}: #{thought}. What should I do next, what am I missing, and what cheap test would create value?"
     puts "- Captured: #{payload.fetch("title", "Check-in Signal")}"
-    puts "- Project: #{payload.fetch("project", "General Brain")}"
+    puts "- Project: #{project}"
     puts "- Review status: #{payload.fetch("reviewStatus", "new")}"
-    puts "- Thought: #{ENV.fetch("IDEA_TEXT", "").strip}"
+    puts "- Thought: #{thought}"
     puts "- Path: #{payload.fetch("path", "(app API)")}"
     puts "- Guardrail: #{payload.fetch("guardrail", "check-in capture did not launch or foreground Terminal Brain")}"
+    puts
+    puts "## Use It Immediately"
+    puts
+    puts "- Ask against this thought: #{query}"
+    puts
+    puts "```zsh"
+    puts "make ask-commit QUERY=#{query.shellescape} PROJECT=#{project.shellescape}"
+    puts "make outcome TITLE=#{("Check-in outcome").shellescape} OUTCOME=#{("What changed, why it mattered, and what evidence exists.").shellescape} PROJECT=#{project.shellescape} NEXT=#{("The next concrete action.").shellescape}"
+    puts "```"
   '; then
     printf '%s\n' "$capture_output"
   fi
