@@ -68,6 +68,28 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_check_in_markdown",
+    description: "Run the non-launching guided clean-queue check-in. Without an idea, returns three plain prompts and exact commands; with an idea, captures it into Oracle Inbox memory.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        project: {
+          type: "string",
+          description: "Optional project label. Defaults to Terminal Brain."
+        },
+        idea: {
+          type: "string",
+          description: "Optional one-line answer to capture into the Oracle Inbox."
+        },
+        title: {
+          type: "string",
+          description: "Optional title for the captured check-in idea."
+        }
+      },
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_first_minute_markdown",
     description: "Get one non-launching first-minute artifact: what Terminal Brain is, what value is available, what to do first, and a working closed-app proof.",
     inputSchema: {
@@ -1328,6 +1350,34 @@ function useNowMarkdown(args = {}) {
   ].join("\n");
 }
 
+function checkInMarkdown(args = {}) {
+  const commandArgs = [join(ROOT, "mac-app", "scripts", "check-in.zsh")];
+  if (typeof args.project === "string" && args.project.trim()) {
+    commandArgs.push("--project", args.project.trim());
+  }
+  if (typeof args.idea === "string" && args.idea.trim()) {
+    commandArgs.push("--idea", args.idea.trim());
+  }
+  if (typeof args.title === "string" && args.title.trim()) {
+    commandArgs.push("--title", args.title.trim());
+  }
+  const result = runCommand("zsh", commandArgs, { timeout: 15000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Check In",
+    "",
+    "Check In failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 function startHereMarkdown() {
   const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "snapshot.zsh"), "--start-here"], { timeout: 15000 });
   if (result.ok) return result.text;
@@ -2076,6 +2126,8 @@ async function callTool(name, args = {}) {
       return whatNowMarkdown();
     case "terminal_brain_use_now_markdown":
       return useNowMarkdown(args);
+    case "terminal_brain_check_in_markdown":
+      return checkInMarkdown(args);
     case "terminal_brain_first_minute_markdown":
       return firstMinuteMarkdown();
     case "terminal_brain_now":

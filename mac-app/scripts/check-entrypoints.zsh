@@ -116,6 +116,23 @@ test -f "$use_now_workspace/Oracle Inbox/"*.md || {
 }
 rm -rf "$use_now_workspace"
 
+check_in_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/check-in.zsh" --project "Terminal Brain")"
+require_contains "$check_in_output" '# Terminal Brain Check In' "check-in title"
+require_contains "$check_in_output" 'Answer One Line' "check-in prompts"
+require_contains "$check_in_output" 'make check-in IDEA=' "check-in capture command"
+require_contains "$check_in_output" 'make ask-commit QUERY=' "check-in ask command"
+require_contains "$check_in_output" 'did not launch, foreground, screenshot, quit, kill, or control' "check-in guardrail"
+check_in_workspace="$(mktemp -d)"
+check_in_capture_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$check_in_workspace" "$ROOT/mac-app/scripts/check-in.zsh" --project "Terminal Brain" --idea "The useful artifact I can create next is a sharper check-in loop.")"
+require_contains "$check_in_capture_output" 'Captured Check-In Signal' "check-in capture section"
+require_contains "$check_in_capture_output" '"reviewStatus":"new"' "check-in capture review status"
+test -f "$check_in_workspace/Oracle Inbox/"*.md || {
+  echo "Entrypoint check failed: check-in capture did not write note" >&2
+  echo "$check_in_capture_output" >&2
+  exit 1
+}
+rm -rf "$check_in_workspace"
+
 handoff_workspace="$(mktemp -d)"
 handoff_path="$handoff_workspace/handoff.md"
 handoff_cli_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/handoff.zsh" --output "$handoff_path")"
@@ -548,6 +565,11 @@ test -f "$mcp_use_now_workspace/Oracle Inbox/"*.md || {
   exit 1
 }
 rm -rf "$mcp_use_now_workspace"
+
+mcp_check_in_output="$(call_mcp_tool_json terminal_brain_check_in_markdown '{"project":"Terminal Brain"}')"
+require_contains "$mcp_check_in_output" '# Terminal Brain Check In' "MCP check-in title"
+require_contains "$mcp_check_in_output" 'Answer One Line' "MCP check-in prompts"
+require_contains "$mcp_check_in_output" 'make check-in IDEA=' "MCP check-in capture command"
 
 mcp_start_here_output="$(call_mcp_tool terminal_brain_start_here_markdown)"
 require_contains "$mcp_start_here_output" '# Terminal Brain Start Here' "MCP start here title"

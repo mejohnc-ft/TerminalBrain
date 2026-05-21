@@ -129,12 +129,12 @@ local_answer_read() {
       why = "The strongest open signal needs a disposition before more browsing creates noise."
       blindspot = "The useful work may be accepting, delegating, or dismissing an existing signal rather than creating a new one."
     elsif !clean_move.empty?
-      command = first_code_command(clean_move, /^make (idea|outcome) /)
+      command = "make check-in #{project_assignment}"
       why = "There is no dominant open item, so the next valuable move is to capture a real pressure point or intentionally stop."
       blindspot = "Do not manufacture review work just because the system is available."
     end
 
-    command = "make idea TITLE=\"Decision pressure\" IDEA=\"The decision I keep circling is ...\" #{project_assignment}" if command.to_s.empty?
+    command = "make check-in #{project_assignment}" if command.to_s.empty?
     signal = "No dominant open signal" if signal.to_s.empty?
     why ||= "The system needs one concrete artifact: a decision, memory note, delegated task, or outcome."
     blindspot ||= missing.lines.map(&:strip).find { |line| line.start_with?("- ") }.to_s.sub(/^- /, "")

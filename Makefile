@@ -1,4 +1,4 @@
-.PHONY: help build install verify live start easy answer use-now first-minute demo playbook value-audit completion-audit design-audit visual-review-plan now what-now sources memory memory-promote recent-work status processes cleanup-plan support-bundle next value prove-value oracle-brief bubble-up work-block doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live start easy answer use-now check-in first-minute demo playbook value-audit completion-audit design-audit visual-review-plan now what-now sources memory memory-promote recent-work status processes cleanup-plan support-bundle next value prove-value oracle-brief bubble-up work-block doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
@@ -6,6 +6,7 @@ help:
 	@echo "  make easy          Same as make start; no-choice path for first value"
 	@echo "  make answer        Ask the default Oracle question with closed-app fallback"
 	@echo "  make use-now       One-command non-launching path: one move, ask, capture, delegate, close"
+	@echo "  make check-in      Guided clean-queue check-in; IDEA=... captures the answer"
 	@echo "  make work-block    Non-launching work block: pull forward, triage, close loop"
 	@echo "  make next          Non-launching next move; prints Start Here if app is reachable"
 	@echo "  make first-minute  Non-launching one-command value path and working proof"
@@ -80,6 +81,9 @@ answer:
 
 use-now:
 	@if test -n "$(PROJECT)"; then IDEA="$(IDEA)" TITLE="$(TITLE)" SOURCE="$(SOURCE)" ./mac-app/scripts/use-now.zsh --project "$(PROJECT)"; else IDEA="$(IDEA)" TITLE="$(TITLE)" SOURCE="$(SOURCE)" ./mac-app/scripts/use-now.zsh; fi
+
+check-in:
+	@if test -n "$$PROJECT"; then IDEA="$$IDEA" TITLE="$$TITLE" ./mac-app/scripts/check-in.zsh --project "$$PROJECT"; else IDEA="$$IDEA" TITLE="$$TITLE" ./mac-app/scripts/check-in.zsh; fi
 
 first-minute:
 	./mac-app/scripts/first-minute.zsh

@@ -228,6 +228,7 @@ echo "### 2. If That Does Not Fit"
 echo
 echo '```zsh'
 echo "make ask-commit QUERY=\"What should I do next for ${PROJECT}, what am I missing, and what cheap test would create value?\" PROJECT=\"$PROJECT\""
+echo "make check-in PROJECT=\"$PROJECT\""
 echo "make start IDEA=\"The thing I keep circling is ...\" PROJECT=\"$PROJECT\""
 echo '```'
 echo
@@ -298,6 +299,7 @@ echo
 echo "| If you want to... | Run |"
 echo "| --- | --- |"
 echo "| Pressure-test the clean queue | \`make ask-commit QUERY=\"What should I do next, what should I ignore, and what cheap test would create value?\" PROJECT=\"$PROJECT\"\` |"
+echo "| Run a guided clean-queue check-in | \`make check-in PROJECT=\"$PROJECT\"\` |"
 echo "| Turn shipped work into memory | \`make recent-work INDEX=1 PROJECT=\"$PROJECT\"\` |"
 echo "| Capture a rough thought | \`make start IDEA=\"The thing I keep circling is ...\" PROJECT=\"$PROJECT\"\` |"
 echo "| Delegate the next bounded task | \`make agent-prompt\` |"

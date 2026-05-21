@@ -55,6 +55,7 @@ echo "6. Native first-use UX reduces navigation overload and puts Oracle challen
 echo "7. Prompt safety and focus-stealing guards are enforced by non-launching checks."
 echo "8. Any remaining live-app visual review gap is explicit."
 echo "9. A confused operator can get one plain current-state answer without reading multiple diagnostics."
+echo "10. A clean queue gives a guided check-in instead of a placeholder capture command."
 echo
 echo "## Prompt-To-Artifact Checklist"
 echo
@@ -62,6 +63,7 @@ echo "| Status | Requirement | Evidence |"
 echo "| --- | --- | --- |"
 evidence "One-command operator path" "grep -q 'No-Choice Path' '$ROOT/mac-app/scripts/use-now.zsh' && grep -q '## One Move' '$ROOT/mac-app/scripts/use-now.zsh' && grep -q '^use-now:' '$ROOT/Makefile' && grep -q '^start: use-now' '$ROOT/Makefile' && grep -q '^easy: use-now' '$ROOT/Makefile'" "make start, make easy, and make use-now print a no-choice path and selected One Move."
 evidence "Clean queue avoids churn" "grep -q 'make answer' '$ROOT/mac-app/scripts/use-now.zsh' && grep -q '^answer:' '$ROOT/Makefile' && grep -q 'Do not manufacture busywork' '$ROOT/mac-app/scripts/work-block.zsh'" "Use Now defaults to a short direct answer and Work Block suppresses fake work instead of creating repeated clean-queue notes."
+evidence "Guided clean-queue check-in" "grep -q 'Terminal Brain Check In' '$ROOT/mac-app/scripts/check-in.zsh' && grep -q '^check-in:' '$ROOT/Makefile' && grep -q 'terminal_brain_check_in_markdown' '$ROOT/mcp-server/expected-tools.json' && grep -q 'make check-in' '$ROOT/mac-app/scripts/oracle.zsh'" "No-signal answers route to make check-in, which gives prompts and optional memory capture without opening the app."
 evidence "Closed-app memory writeback" "grep -q 'local-fallback' '$ROOT/mac-app/scripts/idea.zsh' && grep -q 'local-fallback' '$ROOT/mac-app/scripts/outcome.zsh' && grep -q 'write_local_commit' '$ROOT/mac-app/scripts/oracle.zsh'" "Idea, Outcome, and Oracle commit paths write without app launch."
 evidence "Agent handoff is actionable" "grep -q 'next non-recursive move' '$ROOT/mac-app/scripts/agent-prompt.zsh' && grep -q 'analysis alone is not enough' '$ROOT/mac-app/scripts/agent-prompt.zsh'" "make agent-prompt avoids recursion and demands a concrete artifact."
 evidence "MCP mirrors value surfaces" "node '$ROOT/mcp-server/check-tools.mjs' && grep -q 'terminal_brain_use_now_markdown' '$ROOT/mcp-server/expected-tools.json' && grep -q 'terminal_brain_agent_prompt_markdown' '$ROOT/mcp-server/expected-tools.json'" "MCP contract includes Use Now and Agent Prompt."
