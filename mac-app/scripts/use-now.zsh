@@ -141,34 +141,7 @@ one_move_from_work_block() {
 fallback_one_move() {
   local project="$1"
 
-  if clean_queue_recently_covered; then
-    echo "make agent-prompt"
-    return
-  fi
-
-  echo "make ask-commit QUERY=\"My review queue is clean. What should I do next, what should I ignore, and what cheap test would create value?\" PROJECT=\"$project\""
-}
-
-clean_queue_recently_covered() {
-  WORKSPACE="$WORKSPACE" ruby -rtime -e '
-    inbox = File.join(ENV.fetch("WORKSPACE"), "Oracle Inbox")
-    exit 1 unless Dir.exist?(inbox)
-    cutoff = Time.now.utc - (36 * 60 * 60)
-    Dir.glob(File.join(inbox, "*.md")).each do |path|
-      text = File.read(path)
-      next unless text.match?(/^reviewStatus:\s*accepted\s*$/i)
-      next unless text.include?("My review queue is clean")
-      created = text[/^created:\s*(.+)$/i, 1].to_s.strip
-      begin
-        exit 0 if !created.empty? && Time.parse(created).utc >= cutoff
-      rescue ArgumentError
-        next
-      end
-    rescue
-      next
-    end
-    exit 1
-  ' >/dev/null 2>&1
+  echo "make ask QUERY=\"What should I do next for ${project}, what am I missing, and what cheap test would create value?\""
 }
 
 why_this_move() {
@@ -178,6 +151,8 @@ why_this_move() {
     echo "This moves the highest-signal inbox item out of limbo so it becomes accepted, delegated, or intentionally dismissed."
   elif grep -q 'make recent-work INDEX=' <<<"$command"; then
     echo "This reopens the freshest shipped work so useful context can become durable memory instead of disappearing into commit history."
+  elif grep -q 'make ask ' <<<"$command"; then
+    echo "The queue is clean, so the useful move is to get one direct decision read instead of scanning more surfaces."
   elif grep -q 'make ask-commit' <<<"$command"; then
     echo "The queue is clean, so the useful move is to force one decision read into memory instead of scanning more surfaces."
   elif grep -q 'make agent-prompt' <<<"$command"; then

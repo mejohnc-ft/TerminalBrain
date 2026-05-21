@@ -90,7 +90,7 @@ if grep -q 'make recent-work' <<<"$use_now_first_command"; then
   echo "$use_now_output" >&2
   exit 1
 fi
-require_contains "$use_now_first_command" 'make (ask-commit|agent-prompt|review-status|idea)' "use now first command operator-facing"
+require_contains "$use_now_first_command" 'make (ask|ask-commit|agent-prompt|review-status|idea)' "use now first command operator-facing"
 require_not_contains_literal "$use_now_output" '### Pull Forward' "use now empty Pull Forward wrapper"
 require_not_contains_literal "$use_now_output" '#### Bubble Up' "use now empty nested Bubble Up wrapper"
 require_not_contains_literal "$use_now_output" 'Reviewable items:' "use now dashboard metrics"
