@@ -608,6 +608,8 @@ struct ContentView: View {
                 output: model.useNowCopyOutput
             )
 
+            useNowNoChoicePanel(focus: focus, topReview: topReview, title: useNowTitle, project: project)
+
             useNowOraclePanel(focus: focus, topReview: topReview)
 
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 240), spacing: 12)], spacing: 12) {
@@ -710,6 +712,103 @@ struct ContentView: View {
             focusIdeaCapturePanel(focus)
             startHereOutcomePanel(project: project)
         }
+    }
+
+    private func useNowNoChoicePanel(focus: FocusItem, topReview: OracleCommit?, title: String, project: String) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: "point.topleft.down.curvedto.point.bottomright.up")
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundStyle(settings.theme.accent)
+                    .frame(width: 44, height: 44)
+                    .background(settings.theme.accent.opacity(0.14), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("No-Choice Path")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(settings.theme.accent)
+                        .textCase(.uppercase)
+                    Text("Do one thing, then save the result.")
+                        .font(.title3.weight(.bold))
+                        .foregroundStyle(.white)
+                    Text("If you are lost, start here. The goal is one decision, note, artifact, or next action, not another pass through the dashboard.")
+                        .font(.callout)
+                        .foregroundStyle(.white.opacity(0.58))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer()
+            }
+
+            HStack(alignment: .top, spacing: 10) {
+                Button {
+                    if let topReview {
+                        selectedCommitID = topReview.id
+                        reviewProjectFilter = topReview.project.isEmpty ? "all" : topReview.project
+                        selectedSection = "review"
+                    } else {
+                        applyFocusAction(focus)
+                    }
+                } label: {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Label("Do This Now", systemImage: "play.circle.fill")
+                            .font(.callout.weight(.bold))
+                        Text(title)
+                            .font(.headline.weight(.semibold))
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.82)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .tint(settings.theme.accent)
+                .help("Act on the selected signal before browsing deeper surfaces.")
+                .accessibilityHint("Starts the selected move.")
+
+                Button {
+                    model.oracleQuestion = "What should I do next for \(project), what am I missing, and what cheap test would create value?"
+                    selectedSection = "oracle"
+                } label: {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Label("If Not", systemImage: "questionmark.circle.fill")
+                            .font(.callout.weight(.bold))
+                        Text("Ask what fits better.")
+                            .font(.headline.weight(.semibold))
+                            .lineLimit(2)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+                .tint(settings.theme.accent)
+                .help("Ask the Oracle for a better next move and cheap test.")
+                .accessibilityHint("Moves to Oracle with a plain next-action question.")
+
+                Button {
+                    model.outcomeTitle = title
+                    model.outcomeText = "What changed, why it mattered, and what evidence exists."
+                    model.outcomeNextAction = "The next concrete action."
+                    selectedSection = "start-here"
+                } label: {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Label("Save Result", systemImage: "square.and.arrow.down.fill")
+                            .font(.callout.weight(.bold))
+                        Text("Write it back.")
+                            .font(.headline.weight(.semibold))
+                            .lineLimit(2)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+                .tint(.green)
+                .help("Commit what changed, evidence, and next action into durable memory.")
+                .accessibilityHint("Opens the outcome writeback box.")
+            }
+        }
+        .padding(16)
+        .darkPanel()
     }
 
     private func useNowOraclePanel(focus: FocusItem, topReview: OracleCommit?) -> some View {

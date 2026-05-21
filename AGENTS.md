@@ -40,7 +40,7 @@ When Terminal Brain may not be running, use `make start`, `make easy`, `make wor
 
 When Terminal Brain is already running and the user asks for useful work, start from the handoff instead of re-discovering the system:
 
-In the native app, assume the operator sees the simple sidebar first: `Use Now`, `Work Block`, `Oracle`, `Review`, `Ideas`, and `Start Work`. The useful first-screen loop is the `Use Now` inline `Ask, Decide, Remember` panel, not the deeper metrics surfaces.
+In the native app, assume the operator sees the simple sidebar first: `Use Now`, `Work Block`, `Oracle`, `Review`, `Ideas`, and `Start Work`. The useful first-screen loop starts with the `Use Now` no-choice panel (`Do This Now`, `If Not`, `Save Result`), then the inline `Ask, Decide, Remember` panel, not the deeper metrics surfaces.
 
 ```zsh
 ./mac-app/scripts/handoff.zsh --output /tmp/terminal-brain-handoff.md
