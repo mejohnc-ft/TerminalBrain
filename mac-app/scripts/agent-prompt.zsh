@@ -35,6 +35,27 @@ if [[ -n "$health" ]]; then
   exit 0
 fi
 
+use_now_output="$("$ROOT/mac-app/scripts/use-now.zsh" --limit 1)"
+one_move="$(
+  printf '%s\n' "$use_now_output" | awk '
+    /^## One Move$/ { in_section = 1; next }
+    in_section && /^## / { exit }
+    in_section { print }
+  '
+)"
+why_move="$(
+  printf '%s\n' "$use_now_output" | awk '
+    /^## Why This Move$/ { in_section = 1; next }
+    in_section && /^## / { exit }
+    in_section { print }
+  '
+)"
+
+if grep -q 'make agent-prompt' <<<"$one_move"; then
+  one_move=$'```zsh\nmake work-block\n```'
+  why_move="Use Now selected delegation because the queue is clean and the clean-queue Oracle read is already accepted. For an agent, the next non-recursive move is to read the work block and produce one concrete artifact, patch, recommendation, or decision."
+fi
+
 cat <<EOF
 # Terminal Brain Agent Prompt
 
@@ -42,13 +63,22 @@ Terminal Brain is not currently reachable at $API.
 
 ## Task
 
-Make the next Terminal Brain work block useful without launching or foregrounding the app.
+Use the current Terminal Brain signal to produce one concrete artifact, patch, recommendation, or decision without launching or foregrounding the app.
+
+## Current One Move
+
+$one_move
+
+## Why This Move
+
+$why_move
 
 ## Starting Context
 
-Use the safe local reads first:
+Use these safe local reads if the One Move needs more context:
 
 \`\`\`zsh
+make use-now
 make oracle-brief
 make work-block
 make bubble-up
@@ -58,17 +88,18 @@ make processes
 
 ## Acceptance Criteria
 
-- Produce one concrete artifact, patch, recommendation, or decision.
+- Do the smallest useful task that advances the Current One Move.
+- Produce one concrete artifact, patch, recommendation, or decision; analysis alone is not enough.
 - State what changed, why it matters, and the next action.
 - If you need the app-backed API, stop and say that Terminal Brain must be opened manually by the operator.
 - Do not launch, relaunch, quit, or foreground Terminal Brain.
 
 ## Close Loop
 
-When the app is manually open, commit the result with:
+Commit the result through the CLI. It will use the app API if reachable or a closed-app local fallback if not:
 
 \`\`\`zsh
-make outcome TITLE="..." OUTCOME="..." PROJECT="Terminal Brain" NEXT="..."
+make outcome TITLE="..." OUTCOME="..." PROJECT="Terminal Brain" NEXT="..." EVIDENCE="..."
 \`\`\`
 
 ## Guardrails

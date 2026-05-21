@@ -219,9 +219,15 @@ require_contains "$doctor_output" 'doctor did not launch or foreground' "doctor 
 
 agent_prompt_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/agent-prompt.zsh")"
 require_contains "$agent_prompt_output" '# Terminal Brain Agent Prompt' "agent prompt title"
+require_contains "$agent_prompt_output" 'Current One Move' "agent prompt current one move"
+require_contains "$agent_prompt_output" 'analysis alone is not enough' "agent prompt concrete artifact requirement"
+require_contains "$agent_prompt_output" 'closed-app local fallback' "agent prompt closed-app outcome fallback"
+require_contains "$agent_prompt_output" 'make work-block' "agent prompt non-recursive current move"
 require_contains "$agent_prompt_output" 'make oracle-brief' "agent prompt fallback command"
 require_contains "$agent_prompt_output" 'make work-block' "agent prompt Work Block command"
 require_contains "$agent_prompt_output" 'make bubble-up' "agent prompt Bubble Up command"
+require_not_contains_literal "$agent_prompt_output" 'When the app is manually open' "agent prompt app-open-only close loop"
+require_not_contains_literal "$agent_prompt_output" 'make agent-prompt' "agent prompt recursive current move"
 require_contains "$agent_prompt_output" 'did not launch, foreground, quit, kill, or control' "agent prompt guardrail"
 
 oracle_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/oracle-brief.zsh")"
@@ -669,6 +675,7 @@ rm -rf "$mcp_review_workspace"
 
 mcp_agent_prompt_output="$(call_mcp_tool terminal_brain_agent_prompt_markdown)"
 require_contains "$mcp_agent_prompt_output" '# Terminal Brain Agent Prompt' "MCP agent prompt title"
+require_contains "$mcp_agent_prompt_output" 'Current One Move' "MCP agent prompt current one move"
 require_contains "$mcp_agent_prompt_output" 'make oracle-brief' "MCP agent prompt closed fallback"
 require_contains "$mcp_agent_prompt_output" 'make work-block' "MCP agent prompt Work Block command"
 require_contains "$mcp_agent_prompt_output" 'make bubble-up' "MCP agent prompt Bubble Up command"
