@@ -285,6 +285,21 @@ test -f "$memory_workspace/Oracle Inbox/"*.md || {
 }
 rm -rf "$memory_workspace"
 
+memory_utilities_workspace="$(mktemp -d)"
+refresh_memory_output="$(TERMINAL_BRAIN_WORKSPACE="$memory_utilities_workspace" "$ROOT/mac-app/scripts/refresh-memory.zsh" --limit 2 --since-hours 1)"
+require_contains "$refresh_memory_output" '# Terminal Brain Refresh Memory' "refresh memory title"
+require_contains "$refresh_memory_output" 'derived summaries only' "refresh memory raw transcript guardrail"
+require_contains "$refresh_memory_output" 'agent-work-memory.json' "refresh memory writes work memory"
+meeting_records_output="$(TERMINAL_BRAIN_WORKSPACE="$memory_utilities_workspace" "$ROOT/mac-app/scripts/meeting-records.zsh")"
+require_contains "$meeting_records_output" '# Terminal Brain Meeting Records' "meeting records title"
+require_contains "$meeting_records_output" 'does not start recording|does not record audio' "meeting records no recording guardrail"
+test -f "$memory_utilities_workspace/.brain/meeting-records.json" || {
+  echo "Entrypoint check failed: meeting records did not write registry" >&2
+  echo "$meeting_records_output" >&2
+  exit 1
+}
+rm -rf "$memory_utilities_workspace"
+
 recent_workspace="$(mktemp -d)"
 mkdir -p "$recent_workspace/Oracle Inbox"
 cat >"$recent_workspace/Oracle Inbox/generic-accepted-note.md" <<'MARKDOWN'
@@ -822,6 +837,15 @@ test -f "$mcp_memory_workspace/Oracle Inbox/"*.md || {
   exit 1
 }
 rm -rf "$mcp_memory_workspace"
+
+mcp_memory_utilities_workspace="$(mktemp -d)"
+mcp_refresh_memory_output="$(TERMINAL_BRAIN_WORKSPACE="$mcp_memory_utilities_workspace" printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_refresh_memory_markdown","arguments":{"limit":2,"sinceHours":1}}}' | TERMINAL_BRAIN_WORKSPACE="$mcp_memory_utilities_workspace" node "$ROOT/mcp-server/server.mjs")"
+require_contains "$mcp_refresh_memory_output" '# Terminal Brain Refresh Memory' "MCP refresh memory title"
+require_contains "$mcp_refresh_memory_output" 'derived summaries only' "MCP refresh memory guardrail"
+mcp_meeting_records_output="$(TERMINAL_BRAIN_WORKSPACE="$mcp_memory_utilities_workspace" printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_meeting_records_markdown","arguments":{}}}' | TERMINAL_BRAIN_WORKSPACE="$mcp_memory_utilities_workspace" node "$ROOT/mcp-server/server.mjs")"
+require_contains "$mcp_meeting_records_output" '# Terminal Brain Meeting Records' "MCP meeting records title"
+require_contains "$mcp_meeting_records_output" 'does not start recording|does not record audio' "MCP meeting records no recording guardrail"
+rm -rf "$mcp_memory_utilities_workspace"
 
 mcp_recent_work_workspace="$(mktemp -d)"
 mcp_recent_work_dry_output="$(TERMINAL_BRAIN_WORKSPACE="$mcp_recent_work_workspace" printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_recent_work_promote","arguments":{"index":1,"dryRun":true}}}' | TERMINAL_BRAIN_WORKSPACE="$mcp_recent_work_workspace" node "$ROOT/mcp-server/server.mjs")"

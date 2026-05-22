@@ -83,6 +83,7 @@ stats_json="$WORKSPACE/.brain/agent-history-stats.json"
 codex_root="$HOME/.codex"
 claude_root="$HOME/.claude"
 claude_app="$HOME/Library/Application Support/Claude"
+meeting_records_dir="${TERMINAL_BRAIN_MEETING_RECORDS_DIR:-$WORKSPACE/Meeting Records}"
 
 obsidian_notes="$(count_files "$WORKSPACE" "*.md")"
 oracle_items="$(count_files "$WORKSPACE/Oracle Inbox" "*.md")"
@@ -101,6 +102,7 @@ claude_history_lines="$(line_count "$claude_root/history.jsonl")"
 claude_project_files="$(count_files "$claude_root/projects" "*.jsonl")"
 claude_session_files="$(count_files "$claude_root/sessions" "*.jsonl")"
 claude_todos="$(count_files "$claude_root/todos" "*")"
+meeting_records="$(count_files "$meeting_records_dir" "*")"
 
 cat <<EOF
 # Terminal Brain Source Inventory
@@ -114,6 +116,7 @@ Checked: $(date '+%Y-%m-%d %H:%M:%S %Z')
 - Codex local history: $(exists_label "$codex_root"), $codex_archived archived sessions, $codex_session_files active session files, $codex_history_lines history lines, $codex_session_index_lines session-index lines.
 - Claude local history: $(exists_label "$claude_root"), $claude_history_lines history lines, $claude_project_files project transcript files, $claude_session_files session files.
 - Claude desktop support store: $(exists_label "$claude_app"), $(size_of "$claude_app") on disk.
+- Meeting records: $(exists_label "$meeting_records_dir"), $meeting_records local transcript/recording file(s).
 
 ## Source Map
 
@@ -125,6 +128,7 @@ Checked: $(date '+%Y-%m-%d %H:%M:%S %Z')
 | Codex histories | \`$codex_root\` | $codex_archived archived, $codex_session_files active, $codex_ambient ambient suggestion files | Derive outcomes and decisions only |
 | Claude histories | \`$claude_root\` | $claude_project_files project files, $claude_session_files sessions, $claude_todos todo files | Derive outcomes and decisions only |
 | Claude app support | \`$claude_app\` | $(size_of "$claude_app") | Inventory only unless explicitly imported |
+| Meeting records | \`$meeting_records_dir\` | $meeting_records local file(s) | Manual/export-first; no microphone or app control |
 
 ## Guarded Import Plan
 
@@ -137,6 +141,7 @@ Checked: $(date '+%Y-%m-%d %H:%M:%S %Z')
 
 \`\`\`zsh
 make sources
+make meeting-records
 make agent-prompt
 make outcome TITLE="History import decision" OUTCOME="..." PROJECT="Terminal Brain" NEXT="..."
 \`\`\`

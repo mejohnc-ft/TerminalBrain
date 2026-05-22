@@ -87,7 +87,7 @@ ROOT="$ROOT" WORKSPACE="$WORKSPACE" LIMIT="$LIMIT" ruby -rjson -rtime -e '
       title: "Refresh stale agent-memory synthesis",
       why: "Your Codex/Claude source histories are newer than the derived memory layer, so cross-project recommendations may miss recent work.",
       evidence: freshness["staleReason"].to_s.empty? ? "Derived memory stale." : freshness["staleReason"],
-      command: "make freshness && make memory",
+      command: "make refresh-memory\nmake freshness\nmake memory",
       success: "You know exactly which source is stale, which continuity lead matters, and whether to promote it into Oracle Inbox.",
       dismiss: "Dismiss only if you intentionally do not want recent agent histories influencing today."
     )

@@ -392,6 +392,33 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_refresh_memory_markdown",
+    description: "Refresh derived Codex/Claude memory summaries from recent local history without storing raw transcript bodies.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        limit: {
+          type: "number",
+          description: "Maximum recent history files to scan. Defaults to 200."
+        },
+        sinceHours: {
+          type: "number",
+          description: "Lookback window in hours. Defaults to 168."
+        }
+      },
+      additionalProperties: false
+    }
+  },
+  {
+    name: "terminal_brain_meeting_records_markdown",
+    description: "Inventory local meeting transcript/recording files in the managed Meeting Records folder without recording audio or launching apps.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_memory_brief_markdown",
     description: "Get a non-launching brief from derived Codex/Claude work memory with continuity leads and commands to promote useful follow-ups.",
     inputSchema: {
@@ -1806,6 +1833,49 @@ function dailyBriefMarkdown() {
   ].join("\n");
 }
 
+function refreshMemoryMarkdown(args = {}) {
+  const commandArgs = [join(ROOT, "mac-app", "scripts", "refresh-memory.zsh")];
+  if (Number.isFinite(args.limit)) {
+    commandArgs.push("--limit", String(Math.max(1, Math.floor(args.limit))));
+  }
+  if (Number.isFinite(args.sinceHours)) {
+    commandArgs.push("--since-hours", String(Math.max(1, Math.floor(args.sinceHours))));
+  }
+  const result = runCommand("zsh", commandArgs, { timeout: 120000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Refresh Memory",
+    "",
+    "Refresh Memory failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
+function meetingRecordsMarkdown() {
+  const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "meeting-records.zsh")], { timeout: 30000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Meeting Records",
+    "",
+    "Meeting Records inventory failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 function memoryBriefMarkdown(args = {}) {
   const commandArgs = [join(ROOT, "mac-app", "scripts", "memory.zsh")];
   if (Number.isFinite(args.limit)) {
@@ -2305,6 +2375,10 @@ async function callTool(name, args = {}) {
       return actionCardsMarkdown(args);
     case "terminal_brain_daily_brief_markdown":
       return dailyBriefMarkdown();
+    case "terminal_brain_refresh_memory_markdown":
+      return refreshMemoryMarkdown(args);
+    case "terminal_brain_meeting_records_markdown":
+      return meetingRecordsMarkdown();
     case "terminal_brain_memory_brief_markdown":
       return memoryBriefMarkdown(args);
     case "terminal_brain_memory_promote":

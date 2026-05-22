@@ -1,4 +1,4 @@
-.PHONY: help build install verify live start easy answer use-now check-in first-minute demo playbook value-audit completion-audit design-audit visual-review-plan freshness action-cards daily-brief now what-now sources memory memory-promote recent-work status processes cleanup-plan support-bundle next value prove-value oracle-brief bubble-up work-block doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live start easy answer use-now check-in first-minute demo playbook value-audit completion-audit design-audit visual-review-plan freshness action-cards daily-brief refresh-memory meeting-records now what-now sources memory memory-promote recent-work status processes cleanup-plan support-bundle next value prove-value oracle-brief bubble-up work-block doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
@@ -19,6 +19,8 @@ help:
 	@echo "  make freshness     Non-launching source freshness registry and stale-memory warning"
 	@echo "  make action-cards  Non-launching ranked actions from freshness, memory, review, repo state"
 	@echo "  make daily-brief   Non-launching proactive brief: freshness, actions, Oracle answer"
+	@echo "  make refresh-memory Non-launching refresh of derived Codex/Claude memory summaries"
+	@echo "  make meeting-records Non-launching local meeting transcript/recording inventory"
 	@echo "  make now           Non-launching one-page orientation: value, next action, process truth, readiness"
 	@echo "  make what-now      Non-launching plain answer: what is running, what changed, blocker, next value command"
 	@echo "  make sources       Non-launching source inventory for Obsidian, Codex, Claude, Drafts, and agent memory"
@@ -117,6 +119,12 @@ action-cards:
 
 daily-brief:
 	./mac-app/scripts/daily-brief.zsh
+
+refresh-memory:
+	@if test -n "$$LIMIT" || test -n "$$SINCE_HOURS"; then LIMIT="$${LIMIT:-200}" SINCE_HOURS="$${SINCE_HOURS:-168}" ./mac-app/scripts/refresh-memory.zsh --limit "$${LIMIT:-200}" --since-hours "$${SINCE_HOURS:-168}"; else ./mac-app/scripts/refresh-memory.zsh; fi
+
+meeting-records:
+	./mac-app/scripts/meeting-records.zsh
 
 now:
 	./mac-app/scripts/now.zsh

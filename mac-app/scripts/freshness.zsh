@@ -133,6 +133,7 @@ WORKSPACE="$WORKSPACE" MODE="$MODE" ruby -rjson -rfind -rfileutils -rtime -e '
   codex_root = File.join(Dir.home, ".codex")
   claude_root = File.join(Dir.home, ".claude")
   claude_app = File.join(Dir.home, "Library", "Application Support", "Claude")
+  meeting_dir = ENV["TERMINAL_BRAIN_MEETING_RECORDS_DIR"].to_s.empty? ? File.join(workspace, "Meeting Records") : ENV["TERMINAL_BRAIN_MEETING_RECORDS_DIR"]
   codex_latest = [
     latest_mtime(File.join(codex_root, "sessions"), /\.jsonl\z/),
     latest_mtime(File.join(codex_root, "archived_sessions"), /\.jsonl\z/),
@@ -207,6 +208,14 @@ WORKSPACE="$WORKSPACE" MODE="$MODE" ruby -rjson -rfind -rfileutils -rtime -e '
     latest: File.exist?(claude_app) ? File.mtime(claude_app) : nil,
     status: File.exist?(claude_app) ? "inventory-only" : "missing",
     note: "inventory only unless explicitly imported"
+  )
+  sources << source(
+    name: "Meeting records",
+    path: meeting_dir,
+    count: count_files(meeting_dir),
+    latest: latest_mtime(meeting_dir),
+    status: File.directory?(meeting_dir) ? "available" : "missing",
+    note: "manual/export-first local transcripts and recordings"
   )
   sources << source(
     name: "Apple Notes",
