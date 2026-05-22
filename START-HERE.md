@@ -16,9 +16,11 @@ On `Use Now`, use the inline `Ask, Decide, Remember` panel before browsing: ask 
    make answer
    make check-in
    make use-now
+   make daily-brief
    ```
 
    `make answer` gives the shortest direct read. When nothing is obviously bubbling up, it routes to `make check-in`, which asks for one real sentence and can capture it with `make check-in IDEA="..."`. Captured check-ins print the exact ask and outcome commands for that sentence, so a clean queue still becomes a concrete loop. `make start`, `make easy`, and `make use-now` start with a no-choice path: one executable move, a fallback ask/capture/check-in path if that move does not fit, and the outcome writeback command before the detailed context.
+   `make daily-brief` is the proactive start-of-day path: it checks source freshness, ranks action cards, asks the Oracle, and gives the close-loop command.
 
    The native signal loop is: Radar surfaces a signal, Blindspots challenges it, and Ideas captures the follow-up if the counter-signal should become durable work. In the app this is exposed as `Check Blindspots`, `Capture as Idea`, and the Ideas capture lane. From the terminal, use:
 

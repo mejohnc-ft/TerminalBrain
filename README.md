@@ -28,6 +28,9 @@ make value-audit
 make completion-audit
 make design-audit
 make visual-review-plan
+make freshness
+make action-cards
+make daily-brief
 make prove-value
 make value
 make bubble-up
@@ -35,7 +38,7 @@ make doctor
 make processes
 ```
 
-These commands do not launch or foreground Terminal Brain. `make now` is the Use Now-first orientation for one move, the reason for that move, process truth, and readiness. `make what-now` and MCP `terminal_brain_what_now_markdown` are the plain answers for "what is happening now": app focus, repo/CI state, runtime noise, what the counts mean, current blocker, and next value command. `make processes` and MCP `terminal_brain_process_map_markdown` are the detailed answers for "what is still going" across Terminal Brain, Codex, MCP, kernel, Drafts, launchctl, and the localhost API.
+These commands do not launch or foreground Terminal Brain. `make freshness`, `make action-cards`, and `make daily-brief` are the proactive path: they write a source freshness registry, rank actions from your actual memory/review/repo state, and produce a start-of-day brief. `make now` is the Use Now-first orientation for one move, the reason for that move, process truth, and readiness. `make what-now` and MCP `terminal_brain_what_now_markdown` are the plain answers for "what is happening now": app focus, repo/CI state, runtime noise, what the counts mean, current blocker, and next value command. `make processes` and MCP `terminal_brain_process_map_markdown` are the detailed answers for "what is still going" across Terminal Brain, Codex, MCP, kernel, Drafts, launchctl, and the localhost API.
 
 Common commands:
 
@@ -99,6 +102,7 @@ Plain `make` prints help. `make verify`, `make start`, `make easy`, `make answer
 - Local status, source, permission, briefing, and sync checks.
 - Use Now: the default native app surface, `make start`, `make easy`, `make start IDEA="..."`, `make use-now`, `/use-now/markdown`, the Copy Use Now menu/menu-bar/Shortcut action, and `terminal_brain_use_now_markdown` give a single first-use path that starts with a no-choice command, can capture one rough thought, shows compact pull-forward context, asks the Oracle, delegates a bounded task, and writes the outcome back.
 - Check In: `make check-in`, `make check-in IDEA="..."`, the native Use Now check-in tile, and `terminal_brain_check_in_markdown` turn a clean queue into one real sentence, optional reviewable memory, and exact ask/outcome commands against that sentence.
+- Proactive Briefing: `make freshness`, `make action-cards`, `make daily-brief`, `terminal_brain_freshness_markdown`, `terminal_brain_action_cards_markdown`, and `terminal_brain_daily_brief_markdown` turn source staleness, agent histories, Oracle review state, repo state, and UX blockers into ranked next actions.
 - Simple operator navigation: the native sidebar defaults to the core path, with `Show All Surfaces` and Settings -> Simple operator navigation for advanced surfaces. This keeps the first screen from feeling like a metrics wall.
 - Native no-choice path: the native `Use Now` screen starts with `Do This Now`, `If Not`, and `Save Result` controls so the operator can act, challenge the move, or write back an outcome before browsing deeper views.
 - Inline Oracle loop: the native `Use Now` screen has `Ask, Decide, Remember` controls for missing-signal checks, cheap tests, agent delegation, and commit-read writeback before the operator has to browse deeper views.

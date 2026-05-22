@@ -67,7 +67,23 @@ require_contains "$start_here_output" 'Oracle Signal' "start here Oracle signal"
 require_contains "$start_here_output" 'Done Criteria' "start here done criteria"
 require_contains "$start_here_output" 'did not launch or foreground' "start here guardrail"
 
-use_now_output="$(TERMINAL_BRAIN_API="$CLOSED_API" "$ROOT/mac-app/scripts/use-now.zsh" --project "Terminal Brain" --limit 1)"
+use_now_clean_workspace="$(mktemp -d)"
+mkdir -p "$use_now_clean_workspace/Oracle Inbox"
+latest_head_short="$(git -C "$ROOT" rev-parse --short HEAD)"
+latest_head_subject="$(git -C "$ROOT" log -1 --pretty=%s)"
+cat >"$use_now_clean_workspace/Oracle Inbox/latest-accepted.md" <<MARKDOWN
+---
+type: outcome
+project: Terminal Brain
+created: 2026-05-21T00:00:00Z
+reviewStatus: accepted
+---
+
+# Outcome - Latest work covered
+
+Commit ${latest_head_short} ${latest_head_subject} is already covered for the clean Use Now regression.
+MARKDOWN
+use_now_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$use_now_clean_workspace" "$ROOT/mac-app/scripts/use-now.zsh" --project "Terminal Brain" --limit 1)"
 require_contains "$use_now_output" '# Terminal Brain Use Now' "use now title"
 require_contains "$use_now_output" 'No-Choice Path' "use now no-choice path"
 require_contains "$use_now_output" 'Do This Now' "use now immediate command"
@@ -104,6 +120,7 @@ require_contains "$use_now_output" 'make idea IDEA=' "use now idea command"
 require_contains "$use_now_output" 'make agent-prompt' "use now agent prompt command"
 require_contains "$use_now_output" 'make outcome TITLE=' "use now outcome command"
 require_contains "$use_now_output" 'did not launch, foreground, screenshot, quit, kill, or control' "use now guardrail"
+rm -rf "$use_now_clean_workspace"
 use_now_workspace="$(mktemp -d)"
 use_now_capture_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$use_now_workspace" "$ROOT/mac-app/scripts/use-now.zsh" --project "Terminal Brain" --idea "Capture this first-use pressure point." --limit 1)"
 require_contains "$use_now_capture_output" 'Captured First Signal' "use now capture section"
@@ -181,6 +198,16 @@ sources_output="$(TERMINAL_BRAIN_WORKSPACE="$sources_workspace" "$ROOT/mac-app/s
 require_contains "$sources_output" '# Terminal Brain Source Inventory' "sources title"
 require_contains "$sources_output" 'Guarded Import Plan' "sources guarded import plan"
 require_contains "$sources_output" 'does not dump raw transcript content' "sources raw transcript guardrail"
+freshness_output="$(TERMINAL_BRAIN_WORKSPACE="$sources_workspace" "$ROOT/mac-app/scripts/freshness.zsh")"
+require_contains "$freshness_output" '# Terminal Brain Freshness' "freshness title"
+require_contains "$freshness_output" 'Registry written' "freshness registry write"
+require_contains "$freshness_output" 'Derived memory' "freshness derived memory status"
+require_contains "$freshness_output" 'did not launch, foreground, screenshot, quit, kill, or control' "freshness guardrail"
+test -f "$sources_workspace/.brain/source-freshness.json" || {
+  echo "Entrypoint check failed: freshness did not write registry" >&2
+  echo "$freshness_output" >&2
+  exit 1
+}
 rm -rf "$sources_workspace"
 
 memory_workspace="$(mktemp -d)"
@@ -235,6 +262,16 @@ require_contains "$memory_output" 'Continuity Leads' "memory continuity leads"
 require_contains "$memory_output" 'Prove memory promotion works' "memory synthetic lead"
 require_contains "$memory_output" 'Promote If Useful' "memory promotion command"
 require_contains "$memory_output" 'does not dump raw Codex or Claude transcript bodies' "memory raw transcript guardrail"
+action_cards_output="$(TERMINAL_BRAIN_WORKSPACE="$memory_workspace" "$ROOT/mac-app/scripts/action-cards.zsh" --limit 3)"
+require_contains "$action_cards_output" '# Terminal Brain Action Cards' "action cards title"
+require_contains "$action_cards_output" 'ranked card' "action cards ranked direct read"
+require_contains "$action_cards_output" 'Refresh stale agent-memory synthesis|Promote the freshest continuity lead' "action cards memory-derived card"
+require_contains "$action_cards_output" 'make outcome TITLE=' "action cards outcome close loop"
+daily_brief_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$memory_workspace" "$ROOT/mac-app/scripts/daily-brief.zsh")"
+require_contains "$daily_brief_output" '# Terminal Brain Daily Brief' "daily brief title"
+require_contains "$daily_brief_output" 'Freshness' "daily brief freshness section"
+require_contains "$daily_brief_output" 'Ranked Actions' "daily brief action section"
+require_contains "$daily_brief_output" 'Oracle Check' "daily brief Oracle section"
 memory_promote_dry_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$memory_workspace" "$ROOT/mac-app/scripts/memory-promote.zsh" --index 1 --dry-run)"
 require_contains "$memory_promote_dry_output" '"title":"Follow up: Prove memory promotion works"' "memory promote dry title"
 require_contains "$memory_promote_dry_output" 'derived summaries only' "memory promote dry guardrail"
@@ -702,7 +739,21 @@ mcp_visual_review_plan_output="$(call_mcp_tool terminal_brain_visual_review_plan
 require_contains "$mcp_visual_review_plan_output" '# Terminal Brain Visual Review Plan' "MCP visual review plan title"
 require_contains "$mcp_visual_review_plan_output" 'Simple operator navigation is the default' "MCP visual review simple nav"
 require_contains "$mcp_visual_review_plan_output" 'Ask, Decide, Remember panel' "MCP visual review inline Oracle"
+require_contains "$mcp_visual_review_plan_output" 'Evidence To Capture' "MCP visual review evidence checklist"
+require_contains "$mcp_visual_review_plan_output" 'Fail Fast Criteria' "MCP visual review failure criteria"
+require_contains "$mcp_visual_review_plan_output" 'Pass Evidence Template' "MCP visual review outcome template"
 require_contains "$mcp_visual_review_plan_output" 'did not launch, foreground, screenshot, quit, kill, or control' "MCP visual review guardrail"
+
+mcp_fresh_workspace="$(mktemp -d)"
+mcp_freshness_output="$(TERMINAL_BRAIN_WORKSPACE="$mcp_fresh_workspace" call_mcp_tool terminal_brain_freshness_markdown)"
+require_contains "$mcp_freshness_output" '# Terminal Brain Freshness' "MCP freshness title"
+require_contains "$mcp_freshness_output" 'Registry written' "MCP freshness registry"
+test -f "$mcp_fresh_workspace/.brain/source-freshness.json" || {
+  echo "Entrypoint check failed: MCP freshness did not write registry" >&2
+  echo "$mcp_freshness_output" >&2
+  exit 1
+}
+rm -rf "$mcp_fresh_workspace"
 
 mcp_memory_workspace="$(mktemp -d)"
 mkdir -p "$mcp_memory_workspace/.brain"
@@ -753,6 +804,12 @@ JSON
 mcp_memory_output="$(TERMINAL_BRAIN_WORKSPACE="$mcp_memory_workspace" printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_memory_brief_markdown","arguments":{"limit":1}}}' | TERMINAL_BRAIN_WORKSPACE="$mcp_memory_workspace" node "$ROOT/mcp-server/server.mjs")"
 require_contains "$mcp_memory_output" '# Terminal Brain Memory Brief' "MCP memory title"
 require_contains "$mcp_memory_output" 'Prove MCP memory promotion works' "MCP memory synthetic lead"
+mcp_action_cards_output="$(TERMINAL_BRAIN_WORKSPACE="$mcp_memory_workspace" printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_action_cards_markdown","arguments":{"limit":2}}}' | TERMINAL_BRAIN_WORKSPACE="$mcp_memory_workspace" node "$ROOT/mcp-server/server.mjs")"
+require_contains "$mcp_action_cards_output" '# Terminal Brain Action Cards' "MCP action cards title"
+require_contains "$mcp_action_cards_output" 'ranked card' "MCP action cards ranked read"
+mcp_daily_brief_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$mcp_memory_workspace" printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_daily_brief_markdown","arguments":{}}}' | TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$mcp_memory_workspace" node "$ROOT/mcp-server/server.mjs")"
+require_contains "$mcp_daily_brief_output" '# Terminal Brain Daily Brief' "MCP daily brief title"
+require_contains "$mcp_daily_brief_output" 'Ranked Actions' "MCP daily brief action section"
 mcp_memory_promote_dry_output="$(TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$mcp_memory_workspace" printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"terminal_brain_memory_promote","arguments":{"index":1,"dryRun":true}}}' | TERMINAL_BRAIN_API="$CLOSED_API" TERMINAL_BRAIN_WORKSPACE="$mcp_memory_workspace" node "$ROOT/mcp-server/server.mjs")"
 require_contains "$mcp_memory_promote_dry_output" 'Prove MCP memory promotion works' "MCP memory promote dry title"
 require_contains "$mcp_memory_promote_dry_output" 'derived summaries only' "MCP memory promote dry guardrail"

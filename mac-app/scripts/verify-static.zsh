@@ -55,6 +55,9 @@ for script in \
   "$ROOT/mac-app/scripts/value-audit.zsh" \
   "$ROOT/mac-app/scripts/completion-audit.zsh" \
   "$ROOT/mac-app/scripts/design-audit.zsh" \
+  "$ROOT/mac-app/scripts/freshness.zsh" \
+  "$ROOT/mac-app/scripts/action-cards.zsh" \
+  "$ROOT/mac-app/scripts/daily-brief.zsh" \
   "$ROOT/mac-app/scripts/prove-value.zsh" \
   "$ROOT/mac-app/scripts/oracle-brief.zsh" \
   "$ROOT/mac-app/scripts/agent-prompt.zsh" \

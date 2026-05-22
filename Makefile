@@ -1,4 +1,4 @@
-.PHONY: help build install verify live start easy answer use-now check-in first-minute demo playbook value-audit completion-audit design-audit visual-review-plan now what-now sources memory memory-promote recent-work status processes cleanup-plan support-bundle next value prove-value oracle-brief bubble-up work-block doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
+.PHONY: help build install verify live start easy answer use-now check-in first-minute demo playbook value-audit completion-audit design-audit visual-review-plan freshness action-cards daily-brief now what-now sources memory memory-promote recent-work status processes cleanup-plan support-bundle next value prove-value oracle-brief bubble-up work-block doctor audit ask ask-commit idea review review-status outcome snapshot snapshot-json snapshot-brief snapshot-brief-md snapshot-value snapshot-digest snapshot-oracle snapshot-today snapshot-blindspots snapshot-ideas snapshot-projects snapshot-deck snapshot-deck-md latest-pack agent-prompt start-here handoff snapshot-file mcp-check mcp-test
 
 help:
 	@echo "Terminal Brain commands:"
@@ -16,6 +16,9 @@ help:
 	@echo "  make completion-audit Non-launching completion audit for world-class readiness"
 	@echo "  make design-audit  Non-launching static audit of native macOS shell and glass design"
 	@echo "  make visual-review-plan Non-launching manual visual review checklist"
+	@echo "  make freshness     Non-launching source freshness registry and stale-memory warning"
+	@echo "  make action-cards  Non-launching ranked actions from freshness, memory, review, repo state"
+	@echo "  make daily-brief   Non-launching proactive brief: freshness, actions, Oracle answer"
 	@echo "  make now           Non-launching one-page orientation: value, next action, process truth, readiness"
 	@echo "  make what-now      Non-launching plain answer: what is running, what changed, blocker, next value command"
 	@echo "  make sources       Non-launching source inventory for Obsidian, Codex, Claude, Drafts, and agent memory"
@@ -105,6 +108,15 @@ design-audit:
 
 visual-review-plan:
 	./mac-app/scripts/visual-review-plan.zsh
+
+freshness:
+	./mac-app/scripts/freshness.zsh
+
+action-cards:
+	@if test -n "$$LIMIT"; then ./mac-app/scripts/action-cards.zsh --limit "$$LIMIT"; else ./mac-app/scripts/action-cards.zsh; fi
+
+daily-brief:
+	./mac-app/scripts/daily-brief.zsh
 
 now:
 	./mac-app/scripts/now.zsh

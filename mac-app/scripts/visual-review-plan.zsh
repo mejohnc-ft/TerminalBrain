@@ -43,7 +43,7 @@ echo
 echo "Check these first-viewport items:"
 echo
 echo "1. Titlebar and window controls feel integrated with the content, not glued on."
-echo "2. Sidebar reads as a true floating liquid-glass navigation surface."
+echo "2. Sidebar reads as a true floating liquid-glass navigation surface with real bleed-through, not an old solid panel behind a new one."
 echo "3. Simple operator navigation is the default: Use Now, Work Block, Oracle, Review, Ideas, and Start Work are visible before deeper surfaces."
 echo "4. Show All Surfaces is visible as the escape hatch, and Settings can restore Simple operator navigation."
 echo "5. Use Now opens first and shows one move, why that move matters, Ask, Capture, Delegate, and Close paths."
@@ -55,6 +55,34 @@ echo "10. Buttons have comfortable hit targets and do not feel sparse or ambiguo
 echo "11. Text does not overlap, truncate badly, or resize the layout at normal and narrow widths."
 echo "12. Theme, profile menu, settings, and reduce-glass controls are discoverable."
 echo "13. No permissions prompts or focus-stealing relaunch behavior appears during normal viewing."
+echo "14. The chrome feels like a native Mac app: closer to Music/Reeder/Finder density than a web dashboard."
+echo
+echo "## Evidence To Capture"
+echo
+echo "When you choose to open the app manually, capture enough evidence to make the review falsifiable:"
+echo
+echo "- Full window at normal desktop width."
+echo "- Narrow window showing sidebar/content behavior."
+echo "- Close crop of titlebar, traffic lights, toolbar/profile/menu region."
+echo "- Close crop of the left navigation surface showing glass, border, and backdrop treatment."
+echo "- Use Now first viewport with Do This Now, If Not, Save Result, and Ask, Decide, Remember visible."
+echo "- Settings/profile menu with theme and reduce-glass controls."
+echo "- One note naming any permission prompt, focus steal, doubled container, sparse hit target, or text overlap."
+echo
+echo "## Fail Fast Criteria"
+echo
+echo "- Fail if the app relaunches, steals focus repeatedly, or asks for permissions during normal viewing."
+echo "- Fail if the titlebar looks pasted above the content instead of unified with it."
+echo "- Fail if the sidebar has a doubled container or opaque old UI visible behind the liquid-glass surface."
+echo "- Fail if the first screen reads as metrics-first instead of one useful move plus ask/capture/delegate/close actions."
+echo "- Fail if primary buttons feel too small, too sparse, ambiguous, or hard to hit."
+echo "- Fail if a new operator cannot say what to do next within 30 seconds."
+echo
+echo "## Pass Evidence Template"
+echo
+echo '```zsh'
+echo 'make outcome TITLE="Visual review passed" OUTCOME="Titlebar, liquid-glass sidebar, Use Now first screen, hit targets, profile/settings, and no-focus behavior were manually reviewed. Evidence: ..." PROJECT="Terminal Brain" NEXT="The next concrete improvement or no-op."'
+echo '```'
 echo
 echo "## Acceptance"
 echo

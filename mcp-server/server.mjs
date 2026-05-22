@@ -360,6 +360,38 @@ const tools = [
     }
   },
   {
+    name: "terminal_brain_freshness_markdown",
+    description: "Update and read the non-launching source freshness registry: stale derived memory, newest histories, Oracle review state, and scan ages.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
+    name: "terminal_brain_action_cards_markdown",
+    description: "Get proactive ranked action cards from source freshness, Oracle review queue, derived memory, repo state, and UX certification blockers.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        limit: {
+          type: "number",
+          description: "Maximum cards to show. Defaults to 5."
+        }
+      },
+      additionalProperties: false
+    }
+  },
+  {
+    name: "terminal_brain_daily_brief_markdown",
+    description: "Get a proactive daily brief combining freshness, top action cards, the current Oracle answer, and close-loop commands.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
     name: "terminal_brain_memory_brief_markdown",
     description: "Get a non-launching brief from derived Codex/Claude work memory with continuity leads and commands to promote useful follow-ups.",
     inputSchema: {
@@ -1716,6 +1748,64 @@ function sourcesMarkdown() {
   ].join("\n");
 }
 
+function freshnessMarkdown() {
+  const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "freshness.zsh")], { timeout: 30000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Freshness",
+    "",
+    "Freshness check failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
+function actionCardsMarkdown(args = {}) {
+  const commandArgs = [join(ROOT, "mac-app", "scripts", "action-cards.zsh")];
+  if (Number.isFinite(args.limit)) {
+    commandArgs.push("--limit", String(Math.max(1, Math.floor(args.limit))));
+  }
+  const result = runCommand("zsh", commandArgs, { timeout: 30000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Action Cards",
+    "",
+    "Action Cards failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
+function dailyBriefMarkdown() {
+  const result = runCommand("zsh", [join(ROOT, "mac-app", "scripts", "daily-brief.zsh")], { timeout: 60000 });
+  if (result.ok) return result.text;
+  return [
+    "# Terminal Brain Daily Brief",
+    "",
+    "Daily Brief failed before completing.",
+    "",
+    "## Error",
+    "",
+    result.error || "Unknown error",
+    "",
+    "## Output",
+    "",
+    result.text || "(no output)"
+  ].join("\n");
+}
+
 function memoryBriefMarkdown(args = {}) {
   const commandArgs = [join(ROOT, "mac-app", "scripts", "memory.zsh")];
   if (Number.isFinite(args.limit)) {
@@ -2209,6 +2299,12 @@ async function callTool(name, args = {}) {
       }
     case "terminal_brain_sources_markdown":
       return sourcesMarkdown();
+    case "terminal_brain_freshness_markdown":
+      return freshnessMarkdown();
+    case "terminal_brain_action_cards_markdown":
+      return actionCardsMarkdown(args);
+    case "terminal_brain_daily_brief_markdown":
+      return dailyBriefMarkdown();
     case "terminal_brain_memory_brief_markdown":
       return memoryBriefMarkdown(args);
     case "terminal_brain_memory_promote":
